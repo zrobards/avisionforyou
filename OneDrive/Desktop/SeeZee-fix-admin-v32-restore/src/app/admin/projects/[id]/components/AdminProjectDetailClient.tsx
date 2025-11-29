@@ -312,7 +312,7 @@ export function AdminProjectDetailClient({ project }: AdminProjectDetailClientPr
                   <div key={thread.id} className="p-4 bg-gray-900 rounded-xl border border-gray-800">
                     <h4 className="font-semibold text-white mb-3">{thread.subject || "Message Thread"}</h4>
                     <div className="space-y-2">
-                      {thread.messages.map((msg) => (
+                      {thread.messages.map((msg: any) => (
                         <div key={msg.id} className="p-3 bg-gray-800 rounded-lg">
                           <p className="text-sm text-white">{msg.content}</p>
                           <p className="text-xs text-white/40 mt-1">
