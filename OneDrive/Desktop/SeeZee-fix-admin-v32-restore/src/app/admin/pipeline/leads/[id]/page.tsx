@@ -16,30 +16,53 @@ interface LeadDetailPageProps {
 }
 
 export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
-  const { id } = await params;
-  const lead = await prisma.lead.findUnique({
-    where: { id },
-    include: {
-      organization: true,
-      project: true,
-    },
-  });
+  try {
+    const { id } = await params;
+    
+    // Validate ID format
+    if (!id || typeof id !== 'string' || id.trim().length === 0) {
+      console.error("Invalid lead ID:", id);
+      notFound();
+    }
 
-  if (!lead) {
+    const lead = await prisma.lead.findUnique({
+      where: { id },
+      include: {
+        organization: true,
+        project: true,
+      },
+    });
+
+    if (!lead) {
+      console.log(`Lead not found with ID: ${id}`);
+      notFound();
+    }
+
+    // Try to find the associated questionnaire
+    let questionnaire = null;
+    if (lead.metadata && typeof lead.metadata === 'object' && 'qid' in lead.metadata) {
+      try {
+        const qid = (lead.metadata as any).qid;
+        if (qid && typeof qid === 'string') {
+          questionnaire = await prisma.questionnaire.findUnique({
+            where: { id: qid },
+          });
+        }
+      } catch (error) {
+        // If questionnaire lookup fails, just continue without it
+        console.error("Error fetching questionnaire:", error);
+      }
+    }
+
+    return (
+      <div className="space-y-6">
+        <LeadDetailClient lead={lead} questionnaire={questionnaire} />
+      </div>
+    );
+  } catch (error) {
+    console.error("Error in LeadDetailPage:", error);
+    // If it's a database connection error or similar, still show 404
+    // The error will be logged for debugging
     notFound();
   }
-
-  // Try to find the associated questionnaire
-  let questionnaire = null;
-  if (lead.metadata && typeof lead.metadata === 'object' && 'qid' in lead.metadata) {
-    questionnaire = await prisma.questionnaire.findUnique({
-      where: { id: (lead.metadata as any).qid },
-    });
-  }
-
-  return (
-    <div className="space-y-6">
-      <LeadDetailClient lead={lead} questionnaire={questionnaire} />
-    </div>
-  );
 }

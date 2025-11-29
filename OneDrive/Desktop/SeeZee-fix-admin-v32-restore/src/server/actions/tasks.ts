@@ -6,11 +6,12 @@
  */
 
 import { db } from "@/server/db";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requireRole, getCurrentUser } from "@/lib/auth/requireRole";
 import { ROLE } from "@/lib/role";
 import { revalidatePath } from "next/cache";
 import { createActivity } from "./activity";
 import { TodoStatus, TodoPriority, UserRole } from "@prisma/client";
+import { auth } from "@/auth";
 
 // Type aliases for backward compatibility
 export type TaskStatus = TodoStatus;
@@ -175,9 +176,26 @@ export async function getTasksByRole(role: UserRole, projectId?: string) {
 /**
  * Create a new task
  * Supports role-based assignment (assign to role group) or individual assignment
+ * Allows CEO, CFO, and ADMIN users to create tasks
  */
 export async function createTask(params: CreateTaskParams) {
-  const user = await requireRole([ROLE.CEO, ROLE.CFO]);
+  // Get current user and check if they have admin privileges
+  const user = await getCurrentUser();
+  if (!user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  // Check if user has admin-like privileges (CEO, CFO, or ADMIN)
+  // ADMIN role is mapped to CEO in getCurrentUser(), but we also check the original role
+  const session = await auth();
+  const originalRole = (session?.user?.role as string | undefined)?.toUpperCase();
+  const isAdmin = user.role === ROLE.CEO || 
+                  user.role === ROLE.CFO || 
+                  originalRole === "ADMIN";
+
+  if (!isAdmin) {
+    return { success: false, error: "Insufficient permissions to create tasks" };
+  }
 
   try {
     const task = await db.todo.create({

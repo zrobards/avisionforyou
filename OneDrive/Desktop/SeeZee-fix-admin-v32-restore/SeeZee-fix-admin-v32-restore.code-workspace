@@ -9,5 +9,7 @@
 			"path": "../seezee visual"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "SeeZee-fix-admin-v32-restore"
+	}
 }

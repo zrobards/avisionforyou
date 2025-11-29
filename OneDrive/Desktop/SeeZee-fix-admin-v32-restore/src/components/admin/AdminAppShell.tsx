@@ -11,7 +11,6 @@ import {
   FiFolder,
   FiCheckSquare,
   FiFileText,
-  FiSettings,
   FiMenu,
   FiX,
   FiArrowLeft,
@@ -74,7 +73,9 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
       { href: "/admin/pipeline", label: "Pipeline", icon: FiTrendingUp },
       { href: "/admin/projects", label: "Projects", icon: FiFolder },
       { href: "/admin/clients", label: "Clients", icon: FiUsers },
+      { href: "/admin/tasks", label: "Tasks", icon: FiCheckSquare },
       { href: "/admin/client-tasks", label: "Client Tasks", icon: FiCheckSquare },
+      { href: "/admin/calendar", label: "Calendar", icon: FiCalendar },
     ],
     []
   );
@@ -92,22 +93,13 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
   const teamLearningItems = useMemo<NavItem[]>(
     () => [
       { href: "/admin/team", label: "Team", icon: FiTeamUsers },
-      { href: "/admin/training", label: "Training", icon: FiBook },
-      { href: "/admin/resources", label: "Resources", icon: FiLink },
       { href: "/admin/learning", label: "Learning Hub", icon: FiBookOpen },
     ],
     []
   );
 
-  // Tasks & Todos group
-  const tasksItems = useMemo<NavItem[]>(
-    () => [
-      { href: "/admin/tasks", label: "Tasks", icon: FiCheckSquare },
-      { href: "/admin/todos", label: "Todos", icon: FiCheckSquare },
-      { href: "/admin/calendar", label: "Calendar", icon: FiCalendar },
-    ],
-    []
-  );
+  // Tasks & Todos group (consolidated into Operations)
+  // This group is now empty and can be removed
 
   // CEO Command Center group (CEO only)
   const ceoItems = useMemo<NavItem[]>(
@@ -126,10 +118,9 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
   // Tools & Settings group
   const toolsItems = useMemo<NavItem[]>(
     () => [
-      { href: "/admin/links", label: "Links", icon: FiLink },
+      { href: "/admin/links", label: "Links & Resources", icon: FiLink },
       { href: "/admin/database", label: "Database", icon: FiDatabase },
       { href: "/admin/maintenance", label: "Maintenance", icon: FiTool },
-      { href: "/admin/settings", label: "Settings", icon: FiSettings },
       { href: "/admin/test/create-project", label: "Test Tools", icon: FiTool },
     ],
     []
@@ -220,7 +211,7 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                 items={operationsItems}
                 isActive={isActive}
                 onNavigate={handleNavigate}
-                defaultOpen={pathname.startsWith("/admin/pipeline") || pathname.startsWith("/admin/projects") || pathname.startsWith("/admin/clients")}
+                defaultOpen={pathname.startsWith("/admin/pipeline") || pathname.startsWith("/admin/projects") || pathname.startsWith("/admin/clients") || pathname.startsWith("/admin/tasks") || pathname.startsWith("/admin/calendar")}
                 collapsed={isCollapsed}
               />
 
@@ -242,18 +233,7 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                 items={teamLearningItems}
                 isActive={isActive}
                 onNavigate={handleNavigate}
-                defaultOpen={pathname.startsWith("/admin/team") || pathname.startsWith("/admin/training") || pathname.startsWith("/admin/learning")}
-                collapsed={isCollapsed}
-              />
-
-              {/* Tasks & Todos Group */}
-              <CollapsibleNavGroup
-                title="Tasks & Todos"
-                icon={FiCheckSquare}
-                items={tasksItems}
-                isActive={isActive}
-                onNavigate={handleNavigate}
-                defaultOpen={pathname.startsWith("/admin/tasks") || pathname.startsWith("/admin/todos") || pathname.startsWith("/admin/calendar")}
+                defaultOpen={pathname.startsWith("/admin/team") || pathname.startsWith("/admin/learning")}
                 collapsed={isCollapsed}
               />
 
@@ -278,7 +258,7 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                 items={toolsItems}
                 isActive={isActive}
                 onNavigate={handleNavigate}
-                defaultOpen={pathname.startsWith("/admin/links") || pathname.startsWith("/admin/database") || pathname.startsWith("/admin/settings")}
+                defaultOpen={pathname.startsWith("/admin/links") || pathname.startsWith("/admin/database")}
                 collapsed={isCollapsed}
               />
             </nav>

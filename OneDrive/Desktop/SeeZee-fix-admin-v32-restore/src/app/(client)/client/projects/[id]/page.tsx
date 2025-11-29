@@ -43,11 +43,23 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           },
           feedEvents: {
             orderBy: { createdAt: "desc" },
-            take: 20,
+            take: 50,
             select: {
               id: true,
               type: true,
               payload: true,
+              createdAt: true,
+            },
+          },
+          clientTasks: {
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              status: true,
+              dueDate: true,
+              completedAt: true,
               createdAt: true,
             },
           },
@@ -62,6 +74,37 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               size: true,
               url: true,
               type: true,
+              createdAt: true,
+            },
+          },
+          changeRequests: {
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              description: true,
+              status: true,
+              createdAt: true,
+            },
+          },
+          messageThreads: {
+            where: { projectId: id },
+            include: {
+              messages: {
+                orderBy: { createdAt: "asc" },
+                take: 50,
+              },
+            },
+          },
+          invoices: {
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              number: true,
+              status: true,
+              total: true,
+              amount: true,
+              dueDate: true,
+              paidAt: true,
               createdAt: true,
             },
           },
@@ -101,6 +144,54 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     };
   }) || [];
 
+  // Transform client tasks
+  const transformedTasks = (project as any).clientTasks?.map((task: any) => ({
+    id: task.id,
+    title: task.title,
+    description: task.description,
+    status: task.status,
+    dueDate: task.dueDate,
+    completedAt: task.completedAt,
+    requiresUpload: task.requiresUpload || false,
+    submissionNotes: task.submissionNotes || null,
+    createdAt: task.createdAt,
+  })) || [];
+
+  // Transform change requests
+  const transformedRequests = (project as any).changeRequests?.map((request: any) => ({
+    id: request.id,
+    title: request.description?.substring(0, 50) || 'Change Request', // Use first 50 chars as title
+    description: request.description,
+    status: request.status,
+    priority: null,
+    createdAt: request.createdAt,
+  })) || [];
+
+  // Transform message threads
+  const transformedMessageThreads = (project as any).messageThreads?.map((thread: any) => ({
+    id: thread.id,
+    subject: thread.subject,
+    messages: thread.messages?.map((msg: any) => ({
+      id: msg.id,
+      content: msg.content,
+      senderId: msg.senderId,
+      role: msg.role,
+      createdAt: msg.createdAt,
+    })) || [],
+  })) || [];
+
+  // Transform invoices (convert Decimal to number)
+  const transformedInvoices = (project as any).invoices?.map((invoice: any) => ({
+    id: invoice.id,
+    number: invoice.number,
+    status: invoice.status,
+    total: invoice.total ? Number(invoice.total) : 0,
+    amount: invoice.amount ? Number(invoice.amount) : 0,
+    dueDate: invoice.dueDate,
+    paidAt: invoice.paidAt,
+    createdAt: invoice.createdAt,
+  })) || [];
+
   return (
     <ProjectDetailClient
       project={{
@@ -115,8 +206,13 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         assignee: (project as any).assignee,
         milestones: transformedMilestones,
         feedEvents: transformedFeedEvents,
+        tasks: transformedTasks,
         files: (project as any).files || [],
+        requests: transformedRequests,
+        messageThreads: transformedMessageThreads,
+        invoices: transformedInvoices,
         questionnaire: (project as any).questionnaire || null,
+        githubRepo: project.githubRepo || null,
       }}
     />
   );

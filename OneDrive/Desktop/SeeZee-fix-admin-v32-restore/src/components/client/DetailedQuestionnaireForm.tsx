@@ -139,8 +139,8 @@ export function DetailedQuestionnaireForm({ taskId, projectId }: DetailedQuestio
         throw new Error(error.error || 'Failed to submit questionnaire');
       }
 
-      // Redirect back to tasks page
-      router.push('/client/tasks');
+      // Redirect back to dashboard
+      router.push('/client');
     } catch (error: any) {
       console.error('Failed to submit questionnaire:', error);
       alert(error.message || 'Failed to submit questionnaire. Please try again.');

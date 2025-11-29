@@ -1,34 +1,48 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, CheckCircle, CreditCard, ExternalLink, User, Bell, Lock, Eye, EyeOff, Shield, Key, Trash2, AlertTriangle, Globe, Mail, Phone } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import {
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiBell,
+  FiCreditCard,
+  FiLock,
+  FiShield,
+  FiSave,
+  FiCheckCircle,
+  FiEye,
+  FiEyeOff,
+  FiKey,
+  FiAlertTriangle,
+  FiTrash2,
+  FiExternalLink,
+} from "react-icons/fi";
+import { fetchJson } from "@/lib/client-api";
 
 type TabType = "profile" | "notifications" | "billing" | "security" | "privacy";
 
 export default function ClientSettingsPage() {
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
-  const tabParam = searchParams.get("tab") as TabType | null;
-  const [activeTab, setActiveTab] = useState<TabType>(tabParam || "profile");
-  
+  const [activeTab, setActiveTab] = useState<TabType>("profile");
+
   // Profile state
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  
+
   // Notification state
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [projectUpdates, setProjectUpdates] = useState(true);
   const [invoiceReminders, setInvoiceReminders] = useState(true);
-  
+
   // Billing state
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loadingBilling, setLoadingBilling] = useState(false);
-  
+
   // Security state
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -36,8 +50,7 @@ export default function ClientSettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  const [activeSessions, setActiveSessions] = useState<any[]>([]);
-  
+
   // Privacy state
   const [emailVisibility, setEmailVisibility] = useState("private");
   const [profileVisibility, setProfileVisibility] = useState("private");
@@ -45,54 +58,55 @@ export default function ClientSettingsPage() {
   const [analytics, setAnalytics] = useState(true);
 
   useEffect(() => {
-    // Set active tab from URL parameter
-    if (tabParam && ["profile", "notifications", "billing", "security", "privacy"].includes(tabParam)) {
-      setActiveTab(tabParam);
-    }
-  }, [tabParam]);
-
-  useEffect(() => {
     if (session?.user) {
       setName(session.user.name || "");
-      // Fetch additional user data
-      fetch("/api/client/profile")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.profile) {
-            setCompany(data.profile.company || "");
-            setPhone(data.profile.phone || "");
-          }
-        });
-      
-      // Fetch notification preferences
-      fetch("/api/client/settings/notifications")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.emailNotifications !== undefined) {
-            setEmailNotifications(data.emailNotifications);
-          }
-          if (data.projectUpdates !== undefined) {
-            setProjectUpdates(data.projectUpdates);
-          }
-          if (data.invoiceReminders !== undefined) {
-            setInvoiceReminders(data.invoiceReminders);
-          }
-        })
-        .catch((err) => console.error("Failed to fetch notification settings:", err));
-      
-      // Fetch invoices
-      fetch("/api/client/invoices")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.invoices) {
-            setInvoices(data.invoices);
-          }
-        })
-        .catch((err) => console.error("Failed to fetch invoices:", err));
+      fetchProfile();
+      fetchNotifications();
+      fetchInvoices();
     }
   }, [session]);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const fetchProfile = async () => {
+    try {
+      const data = await fetchJson<any>("/api/client/profile");
+      if (data.profile) {
+        setCompany(data.profile.company || "");
+        setPhone(data.profile.phone || "");
+      }
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await fetchJson<any>("/api/client/settings/notifications");
+      if (data.emailNotifications !== undefined) {
+        setEmailNotifications(data.emailNotifications);
+      }
+      if (data.projectUpdates !== undefined) {
+        setProjectUpdates(data.projectUpdates);
+      }
+      if (data.invoiceReminders !== undefined) {
+        setInvoiceReminders(data.invoiceReminders);
+      }
+    } catch (error) {
+      console.error("Failed to fetch notification settings:", error);
+    }
+  };
+
+  const fetchInvoices = async () => {
+    try {
+      const data = await fetchJson<any>("/api/client/invoices");
+      if (data.invoices) {
+        setInvoices(data.invoices);
+      }
+    } catch (error) {
+      console.error("Failed to fetch invoices:", error);
+    }
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setSuccess(false);
@@ -115,19 +129,51 @@ export default function ClientSettingsPage() {
     }
   };
 
+  const handleSaveNotifications = async () => {
+    setLoading(true);
+    setSuccess(false);
+    try {
+      const response = await fetch("/api/client/settings/notifications", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emailNotifications,
+          projectUpdates,
+          invoiceReminders,
+        }),
+      });
+
+      if (response.ok) {
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      }
+    } catch (error) {
+      console.error("Failed to update notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleBillingPortal = async () => {
     setLoadingBilling(true);
     try {
       const response = await fetch("/api/billing/portal", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
         const { url } = await response.json();
         window.location.href = url;
+      } else {
+        const error = await response.json();
+        alert(error.error || "Failed to open billing portal. You may need to make a payment first to create a billing account.");
       }
     } catch (error) {
       console.error("Failed to open billing portal:", error);
+      alert("Failed to open billing portal. Please try again.");
     } finally {
       setLoadingBilling(false);
     }
@@ -148,13 +194,9 @@ export default function ClientSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">Settings</h1>
-          <p className="admin-page-subtitle">
-            Manage your account preferences and billing
-          </p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
+        <p className="text-white/60">Manage your account preferences and billing</p>
       </div>
 
       {/* Tabs */}
@@ -169,7 +211,7 @@ export default function ClientSettingsPage() {
                   : "border-transparent text-slate-400 hover:text-white"
               }`}
             >
-              <User className="w-4 h-4" />
+              <FiUser className="w-4 h-4" />
               Profile
             </button>
             <button
@@ -180,7 +222,7 @@ export default function ClientSettingsPage() {
                   : "border-transparent text-slate-400 hover:text-white"
               }`}
             >
-              <Bell className="w-4 h-4" />
+              <FiBell className="w-4 h-4" />
               Notifications
             </button>
             <button
@@ -191,7 +233,7 @@ export default function ClientSettingsPage() {
                   : "border-transparent text-slate-400 hover:text-white"
               }`}
             >
-              <CreditCard className="w-4 h-4" />
+              <FiCreditCard className="w-4 h-4" />
               Billing
             </button>
             <button
@@ -202,7 +244,7 @@ export default function ClientSettingsPage() {
                   : "border-transparent text-slate-400 hover:text-white"
               }`}
             >
-              <Lock className="w-4 h-4" />
+              <FiLock className="w-4 h-4" />
               Security
             </button>
             <button
@@ -213,7 +255,7 @@ export default function ClientSettingsPage() {
                   : "border-transparent text-slate-400 hover:text-white"
               }`}
             >
-              <Shield className="w-4 h-4" />
+              <FiShield className="w-4 h-4" />
               Privacy
             </button>
           </div>
@@ -222,7 +264,7 @@ export default function ClientSettingsPage() {
         <div className="mt-6">
           {/* Profile Tab */}
           {activeTab === "profile" && (
-            <form onSubmit={handleSave} className="space-y-6">
+            <form onSubmit={handleSaveProfile} className="space-y-6">
               <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-xl border border-cyan-500/20 p-6 mb-6">
                 <div className="flex items-center gap-4">
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-2xl font-bold text-white">
@@ -231,7 +273,7 @@ export default function ClientSettingsPage() {
                   <div>
                     <h3 className="text-lg font-bold text-white">{session?.user?.name || "User"}</h3>
                     <p className="text-slate-400 text-sm flex items-center gap-2 mt-1">
-                      <Mail className="w-4 h-4" />
+                      <FiMail className="w-4 h-4" />
                       {session?.user?.email}
                     </p>
                   </div>
@@ -240,7 +282,7 @@ export default function ClientSettingsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-white mb-2 flex items-center gap-2">
-                  <User className="w-4 h-4" />
+                  <FiUser className="w-4 h-4" />
                   Full Name
                 </label>
                 <input
@@ -253,9 +295,7 @@ export default function ClientSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Company
-                </label>
+                <label className="block text-sm font-medium text-white mb-2">Company</label>
                 <input
                   type="text"
                   value={company}
@@ -267,7 +307,7 @@ export default function ClientSettingsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-white mb-2 flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
+                  <FiPhone className="w-4 h-4" />
                   Phone
                 </label>
                 <input
@@ -286,12 +326,12 @@ export default function ClientSettingsPage() {
               >
                 {success ? (
                   <>
-                    <CheckCircle className="w-4 h-4" />
+                    <FiCheckCircle className="w-4 h-4" />
                     Saved!
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" />
+                    <FiSave className="w-4 h-4" />
                     {loading ? "Saving..." : "Save Changes"}
                   </>
                 )}
@@ -307,15 +347,13 @@ export default function ClientSettingsPage() {
                   <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">
                     Email Notifications
                   </p>
-                  <p className="text-sm text-slate-400">
-                    Receive email updates about your account
-                  </p>
+                  <p className="text-sm text-slate-400">Receive email updates about your account</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={emailNotifications}
                   onChange={(e) => setEmailNotifications(e.target.checked)}
-                        className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
+                  className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
                 />
               </div>
 
@@ -324,15 +362,13 @@ export default function ClientSettingsPage() {
                   <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">
                     Project Updates
                   </p>
-                  <p className="text-sm text-slate-400">
-                    Get notified when project milestones are completed
-                  </p>
+                  <p className="text-sm text-slate-400">Get notified when project milestones are completed</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={projectUpdates}
                   onChange={(e) => setProjectUpdates(e.target.checked)}
-                        className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
+                  className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
                 />
               </div>
 
@@ -341,53 +377,29 @@ export default function ClientSettingsPage() {
                   <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">
                     Invoice Reminders
                   </p>
-                  <p className="text-sm text-slate-400">
-                    Receive reminders about upcoming payments
-                  </p>
+                  <p className="text-sm text-slate-400">Receive reminders about upcoming payments</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={invoiceReminders}
                   onChange={(e) => setInvoiceReminders(e.target.checked)}
-                        className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
+                  className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
                 />
               </div>
 
               <button
-                onClick={async () => {
-                  setLoading(true);
-                  try {
-                    const response = await fetch("/api/client/settings/notifications", {
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        emailNotifications,
-                        projectUpdates,
-                        invoiceReminders,
-                      }),
-                    });
-
-                    if (response.ok) {
-                      setSuccess(true);
-                      setTimeout(() => setSuccess(false), 3000);
-                    }
-                  } catch (error) {
-                    console.error("Failed to update notifications:", error);
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
+                onClick={handleSaveNotifications}
                 disabled={loading}
                 className="w-full px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 disabled:opacity-50"
               >
                 {success ? (
                   <>
-                    <CheckCircle className="w-4 h-4" />
+                    <FiCheckCircle className="w-4 h-4" />
                     Saved!
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" />
+                    <FiSave className="w-4 h-4" />
                     {loading ? "Saving..." : "Save Notification Preferences"}
                   </>
                 )}
@@ -400,9 +412,7 @@ export default function ClientSettingsPage() {
             <div className="space-y-6">
               <div className="flex items-start justify-between p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-xl border border-cyan-500/20">
                 <div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    Billing Portal
-                  </h3>
+                  <h3 className="text-lg font-bold text-white mb-2">Billing Portal</h3>
                   <p className="text-slate-300 text-sm mb-4">
                     Manage your payment methods, view invoices, and update billing information
                   </p>
@@ -411,12 +421,12 @@ export default function ClientSettingsPage() {
                     disabled={loadingBilling}
                     className="px-4 py-2 bg-white text-slate-900 rounded-lg hover:bg-slate-100 transition-all font-medium flex items-center gap-2 shadow-lg disabled:opacity-50"
                   >
-                    <CreditCard className="w-4 h-4" />
+                    <FiCreditCard className="w-4 h-4" />
                     {loadingBilling ? "Opening..." : "Open Billing Portal"}
-                    <ExternalLink className="w-4 h-4" />
+                    <FiExternalLink className="w-4 h-4" />
                   </button>
                 </div>
-                <CreditCard className="w-12 h-12 text-cyan-400" />
+                <FiCreditCard className="w-12 h-12 text-cyan-400" />
               </div>
 
               {/* Recent Invoices */}
@@ -432,14 +442,14 @@ export default function ClientSettingsPage() {
                         className="flex items-center justify-between p-4 bg-slate-900/30 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors"
                       >
                         <div>
-                          <p className="text-white font-medium">{invoice.description}</p>
+                          <p className="text-white font-medium">{invoice.description || invoice.title}</p>
                           <p className="text-sm text-slate-400">
                             {new Date(invoice.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="text-lg font-bold text-white">
-                            ${(Number(invoice.total) / 100).toFixed(2)}
+                            ${(Number(invoice.total || invoice.amount) / 100).toFixed(2)}
                           </span>
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
@@ -462,7 +472,7 @@ export default function ClientSettingsPage() {
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl border border-amber-500/20 p-6">
                 <div className="flex items-start gap-4">
-                  <Shield className="w-6 h-6 text-amber-400 mt-1" />
+                  <FiShield className="w-6 h-6 text-amber-400 mt-1" />
                   <div>
                     <h3 className="text-lg font-bold text-white mb-2">Account Security</h3>
                     <p className="text-slate-300 text-sm">
@@ -491,7 +501,7 @@ export default function ClientSettingsPage() {
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                       >
-                        {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showCurrentPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
                       </button>
                     </div>
                   </div>
@@ -511,7 +521,7 @@ export default function ClientSettingsPage() {
                         onClick={() => setShowNewPassword(!showNewPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                       >
-                        {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showNewPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
                       </button>
                     </div>
                     <p className="text-xs text-slate-400 mt-1">Must be at least 8 characters</p>
@@ -554,7 +564,7 @@ export default function ClientSettingsPage() {
                     disabled={loading || !currentPassword || !newPassword || !confirmPassword}
                     className="w-full px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 disabled:opacity-50"
                   >
-                    <Key className="w-4 h-4" />
+                    <FiKey className="w-4 h-4" />
                     {loading ? "Updating..." : "Update Password"}
                   </button>
                 </div>
@@ -568,7 +578,9 @@ export default function ClientSettingsPage() {
                     <p className="text-sm text-slate-400">Add an extra layer of security to your account</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-sm font-semibold ${twoFactorEnabled ? "text-emerald-400" : "text-slate-400"}`}>
+                    <span
+                      className={`text-sm font-semibold ${twoFactorEnabled ? "text-emerald-400" : "text-slate-400"}`}
+                    >
                       {twoFactorEnabled ? "Enabled" : "Disabled"}
                     </span>
                     <button
@@ -593,27 +605,6 @@ export default function ClientSettingsPage() {
                   </div>
                 )}
               </div>
-
-              {/* Active Sessions */}
-              <div className="border-t border-white/10 pt-6">
-                <h3 className="text-lg font-bold text-white mb-4">Active Sessions</h3>
-                <div className="space-y-3">
-                    <div className="p-4 bg-gray-900 rounded-lg border border-gray-800">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white font-medium">Current Session</p>
-                        <p className="text-sm text-slate-400">This device • {new Date().toLocaleDateString()}</p>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-semibold border border-emerald-500/30">
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-slate-400">
-                    Session management coming soon. You'll be able to see and manage all active sessions.
-                  </p>
-                </div>
-              </div>
             </div>
           )}
 
@@ -622,7 +613,7 @@ export default function ClientSettingsPage() {
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20 p-6">
                 <div className="flex items-start gap-4">
-                  <Shield className="w-6 h-6 text-purple-400 mt-1" />
+                  <FiShield className="w-6 h-6 text-purple-400 mt-1" />
                   <div>
                     <h3 className="text-lg font-bold text-white mb-2">Privacy Settings</h3>
                     <p className="text-slate-300 text-sm">
@@ -638,7 +629,9 @@ export default function ClientSettingsPage() {
                 <div className="space-y-3">
                   <label className="flex items-center justify-between p-4 bg-slate-900/30 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors cursor-pointer group">
                     <div>
-                      <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">Email Address</p>
+                      <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">
+                        Email Address
+                      </p>
                       <p className="text-sm text-slate-400">Who can see your email address</p>
                     </div>
                     <select
@@ -654,7 +647,9 @@ export default function ClientSettingsPage() {
 
                   <label className="flex items-center justify-between p-4 bg-slate-900/30 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors cursor-pointer group">
                     <div>
-                      <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">Profile Information</p>
+                      <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">
+                        Profile Information
+                      </p>
                       <p className="text-sm text-slate-400">Control profile visibility</p>
                     </div>
                     <select
@@ -676,27 +671,33 @@ export default function ClientSettingsPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-4 bg-slate-900/30 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors group">
                     <div>
-                      <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">Data Sharing</p>
-                      <p className="text-sm text-slate-400">Allow sharing of anonymized data for product improvement</p>
+                      <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">
+                        Data Sharing
+                      </p>
+                      <p className="text-sm text-slate-400">
+                        Allow sharing of anonymized data for product improvement
+                      </p>
                     </div>
                     <input
                       type="checkbox"
                       checked={dataSharing}
                       onChange={(e) => setDataSharing(e.target.checked)}
-                        className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
+                      className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
                     />
                   </div>
 
                   <div className="flex items-center justify-between p-4 bg-slate-900/30 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors group">
                     <div>
-                      <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">Analytics</p>
+                      <p className="text-white font-medium group-hover:text-cyan-400 transition-colors">
+                        Analytics
+                      </p>
                       <p className="text-sm text-slate-400">Help us improve by sharing usage analytics</p>
                     </div>
                     <input
                       type="checkbox"
                       checked={analytics}
                       onChange={(e) => setAnalytics(e.target.checked)}
-                        className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
+                      className="w-5 h-5 rounded border-gray-700 bg-gray-800 checked:bg-trinity-red"
                     />
                   </div>
                 </div>
@@ -706,7 +707,7 @@ export default function ClientSettingsPage() {
               <div className="border-t border-white/10 pt-6">
                 <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-xl">
                   <div className="flex items-start gap-4">
-                    <AlertTriangle className="w-6 h-6 text-red-400 mt-1 flex-shrink-0" />
+                    <FiAlertTriangle className="w-6 h-6 text-red-400 mt-1 flex-shrink-0" />
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-white mb-2">Delete Account</h3>
                       <p className="text-slate-300 text-sm mb-4">
@@ -714,13 +715,17 @@ export default function ClientSettingsPage() {
                       </p>
                       <button
                         onClick={() => {
-                          if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                          if (
+                            confirm(
+                              "Are you sure you want to delete your account? This action cannot be undone."
+                            )
+                          ) {
                             alert("Account deletion functionality coming soon");
                           }
                         }}
                         className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium flex items-center gap-2"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <FiTrash2 className="w-4 h-4" />
                         Delete Account
                       </button>
                     </div>
@@ -746,12 +751,12 @@ export default function ClientSettingsPage() {
               >
                 {success ? (
                   <>
-                    <CheckCircle className="w-4 h-4" />
+                    <FiCheckCircle className="w-4 h-4" />
                     Saved!
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" />
+                    <FiSave className="w-4 h-4" />
                     {loading ? "Saving..." : "Save Privacy Settings"}
                   </>
                 )}

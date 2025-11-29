@@ -10,7 +10,6 @@ import {
   FiFolder,
   FiFileText,
   FiMessageSquare,
-  FiSettings,
   FiMenu,
   FiX,
   FiArrowLeft,
@@ -21,6 +20,9 @@ import {
   FiMail,
   FiChevronLeft,
   FiChevronRight,
+  FiSettings,
+  FiUpload,
+  FiSearch,
 } from "react-icons/fi";
 import Avatar from "@/components/ui/Avatar";
 import LogoHeader from "@/components/brand/LogoHeader";
@@ -39,9 +41,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [hasActiveRequest, setHasActiveRequest] = useState(false);
-  const [checkingRequests, setCheckingRequests] = useState(true);
-  const [pendingTaskCount, setPendingTaskCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isActive = useCallback(
     (href: string) => {
@@ -69,67 +69,15 @@ export default function ClientShell({ children }: { children: React.ReactNode })
     router.push("/login");
   }, [router]);
 
-  // Check for active project requests
-  useEffect(() => {
-    if (!session?.user) {
-      setCheckingRequests(false);
-      return;
-    }
 
-    fetchJson<any>("/api/client/requests")
-      .then((data) => {
-        const requests = data?.requests || [];
-        const active = requests.filter((req: any) => {
-          const status = String(req.status || "").toUpperCase();
-          return ["DRAFT", "SUBMITTED", "REVIEWING", "NEEDS_INFO"].includes(status);
-        });
-        setHasActiveRequest(active.length > 0);
-      })
-      .catch((err) => {
-        console.error("Failed to check active requests:", err);
-        setHasActiveRequest(false);
-      })
-      .finally(() => {
-        setCheckingRequests(false);
-      });
-  }, [session]);
-
-  // Fetch pending task count
-  useEffect(() => {
-    if (!session?.user) {
-      setPendingTaskCount(0);
-      return;
-    }
-
-    fetchJson<any>("/api/client/tasks")
-      .then((data) => {
-        const summary = data?.summary || {};
-        setPendingTaskCount(summary.pending || 0);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch pending tasks:", err);
-        setPendingTaskCount(0);
-      });
-  }, [session]);
 
   const navItems: NavItem[] = useMemo(
     () => [
       { href: "/client", label: "Dashboard", icon: FiHome },
-      { href: "/client/projects", label: "Projects", icon: FiFolder },
-      {
-        href: "/client/tasks",
-        label: "Tasks",
-        icon: FiCheckSquare,
-        badge: pendingTaskCount > 0 ? pendingTaskCount : null,
-      },
-      { href: "/client/files", label: "Files", icon: FiFileText },
-      { href: "/client/requests", label: "Requests", icon: FiMessageSquare },
-      { href: "/client/invoices", label: "Invoices", icon: FiCreditCard },
-      { href: "/client/messages", label: "Messages", icon: FiMail },
-      { href: "/client/support", label: "Support", icon: FiHelpCircle },
       { href: "/client/settings", label: "Settings", icon: FiSettings },
+      { href: "/client/support", label: "Support", icon: FiHelpCircle },
     ],
-    [pendingTaskCount]
+    []
   );
 
   const user = session?.user;
@@ -178,11 +126,6 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                 >
                   <Icon className="h-5 w-5 flex-shrink-0" />
                   {!isCollapsed && <span className="font-medium">{label}</span>}
-                  {!isCollapsed && badge !== undefined && badge !== null && badge > 0 && (
-                    <span className="rounded-full bg-cyan-500 px-2 py-0.5 text-xs font-semibold text-white">
-                      {badge}
-                    </span>
-                  )}
                   {isActive(href) && (
                     <motion.span
                       layoutId="client-nav-active"
@@ -278,20 +221,26 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                 {isSidebarOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
               </button>
               <div className="flex flex-1 items-center justify-end gap-3">
-                {!hasActiveRequest && !checkingRequests && (
-                  <Link
-                    href="/start"
-                    className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-3 py-2 text-sm font-semibold text-white shadow-lg transition hover:from-blue-600 hover:to-purple-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                  >
-                    Start a Project
-                  </Link>
-                )}
-                <Link
-                  href="/"
-                  className="text-sm text-gray-400 transition-colors hover:text-white"
-                >
-                  Back to Site
-                </Link>
+                <div className="relative w-full max-w-md">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <FiSearch className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search dashboard..."
+                    className="w-full pl-10 pr-4 py-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-trinity-red/50 focus:border-trinity-red transition-all duration-200"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white transition-colors"
+                    >
+                      <FiX className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </header>

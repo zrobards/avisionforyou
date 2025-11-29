@@ -158,7 +158,7 @@ export function SimpleQuestionnaireForm({ taskId, projectId }: SimpleQuestionnai
         throw new Error(error.error || 'Failed to submit questionnaire');
       }
 
-      router.push('/client/tasks');
+      router.push('/client');
     } catch (error: any) {
       console.error('Failed to submit questionnaire:', error);
       alert(error.message || 'Failed to submit questionnaire. Please try again.');

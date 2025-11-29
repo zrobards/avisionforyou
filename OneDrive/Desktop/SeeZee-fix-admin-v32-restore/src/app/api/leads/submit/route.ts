@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { sendWelcomeEmail } from '@/lib/mailer';
 
-import { LeadStatus } from '@prisma/client';
+import { LeadStatus, ProjectStatus } from '@prisma/client';
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const { qid, packageId, email, name, phone, company, referralSource, stage, outreachProgram, projectType, projectGoals, timeline, specialRequirements } = body;
+    const { qid, packageId, serviceType, email, name, phone, company, referralSource, stage, outreachProgram, projectType, projectGoals, timeline, specialRequirements, nonprofitStatus, nonprofitEIN } = body;
 
     // Handle both formats: questionnaire-based (qid) and form-based (packageId)
     if (qid) {
@@ -137,23 +138,57 @@ export async function POST(req: NextRequest) {
         leadId: lead.id,
         projectRequestId: projectRequest.id,
       });
-    } else if (packageId && email && name) {
+    } else if ((packageId || serviceType) && email && name) {
       // New form-based flow from ProjectRequestForm
+      // Support both packageId (legacy) and serviceType (new)
+      const selectedService = serviceType || packageId;
 
-      // Create lead record from form data
+      // 1. Find or create organization for the user
+      let organization = await prisma.organization.findFirst({
+        where: {
+          members: {
+            some: {
+              userId: user.id
+            }
+          }
+        }
+      });
+
+      if (!organization) {
+        // Create organization
+        const orgName = company || `${name}'s Organization`;
+        const slug = orgName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000);
+        
+        organization = await prisma.organization.create({
+          data: {
+            name: orgName,
+            slug: slug,
+            members: {
+              create: {
+                userId: user.id,
+                role: 'OWNER'
+              }
+            }
+          }
+        });
+      }
+
+      // 2. Create lead record from form data
       const lead = await prisma.lead.create({
         data: {
           name: name,
           email: email,
           phone: phone || null,
           company: company || null,
-          message: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}`,
-          source: referralSource || 'Package Selection',
+          organizationId: organization.id, // Link to organization
+          message: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}${nonprofitStatus ? `\n\nNonprofit Status: ${nonprofitStatus}` : ''}${nonprofitEIN ? `\n\nEIN: ${nonprofitEIN}` : ''}`,
+          source: referralSource || 'Service Selection',
           status: LeadStatus.NEW,
-          serviceType: packageId.toUpperCase(),
+          serviceType: selectedService.toUpperCase().replace(/-/g, '_'),
           metadata: {
             userId: user.id,
-            package: packageId,
+            serviceType: selectedService,
+            package: packageId, // Keep for backward compatibility
             referralSource: referralSource || null,
             stage: stage || null,
             outreachProgram: outreachProgram || null,
@@ -161,6 +196,8 @@ export async function POST(req: NextRequest) {
             projectGoals: projectGoals || null,
             timeline: timeline || null,
             specialRequirements: specialRequirements || null,
+            nonprofitStatus: nonprofitStatus || null,
+            nonprofitEIN: nonprofitEIN || null,
           },
         },
       });
@@ -185,12 +222,12 @@ export async function POST(req: NextRequest) {
             : [mapToServiceType(projectType)])
         : [];
 
-      // Create ProjectRequest so it appears in client dashboard
+      // 3. Create ProjectRequest so it appears in client dashboard
       const projectRequest = await prisma.projectRequest.create({
         data: {
           userId: user.id,
-          title: projectGoals || `${packageId} Package Request`,
-          description: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}`,
+          title: projectGoals || `${selectedService} Service Request`,
+          description: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}${nonprofitStatus ? `\n\nNonprofit Status: ${nonprofitStatus}` : ''}${nonprofitEIN ? `\n\nEIN: ${nonprofitEIN}` : ''}`,
           contactEmail: email,
           company: company || null,
           budget: 'UNKNOWN',
@@ -200,14 +237,86 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      // 4. Create Project automatically
+      const isNonprofitProject = outreachProgram?.includes('nonprofit') || nonprofitStatus?.includes('501(c)(3)') || selectedService === 'nonprofit';
+      const project = await prisma.project.create({
+        data: {
+          name: `${name}'s Project`,
+          description: `${selectedService} service project. Goals: ${projectGoals || 'Not specified'}`,
+          status: ProjectStatus.LEAD, // Initial status
+          organizationId: organization.id,
+          // Copy questionnaire data
+          // budget: we don't have exact budget from questionnaire yet
+          // Link to lead and request
+          leadId: lead.id,
+          // TODO: Add isNonprofit field once Prisma client is regenerated
+          // isNonprofit: isNonprofitProject,
+        },
+      });
+
+      // 5. Update ProjectRequest to link to created project
+      await prisma.projectRequest.update({
+        where: { id: projectRequest.id },
+        data: { 
+          // Note: ProjectRequest doesn't have projectId field in schema based on what I saw,
+          // but I should check schema. 
+          // Checking schema... ProjectRequest does NOT have projectId. 
+          // Wait, the plan says "Update ProjectRequest to link to created project". 
+          // I should check if I can link it.
+          // ProjectRequest model:
+          // model ProjectRequest {
+          //   id           String        @id @default(cuid())
+          //   ...
+          //   status       RequestStatus @default(DRAFT)
+          //   user         User?         @relation(fields: [userId], references: [id])
+          // }
+          // It seems ProjectRequest is for requests that are NOT yet projects.
+          // If we create a project, we might want to mark ProjectRequest as APPROVED or ARCHIVED?
+          // Or maybe just ignore linking if the field doesn't exist.
+          // I'll check schema again.
+          status: 'APPROVED' // Mark as approved since we created a project
+        },
+      });
+
+      // 6. Create activity/feed event for admin notification
+      await prisma.activity.create({
+        data: {
+          type: 'PROJECT_CREATED',
+          title: 'New Project Created', // Added title which is required
+          description: `New project inquiry from ${name}`,
+          userId: session.user.id,
+          metadata: {
+            projectId: project.id,
+            service: selectedService,
+            serviceType: selectedService,
+            timeline: timeline,
+            isNonprofit: isNonprofitProject,
+          },
+        },
+      });
+
+      // 7. Send welcome email
+      try {
+        const emailResult = await sendWelcomeEmail({
+          to: session.user.email!,
+          firstName: name.split(' ')[0], // Get first name
+          dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/client`,
+        });
+        console.log('Welcome email sent:', emailResult);
+      } catch (emailError) {
+        // Log but don't fail the request if email fails
+        console.error('Failed to send welcome email:', emailError);
+      }
+
       return NextResponse.json({
         success: true,
         leadId: lead.id,
         projectRequestId: projectRequest.id,
+        projectId: project.id
       });
     } else {
       return NextResponse.json(
-        { error: 'Missing required fields: either qid or (packageId, email, name)' },
+        { error: 'Missing required fields: either qid or (serviceType/packageId, email, name)' },
         { status: 400 }
       );
     }

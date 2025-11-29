@@ -14,6 +14,7 @@ export interface DashboardState {
 /**
  * Check if user has active project request
  * Active statuses: DRAFT, SUBMITTED, REVIEWING, NEEDS_INFO
+ * Returns false if project request has an associated project (already approved)
  */
 export function hasActiveProjectRequest(projectRequests: any[]): boolean {
   if (!projectRequests || projectRequests.length === 0) return false;
@@ -21,12 +22,14 @@ export function hasActiveProjectRequest(projectRequests: any[]): boolean {
   const activeStatuses = ['DRAFT', 'SUBMITTED', 'REVIEWING', 'NEEDS_INFO'];
   return projectRequests.some((req) => {
     const status = String(req.status || '').toUpperCase();
-    return activeStatuses.includes(status);
+    // Don't count as active if a project has been created from this request
+    return activeStatuses.includes(status) && !req.project;
   });
 }
 
 /**
  * Get the active project request
+ * Returns null if project request has an associated project (already approved)
  */
 export function getActiveProjectRequest(projectRequests: any[]): any | null {
   if (!projectRequests || projectRequests.length === 0) return null;
@@ -34,7 +37,8 @@ export function getActiveProjectRequest(projectRequests: any[]): any | null {
   const activeStatuses = ['DRAFT', 'SUBMITTED', 'REVIEWING', 'NEEDS_INFO'];
   return projectRequests.find((req) => {
     const status = String(req.status || '').toUpperCase();
-    return activeStatuses.includes(status);
+    // Don't count as active if a project has been created from this request
+    return activeStatuses.includes(status) && !req.project;
   }) || null;
 }
 

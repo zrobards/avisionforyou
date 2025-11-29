@@ -2,8 +2,70 @@
 
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, CheckCircle2, Clock, DollarSign, User, FileText, ListTodo, History as TimelineIcon, Folder, Download, Eye, Upload, MessageSquare } from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle2, Clock, DollarSign, User, FileText, ListTodo, History as TimelineIcon, Folder, Download, Eye, Upload, MessageSquare, Send, CreditCard, Plus, Target, Settings, Github } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ClientTaskList } from "./ClientTaskList";
+import { RepositoryTab } from "./RepositoryTab";
+import { SettingsTab } from "./SettingsTab";
+
+// Invoice Pay Button Component
+function InvoicePayButton({ invoiceId, invoiceNumber }: { invoiceId: string; invoiceNumber: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePay = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // If approval is required, show a helpful message
+        if (data.error?.includes("approved")) {
+          setError("This invoice needs to be approved before payment. Please contact support.");
+        } else {
+          setError(data.error || "Failed to initiate payment");
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Redirect to Stripe checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError("Payment URL not received");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      setError("Failed to process payment. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <button
+        onClick={handlePay}
+        disabled={loading}
+        className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center gap-2"
+      >
+        <CreditCard className="w-4 h-4" />
+        {loading ? "Processing..." : "Pay Now"}
+      </button>
+      {error && (
+        <p className="text-xs text-red-400 mt-1 max-w-xs">{error}</p>
+      )}
+    </div>
+  );
+}
 
 interface ProjectDetailClientProps {
   project: {
@@ -38,6 +100,18 @@ interface ProjectDetailClientProps {
         name: string | null;
       } | null;
     }>;
+    tasks?: Array<{
+      id: string;
+      title: string;
+      description: string | null;
+      status: string;
+      dueDate: Date | null;
+      completedAt: Date | null;
+      requiresUpload?: boolean;
+      submissionNotes?: string | null;
+      createdAt: Date;
+    }>;
+    githubRepo?: string | null;
     files?: Array<{
       id: string;
       name: string;
@@ -48,17 +122,50 @@ interface ProjectDetailClientProps {
       type: string;
       createdAt: Date;
     }>;
+    requests?: Array<{
+      id: string;
+      title: string;
+      description: string | null;
+      status: string;
+      priority: string | null;
+      createdAt: Date;
+    }>;
+    messageThreads?: Array<{
+      id: string;
+      subject?: string;
+      messages: Array<{
+        id: string;
+        content: string;
+        senderId: string;
+        role: string;
+        createdAt: Date;
+      }>;
+    }>;
+    invoices?: Array<{
+      id: string;
+      number: string;
+      status: string;
+      total: any;
+      amount: any;
+      dueDate: Date;
+      paidAt: Date | null;
+      createdAt: Date;
+    }>;
     questionnaire: any;
   };
 }
 
-type TabType = "overview" | "tasks" | "timeline" | "files";
+type TabType = "overview" | "milestones" | "tasks" | "files" | "requests" | "messages" | "invoices" | "repository" | "settings";
 
 export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
+  const [messageFilter, setMessageFilter] = useState<'all' | 'messages' | 'files' | 'milestones'>('all');
+  const [newMessage, setNewMessage] = useState("");
+  const [sendingMessage, setSendingMessage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getStatusBadge = (status: string) => {
@@ -94,9 +201,14 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
 
   const tabs = [
     { id: "overview" as TabType, label: "Overview", icon: FileText },
+    { id: "milestones" as TabType, label: "Milestones", icon: Target },
     { id: "tasks" as TabType, label: "Tasks", icon: ListTodo },
-    { id: "timeline" as TabType, label: "Timeline", icon: TimelineIcon },
     { id: "files" as TabType, label: "Files", icon: Folder },
+    { id: "requests" as TabType, label: "Requests", icon: MessageSquare },
+    { id: "messages" as TabType, label: "Messages", icon: Send },
+    { id: "invoices" as TabType, label: "Invoices", icon: CreditCard },
+    { id: "repository" as TabType, label: "Repository", icon: Github },
+    { id: "settings" as TabType, label: "Settings", icon: Settings },
   ];
 
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,23 +341,25 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
           </div>
         );
 
-      case "tasks":
+      case "milestones":
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white">Milestones</h3>
-              <span className="text-sm text-white/60">
-                {completedMilestones} of {totalMilestones} completed
-              </span>
+              <div>
+                <h3 className="text-lg font-bold text-white mb-1">Milestones</h3>
+                <span className="text-sm text-white/60">
+                  {completedMilestones} of {totalMilestones} completed
+                </span>
+              </div>
             </div>
             {project.milestones.length === 0 ? (
               <div className="text-center py-12">
-                <ListTodo className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                <Target className="w-12 h-12 text-white/20 mx-auto mb-4" />
                 <p className="text-white/60">No milestones yet</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {project.milestones.map((milestone, index) => (
+                {project.milestones.map((milestone) => (
                   <div
                     key={milestone.id}
                     className="p-4 bg-gray-900 hover:bg-gray-800 rounded-xl border border-gray-800 transition-all"
@@ -293,47 +407,16 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
           </div>
         );
 
-      case "timeline":
+      case "tasks":
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-white mb-4">Activity Timeline</h3>
-            {project.feedEvents.length === 0 ? (
-              <div className="text-center py-12">
-                <TimelineIcon className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                <p className="text-white/60">No activity yet</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {project.feedEvents.map((event, index) => (
-                  <div
-                    key={event.id}
-                    className="flex gap-4 relative"
-                  >
-                    {index < project.feedEvents.length - 1 && (
-                      <div className="absolute left-3 top-8 bottom-0 w-px bg-white/10" />
-                    )}
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-cyan-500/20 border-2 border-cyan-500/50 flex items-center justify-center mt-1">
-                      <div className="w-2 h-2 rounded-full bg-cyan-400" />
-                    </div>
-                    <div className="flex-1 pb-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-white">{event.title}</h4>
-                        <span className="text-xs text-white/40">
-                          {new Date(event.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {event.description && (
-                        <p className="text-sm text-white/60 mb-2">{event.description}</p>
-                      )}
-                      {event.user && (
-                        <p className="text-xs text-white/40">by {event.user.name}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ClientTaskList
+          tasks={(project.tasks || []).map(t => ({
+            ...t,
+            requiresUpload: t.requiresUpload || false,
+            submissionNotes: t.submissionNotes || null,
+          }))}
+          onTaskUpdate={() => window.location.reload()}
+        />
         );
 
       case "files":
@@ -470,6 +553,277 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
           </div>
         );
 
+      case "requests":
+        const requests = project.requests || [];
+        
+        const getRequestStatusBadge = (status: string) => {
+          const config: Record<string, { bg: string; text: string; border: string; label: string }> = {
+            DRAFT: { bg: "bg-slate-500/20", text: "text-slate-300", border: "border-slate-500/30", label: "Draft" },
+            SUBMITTED: { bg: "bg-blue-500/20", text: "text-blue-300", border: "border-blue-500/30", label: "Submitted" },
+            REVIEWING: { bg: "bg-amber-500/20", text: "text-amber-300", border: "border-amber-500/30", label: "Under Review" },
+            NEEDS_INFO: { bg: "bg-orange-500/20", text: "text-orange-300", border: "border-orange-500/30", label: "Needs Info" },
+            APPROVED: { bg: "bg-emerald-500/20", text: "text-emerald-300", border: "border-emerald-500/30", label: "Approved" },
+            REJECTED: { bg: "bg-red-500/20", text: "text-red-300", border: "border-red-500/30", label: "Rejected" },
+          };
+          return config[status] || { bg: "bg-gray-500/20", text: "text-gray-300", border: "border-gray-500/30", label: status };
+        };
+        
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">Change Requests</h3>
+              <Link
+                href={`/client/projects/${project.id}/requests`}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                New Request
+              </Link>
+            </div>
+            {requests.length === 0 ? (
+              <div className="text-center py-12">
+                <MessageSquare className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                <p className="text-white/60 mb-2">No change requests yet</p>
+                <p className="text-sm text-white/40">Submit a request to communicate changes or additions to this project</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {requests.map((request) => {
+                  const badge = getRequestStatusBadge(request.status);
+                  return (
+                    <div
+                      key={request.id}
+                      className="p-4 bg-gray-900 hover:bg-gray-800 rounded-xl border border-gray-800 transition-all"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-semibold text-white">{request.title}</h4>
+                        <span className={`px-2 py-1 text-xs rounded-full border ${badge.bg} ${badge.text} ${badge.border}`}>
+                          {badge.label}
+                        </span>
+                      </div>
+                      {request.description && (
+                        <p className="text-sm text-white/60 mb-2">{request.description}</p>
+                      )}
+                      {request.priority && (
+                        <div className="flex items-center gap-2 text-xs text-white/40 mb-2">
+                          <span>Priority: {request.priority}</span>
+                        </div>
+                      )}
+                      <p className="text-xs text-white/40">
+                        {new Date(request.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+
+      case "messages":
+        const thread = project.messageThreads?.[0];
+        const messages = thread?.messages || [];
+        
+        const handleSendMessage = async () => {
+          if (!newMessage.trim() || sendingMessage) return;
+          
+          setSendingMessage(true);
+          try {
+            const response = await fetch("/api/messages", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                threadId: thread?.id,
+                projectId: project.id,
+                content: newMessage.trim(),
+              }),
+            });
+            
+            if (response.ok) {
+              setNewMessage("");
+              window.location.reload(); // Refresh to show new message
+            } else {
+              const error = await response.json();
+              alert(error.error || "Failed to send message");
+            }
+          } catch (error) {
+            console.error("Failed to send message:", error);
+            alert("Failed to send message. Please try again.");
+          } finally {
+            setSendingMessage(false);
+          }
+        };
+        
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">Project Messages</h3>
+              <span className="text-sm text-white/60">{messages.length} messages</span>
+            </div>
+            
+            {/* Messages Display */}
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 min-h-[400px] max-h-[500px] overflow-y-auto space-y-3">
+              {messages.length === 0 ? (
+                <div className="text-center py-12">
+                  <Send className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                  <p className="text-white/60">No messages yet</p>
+                  <p className="text-sm text-white/40 mt-2">Start the conversation by sending a message below</p>
+                </div>
+              ) : (
+                messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`p-3 rounded-lg ${
+                      message.role === 'client'
+                        ? 'bg-blue-600 ml-auto max-w-[80%]'
+                        : 'bg-gray-800 mr-auto max-w-[80%]'
+                    }`}
+                  >
+                    <p className="text-sm text-white">{message.content}</p>
+                    <p className="text-xs mt-1 opacity-70">
+                      {new Date(message.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            {/* Message Input */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                placeholder="Type a message..."
+                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim() || sendingMessage}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                {sendingMessage ? "Sending..." : "Send"}
+              </button>
+            </div>
+          </div>
+        );
+
+      case "invoices":
+        const invoices = project.invoices || [];
+        
+        const getInvoiceStatusBadge = (status: string) => {
+          const config: Record<string, { bg: string; text: string; border: string }> = {
+            PAID: { bg: "bg-green-500/20", text: "text-green-300", border: "border-green-500/30" },
+            SENT: { bg: "bg-blue-500/20", text: "text-blue-300", border: "border-blue-500/30" },
+            OVERDUE: { bg: "bg-red-500/20", text: "text-red-300", border: "border-red-500/30" },
+            DRAFT: { bg: "bg-slate-500/20", text: "text-slate-300", border: "border-slate-500/30" },
+          };
+          return config[status] || { bg: "bg-gray-500/20", text: "text-gray-300", border: "border-gray-500/30" };
+        };
+        
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">Project Invoices</h3>
+              <span className="text-sm text-white/60">{invoices.length} invoices</span>
+            </div>
+            {invoices.length === 0 ? (
+              <div className="text-center py-12">
+                <CreditCard className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                <p className="text-white/60">No invoices yet</p>
+                <p className="text-sm text-white/40 mt-2">Invoices for this project will appear here</p>
+              </div>
+            ) : (
+              <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-900 border-b border-gray-800">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase">
+                        Invoice #
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase">
+                        Amount
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase">
+                        Due Date
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase">
+                        Paid
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800">
+                    {invoices.map((invoice) => {
+                      const badge = getInvoiceStatusBadge(invoice.status);
+                      const canPay = invoice.status === 'SENT' && !invoice.paidAt;
+                      return (
+                        <tr key={invoice.id} className="hover:bg-gray-800 transition-colors">
+                          <td className="px-6 py-4 text-sm text-white font-mono">
+                            {invoice.number}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-white font-semibold">
+                            ${Number(invoice.amount || invoice.total).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${badge.bg} ${badge.text} ${badge.border}`}>
+                              {invoice.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-400">
+                            {new Date(invoice.dueDate).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-400">
+                            {invoice.paidAt ? new Date(invoice.paidAt).toLocaleDateString() : '-'}
+                          </td>
+                          <td className="px-6 py-4">
+                            {canPay ? (
+                              <InvoicePayButton invoiceId={invoice.id} invoiceNumber={invoice.number} />
+                            ) : invoice.status === 'PAID' ? (
+                              <span className="text-sm text-green-400">Paid</span>
+                            ) : null}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        );
+
+      case "repository":
+        return <RepositoryTab projectId={project.id} />;
+
+      case "settings":
+        return (
+          <SettingsTab
+            project={{
+              id: project.id,
+              name: project.name,
+              description: project.description,
+              status: project.status,
+              githubRepo: project.githubRepo || null,
+              questionnaire: project.questionnaire,
+            }}
+            assignee={project.assignee}
+            isAdmin={false}
+          />
+        );
+
       default:
         return null;
     }
@@ -550,27 +904,63 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
         </div>
       )}
 
-      {/* Milestones Progress */}
-      {totalMilestones > 0 && (
-        <div className="seezee-glass p-6 rounded-2xl">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-cyan-400" />
-              <span className="font-semibold text-white">Milestones Progress</span>
-            </div>
-            <span className="text-2xl font-bold text-white">
-              {completedMilestones} / {totalMilestones}
-            </span>
+      {/* Progress Overview */}
+      <div className="seezee-glass p-6 rounded-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-cyan-400" />
+            <span className="font-semibold text-white">Project Progress</span>
           </div>
-          <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="text-xs text-white/50 mt-2 text-right">{progress}% Complete</div>
+          <span className="text-2xl font-bold text-white">{progress}%</span>
         </div>
-      )}
+        
+        {/* Overall Progress Bar */}
+        <div className="h-3 bg-white/10 rounded-full overflow-hidden mb-4">
+          <div
+            className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        
+        {/* Breakdown */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Milestones */}
+          {totalMilestones > 0 && (
+            <div className="p-3 bg-white/5 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-white/60">Milestones</span>
+                <span className="text-sm font-semibold text-white">
+                  {completedMilestones}/{totalMilestones}
+                </span>
+              </div>
+              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-500"
+                  style={{ width: `${totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0}%` }}
+                />
+              </div>
+            </div>
+          )}
+          
+          {/* Tasks */}
+          {project.tasks && project.tasks.length > 0 && (
+            <div className="p-3 bg-white/5 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-white/60">Tasks</span>
+                <span className="text-sm font-semibold text-white">
+                  {project.tasks.filter(t => t.status === 'completed').length}/{project.tasks.length}
+                </span>
+              </div>
+              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-500 transition-all duration-500"
+                  style={{ width: `${Math.round((project.tasks.filter(t => t.status === 'completed').length / project.tasks.length) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Tabs */}
       <div className="seezee-glass rounded-2xl overflow-hidden">

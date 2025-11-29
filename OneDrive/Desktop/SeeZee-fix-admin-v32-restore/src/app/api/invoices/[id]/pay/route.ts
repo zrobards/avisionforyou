@@ -42,8 +42,11 @@ export async function POST(
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
-    // Check if invoice is approved by both customer and admin
-    if (!(invoice as any).customerApprovedAt || !(invoice as any).adminApprovedAt) {
+    // For SENT invoices, allow payment without explicit approval
+    // Only require approval if the invoice type explicitly requires it
+    // (e.g., custom invoices that need approval workflow)
+    const requiresApproval = (invoice as any).invoiceType === 'custom' || (invoice as any).requiresApproval === true;
+    if (requiresApproval && (!(invoice as any).customerApprovedAt || !(invoice as any).adminApprovedAt)) {
       return NextResponse.json(
         { error: "Invoice must be approved by both customer and admin before payment" },
         { status: 400 }

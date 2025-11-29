@@ -64,6 +64,49 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
         orderBy: { createdAt: "desc" },
         take: 50,
       },
+      clientTasks: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          dueDate: true,
+          completedAt: true,
+          createdAt: true,
+        },
+      },
+      files: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          originalName: true,
+          mimeType: true,
+          size: true,
+          url: true,
+          type: true,
+          createdAt: true,
+        },
+      },
+      changeRequests: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          description: true,
+          status: true,
+          createdAt: true,
+        },
+      },
+      messageThreads: {
+        where: { projectId: id },
+        include: {
+          messages: {
+            orderBy: { createdAt: "asc" },
+            take: 50,
+          },
+        },
+      },
     },
   });
 
@@ -72,6 +115,8 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
   }
 
   // Convert to JSON-serializable plain object (Decimal -> string, Date -> ISO)
+  // This ensures all Decimal fields (like invoice.total, invoice.amount, invoice.tax)
+  // are properly serialized before passing to Client Components
   const plainProject = toPlain(project);
   return <ProjectDetailClient project={plainProject} />;
 }

@@ -76,6 +76,7 @@ model User {
   trainingsCreated       Training[]           @relation("TrainingCreatedBy")
   briefQuestionnaire     BriefQuestionnaire?  @relation("UserBriefQuestionnaire")
   revenueSplitsCreated   RevenueSplit[]       @relation("RevenueSplitCreatedBy")
+  clientTasksCreated     ClientTask[]         @relation("ClientTaskCreatedBy")
   invitedBy              User?                @relation("Inviter", fields: [invitedById], references: [id])
   invitees               User[]               @relation("Inviter")
 
@@ -92,25 +93,26 @@ model VerificationToken {
 }
 
 model Organization {
-  id           String               @id @default(cuid())
-  name         String
-  slug         String               @unique
-  website      String?
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  address      String?
-  billingEmail String?
-  city         String?
-  country      String?              @default("US")
-  email        String?
-  phone        String?
-  state        String?
-  taxId        String?
-  zipCode      String?
-  invoices     Invoice[]
-  leads        Lead[]
-  members      OrganizationMember[]
-  projects     Project[]
+  id               String               @id @default(cuid())
+  name             String
+  slug             String               @unique
+  website          String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  address          String?
+  billingEmail     String?
+  city             String?
+  country          String?              @default("US")
+  email            String?
+  phone            String?
+  state            String?
+  taxId            String?
+  zipCode          String?
+  stripeCustomerId String?
+  invoices         Invoice[]
+  leads            Lead[]
+  members          OrganizationMember[]
+  projects         Project[]
 
   @@map("organizations")
 }
@@ -157,6 +159,7 @@ model Project {
   name                 String
   description          String?
   status               ProjectStatus         @default(LEAD)
+  isNonprofit          Boolean               @default(false)
   budget               Decimal?
   startDate            DateTime?
   endDate              DateTime?
@@ -352,8 +355,10 @@ model Notification {
   createdAt DateTime         @default(now())
   read      Boolean          @default(false)
   userId    String
+  projectId String?
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([projectId])
   @@map("notifications")
 }
 
@@ -576,11 +581,14 @@ model Activity {
   read        Boolean      @default(false)
   readAt      DateTime?
   createdAt   DateTime     @default(now())
+  projectId   String?
+  createdBy   String?      // User ID or "SYSTEM"
   user        User?        @relation(fields: [userId], references: [id])
 
   @@index([createdAt])
   @@index([userId])
   @@index([read])
+  @@index([projectId, createdAt])
   @@map("activities")
 }
 
@@ -843,13 +851,19 @@ model ClientTask {
   dueDate               DateTime?
   completedAt           DateTime?
   data                  Json?
+  assignedToClient      Boolean                @default(true)
+  requiresUpload        Boolean                @default(false)
+  submissionNotes       String?
+  createdById           String?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   project               Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy             User?                  @relation("ClientTaskCreatedBy", fields: [createdById], references: [id])
   projectQuestionnaires ProjectQuestionnaire[]
 
   @@index([projectId])
   @@index([status])
+  @@index([assignedToClient])
   @@map("client_tasks")
 }
 
@@ -884,6 +898,22 @@ model RevenueSplit {
   @@index([projectId])
   @@index([createdById])
   @@map("revenue_splits")
+}
+
+model AISuggestion {
+  id          String   @id @default(cuid())
+  projectId   String
+  type        String
+  title       String
+  description String
+  confidence  Int      // 0-100
+  source      String
+  status      String   @default("NEW") // NEW, ACCEPTED, DISMISSED
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([projectId, status])
+  @@map("ai_suggestions")
 }
 
 enum UserRole {
@@ -952,6 +982,10 @@ enum ServiceType {
 
 enum ProjectStatus {
   LEAD
+  BRIEF_PENDING
+  BRIEF_SUBMITTED
+  QUOTE_READY
+  DEPOSIT_PAID
   PAID
   IN_PROGRESS
   REVIEW
@@ -1034,6 +1068,11 @@ enum ActivityType {
   INVOICE_PAID
   MAINTENANCE_DUE
   SYSTEM_ALERT
+  FILE_UPLOAD
+  MESSAGE
+  MILESTONE
+  PAYMENT
+  STATUS_CHANGE
 }
 
 enum MaintenanceStatus {

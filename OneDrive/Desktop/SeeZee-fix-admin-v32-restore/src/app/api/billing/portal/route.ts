@@ -19,60 +19,133 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { projectId } = body;
-
-    if (!projectId) {
-      return NextResponse.json(
-        { error: "projectId required" },
-        { status: 400 }
-      );
+    let body: { projectId?: string } = {};
+    try {
+      body = await req.json();
+    } catch {
+      // Body is optional, continue
     }
 
-    // Get project with Stripe customer ID
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      include: {
-        organization: {
-          include: {
-            members: {
-              where: {
-                user: { email: session.user.email },
+    const { projectId } = body;
+
+    let stripeCustomerId: string | null = null;
+    let projectWithCustomerId: { id: string } | null = null;
+
+    // If projectId provided, use that project's customer ID
+    if (projectId) {
+      const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: {
+          organization: {
+            include: {
+              members: {
+                where: {
+                  user: { email: session.user.email },
+                },
+                take: 1,
               },
-              take: 1,
             },
           },
         },
-      },
-    });
+      });
 
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      if (!project) {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      }
+
+      // Verify user has access
+      if (project.organization.members.length === 0 && session.user.role !== "CEO" && session.user.role !== "CFO") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+
+      stripeCustomerId = project.stripeCustomerId;
+      if (stripeCustomerId) {
+        projectWithCustomerId = { id: project.id };
+      }
+    } else {
+      // Find user's organization and get customer ID from any project
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        include: {
+          organizations: {
+            include: {
+              organization: {
+                include: {
+                  projects: {
+                    where: {
+                      stripeCustomerId: { not: null },
+                    },
+                    take: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      // Find first project with a customer ID
+      for (const orgMember of user.organizations) {
+        if (orgMember.organization.projects.length > 0 && orgMember.organization.projects[0].stripeCustomerId) {
+          stripeCustomerId = orgMember.organization.projects[0].stripeCustomerId;
+          projectWithCustomerId = { id: orgMember.organization.projects[0].id };
+          break;
+        }
+      }
     }
 
-    // Verify user has access
-    if (project.organization.members.length === 0 && session.user.role !== "CEO" && session.user.role !== "CFO") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
-
-    if (!project.stripeCustomerId) {
+    if (!stripeCustomerId) {
       return NextResponse.json(
-        { error: "No billing account found for this project" },
+        { error: "No billing account found. You need to make a payment first to create a billing account." },
         { status: 400 }
       );
+    }
+
+    // Verify customer exists in Stripe
+    try {
+      await stripe.customers.retrieve(stripeCustomerId);
+    } catch (error: any) {
+      // If customer doesn't exist, clear the invalid ID and return error
+      if (error.code === 'resource_missing' || error.statusCode === 404) {
+        console.error(`Stripe customer ${stripeCustomerId} not found, clearing from database`);
+        
+        // Clear invalid customer ID from database
+        if (projectWithCustomerId) {
+          await prisma.project.update({
+            where: { id: projectWithCustomerId.id },
+            data: { stripeCustomerId: null },
+          });
+        } else {
+          // Fallback: Find and clear from all projects with this customer ID
+          await prisma.project.updateMany({
+            where: { stripeCustomerId: stripeCustomerId },
+            data: { stripeCustomerId: null },
+          });
+        }
+        
+        return NextResponse.json(
+          { error: "Your billing account is no longer valid. Please make a new payment to create a new billing account." },
+          { status: 400 }
+        );
+      }
+      throw error;
     }
 
     // Create portal session
     const portalSession = await stripe.billingPortal.sessions.create({
-      customer: project.stripeCustomerId,
-      return_url: `${process.env.NEXTAUTH_URL}/client/settings?tab=billing`,
+      customer: stripeCustomerId,
+      return_url: `${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/client/settings?tab=billing`,
     });
 
     return NextResponse.json({ url: portalSession.url });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Billing Portal Error]", error);
     return NextResponse.json(
-      { error: "Failed to create portal session" },
+      { error: error.message || "Failed to create portal session" },
       { status: 500 }
     );
   }

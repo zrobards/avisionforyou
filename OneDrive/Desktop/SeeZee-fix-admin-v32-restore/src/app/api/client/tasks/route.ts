@@ -96,6 +96,8 @@ export async function GET(req: NextRequest) {
         type: true,
         dueDate: true,
         completedAt: true,
+        requiresUpload: true,
+        submissionNotes: true,
         createdAt: true,
         project: {
           select: {
@@ -132,6 +134,8 @@ export async function GET(req: NextRequest) {
         type: task.type,
         dueDate: task.dueDate,
         completedAt: task.completedAt,
+        requiresUpload: task.requiresUpload,
+        submissionNotes: task.submissionNotes,
         createdAt: task.createdAt,
         project: task.project,
       })),
@@ -158,9 +162,11 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { taskId, status } = body as {
+    const { taskId, status, submissionNotes, fileUrl } = body as {
       taskId?: string;
       status?: string;
+      submissionNotes?: string;
+      fileUrl?: string;
     };
 
     if (!taskId || !status || !VALID_STATUSES.has(status)) {
@@ -204,13 +210,23 @@ export async function PATCH(req: NextRequest) {
       throw error;
     }
 
+    const updateData: any = {
+      status,
+      completedAt: status === "completed" ? new Date() : null,
+    };
+
+    if (submissionNotes !== undefined) {
+      updateData.submissionNotes = submissionNotes;
+    }
+
+    // If file URL is provided, store it in the data JSON field
+    if (fileUrl) {
+      updateData.data = { fileUrl };
+    }
+
     const updatedTask = await prisma.clientTask.update({
       where: { id: taskId },
-      data: {
-        status,
-        completedAt:
-          status === "completed" ? new Date() : null,
-      },
+      data: updateData,
       select: {
         id: true,
         title: true,
@@ -219,6 +235,8 @@ export async function PATCH(req: NextRequest) {
         type: true,
         dueDate: true,
         completedAt: true,
+        requiresUpload: true,
+        submissionNotes: true,
         createdAt: true,
         project: {
           select: {
@@ -228,6 +246,31 @@ export async function PATCH(req: NextRequest) {
         },
       },
     });
+
+    // Create notification when task is completed
+    if (status === "completed") {
+      const { createTaskCompletedNotification, notifyProjectAdmins } = await import("@/lib/notifications");
+      const project = await prisma.project.findUnique({
+        where: { id: task.projectId },
+        select: { assigneeId: true },
+      });
+      
+      if (project?.assigneeId) {
+        await createTaskCompletedNotification(
+          project.assigneeId,
+          taskId,
+          task.projectId,
+          updatedTask.title,
+          session.user.name || undefined
+        );
+      }
+      
+      await notifyProjectAdmins(
+        task.projectId,
+        updatedTask.title,
+        session.user.name || undefined
+      );
+    }
 
     const response = NextResponse.json({ task: updatedTask });
     return addCorsHeaders(response, req.headers.get("origin"));

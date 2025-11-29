@@ -58,17 +58,62 @@ export async function getPipeline() {
   await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
-    const leads = await db.lead.findMany({
-      include: {
-        organization: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const [leads, projectRequests] = await Promise.all([
+      db.lead.findMany({
+        include: {
+          organization: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      db.projectRequest.findMany({
+        where: {
+          status: {
+            not: "DRAFT"
+          }
+        },
+        orderBy: {
+          createdAt: "desc",
+        }
+      })
+    ]);
+
+    // Normalize ProjectRequests to Lead format
+    const mappedRequests = projectRequests.map(req => ({
+      id: req.id,
+      name: req.name || req.title || "New Project Request",
+      email: req.email || req.contactEmail || "",
+      phone: null,
+      company: req.company,
+      status: "NEW", // Map all submitted requests to NEW lead status
+      source: "Project Request",
+      message: req.description,
+      createdAt: req.createdAt,
+      updatedAt: req.updatedAt,
+      convertedAt: null,
+      organizationId: null,
+      organization: null,
+      requirements: null,
+      serviceType: req.services.join(", "),
+      timeline: req.timeline,
+      budget: req.budget,
+      metadata: {
+        originalId: req.id,
+        type: "ProjectRequest",
+        projectType: req.projectType,
+        goal: req.goal,
+        resourcesUrl: req.resourcesUrl
+      }
+    }));
+
+    // Combine and sort
+    const allItems = [...leads, ...mappedRequests].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
     // Ensure all values are JSON-serializable for client-side consumption
-    const plainLeads = toPlain(leads);
+    const plainLeads = toPlain(allItems);
 
     // Group by status
     const pipeline = {

@@ -7,10 +7,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2 } from 'lucide-react';
-import type { PackageTier } from '@/lib/qwiz/packages';
-import { getPackage, calculateTotals } from '@/lib/qwiz/pricing';
 import PageShell from '@/components/PageShell';
 import FloatingShapes from '@/components/shared/FloatingShapes';
+
+type ServiceType = 'small-business' | 'ecommerce' | 'nonprofit' | 'maintenance' | 'quick-fix';
 
 interface ProjectRequestData {
   name: string;
@@ -24,7 +24,9 @@ interface ProjectRequestData {
   projectGoals: string;
   timeline: string;
   specialRequirements: string;
-  package: PackageTier;
+  serviceType: ServiceType;
+  nonprofitStatus?: string;
+  nonprofitEIN?: string;
 }
 
 const REFERRAL_SOURCES = [
@@ -69,7 +71,7 @@ function QuestionnairePageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedPackage, setSelectedPackage] = useState<PackageTier | null>(null);
+  const [selectedServiceType, setSelectedServiceType] = useState<ServiceType | null>(null);
 
   const [formData, setFormData] = useState<ProjectRequestData>({
     name: session?.user?.name || '',
@@ -83,17 +85,19 @@ function QuestionnairePageContent() {
     projectGoals: '',
     timeline: '',
     specialRequirements: '',
-    package: 'starter' as PackageTier,
+    serviceType: 'small-business' as ServiceType,
+    nonprofitStatus: '',
+    nonprofitEIN: '',
   });
 
-  // Get package from URL params
+  // Get service type from URL params
   useEffect(() => {
-    const pkg = searchParams.get('package') as PackageTier;
-    if (pkg && ['starter', 'pro', 'elite'].includes(pkg)) {
-      setSelectedPackage(pkg);
-      setFormData((prev) => ({ ...prev, package: pkg }));
+    const type = searchParams.get('type') as ServiceType;
+    if (type && ['small-business', 'ecommerce', 'nonprofit', 'maintenance', 'quick-fix'].includes(type)) {
+      setSelectedServiceType(type);
+      setFormData((prev) => ({ ...prev, serviceType: type }));
     } else {
-      // Redirect to start if no package selected
+      // Redirect to start if no service type selected
       router.push('/start');
     }
   }, [searchParams, router]);
@@ -112,7 +116,7 @@ function QuestionnairePageContent() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login?returnUrl=/start/questionnaire');
+      router.push('/login?callbackUrl=/start/questionnaire');
       return;
     }
   }, [status, router]);
@@ -120,33 +124,30 @@ function QuestionnairePageContent() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [pricingInfo, setPricingInfo] = useState<{ total: number; deposit: number } | null>(null);
   const [isApproved, setIsApproved] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
 
-  // Calculate pricing when component mounts
-  useEffect(() => {
-    if (selectedPackage) {
-      const pkg = getPackage(selectedPackage);
-      const totals = calculateTotals({
-        package: selectedPackage,
-        selectedFeatures: pkg.baseIncludedFeatures,
-        rush: false,
-      });
-      setPricingInfo({
-        total: totals.total,
-        deposit: totals.deposit,
-      });
-    }
-  }, [selectedPackage]);
+  // Get service type description
+  const getServiceTypeDescription = (type: ServiceType | null): string => {
+    if (!type) return '';
+    const descriptions: Record<ServiceType, string> = {
+      'small-business': "Let's build your professional website",
+      'ecommerce': "Let's build your online store",
+      'nonprofit': 'Special pricing for nonprofit organizations',
+      'maintenance': 'Subscribe to our maintenance service',
+      'quick-fix': 'Tell us what you need help with',
+    };
+    return descriptions[type] || '';
+  };
 
-  const QUESTIONS = [
+  const ALL_QUESTIONS = [
     {
       id: 'name',
       label: 'Full Name',
       type: 'text',
       required: true,
       placeholder: 'John Doe',
+      showIf: undefined,
     },
     {
       id: 'email',
@@ -155,6 +156,7 @@ function QuestionnairePageContent() {
       required: true,
       placeholder: 'john@example.com',
       readOnly: true,
+      showIf: undefined,
     },
     {
       id: 'phone',
@@ -162,6 +164,7 @@ function QuestionnairePageContent() {
       type: 'text',
       required: false,
       placeholder: '(555) 123-4567',
+      showIf: undefined,
     },
     {
       id: 'company',
@@ -169,6 +172,23 @@ function QuestionnairePageContent() {
       type: 'text',
       required: false,
       placeholder: 'Acme Inc.',
+      showIf: undefined,
+    },
+    {
+      id: 'nonprofitStatus',
+      label: 'Are you a registered 501(c)(3) nonprofit organization?',
+      type: 'radio',
+      required: true,
+      options: ['Yes, we have 501(c)(3) status', "No, but we're a nonprofit/community org"],
+      showIf: 'nonprofit',
+    },
+    {
+      id: 'nonprofitEIN',
+      label: 'Tax ID / EIN (optional - helps us process faster)',
+      type: 'text',
+      required: false,
+      placeholder: 'XX-XXXXXXX',
+      showIf: 'nonprofit',
     },
     {
       id: 'referralSource',
@@ -176,6 +196,7 @@ function QuestionnairePageContent() {
       type: 'select',
       required: false,
       options: REFERRAL_SOURCES,
+      showIf: undefined,
     },
     {
       id: 'stage',
@@ -183,6 +204,7 @@ function QuestionnairePageContent() {
       type: 'radio',
       required: false,
       options: STAGE_OPTIONS,
+      showIf: undefined,
     },
     {
       id: 'outreachProgram',
@@ -190,6 +212,7 @@ function QuestionnairePageContent() {
       type: 'radio',
       required: false,
       options: OUTREACH_OPTIONS,
+      showIf: undefined,
     },
     {
       id: 'projectType',
@@ -197,6 +220,7 @@ function QuestionnairePageContent() {
       type: 'multiselect',
       required: true,
       options: PROJECT_TYPE_OPTIONS,
+      showIf: undefined,
     },
     {
       id: 'projectGoals',
@@ -204,6 +228,7 @@ function QuestionnairePageContent() {
       type: 'textarea',
       required: true,
       placeholder: 'e.g., Increase online sales, improve brand visibility, streamline customer communication...',
+      showIf: undefined,
     },
     {
       id: 'timeline',
@@ -211,6 +236,7 @@ function QuestionnairePageContent() {
       type: 'select-timeline',
       required: true,
       options: TIMELINE_OPTIONS,
+      showIf: undefined,
     },
     {
       id: 'specialRequirements',
@@ -218,8 +244,12 @@ function QuestionnairePageContent() {
       type: 'textarea',
       required: false,
       placeholder: 'e.g., Need integration with existing systems, specific design preferences, accessibility requirements...',
+      showIf: undefined,
     },
   ];
+
+  // Filter questions based on service type
+  const QUESTIONS = ALL_QUESTIONS.filter(q => !q.showIf || q.showIf === selectedServiceType);
 
   const totalSteps = QUESTIONS.length;
   const currentQuestion = QUESTIONS[currentStep];
@@ -294,7 +324,7 @@ function QuestionnairePageContent() {
   };
 
   const handleSubmit = async () => {
-    if (!validateCurrentStep() || !selectedPackage) {
+    if (!validateCurrentStep() || !selectedServiceType) {
       return;
     }
 
@@ -305,7 +335,7 @@ function QuestionnairePageContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          packageId: selectedPackage,
+          serviceType: selectedServiceType,
           email: formData.email,
           name: formData.name,
           phone: formData.phone,
@@ -317,6 +347,8 @@ function QuestionnairePageContent() {
           projectGoals: formData.projectGoals,
           timeline: formData.timeline,
           specialRequirements: formData.specialRequirements,
+          nonprofitStatus: formData.nonprofitStatus,
+          nonprofitEIN: formData.nonprofitEIN,
         }),
       });
 
@@ -340,7 +372,7 @@ function QuestionnairePageContent() {
 
 
   // Show loading state
-  if (status === 'loading' || !selectedPackage) {
+  if (status === 'loading' || !selectedServiceType) {
     return (
       <PageShell>
         <div className="flex items-center justify-center min-h-screen">
@@ -369,19 +401,39 @@ function QuestionnairePageContent() {
             >
               <div className="p-8 space-y-6 text-center">
                 <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-2xl font-heading font-bold gradient-text mb-2">Request Submitted Successfully!</h3>
+                <h3 className="text-2xl font-heading font-bold gradient-text mb-2">Welcome to SeeZee Studio!</h3>
                 <p className="text-white/80 mb-4">
-                  Your project request is awaiting CEO review.
+                  Check your email for next steps and dashboard access.
                 </p>
-                <p className="text-white/60 mb-6">
-                  We'll review your {selectedPackage} package request and get back to you within 24 hours. Once approved, you'll receive an invoice for the starting deposit.
-                </p>
+                
+                <div className="bg-gray-800/50 rounded-lg p-6 text-left border border-gray-700">
+                  <h4 className="text-white font-semibold mb-4">Next Steps:</h4>
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-trinity-red flex items-center justify-center text-white text-sm font-bold flex-shrink-0">1</div>
+                      <p className="text-white/80">Log into your project portal</p>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-trinity-red flex items-center justify-center text-white text-sm font-bold flex-shrink-0">2</div>
+                      <p className="text-white/80">Complete your detailed project brief (10-15 minutes)</p>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-trinity-red flex items-center justify-center text-white text-sm font-bold flex-shrink-0">3</div>
+                      <p className="text-white/80">Receive your custom quote within 24 hours</p>
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   onClick={() => router.push('/client')}
                   className="px-6 py-3 bg-trinity-red hover:bg-trinity-maroon rounded-lg text-white font-medium transition-all duration-200 shadow-medium transform hover:-translate-y-1 glow-on-hover"
                 >
-                  Go to Dashboard
+                  Go to Dashboard →
                 </button>
+
+                <p className="text-sm text-white/40">
+                  Didn't receive an email? Check your spam folder or <a href="/contact" className="text-trinity-red hover:underline">contact us</a>
+                </p>
               </div>
             </motion.div>
           </div>
@@ -399,18 +451,27 @@ function QuestionnairePageContent() {
         <div className="relative z-10 min-h-screen">
           {/* Header */}
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-4">
               <button
                 onClick={() => router.push('/start')}
                 className="flex items-center gap-2 px-4 py-2 text-white/70 hover:text-white hover:bg-gray-800 border border-gray-700 hover:border-gray-600 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
-                <span className="font-medium">Back to Packages</span>
+                <span className="font-medium">Back to Services</span>
               </button>
               <div className="text-sm text-white/60">
                 Question {currentStep + 1} of {totalSteps}
               </div>
             </div>
+
+            {/* Service Type Description */}
+            {selectedServiceType && (
+              <div className="mb-8 text-center">
+                <p className="text-lg text-blue-400 font-medium">
+                  {getServiceTypeDescription(selectedServiceType)}
+                </p>
+              </div>
+            )}
 
             {/* Progress Bar */}
             <div className="w-full mb-8">

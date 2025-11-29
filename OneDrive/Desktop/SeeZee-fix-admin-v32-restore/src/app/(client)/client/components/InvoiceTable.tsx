@@ -10,7 +10,7 @@ interface InvoiceTableProps {
   invoices: Invoice[];
 }
 
-export default function InvoiceTable({ invoices }: InvoiceTableProps) {
+export function InvoiceTable({ invoices }: InvoiceTableProps) {
   if (!invoices || invoices.length === 0) {
     return (
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center">

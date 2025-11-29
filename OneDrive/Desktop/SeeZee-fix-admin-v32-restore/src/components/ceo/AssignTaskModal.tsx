@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { X, Save, FolderOpen, Clock, Tag, Repeat, AlertCircle, CheckCircle2, Zap, Users } from "lucide-react";
 import AudiencePicker from "./AudiencePicker";
 import DueDatePicker from "./DueDatePicker";
+import ProjectDropdown from "./ProjectDropdown";
 import { toast } from "@/hooks/use-toast";
 
 interface AssignTaskModalProps {
@@ -591,21 +592,12 @@ export default function AssignTaskModal({
             {/* Project and Payout Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Project (Optional)
-                </label>
-                <select
+                <ProjectDropdown
                   value={projectId}
-                  onChange={(e) => setProjectId(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="">No project</option>
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setProjectId}
+                  projects={projects}
+                  label="Project (Optional)"
+                />
               </div>
 
               <div>

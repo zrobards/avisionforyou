@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { arrayToCSV, downloadCSV, formatCurrencyForCSV, formatDateForCSV } from "@/lib/csv-export";
 import { deleteInvoice, updateInvoice } from "@/server/actions";
+import { createStripeInvoice, sendInvoiceViaStripe } from "@/server/actions/invoice";
 import { CreateInvoiceModal } from "./CreateInvoiceModal";
 
 interface Invoice {
@@ -60,6 +61,7 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
   const [editing, setEditing] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Invoice>>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [sendingStripe, setSendingStripe] = useState<string | null>(null);
 
   const isCEO = session?.user?.role === "CEO";
 
@@ -124,6 +126,24 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
     }
   };
 
+  const handleSendViaStripe = async (invoiceId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("This will create a Stripe invoice and send it to the client. Continue?")) {
+      return;
+    }
+
+    setSendingStripe(invoiceId);
+    const result = await sendInvoiceViaStripe(invoiceId);
+
+    if (result.success) {
+      alert("Invoice sent successfully via Stripe!");
+      router.refresh();
+    } else {
+      alert(result.error || "Failed to send invoice via Stripe");
+    }
+    setSendingStripe(null);
+  };
+
   const columns: Column<Invoice>[] = [
     { key: "number", label: "Invoice #", sortable: true },
     {
@@ -171,6 +191,15 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
       label: "Actions",
       render: (invoice) => (
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          {invoice.status === "DRAFT" && isCEO && (
+            <button
+              onClick={(e) => handleSendViaStripe(invoice.id, e)}
+              disabled={sendingStripe === invoice.id}
+              className="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-medium transition-all disabled:opacity-50"
+            >
+              {sendingStripe === invoice.id ? "Sending..." : "Send via Stripe"}
+            </button>
+          )}
           {invoice.status === "SENT" && (
             <button
               onClick={(e) => {
@@ -179,7 +208,7 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
               }}
               className="px-3 py-1 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium transition-all"
             >
-              Pay
+              View Payment
             </button>
           )}
           {isCEO && (
