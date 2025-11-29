@@ -109,7 +109,7 @@ export async function GET(
     const pdfBuffer = await generateInvoicePDF(invoiceData);
 
     // Return PDF as downloadable file
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as unknown as BodyInit, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="invoice-${invoice.number}.pdf"`,
