@@ -587,7 +587,7 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
 
         <TabsContent value="repository" className="mt-6">
           {project.githubRepo ? (
-            <RepositoryTab githubRepo={project.githubRepo} />
+            <RepositoryTab projectId={project.id} />
           ) : (
             <div className="glass p-8 rounded-lg text-center text-slate-400">
               <Github className="w-12 h-12 mx-auto mb-4 text-white/20" />

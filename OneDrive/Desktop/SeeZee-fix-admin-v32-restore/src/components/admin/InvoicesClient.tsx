@@ -139,7 +139,7 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
       alert("Invoice sent successfully via Stripe!");
       router.refresh();
     } else {
-      alert(result.error || "Failed to send invoice via Stripe");
+      alert((result as any).error || "Failed to send invoice via Stripe");
     }
     setSendingStripe(null);
   };

@@ -6,7 +6,18 @@
  */
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import type { Notification } from "@/lib/notifications";
+
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  timestamp: Date;
+  link?: string;
+  actionUrl?: string;
+  actionLabel?: string;
+}
 
 interface NotificationsContextType {
   notifications: Notification[];

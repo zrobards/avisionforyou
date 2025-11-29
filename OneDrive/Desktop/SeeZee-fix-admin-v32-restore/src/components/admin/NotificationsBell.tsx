@@ -8,9 +8,18 @@ import { useState, useRef, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNotifications } from "@/providers/NotificationsProvider";
-import { getNotificationStyle } from "@/lib/notifications";
 import { formatRelativeTime } from "@/lib/ui";
 import Link from "next/link";
+
+const getNotificationStyle = (type: string) => {
+  const styles: Record<string, { icon: string; color: string }> = {
+    TASK_ASSIGNED: { icon: "📋", color: "text-blue-400" },
+    TASK_COMPLETED: { icon: "✅", color: "text-green-400" },
+    INVOICE_PAID: { icon: "💰", color: "text-emerald-400" },
+    PROJECT_UPDATE: { icon: "🔔", color: "text-purple-400" },
+  };
+  return styles[type] || { icon: "ℹ️", color: "text-slate-400" };
+};
 
 export function NotificationsBell() {
   const [open, setOpen] = useState(false);
