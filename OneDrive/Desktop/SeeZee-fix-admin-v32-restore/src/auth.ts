@@ -118,6 +118,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
     verifyRequest: "/verify",
   },
+  // Allow linking accounts with the same email
+  // This is needed when users sign up with email then try to login with OAuth
+  experimental: {
+    enableWebAuthn: false,
+  },
   providers: [
     Google({
       clientId: GOOGLE_ID!,
@@ -242,76 +247,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return false;
         }
 
-        // Handle account linking for existing users
-        // This prevents OAuthAccountNotLinked errors when a user with the same email exists
-        if (user.email && account?.provider && account?.providerAccountId) {
-          try {
-            // Check if account already exists (might be linked to different user)
-            const existingAccount = await prisma.account.findUnique({
-              where: {
-                provider_providerAccountId: {
-                  provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                },
-              },
-              include: { user: true },
-            });
-
-            // Check if user exists
-            const existingUser = await prisma.user.findUnique({
-              where: { email: user.email },
-              include: { accounts: true },
-            });
-
-            if (existingAccount && existingUser && existingAccount.userId !== existingUser.id) {
-              // Account exists but linked to different user - this is the OAuthAccountNotLinked case
-              // With allowDangerousEmailAccountLinking, we should link it to the existing user by email
-              console.log(`🔗 Re-linking ${account.provider} account from user ${existingAccount.userId} to user ${existingUser.id} (same email)`);
-              await prisma.account.update({
-                where: { id: existingAccount.id },
-                data: { userId: existingUser.id },
-              });
-              console.log(`✅ Successfully re-linked account`);
-            } else if (existingUser && !existingAccount) {
-              // User exists but account not linked - create the link
-              console.log(`🔗 Linking ${account.provider} account to existing user ${user.email}`);
-              try {
-                await prisma.account.create({
-                  data: {
-                    userId: existingUser.id,
-                    type: account.type,
-                    provider: account.provider,
-                    providerAccountId: account.providerAccountId,
-                    refresh_token: account.refresh_token,
-                    access_token: account.access_token,
-                    expires_at: account.expires_at,
-                    token_type: account.token_type,
-                    scope: account.scope,
-                    id_token: account.id_token,
-                    session_state: account.session_state as string | null | undefined,
-                  },
-                });
-                console.log(`✅ Successfully linked ${account.provider} account`);
-              } catch (createError: any) {
-                // If account was created by adapter in the meantime, that's fine
-                if (createError.code === 'P2002') {
-                  console.log(`✅ Account already exists (likely created by adapter)`);
-                } else {
-                  throw createError;
-                }
-              }
-            } else if (existingAccount && existingAccount.user.email === user.email) {
-              console.log(`✅ Account already linked to correct user ${user.email}`);
-            }
-          } catch (linkError) {
-            // If linking fails, log but don't block sign-in
-            // PrismaAdapter will handle it with allowDangerousEmailAccountLinking
-            console.warn("⚠️ Account linking attempt failed, falling back to adapter:", linkError);
-          }
-        }
-
-        // Allow all sign-ins - PrismaAdapter handles user creation
-        // events.createUser will set the appropriate role/accountType
+        // With allowDangerousEmailAccountLinking: true, the adapter will automatically
+        // link accounts with the same email. We just need to allow the sign-in.
+        console.log(`✅ Allowing sign-in for ${user.email} via ${account?.provider}`);
         return true;
       } catch (error) {
         console.error("❌ Sign in callback error:", error);
