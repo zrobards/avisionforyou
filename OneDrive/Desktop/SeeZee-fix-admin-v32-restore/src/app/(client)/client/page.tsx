@@ -33,11 +33,30 @@ export default async function ClientDashboard() {
     );
   }
   
-  // Fetch comprehensive dashboard data
-  const data = await getComprehensiveDashboardData(userId, email);
+  // Fetch comprehensive dashboard data with error handling
+  let data;
+  try {
+    data = await getComprehensiveDashboardData(userId, email);
+  } catch (error) {
+    console.error("Error loading dashboard data:", error);
+    return (
+      <div className="rounded-xl border border-red-700 bg-red-900/30 p-6 text-center">
+        <p className="text-red-300 mb-2">Error loading dashboard</p>
+        <p className="text-sm text-red-400">
+          {error instanceof Error ? error.message : "Unknown error occurred"}
+        </p>
+        <Link 
+          href="/client" 
+          className="mt-4 inline-block text-blue-400 hover:text-blue-300"
+        >
+          Try Again
+        </Link>
+      </div>
+    );
+  }
   
   // No projects? Show welcome screen
-  if (data.projects.length === 0) {
+  if (!data || data.projects.length === 0) {
     return <WelcomeScreen userName={session.user.name || undefined} />;
   }
   

@@ -477,31 +477,52 @@ export async function getComprehensiveDashboardData(
   userId: string,
   userEmail: string
 ): Promise<ComprehensiveDashboardData> {
-  const access = await getClientAccessContext({ userId, email: userEmail });
-  
-  // Get all accessible projects
-  const projects = await prisma.project.findMany({
-    where: {
-      OR: [
-        { organizationId: { in: access.organizationIds } },
-        { id: { in: access.leadProjectIds } },
-      ],
-    },
-    include: {
-      assignee: {
-        select: {
-          name: true,
-          image: true,
+  try {
+    const access = await getClientAccessContext({ userId, email: userEmail });
+    
+    // Safety check
+    if (!access || (!access.organizationIds.length && !access.leadProjectIds.length)) {
+      return {
+        projects: [],
+        stats: {
+          activeProjects: 0,
+          totalProjects: 0,
+          pendingInvoices: 0,
+          activeRequests: 0,
+          pendingTasks: 0,
+        },
+        recentActivity: [],
+        actionItems: [],
+        recentMessages: [],
+        recentRequests: [],
+      };
+    }
+    
+    // Get all accessible projects (with limit)
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { organizationId: { in: access.organizationIds } },
+          { id: { in: access.leadProjectIds } },
+        ],
+      },
+      include: {
+        assignee: {
+          select: {
+            name: true,
+            image: true,
+          },
+        },
+        milestones: {
+          select: {
+            completed: true,
+          },
+          take: 100, // Limit milestones per project
         },
       },
-      milestones: {
-        select: {
-          completed: true,
-        },
-      },
-    },
-    orderBy: { updatedAt: 'desc' },
-  });
+      orderBy: { updatedAt: 'desc' },
+      take: 50, // Limit total projects
+    });
   
   // Get active projects
   const activeProjects = projects.filter(p => {
@@ -617,5 +638,22 @@ export async function getComprehensiveDashboardData(
       createdAt: req.createdAt,
     })),
   };
+  } catch (error) {
+    console.error('Error fetching comprehensive dashboard data:', error);
+    return {
+      projects: [],
+      stats: {
+        activeProjects: 0,
+        totalProjects: 0,
+        pendingInvoices: 0,
+        activeRequests: 0,
+        pendingTasks: 0,
+      },
+      recentActivity: [],
+      actionItems: [],
+      recentMessages: [],
+      recentRequests: [],
+    };
+  }
 }
 
