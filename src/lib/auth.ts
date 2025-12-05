@@ -1,7 +1,6 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import NextAuth, { type NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 
 export const authOptions: NextAuthOptions = {
@@ -11,47 +10,6 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
       allowDangerousEmailAccountLinking: true
-    }),
-    CredentialsProvider({
-      name: 'Demo Login',
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
-        
-        // Demo credentials
-        if (credentials.email === "zacharyrobards@gmail.com" && credentials.password === "demo") {
-          let user = await db.user.findUnique({
-            where: { email: credentials.email }
-          })
-          
-          if (!user) {
-            user = await db.user.create({
-              data: {
-                email: credentials.email,
-                name: "Zachary Robards",
-                role: "ADMIN"
-              }
-            })
-          } else if (user.role !== "ADMIN") {
-            user = await db.user.update({
-              where: { id: user.id },
-              data: { role: "ADMIN" }
-            })
-          }
-          
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role
-          } as any
-        }
-        
-        return null
-      }
     })
   ],
   session: {

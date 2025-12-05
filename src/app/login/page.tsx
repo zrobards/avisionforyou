@@ -11,9 +11,6 @@ function LoginContent() {
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
-  const [email, setEmail] = useState('zacharyrobards@gmail.com')
-  const [password, setPassword] = useState('demo')
-  const [demoMode, setDemoMode] = useState(true)
 
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
 
@@ -30,25 +27,6 @@ function LoginContent() {
       await signIn('google', { callbackUrl })
     } catch (error) {
       console.error('Sign in error:', error)
-      setLoading(false)
-    }
-  }
-
-  const handleDemoSignIn = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false
-      })
-      if (result?.ok) {
-        router.push(callbackUrl)
-      }
-    } catch (error) {
-      console.error('Sign in error:', error)
-    } finally {
       setLoading(false)
     }
   }
@@ -87,90 +65,22 @@ function LoginContent() {
             <p className="text-slate-400">Sign in to your recovery journey</p>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setDemoMode(true)}
-              className={`flex-1 py-2 rounded-lg font-medium transition-all ${
-                demoMode
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-              }`}
-            >
-              Demo
-            </button>
-            <button
-              onClick={() => setDemoMode(false)}
-              className={`flex-1 py-2 rounded-lg font-medium transition-all ${
-                !demoMode
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-              }`}
-            >
-              Google
-            </button>
+          {/* Google Sign In */}
+          <button
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full bg-white text-slate-900 font-bold py-4 px-6 rounded-lg hover:bg-slate-50 disabled:bg-slate-300 transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+          >
+            <Chrome className="w-5 h-5" />
+            {loading ? 'Signing in...' : 'Continue with Google'}
+          </button>
+
+          {/* Info */}
+          <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 mt-6">
+            <p className="text-xs text-slate-400 text-center">
+              We use Google to securely authenticate your account. Your data is stored safely in our system.
+            </p>
           </div>
-
-          {demoMode ? (
-            <>
-              {/* Demo Form */}
-              <form onSubmit={handleDemoSignIn} className="space-y-4">
-                <div>
-                  <label className="text-sm text-slate-300 block mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-slate-300 block mb-2">Password</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-slate-400 transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg hover:shadow-xl"
-                >
-                  {loading ? 'Signing in...' : 'Sign In'}
-                </button>
-              </form>
-
-              {/* Demo Credentials Info */}
-              <div className="bg-amber-900/30 border border-amber-700 rounded-lg p-4 mt-4">
-                <p className="text-xs text-amber-200">
-                  <strong>Demo Credentials:</strong><br/>
-                  Email: zacharyrobards@gmail.com<br/>
-                  Password: demo
-                </p>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Google Sign In */}
-              <button
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                className="w-full bg-white text-slate-900 font-bold py-4 px-6 rounded-lg hover:bg-slate-50 disabled:bg-slate-300 transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
-              >
-                <Chrome className="w-5 h-5" />
-                {loading ? 'Signing in...' : 'Continue with Google'}
-              </button>
-
-              {/* Info */}
-              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 mt-6">
-                <p className="text-xs text-slate-400 text-center">
-                  We use Google to securely authenticate your account. Your data is stored safely in our system.
-                </p>
-              </div>
-            </>
-          )}
 
           {/* Footer */}
           <div className="mt-8 text-center">
