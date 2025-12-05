@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { Heart, Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings } from 'lucide-react'
+import { Heart, Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navbar() {
@@ -49,55 +49,73 @@ export default function Navbar() {
             {status === 'loading' ? (
               <div className="animate-pulse bg-blue-700 rounded-full w-10 h-10"></div>
             ) : session ? (
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+              <>
+                <Link
+                  href="/notifications"
+                  className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors"
+                  title="Your meeting notifications"
                 >
-                  <User className="w-4 h-4" />
-                  <span className="hidden md:inline">{session.user?.name || 'Account'}</span>
-                </button>
+                  <Bell className="w-4 h-4" />
+                </Link>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="hidden md:inline">{session.user?.name || 'Account'}</span>
+                  </button>
 
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                    <div className="px-4 py-2 border-b border-gray-200">
-                      <p className="text-sm font-semibold text-gray-900">{session.user?.name}</p>
-                      <p className="text-xs text-gray-500">{session.user?.email}</p>
-                    </div>
-                    
-                    <Link
-                      href="/dashboard"
-                      className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-blue-50 transition-colors"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <Settings className="w-4 h-4" />
-                      My Dashboard
-                    </Link>
-
-                    {isAdmin && (
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-gray-200">
+                        <p className="text-sm font-semibold text-gray-900">{session.user?.name}</p>
+                        <p className="text-xs text-gray-500">{session.user?.email}</p>
+                      </div>
+                      
                       <Link
-                        href="/admin"
+                        href="/dashboard"
                         className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-blue-50 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        <Users className="w-4 h-4" />
-                        Admin Panel
+                        <Settings className="w-4 h-4" />
+                        My Dashboard
                       </Link>
-                    )}
 
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false)
-                        signOut({ callbackUrl: '/' })
-                      }}
-                      className="flex items-center gap-2 w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sign Out
-                    </button>
-                  </div>
-                )}
-              </div>
+                      <Link
+                        href="/notifications"
+                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-blue-50 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <Bell className="w-4 h-4" />
+                        My Meetings
+                      </Link>
+
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-blue-50 transition-colors"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <Users className="w-4 h-4" />
+                          Admin Panel
+                        </Link>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false)
+                          signOut({ callbackUrl: '/' })
+                        }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
               <Link
                 href="/login"
