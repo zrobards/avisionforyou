@@ -4,13 +4,16 @@ import Link from 'next/link'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, Suspense, useEffect } from 'react'
-import { Chrome, Heart, ArrowRight } from 'lucide-react'
+import { Chrome, Heart, ArrowRight, Lock } from 'lucide-react'
 
 function LoginContent() {
   const router = useRouter()
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
+  const [devEmail, setDevEmail] = useState('test@example.com')
+  const [showDevLogin, setShowDevLogin] = useState(false)
+  const [isDevMode] = useState(process.env.NODE_ENV === 'development')
 
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
 
@@ -27,6 +30,20 @@ function LoginContent() {
       await signIn('google', { callbackUrl })
     } catch (error) {
       console.error('Sign in error:', error)
+      setLoading(false)
+    }
+  }
+
+  const handleDevSignIn = async () => {
+    setLoading(true)
+    try {
+      await signIn('credentials', {
+        email: devEmail,
+        password: 'dev-password',
+        callbackUrl
+      })
+    } catch (error) {
+      console.error('Dev sign in error:', error)
       setLoading(false)
     }
   }
@@ -75,10 +92,53 @@ function LoginContent() {
             {loading ? 'Signing in...' : 'Continue with Google'}
           </button>
 
+          {/* Development Mode Toggle */}
+          {isDevMode && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowDevLogin(!showDevLogin)}
+                className="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <Lock className="w-4 h-4" />
+                {showDevLogin ? 'Hide' : 'Show'} Development Login
+              </button>
+            </div>
+          )}
+
+          {/* Development Login Form */}
+          {isDevMode && showDevLogin && (
+            <div className="mt-6 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
+              <p className="text-xs text-slate-300 mb-3 font-semibold">🔧 Development Mode</p>
+              <div className="space-y-3">
+                <input
+                  type="email"
+                  value={devEmail}
+                  onChange={(e) => setDevEmail(e.target.value)}
+                  placeholder="Enter test email"
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500"
+                />
+                <button
+                  onClick={handleDevSignIn}
+                  disabled={loading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
+                >
+                  {loading ? 'Signing in...' : 'Dev Sign In'}
+                </button>
+              </div>
+              <p className="text-xs text-slate-400 mt-3">
+                ✨ Tip: Use zacharyrobards@gmail.com to get admin role
+              </p>
+            </div>
+          )}
+
           {/* Info */}
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 mt-6">
             <p className="text-xs text-slate-400 text-center">
-              We use Google to securely authenticate your account. Your data is stored safely in our system.
+              {isDevMode && showDevLogin ? (
+                'Development mode: Use any email to test.'
+              ) : (
+                'We use Google to securely authenticate your account. Your data is stored safely in our system.'
+              )}
             </p>
           </div>
 
