@@ -35,4 +35,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Prisma
-prisma/migrations/
+# (track migrations to share schema changes)
