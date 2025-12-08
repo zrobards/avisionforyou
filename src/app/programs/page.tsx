@@ -149,8 +149,8 @@ export default function Programs() {
           </div>
 
           <div className="mt-8 flex gap-4 flex-wrap">
-            <Link href="/admission" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
-              Apply Now
+            <Link href="/login?callbackUrl=/assessment" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+              Start Application
             </Link>
             <a href="tel:(502)749-6344" className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition">
               Call for Info
@@ -165,8 +165,8 @@ export default function Programs() {
           <h2 className="text-2xl font-bold mb-4">Ready to Take the Next Step?</h2>
           <p className="text-blue-100 mb-6">Contact us today to learn more about how we can support your recovery journey.</p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/admission" className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-bold hover:bg-yellow-300 transition">
-              Admission Information
+            <Link href="/login?callbackUrl=/assessment" className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-bold hover:bg-yellow-300 transition">
+              Begin Your Journey
             </Link>
             <Link href="/donate" className="bg-white text-blue-900 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition">
               Support Our Mission

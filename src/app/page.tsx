@@ -50,7 +50,7 @@ export default function Home() {
           <p className="text-xl mb-2 font-semibold">501(c)(3) Charity</p>
           <p className="text-lg md:text-xl mb-8 opacity-95">"To empower the homeless, addicted, maladjusted, and mentally ill to lead productive lives through housing, education, self-help, treatment, or any other available resource"</p>
           <div className="flex justify-center gap-4 flex-wrap">
-            <Link href="/programs" className="px-8 py-4 bg-white text-blue-600 rounded-lg font-bold hover:bg-gray-50 transition">Explore Programs</Link>
+            <Link href="/login?callbackUrl=/assessment" className="px-8 py-4 bg-white text-blue-600 rounded-lg font-bold hover:bg-gray-50 transition">Explore Programs</Link>
             <Link href="/donate" className="px-8 py-4 bg-green-500 text-white rounded-lg font-bold hover:bg-green-600 transition">Make a Donation</Link>
             <a href="tel:+15027496344" className="px-8 py-4 border-2 border-white text-white rounded-lg font-bold hover:bg-white/10 transition">Call (502) 749-6344</a>
           </div>
@@ -82,7 +82,7 @@ export default function Home() {
               <div key={idx} className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-blue-600">
                 <h3 className="text-2xl font-bold mb-3 text-gray-900">{program.title}</h3>
                 <p className="text-gray-600 mb-4">{program.description}</p>
-                <Link href="/programs" className="text-blue-600 font-semibold hover:text-blue-700">Learn More →</Link>
+                <Link href="/login?callbackUrl=/assessment" className="text-blue-600 font-semibold hover:text-blue-700">Start Now →</Link>
               </div>
             ))}
           </div>
