@@ -15,37 +15,36 @@ export const authOptions: NextAuthOptions = {
         allowDangerousEmailAccountLinking: true
       })
     ] : []),
-    // Development/Testing credentials provider - only in dev mode
-    ...(process.env.NODE_ENV === 'development' ? [
-      CredentialsProvider({
-        name: 'Development',
-        credentials: {
-          email: { label: 'Email', type: 'email', placeholder: 'test@example.com' },
-          password: { label: 'Password', type: 'password' }
-        },
-        async authorize(credentials) {
-          if (!credentials?.email || !credentials?.password) {
-            throw new Error('Email and password required')
-          }
-
-          // In development, accept any email/password combo
-          // In production, this would validate against your database
-          if (process.env.NODE_ENV === 'development') {
-            const user = await db.user.upsert({
-              where: { email: credentials.email },
-              update: { name: credentials.email.split('@')[0] },
-              create: {
-                email: credentials.email,
-                name: credentials.email.split('@')[0],
-                role: credentials.email === process.env.ADMIN_EMAIL ? 'ADMIN' : 'USER'
-              }
-            })
-            return user
-          }
-          return null
+    // Credentials provider - works in both dev and production for demo
+    CredentialsProvider({
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email', placeholder: 'your@email.com' },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Email and password required')
         }
-      })
-    ] : [])
+
+        // For demo: accept any email/password and create/update user
+        try {
+          const user = await db.user.upsert({
+            where: { email: credentials.email },
+            update: { name: credentials.email.split('@')[0] },
+            create: {
+              email: credentials.email,
+              name: credentials.email.split('@')[0],
+              role: credentials.email === process.env.ADMIN_EMAIL ? 'ADMIN' : 'USER'
+            }
+          })
+          return user
+        } catch (error) {
+          console.error('Auth error:', error)
+          throw new Error('Authentication failed')
+        }
+      }
+    })
   ],
   session: {
     strategy: "jwt"
