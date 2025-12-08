@@ -30,20 +30,6 @@ const PROGRAMS = [
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-blue-600">Vision For You</Link>
-          <div className="hidden md:flex space-x-8">
-            <Link href="/programs" className="text-gray-700 hover:text-blue-600 font-medium">Programs</Link>
-            <Link href="/team" className="text-gray-700 hover:text-blue-600 font-medium">Team</Link>
-            <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium">About</Link>
-            <Link href="/blog" className="text-gray-700 hover:text-blue-600 font-medium">Blog</Link>
-            <Link href="/donate" className="text-gray-700 hover:text-blue-600 font-medium">Donate</Link>
-            <Link href="/login" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign In</Link>
-          </div>
-        </div>
-      </nav>
-
       <section className="bg-gradient-to-r from-blue-700 via-blue-600 to-green-600 text-white py-24">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-4">A Vision For You Recovery</h1>
