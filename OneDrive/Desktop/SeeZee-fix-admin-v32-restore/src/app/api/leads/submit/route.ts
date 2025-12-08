@@ -185,12 +185,20 @@ export async function POST(req: NextRequest) {
       // Support both packageId (legacy) and serviceType (new)
       const selectedService = serviceType || packageId;
 
+      // Ensure user exists at this point
+      if (!user) {
+        return NextResponse.json({ error: 'User account is required' }, { status: 401 });
+      }
+
+      // TypeScript now knows user is not null
+      const currentUser = user;
+
       // 1. Find or create organization for the user
       let organization = await prisma.organization.findFirst({
         where: {
           members: {
             some: {
-              userId: user.id
+              userId: currentUser.id
             }
           }
         }
@@ -207,7 +215,7 @@ export async function POST(req: NextRequest) {
             slug: slug,
             members: {
               create: {
-                userId: user.id,
+                userId: currentUser.id,
                 role: 'OWNER'
               }
             }
@@ -228,7 +236,7 @@ export async function POST(req: NextRequest) {
           status: LeadStatus.NEW,
           serviceType: selectedService, // ServiceCategory enum value (BUSINESS_WEBSITE, etc.)
           metadata: {
-            userId: user?.id,
+            userId: currentUser.id,
             budget: budget || null,
             attachments: attachments || null,
             referralSource: referralSource || null,
@@ -267,7 +275,7 @@ export async function POST(req: NextRequest) {
       // 3. Create ProjectRequest so it appears in client dashboard
       const projectRequest = await prisma.projectRequest.create({
         data: {
-          userId: user!.id, // user is guaranteed to exist by this point
+          userId: currentUser.id,
           title: projectGoals || `${selectedService} Service Request`,
           description: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nBudget: ${budget || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}${nonprofitStatus ? `\n\nNonprofit Status: ${nonprofitStatus}` : ''}${nonprofitEIN ? `\n\nEIN: ${nonprofitEIN}` : ''}`,
           contactEmail: email,
@@ -325,23 +333,21 @@ export async function POST(req: NextRequest) {
       });
 
       // 6. Create activity/feed event for admin notification
-      if (user) {
-        await prisma.activity.create({
-          data: {
-            type: 'PROJECT_CREATED',
-            title: 'New Project Created', // Added title which is required
-            description: `New project inquiry from ${name}`,
-            userId: user.id,
-            metadata: {
-              projectId: project.id,
-              service: selectedService,
-              serviceType: selectedService,
-              timeline: timeline,
-              isNonprofit: isNonprofitProject,
-            },
+      await prisma.activity.create({
+        data: {
+          type: 'PROJECT_CREATED',
+          title: 'New Project Created', // Added title which is required
+          description: `New project inquiry from ${name}`,
+          userId: currentUser.id,
+          metadata: {
+            projectId: project.id,
+            service: selectedService,
+            serviceType: selectedService,
+            timeline: timeline,
+            isNonprofit: isNonprofitProject,
           },
-        });
-      }
+        },
+      });
 
       // 7. Send welcome email
       try {
