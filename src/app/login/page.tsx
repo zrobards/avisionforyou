@@ -72,7 +72,7 @@ function LoginContent() {
 
       {/* Main Content */}
       <div className="max-w-md mx-auto px-6 py-16">
-        {/* Card */}
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-700">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-4 shadow-lg">
@@ -138,7 +138,6 @@ function LoginContent() {
                 💡 Tip: Use <code className="bg-slate-800 px-1 py-0.5 rounded">zacharyrobards@gmail.com</code> for admin access
               </p>
             )}
-          </div>
           </div>
 
           {/* Footer */}
