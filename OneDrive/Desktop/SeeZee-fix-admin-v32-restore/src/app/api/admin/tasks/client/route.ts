@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
         requiresUpload: requiresUpload || false,
         assignedToClient: true,
         createdById: session.user.id,
-        data: attachments && attachments.length > 0 ? { attachments } : null,
+        data: attachments && attachments.length > 0 ? { attachments } : undefined,
       },
       include: {
         project: {
