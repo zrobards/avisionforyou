@@ -13,12 +13,28 @@ import { UserRole } from "@prisma/client";
 
 /**
  * List all team members
+ * Allows all non-client roles (CEO, CFO, FRONTEND, BACKEND, OUTREACH)
  */
 export async function listTeam() {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
   
   try {
+    // Define role order for proper sorting
+    const roleOrder: Record<string, number> = {
+      CEO: 1,
+      CFO: 2,
+      FRONTEND: 3,
+      BACKEND: 4,
+      OUTREACH: 5,
+      CLIENT: 6,
+    };
+    
     const users = await db.user.findMany({
+      where: {
+        role: {
+          not: "CLIENT" // Exclude CLIENT users from team management
+        }
+      },
       orderBy: { name: "asc" },
       select: {
         id: true,
@@ -31,7 +47,17 @@ export async function listTeam() {
       },
     });
     
-    return { success: true, users };
+    // Sort users by role order, then by name
+    const sortedUsers = users.sort((a, b) => {
+      const aOrder = roleOrder[a.role] || 99;
+      const bOrder = roleOrder[b.role] || 99;
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+      return (a.name || a.email).localeCompare(b.name || b.email);
+    });
+    
+    return { success: true, users: sortedUsers };
   } catch (error) {
     console.error("Failed to list team:", error);
     return { success: false, error: "Failed to load team", users: [] };
@@ -52,7 +78,7 @@ export async function updateRole(userId: string, role: UserRole) {
       data: { role },
     });
     
-    tags.team.forEach(revalidateTag);
+    tags.team.forEach((tag) => revalidateTag(tag));
     
     return { success: true, user };
   } catch (error) {
@@ -64,9 +90,10 @@ export async function updateRole(userId: string, role: UserRole) {
 /**
  * Get user by ID
  * @param userId - ID of the user to fetch
+ * Allows all non-client roles (CEO, CFO, FRONTEND, BACKEND, OUTREACH)
  */
 export async function getUserById(userId: string) {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
   
   try {
     const user = await db.user.findUnique({
@@ -113,7 +140,7 @@ export async function updateUserProfile(
       },
     });
     
-    tags.team.forEach(revalidateTag);
+    tags.team.forEach((tag) => revalidateTag(tag));
     
     return { success: true, user };
   } catch (error) {
@@ -134,7 +161,7 @@ export async function deleteUser(userId: string) {
       where: { id: userId },
     });
     
-    tags.team.forEach(revalidateTag);
+    tags.team.forEach((tag) => revalidateTag(tag));
     
     return { success: true };
   } catch (error) {
