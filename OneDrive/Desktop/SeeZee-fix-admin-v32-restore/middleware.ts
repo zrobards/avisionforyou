@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "@/auth";
+
+// Import auth - if it fails due to missing env vars, we'll handle it in the middleware function
+let authModule: any = null;
+try {
+  authModule = require("@/auth");
+} catch (error) {
+  // Import failed - will use dynamic import in middleware
+  console.error("❌ Auth module import failed (likely missing env vars):", error instanceof Error ? error.message : String(error));
+}
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -92,8 +100,29 @@ export async function middleware(request: NextRequest) {
     
     if (isProtectedRoute) {
       try {
-        // Get session - wrap in try-catch to handle database/connection errors gracefully
-        const session = await auth();
+        // Get session - use safe auth with fallback
+        let session = null;
+        try {
+          if (authModule?.auth) {
+            session = await authModule.auth();
+          } else {
+            // Fallback: try dynamic import if static import failed
+            try {
+              const dynamicAuth = await import("@/auth");
+              session = await dynamicAuth.auth();
+            } catch (importError) {
+              // If import fails, auth is not available - treat as no session
+              console.warn("⚠️ Auth module not available - treating as unauthenticated");
+              session = null;
+            }
+          }
+        } catch (authError) {
+          // If auth call fails (env vars missing, db error, etc.), treat as no session
+          const errorMsg = authError instanceof Error ? authError.message : String(authError);
+          console.error("❌ Auth call failed in middleware:", errorMsg);
+          // Don't crash - just treat as unauthenticated
+          session = null;
+        }
       
       // If no session, redirect to login with return URL
       if (!session?.user) {

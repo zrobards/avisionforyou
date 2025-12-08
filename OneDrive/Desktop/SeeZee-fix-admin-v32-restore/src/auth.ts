@@ -5,31 +5,49 @@ import { prisma, retryDatabaseOperation, checkDatabaseHealth } from "@/lib/prism
 import type { NextAuthConfig } from "next-auth";
 
 // Validate environment variables with better error messages
+// SAFE: Don't throw at import time - only validate when actually used
 const GOOGLE_ID = (process.env.AUTH_GOOGLE_ID ?? process.env.GOOGLE_CLIENT_ID)?.trim();
 const GOOGLE_SECRET = (process.env.AUTH_GOOGLE_SECRET ?? process.env.GOOGLE_CLIENT_SECRET)?.trim();
 
-if (!process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) {
-  const error = new Error("AUTH_SECRET or NEXTAUTH_SECRET is required");
-  console.error("❌ Auth configuration error:", error.message);
-  throw error;
-}
+// Safe validation function - only warns in production, throws in dev
+function validateAuthConfig() {
+  const hasSecret = !!(process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET);
+  const hasGoogleId = !!GOOGLE_ID;
+  const hasGoogleSecret = !!GOOGLE_SECRET;
+  
+  if (!hasSecret) {
+    const error = new Error("AUTH_SECRET or NEXTAUTH_SECRET is required");
+    console.error("❌ Auth configuration error:", error.message);
+    // Only throw in development - in production, log and continue
+    if (process.env.NODE_ENV === "development") {
+      throw error;
+    }
+    console.warn("⚠️ Continuing without AUTH_SECRET in production - auth may not work");
+  }
 
-if (!GOOGLE_ID || !GOOGLE_SECRET) {
-  const error = new Error(
-    `Google OAuth credentials missing. GOOGLE_ID: ${!!GOOGLE_ID}, GOOGLE_SECRET: ${!!GOOGLE_SECRET}`
-  );
-  console.error("❌ Auth configuration error:", error.message);
-  throw error;
-}
+  if (!hasGoogleId || !hasGoogleSecret) {
+    const error = new Error(
+      `Google OAuth credentials missing. GOOGLE_ID: ${hasGoogleId}, GOOGLE_SECRET: ${hasGoogleSecret}`
+    );
+    console.error("❌ Auth configuration error:", error.message);
+    // Only throw in development - in production, log and continue
+    if (process.env.NODE_ENV === "development") {
+      throw error;
+    }
+    console.warn("⚠️ Continuing without Google OAuth credentials - OAuth sign-in will not work");
+  }
 
-// Validate Google Secret format
-if (GOOGLE_SECRET && (!GOOGLE_SECRET.startsWith('GOCSPX-') || GOOGLE_SECRET.length < 40)) {
-  console.warn("⚠️ WARNING: Google Client Secret may be incorrect!");
-  console.warn(`   Secret length: ${GOOGLE_SECRET.length} characters (expected 40-50)`);
-  console.warn(`   Secret prefix: ${GOOGLE_SECRET.substring(0, 10)}...`);
-  console.warn(`   Google Client Secrets should start with 'GOCSPX-' and be 40-50 characters long`);
-  console.warn(`   Check your .env.local file - make sure the secret is not truncated`);
-  console.warn(`   Remove any quotes, spaces, or line breaks around the secret`);
+  // Validate Google Secret format - only if it exists
+  if (GOOGLE_SECRET) {
+    if (!GOOGLE_SECRET.startsWith('GOCSPX-') || GOOGLE_SECRET.length < 40) {
+      console.warn("⚠️ WARNING: Google Client Secret may be incorrect!");
+      console.warn(`   Secret length: ${GOOGLE_SECRET.length} characters (expected 40-50)`);
+      console.warn(`   Secret prefix: ${GOOGLE_SECRET.substring(0, 10)}...`);
+      console.warn(`   Google Client Secrets should start with 'GOCSPX-' and be 40-50 characters long`);
+      console.warn(`   Check your .env.local file - make sure the secret is not truncated`);
+      console.warn(`   Remove any quotes, spaces, or line breaks around the secret`);
+    }
+  }
 }
 
 console.log("✅ Auth configuration loaded:", {
@@ -109,6 +127,13 @@ if (baseUrl) {
   console.warn("⚠️ No base URL configured - NextAuth will try to auto-detect (may use wrong port)");
 }
 
+// Validate config before creating NextAuth instance
+// In production, this will warn but not throw to prevent middleware crashes
+validateAuthConfig();
+
+// Only create NextAuth if we have minimum required config
+const hasMinConfig = (process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET) && GOOGLE_ID && GOOGLE_SECRET;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma) as any,
   trustHost: true,
@@ -124,35 +149,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     enableWebAuthn: false,
   },
   providers: [
-    Google({
-      clientId: GOOGLE_ID!,
-      clientSecret: GOOGLE_SECRET!,
-      allowDangerousEmailAccountLinking: true,
-      authorization: { 
-        params: { 
-          prompt: "consent", 
-          access_type: "offline", 
-          response_type: "code" 
-        } 
-      },
-      // Add explicit token endpoint configuration
-      token: {
-        async request(context: any) {
-          console.log("🔐 [OAuth] Token exchange request:", {
-            provider: "google",
-            clientId: `${GOOGLE_ID?.substring(0, 20)}...`,
-            hasClientSecret: !!GOOGLE_SECRET,
-            clientSecretLength: GOOGLE_SECRET?.length,
-            redirectUri: context.params.redirect_uri,
-            code: context.params.code ? `${context.params.code.substring(0, 20)}...` : 'missing',
-          });
-          
-          // Let NextAuth handle the token request normally
-          // This is just for logging
-          return context;
+    // Only add Google provider if credentials are available
+    ...(GOOGLE_ID && GOOGLE_SECRET ? [
+      Google({
+        clientId: GOOGLE_ID,
+        clientSecret: GOOGLE_SECRET,
+        allowDangerousEmailAccountLinking: true,
+        authorization: { 
+          params: { 
+            prompt: "consent", 
+            access_type: "offline", 
+            response_type: "code" 
+          } 
         },
-      },
-    }),
+        // Add explicit token endpoint configuration
+        token: {
+          async request(context: any) {
+            console.log("🔐 [OAuth] Token exchange request:", {
+              provider: "google",
+              clientId: `${GOOGLE_ID?.substring(0, 20)}...`,
+              hasClientSecret: !!GOOGLE_SECRET,
+              clientSecretLength: GOOGLE_SECRET?.length,
+              redirectUri: context.params.redirect_uri,
+              code: context.params.code ? `${context.params.code.substring(0, 20)}...` : 'missing',
+            });
+            
+            // Let NextAuth handle the token request normally
+            // This is just for logging
+            return context;
+          },
+        },
+      }),
+    ] : []),
   ],
   
   events: {
