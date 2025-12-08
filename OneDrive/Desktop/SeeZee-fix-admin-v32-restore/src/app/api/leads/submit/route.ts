@@ -163,10 +163,10 @@ export async function POST(req: NextRequest) {
       // Create ProjectRequest so it appears in client dashboard
       const projectRequest = await prisma.projectRequest.create({
         data: {
-          userId: user.id,
+          userId: user?.id,
           title: `${selectedPackage} Package Request`,
           description: `Package: ${selectedPackage}\nFeatures: ${selectedFeatures?.length || 0} selected\nTotal: $${totals?.total || 0}\nTimeline: ${answers?.timeline || 'Not specified'}`,
-          contactEmail: user.email!,
+          contactEmail: user?.email || questionnaire.userEmail,
           company: '',
           budget: BudgetTier.UNKNOWN, // Can be mapped from totals if needed
           timeline: answers?.timeline || null,
