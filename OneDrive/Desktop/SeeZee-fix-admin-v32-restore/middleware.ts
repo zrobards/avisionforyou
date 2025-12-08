@@ -48,50 +48,52 @@ export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   const method = request.method;
   const origin = request.headers.get("origin");
-
-  // CRITICAL: Never interfere with auth routes - let NextAuth handle them completely
-  // This MUST be the first check to avoid any interference with OAuth flow
-  if (pathname.startsWith("/api/auth")) {
-    return NextResponse.next();
-  }
-
-  // Handle CORS preflight requests (OPTIONS)
-  if (method === "OPTIONS" && pathname.startsWith("/api")) {
-    return new NextResponse(null, {
-      status: 200,
-      headers: getCorsHeaders(origin),
-    });
-  }
-
-  // Never interfere with RSC requests
-  if (searchParams.has("_rsc")) {
-    return NextResponse.next();
-  }
-
-  // Never interfere with prefetch requests
-  if (request.headers.get("next-router-prefetch") === "1") {
-    return NextResponse.next();
-  }
-
-  // Add CORS headers to all API routes
-  if (pathname.startsWith("/api")) {
-    const response = NextResponse.next();
-    const corsHeaders = getCorsHeaders(origin);
-    
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      response.headers.set(key, value);
-    });
-
-    return response;
-  }
-
-  // Check if route requires authentication
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   
-  if (isProtectedRoute) {
-    try {
-      // Get session - wrap in try-catch to handle database/connection errors gracefully
-      const session = await auth();
+  try {
+
+    // CRITICAL: Never interfere with auth routes - let NextAuth handle them completely
+    // This MUST be the first check to avoid any interference with OAuth flow
+    if (pathname.startsWith("/api/auth")) {
+      return NextResponse.next();
+    }
+
+    // Handle CORS preflight requests (OPTIONS)
+    if (method === "OPTIONS" && pathname.startsWith("/api")) {
+      return new NextResponse(null, {
+        status: 200,
+        headers: getCorsHeaders(origin),
+      });
+    }
+
+    // Never interfere with RSC requests
+    if (searchParams.has("_rsc")) {
+      return NextResponse.next();
+    }
+
+    // Never interfere with prefetch requests
+    if (request.headers.get("next-router-prefetch") === "1") {
+      return NextResponse.next();
+    }
+
+    // Add CORS headers to all API routes
+    if (pathname.startsWith("/api")) {
+      const response = NextResponse.next();
+      const corsHeaders = getCorsHeaders(origin);
+      
+      Object.entries(corsHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+
+      return response;
+    }
+
+    // Check if route requires authentication
+    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+    
+    if (isProtectedRoute) {
+      try {
+        // Get session - wrap in try-catch to handle database/connection errors gracefully
+        const session = await auth();
       
       // If no session, redirect to login with return URL
       if (!session?.user) {
@@ -149,7 +151,25 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+    return NextResponse.next();
+  } catch (error) {
+    // Top-level error handler - catch any unexpected errors in middleware
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("❌ Middleware top-level error:", errorMessage);
+    console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack");
+    
+    // For API routes, return 500 error
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json(
+        { error: "Internal server error", message: "Middleware error" },
+        { status: 500 }
+      );
+    }
+    
+    // For page routes, try to continue (don't crash)
+    // This allows the page to load even if middleware has issues
+    return NextResponse.next();
+  }
 }
 
 export const config = {
