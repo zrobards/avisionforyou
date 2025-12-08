@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
           AND: [
             projectScope,
             {
-              status: { in: ["IN_PROGRESS", "REVIEW"] },
+              status: { in: ["ACTIVE", "REVIEW"] },
             },
           ],
         },

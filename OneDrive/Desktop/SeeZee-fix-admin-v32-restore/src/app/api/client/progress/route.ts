@@ -28,7 +28,7 @@ export async function GET() {
       { OR: orConditions },
       {
         status: {
-          in: ["IN_PROGRESS", "REVIEW", "PAID"],
+          in: ["ACTIVE", "REVIEW", "DEPOSIT_PAID"],
         },
       },
     ];
