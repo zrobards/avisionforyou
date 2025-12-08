@@ -59,6 +59,10 @@ export default function Dashboard() {
       if (meetingsRes.ok) {
         const data = await meetingsRes.json()
         setMeetings(data.meetings || [])
+        const myRsvps = (data.meetings || [])
+          .filter((m: any) => m.userRsvpStatus)
+          .map((m: any) => m.id)
+        setUserRsvps(myRsvps)
       }
 
       if (assessmentRes.ok) {
@@ -74,18 +78,20 @@ export default function Dashboard() {
 
   const handleRsvp = async (meetingId: string) => {
     try {
+      const alreadyRsvpd = userRsvps.includes(meetingId)
       const response = await fetch('/api/rsvp', {
-        method: 'POST',
+        method: alreadyRsvpd ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId: meetingId })
       })
 
       if (response.ok) {
-        if (userRsvps.includes(meetingId)) {
-          setUserRsvps(userRsvps.filter(id => id !== meetingId))
-        } else {
-          setUserRsvps([...userRsvps, meetingId])
-        }
+        setUserRsvps(prev =>
+          alreadyRsvpd ? prev.filter(id => id !== meetingId) : [...prev, meetingId]
+        )
+
+        // Refresh meetings to keep RSVP counts current
+        fetchData()
       }
     } catch (error) {
       console.error('RSVP failed:', error)

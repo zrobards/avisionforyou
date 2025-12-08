@@ -46,11 +46,15 @@ export async function GET(request: NextRequest) {
         description: meeting.description,
         startDate: meeting.startDate,
         endDate: meeting.endDate,
+        // Keep legacy fields for existing clients
+        startTime: meeting.startDate,
+        endTime: meeting.endDate,
         format: meeting.format,
         location: meeting.location,
         link: meeting.link,
         capacity: meeting.capacity,
         program: meeting.program,
+        rsvps: meeting.rsvps,
         rsvpCount: meeting.rsvps.length,
         userRsvpStatus: userRsvp?.status || null,
         reminderStatus: userRsvp ? {

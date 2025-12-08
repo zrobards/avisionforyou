@@ -18,9 +18,17 @@ export async function GET(request: NextRequest) {
       where: { email: session.user.email }
     })
 
-    if (user?.role !== "ADMIN") {
+    const isAdmin = user?.role === "ADMIN"
+    const isStaff = user?.role === "STAFF"
+    const isDevBypass = process.env.NODE_ENV === 'development'
+
+    // In development, if no admins exist yet, allow first authenticated user
+    const adminCount = await db.user.count({ where: { role: "ADMIN" } })
+    const allowDevFallback = isDevBypass && adminCount === 0
+
+    if (!isAdmin && !isStaff && !allowDevFallback) {
       return NextResponse.json(
-        { error: "Admin access required" },
+        { error: "Admin or staff access required" },
         { status: 403 }
       )
     }
@@ -58,6 +66,11 @@ export async function GET(request: NextRequest) {
     })
 
     // Get statistics
+    const donationAggregate = await db.donation.aggregate({
+      _count: { _all: true },
+      _sum: { amount: true }
+    })
+
     const stats = {
       totalUsers: users.length,
       completedAssessments: users.filter(u => u.assessment).length,
@@ -68,7 +81,9 @@ export async function GET(request: NextRequest) {
             gte: new Date()
           }
         }
-      })
+      }),
+      totalDonations: donationAggregate._count._all,
+      donationVolume: donationAggregate._sum.amount || 0
     }
 
     return NextResponse.json({

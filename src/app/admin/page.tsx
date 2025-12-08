@@ -14,6 +14,8 @@ interface AdminData {
     completedAssessments: number
     totalRsvps: number
     upcomingMeetings: number
+    totalDonations: number
+    donationVolume: number
   }
 }
 
@@ -22,6 +24,7 @@ export default function AdminPanel() {
   const router = useRouter()
   const [data, setData] = useState<AdminData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('overview')
   const [newMeeting, setNewMeeting] = useState({
@@ -42,11 +45,18 @@ export default function AdminPanel() {
 
     if (status === 'authenticated') {
       fetchAdminData()
+      const interval = setInterval(() => fetchAdminData(true), 15000)
+      return () => clearInterval(interval)
     }
   }, [status])
 
-  const fetchAdminData = async () => {
+  const fetchAdminData = async (isBackground = false) => {
     try {
+      if (!isBackground) {
+        setLoading(true)
+      } else {
+        setRefreshing(true)
+      }
       const response = await fetch('/api/admin/data')
       if (!response.ok) {
         if (response.status === 403) {
@@ -62,7 +72,11 @@ export default function AdminPanel() {
       setError('Failed to load admin data')
       console.error(err)
     } finally {
-      setLoading(false)
+      if (!isBackground) {
+        setLoading(false)
+      } else {
+        setRefreshing(false)
+      }
     }
   }
 
@@ -116,7 +130,14 @@ export default function AdminPanel() {
             <h1 className="text-3xl font-bold">Admin Panel</h1>
             <p className="text-gray-400">Manage users, meetings, and content</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-3 items-center">
+            <button
+              onClick={() => fetchAdminData(true)}
+              disabled={refreshing}
+              className="text-sm px-4 py-2 bg-gray-700/60 hover:bg-gray-700 rounded-lg border border-gray-600 disabled:opacity-50"
+            >
+              {refreshing ? 'Refreshing…' : 'Refresh now'}
+            </button>
             <Link href="/admin/donations" className="flex items-center gap-2 text-white bg-red-600/20 hover:bg-red-600/30 px-4 py-2 rounded-lg transition-colors">
               <Heart className="w-4 h-4" />
               Donations
@@ -128,19 +149,21 @@ export default function AdminPanel() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Statistics */}
-        <div className="grid md:grid-cols-4 gap-6 mb-12">
+        <div className="grid md:grid-cols-5 gap-6 mb-12">
           {[
             { icon: Users, label: 'Total Users', value: data?.stats.totalUsers || 0, color: 'blue' },
             { icon: Calendar, label: 'Completed Assessments', value: data?.stats.completedAssessments || 0, color: 'green' },
             { icon: TrendingUp, label: 'Total RSVPs', value: data?.stats.totalRsvps || 0, color: 'purple' },
-            { icon: BarChart3, label: 'Upcoming Meetings', value: data?.stats.upcomingMeetings || 0, color: 'orange' }
+            { icon: BarChart3, label: 'Upcoming Meetings', value: data?.stats.upcomingMeetings || 0, color: 'orange' },
+            { icon: Heart, label: 'Donations', value: data?.stats.totalDonations || 0, color: 'red', helper: `$${(data?.stats.donationVolume || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` }
           ].map((stat, idx) => {
             const Icon = stat.icon
             const colorMap = {
               blue: 'bg-blue-500',
               green: 'bg-green-500',
               purple: 'bg-purple-500',
-              orange: 'bg-orange-500'
+              orange: 'bg-orange-500',
+              red: 'bg-red-500'
             }
             return (
               <div key={idx} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
@@ -148,6 +171,7 @@ export default function AdminPanel() {
                   <div>
                     <p className="text-gray-400 text-sm">{stat.label}</p>
                     <p className="text-3xl font-bold text-white">{stat.value}</p>
+                    {stat.helper && <p className="text-sm text-gray-400">{stat.helper}</p>}
                   </div>
                   <div className={`${colorMap[stat.color as keyof typeof colorMap]} p-3 rounded-lg`}>
                     <Icon className="w-6 h-6 text-white" />

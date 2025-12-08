@@ -5,39 +5,53 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-const MEETINGS = [
-  { id: '1', title: 'MindBodySoul IOP Group Therapy', time: 'Monday & Wednesday, 6:00 PM', location: '1675 Story Ave, Louisville KY 40206', capacity: 20 },
-  { id: '2', title: 'Peer Support Circle', time: 'Tuesday & Thursday, 7:00 PM', location: '1675 Story Ave, Louisville KY 40206', capacity: 15 },
-  { id: '3', title: '12-Step Meeting', time: 'Daily, 5:30 PM', location: '1675 Story Ave, Louisville KY 40206', capacity: 30 },
-  { id: '4', title: 'Wellness Workshop', time: 'Saturday, 10:00 AM', location: '1675 Story Ave, Louisville KY 40206', capacity: 25 },
-  { id: '5', title: 'Career Development Session', time: 'Wednesday, 2:00 PM', location: '1675 Story Ave, Louisville KY 40206', capacity: 12 },
-  { id: '6', title: 'Community Dinner & Connection', time: 'Friday, 6:00 PM', location: '1675 Story Ave, Louisville KY 40206', capacity: 40 }
-]
+type Meeting = {
+  id: string
+  title: string
+  description?: string
+  startDate: string
+  endDate: string
+  format: string
+  location?: string | null
+  link?: string | null
+  capacity?: number | null
+  rsvpCount: number
+}
 
 export default function Meetings() {
   const { data: session } = useSession()
   const router = useRouter()
+  const [meetings, setMeetings] = useState<Meeting[]>([])
   const [rsvps, setRsvps] = useState<string[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [actionId, setActionId] = useState('')
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    if (session?.user) {
-      fetchRsvps()
-    }
-  }, [session])
-
-  const fetchRsvps = async () => {
+  const fetchMeetings = async () => {
     try {
-      const response = await fetch('/api/rsvp')
+      const response = await fetch('/api/meetings?upcoming=true', { cache: 'no-store' })
       const data = await response.json()
-      if (data.success) {
-        setRsvps(data.rsvps.map((r: any) => r.sessionId))
+      setMeetings(data.meetings || [])
+
+      if (session?.user && Array.isArray(data.meetings)) {
+        const userSessionIds = data.meetings
+          .filter((m: any) => m.userRsvpStatus)
+          .map((m: any) => m.id)
+        setRsvps(userSessionIds)
       }
     } catch (err) {
       console.error(err)
+      setError('Failed to load meetings. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchMeetings()
+    const interval = setInterval(fetchMeetings, 15000)
+    return () => clearInterval(interval)
+  }, [session?.user])
 
   const handleRsvp = async (meetingId: string) => {
     if (!session?.user) {
@@ -45,12 +59,13 @@ export default function Meetings() {
       return
     }
 
-    setLoading(true)
+    setActionId(meetingId)
     setError('')
 
     try {
+      const alreadyRsvpd = rsvps.includes(meetingId)
       const response = await fetch('/api/rsvp', {
-        method: 'POST',
+        method: alreadyRsvpd ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId: meetingId })
       })
@@ -58,45 +73,23 @@ export default function Meetings() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Failed to RSVP')
+        setError(data.error || 'Failed to update RSVP')
         return
       }
 
-      setRsvps(prev => [...prev, meetingId])
+      setRsvps(prev =>
+        alreadyRsvpd
+          ? prev.filter(id => id !== meetingId)
+          : [...prev, meetingId]
+      )
+
+      // Refresh meeting counts after RSVP change
+      fetchMeetings()
     } catch (err) {
       setError('An error occurred')
       console.error(err)
     } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCancel = async (meetingId: string) => {
-    if (!session?.user) return
-
-    setLoading(true)
-    setError('')
-
-    try {
-      const response = await fetch('/api/rsvp', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: meetingId })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || 'Failed to cancel RSVP')
-        return
-      }
-
-      setRsvps(prev => prev.filter(id => id !== meetingId))
-    } catch (err) {
-      setError('An error occurred')
-      console.error(err)
-    } finally {
-      setLoading(false)
+      setActionId('')
     }
   }
 
@@ -135,9 +128,14 @@ export default function Meetings() {
 
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {MEETINGS.map((meeting) => (
-              <div key={meeting.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-blue-600">
+          {loading ? (
+            <p className="text-gray-600">Loading meetings...</p>
+          ) : meetings.length === 0 ? (
+            <p className="text-gray-600">No upcoming meetings yet. Check back soon!</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {meetings.map((meeting) => (
+                <div key={meeting.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-blue-600">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-xl font-bold text-gray-900 flex-1">{meeting.title}</h3>
@@ -149,15 +147,17 @@ export default function Meetings() {
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center text-gray-600">
                       <span className="text-lg mr-3">🕐</span>
-                      <span>{meeting.time}</span>
+                      <span>
+                        {new Date(meeting.startDate).toLocaleDateString()} · {new Date(meeting.startDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <span className="text-lg mr-3">📍</span>
-                      <span>{meeting.location}</span>
+                      <span>{meeting.location || 'Online session'}</span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <span className="text-lg mr-3">👥</span>
-                      <span>Up to {meeting.capacity} participants</span>
+                      <span>{meeting.rsvpCount} / {meeting.capacity || '∞'} RSVPs</span>
                     </div>
                   </div>
 
@@ -167,25 +167,26 @@ export default function Meetings() {
                     </Link>
                   ) : rsvps.includes(meeting.id) ? (
                     <button
-                      onClick={() => handleCancel(meeting.id)}
-                      disabled={loading}
+                      onClick={() => handleRsvp(meeting.id)}
+                      disabled={!!actionId}
                       className="w-full px-4 py-3 bg-red-100 text-red-700 rounded-lg font-semibold hover:bg-red-200 transition disabled:opacity-50"
                     >
-                      Cancel RSVP
+                      {actionId === meeting.id ? 'Processing...' : 'Cancel RSVP'}
                     </button>
                   ) : (
                     <button
                       onClick={() => handleRsvp(meeting.id)}
-                      disabled={loading}
+                      disabled={!!actionId}
                       className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50"
                     >
-                      {loading ? 'Processing...' : 'RSVP Now'}
+                      {actionId === meeting.id ? 'Processing...' : 'RSVP Now'}
                     </button>
                   )}
                 </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
