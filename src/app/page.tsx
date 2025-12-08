@@ -30,6 +30,7 @@ const PROGRAMS = [
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
+      {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-700 via-blue-600 to-green-600 text-white py-24">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-4">A Vision For You Recovery</h1>
