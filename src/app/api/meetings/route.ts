@@ -98,11 +98,41 @@ export async function POST(request: NextRequest) {
 
     const { title, description, program, startTime, endTime, format, link } = await request.json()
 
+    // Ensure programs exist - create if missing
+    const programSlugs = {
+      'MINDBODYSOUL_IOP': 'mindbodysoul-iop',
+      'SURRENDER_PROGRAM': 'surrender-program',
+      'MOVING_MOUNTAINS': 'moving-mountains'
+    }
+
+    const programSlug = programSlugs[program as keyof typeof programSlugs] || 'mindbodysoul-iop'
+
+    let existingProgram = await db.program.findUnique({
+      where: { slug: programSlug }
+    })
+
+    if (!existingProgram) {
+      // Create the program if it doesn't exist
+      const programNames = {
+        'mindbodysoul-iop': 'MindBodySoul IOP',
+        'surrender-program': 'Surrender Program',
+        'moving-mountains': 'Moving Mountains Ministry'
+      }
+      existingProgram = await db.program.create({
+        data: {
+          name: programNames[programSlug as keyof typeof programNames],
+          slug: programSlug,
+          description: 'Recovery program',
+          programType: 'IOP'
+        }
+      })
+    }
+
     const meeting = await db.programSession.create({
       data: {
         title,
-        description,
-        programId: program,
+        description: description || '',
+        programId: existingProgram.id,
         startDate: new Date(startTime),
         endDate: new Date(endTime),
         format, // "IN_PERSON" or "ONLINE"

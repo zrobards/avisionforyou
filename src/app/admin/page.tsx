@@ -27,6 +27,8 @@ export default function AdminPanel() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('overview')
+  const [createSuccess, setCreateSuccess] = useState(false)
+  const [createError, setCreateError] = useState('')
   const [newMeeting, setNewMeeting] = useState({
     title: '',
     description: '',
@@ -82,6 +84,9 @@ export default function AdminPanel() {
 
   const handleCreateMeeting = async (e: React.FormEvent) => {
     e.preventDefault()
+    setCreateError('')
+    setCreateSuccess(false)
+    
     try {
       const response = await fetch('/api/meetings', {
         method: 'POST',
@@ -89,7 +94,10 @@ export default function AdminPanel() {
         body: JSON.stringify(newMeeting)
       })
 
+      const result = await response.json()
+
       if (response.ok) {
+        setCreateSuccess(true)
         setNewMeeting({
           title: '',
           description: '',
@@ -100,9 +108,15 @@ export default function AdminPanel() {
           link: ''
         })
         await fetchAdminData()
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setCreateSuccess(false), 3000)
+      } else {
+        setCreateError(result.error || 'Failed to create meeting')
       }
     } catch (err) {
-      setError('Failed to create meeting')
+      console.error('Create meeting error:', err)
+      setCreateError('Network error - failed to create meeting')
     }
   }
 
@@ -251,9 +265,22 @@ export default function AdminPanel() {
         {/* Meetings Tab */}
         {activeTab === 'meetings' && (
           <div className="space-y-8">
-            {/* Create New Meeting */}
+            {/* Meeting Creation */}
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <h2 className="text-xl font-bold text-white mb-6">Create New Meeting</h2>
+              <h2 className="text-xl font-bold text-white mb-6">Create Meeting</h2>
+              
+              {createSuccess && (
+                <div className="mb-4 p-4 bg-green-600/20 border border-green-600/50 rounded-lg">
+                  <p className="text-green-400 font-semibold">✓ Meeting created successfully! Users can now RSVP and will receive email reminders.</p>
+                </div>
+              )}
+              
+              {createError && (
+                <div className="mb-4 p-4 bg-red-600/20 border border-red-600/50 rounded-lg">
+                  <p className="text-red-400 font-semibold">✗ {createError}</p>
+                </div>
+              )}
+              
               <form onSubmit={handleCreateMeeting} className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
