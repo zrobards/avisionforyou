@@ -11,9 +11,9 @@ function LoginContent() {
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
-  const [devEmail, setDevEmail] = useState('test@example.com')
-  const [showDevLogin, setShowDevLogin] = useState(false)
-  const [isDevMode] = useState(process.env.NODE_ENV === 'development')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
 
@@ -28,29 +28,30 @@ function LoginContent() {
     setLoading(true)
     try {
       await signIn('google', { callbackUrl })
-    } catch (error) {
-      console.error('Sign in error:', error)
-      setLoading(false)
-    }
-  }
-
-  const handleDevSignIn = async () => {
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoading(true)
+    setError('')
+    
     try {
-      await signIn('credentials', {
-        email: devEmail,
-        password: 'dev-password',
-        callbackUrl
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false
       })
-    } catch (error) {
-      console.error('Dev sign in error:', error)
+      
+      if (result?.error) {
+        setError('Invalid credentials. Please try again.')
+        setLoading(false)
+      } else if (result?.ok) {
+        router.push(callbackUrl)
+      }
+    } catch (err) {
+      console.error('Sign in error:', err)
+      setError('An error occurred. Please try again.')
       setLoading(false)
     }
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Navigation */}
+  }   {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
@@ -72,7 +73,6 @@ function LoginContent() {
       {/* Main Content */}
       <div className="max-w-md mx-auto px-6 py-16">
         {/* Card */}
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-700">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-4 shadow-lg">
@@ -82,64 +82,63 @@ function LoginContent() {
             <p className="text-slate-400">Sign in to your recovery journey</p>
           </div>
 
-          {/* Google Sign In */}
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full bg-white text-slate-900 font-bold py-4 px-6 rounded-lg hover:bg-slate-50 disabled:bg-slate-300 transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
-          >
-            <Chrome className="w-5 h-5" />
-            {loading ? 'Signing in...' : 'Continue with Google'}
-          </button>
-
-          {/* Development Mode Toggle */}
-          {isDevMode && (
-            <div className="mt-4">
-              <button
-                onClick={() => setShowDevLogin(!showDevLogin)}
-                className="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <Lock className="w-4 h-4" />
-                {showDevLogin ? 'Hide' : 'Show'} Development Login
-              </button>
-            </div>
-          )}
-
-          {/* Development Login Form */}
-          {isDevMode && showDevLogin && (
-            <div className="mt-6 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-              <p className="text-xs text-slate-300 mb-3 font-semibold">🔧 Development Mode</p>
-              <div className="space-y-3">
-                <input
-                  type="email"
-                  value={devEmail}
-                  onChange={(e) => setDevEmail(e.target.value)}
-                  placeholder="Enter test email"
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500"
-                />
-                <button
-                  onClick={handleDevSignIn}
-                  disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
-                >
-                  {loading ? 'Signing in...' : 'Dev Sign In'}
-                </button>
+          {/* Sign In Form */}
+          <form onSubmit={handleSignIn} className="space-y-4">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
+                <p className="text-red-400 text-sm">{error}</p>
               </div>
-              <p className="text-xs text-slate-400 mt-3">
-                ✨ Tip: Use zacharyrobards@gmail.com to get admin role
-              </p>
+            )}
+            
+            <div>
+              <label className="block text-slate-300 text-sm font-semibold mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              />
             </div>
-          )}
+
+            <div>
+              <label className="block text-slate-300 text-sm font-semibold mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-600 disabled:to-slate-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            >
+              <Lock className="w-5 h-5" />
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
 
           {/* Info */}
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 mt-6">
             <p className="text-xs text-slate-400 text-center">
-              {isDevMode && showDevLogin ? (
-                'Development mode: Use any email to test.'
-              ) : (
-                'We use Google to securely authenticate your account. Your data is stored safely in our system.'
-              )}
+              🔐 Your data is encrypted and secure. For demo: use any email/password.
             </p>
+            {process.env.NODE_ENV === 'development' && (
+              <p className="text-xs text-blue-400 text-center mt-2">
+                💡 Tip: Use <code className="bg-slate-800 px-1 py-0.5 rounded">zacharyrobards@gmail.com</code> for admin access
+              </p>
+            )}
+          </div>
           </div>
 
           {/* Footer */}
