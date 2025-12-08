@@ -71,7 +71,9 @@ export async function updateMyProfile(data: {
       },
     });
 
-    tags.team.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.team) {
+      revalidateTag(tag);
+    }
 
     return { success: true, user };
   } catch (error) {
@@ -95,7 +97,9 @@ export async function updateMyAvatar(imageUrl: string) {
       data: { image: imageUrl },
     });
 
-    tags.team.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.team) {
+      revalidateTag(tag);
+    }
 
     return { success: true, user };
   } catch (error) {

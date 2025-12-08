@@ -78,7 +78,9 @@ export async function updateRole(userId: string, role: UserRole) {
       data: { role },
     });
     
-    tags.team.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.team) {
+      revalidateTag(tag);
+    }
     
     return { success: true, user };
   } catch (error) {
@@ -140,7 +142,9 @@ export async function updateUserProfile(
       },
     });
     
-    tags.team.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.team) {
+      revalidateTag(tag);
+    }
     
     return { success: true, user };
   } catch (error) {
@@ -161,7 +165,9 @@ export async function deleteUser(userId: string) {
       where: { id: userId },
     });
     
-    tags.team.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.team) {
+      revalidateTag(tag);
+    }
     
     return { success: true };
   } catch (error) {

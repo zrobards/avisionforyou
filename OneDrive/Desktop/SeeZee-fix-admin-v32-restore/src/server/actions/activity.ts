@@ -64,7 +64,9 @@ export async function logActivity(data: {
       },
     });
     
-    tags.activity.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.activity) {
+      revalidateTag(tag);
+    }
     
     return { success: true, activity };
   } catch (error) {
@@ -86,7 +88,9 @@ export async function markActivityAsRead(activityId: string) {
       data: { read: true },
     });
     
-    tags.activity.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.activity) {
+      revalidateTag(tag);
+    }
     
     return { success: true, activity };
   } catch (error) {
@@ -107,7 +111,9 @@ export async function markAllActivitiesAsRead() {
       data: { read: true },
     });
     
-    tags.activity.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.activity) {
+      revalidateTag(tag);
+    }
     
     return { success: true };
   } catch (error) {
@@ -163,7 +169,9 @@ export async function createActivity(data: {
       },
     });
 
-    tags.activity.forEach((tag) => revalidateTag(tag));
+    for (const tag of tags.activity) {
+      revalidateTag(tag);
+    }
     return { success: true, activity };
   } catch (error) {
     console.error("Failed to create activity:", error);

@@ -10,7 +10,7 @@ import { ROLE } from "@/lib/role";
 import { revalidateTag } from "next/cache";
 import { tags } from "@/lib/tags";
 import { logActivity } from "./activity";
-import { UserRole, InvoiceStatus } from "@prisma/client";
+import { UserRole, InvoiceStatus, ServiceCategory } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { toPlain } from "@/lib/serialize";
 
@@ -531,7 +531,7 @@ export async function updateLead(leadId: string, data: {
   message?: string;
   status?: LeadStatus;
   source?: string;
-  serviceType?: string;
+  serviceType?: ServiceCategory | null;
   timeline?: string;
   budget?: string;
 }) {
@@ -559,7 +559,9 @@ export async function updateLead(leadId: string, data: {
           ...(data.status === "CONVERTED" && !lead.convertedAt ? { convertedAt: new Date() } : {}),
         }),
         ...(data.source !== undefined && { source: data.source }),
-        ...(data.serviceType !== undefined && { serviceType: data.serviceType }),
+        ...(data.serviceType !== undefined && { 
+          serviceType: data.serviceType as ServiceCategory | null 
+        }),
         ...(data.timeline !== undefined && { timeline: data.timeline }),
         ...(data.budget !== undefined && { budget: data.budget }),
       },

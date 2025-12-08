@@ -9,7 +9,7 @@ import { db } from "@/server/db";
 import { requireRole } from "@/lib/auth/requireRole";
 import { revalidatePath } from "next/cache";
 import { createActivity } from "./activity";
-import { UserRole, TodoStatus } from "@prisma/client";
+import { UserRole, TodoStatus, ProjectStatus } from "@prisma/client";
 
 // ============================================
 // TEAM ASSIGNMENT OPERATIONS
@@ -337,11 +337,11 @@ export async function getExecutiveMetrics() {
 
     // Project status breakdown
     const projectStatusBreakdown = {
-      PLANNING: projects.filter((p) => p.status === "PLANNING").length,
-      IN_PROGRESS: projects.filter((p) => p.status === "IN_PROGRESS").length,
-      ON_HOLD: projects.filter((p) => p.status === "ON_HOLD").length,
+      QUOTED: projects.filter((p) => p.status === ProjectStatus.QUOTED).length,
+      ACTIVE: projects.filter((p) => p.status === ProjectStatus.ACTIVE).length,
+      REVIEW: projects.filter((p) => p.status === ProjectStatus.REVIEW).length,
       COMPLETED: completedProjects,
-      CANCELLED: projects.filter((p) => p.status === "CANCELLED").length,
+      CANCELLED: projects.filter((p) => p.status === ProjectStatus.CANCELLED).length,
     };
 
     // Lead funnel breakdown
@@ -419,7 +419,7 @@ export async function getTeamWorkload() {
         },
         assignedProjects: {
           where: {
-            status: { in: ["IN_PROGRESS"] },
+            status: { in: [ProjectStatus.ACTIVE] },
           },
           select: {
             id: true,

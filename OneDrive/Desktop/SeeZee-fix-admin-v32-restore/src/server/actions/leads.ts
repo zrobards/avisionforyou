@@ -98,8 +98,8 @@ export async function convertLeadToProject(leadId: string, projectData?: {
         questionnaireId,
         // Set budget from projectData if provided, otherwise null (admin will set manually)
         budget: projectData?.estimatedBudget ? new Prisma.Decimal(projectData.estimatedBudget) : null,
-        // Store any conversion notes in metadata
-        metadata: projectData?.notes ? { conversionNotes: projectData.notes } : undefined,
+        // Note: Conversion notes from projectData.notes are not stored in Project model
+        // They can be accessed via the lead relationship if needed
       },
     });
 
