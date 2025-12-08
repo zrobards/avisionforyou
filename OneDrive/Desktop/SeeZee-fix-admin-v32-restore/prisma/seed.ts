@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, OrgRole, LeadStatus, ProjectStatus, InvoiceStatus, PaymentStatus, TodoStatus, TodoPriority, NotificationType, ActivityType, MaintenanceStatus, RequestStatus, RequestSource, BudgetTier, ServiceType } from '@prisma/client'
+import { PrismaClient, UserRole, OrgRole, LeadStatus, ProjectStatus, InvoiceStatus, PaymentStatus, TodoStatus, TodoPriority, NotificationType, ActivityType, MaintenanceStatus, RequestStatus, RequestSource, BudgetTier, ServiceType, ServiceCategory } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
 
 const prisma = new PrismaClient()
@@ -166,7 +166,7 @@ async function main() {
   console.log('\n🎯 Creating leads...')
 
   const leadStatuses: LeadStatus[] = [LeadStatus.NEW, LeadStatus.CONTACTED, LeadStatus.QUALIFIED, LeadStatus.PROPOSAL_SENT, LeadStatus.CONVERTED, LeadStatus.LOST]
-  const serviceTypes = ['website', 'webapp', 'ecommerce', 'mobile', 'branding']
+  const serviceTypes: ServiceCategory[] = [ServiceCategory.BUSINESS_WEBSITE, ServiceCategory.NONPROFIT_WEBSITE, ServiceCategory.PERSONAL_WEBSITE, ServiceCategory.MAINTENANCE_PLAN]
   const timelines = ['rush', 'standard', 'extended']
   const budgets = ['1000-2500', '2500-5000', '5000-10000', '10000+']
 
@@ -182,7 +182,7 @@ async function main() {
         email: `lead${i + 1}@example.com`,
         phone: `+1 (555) ${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`,
         company: org?.name || `Company ${i + 1}`,
-        message: `Interested in ${serviceType} development services. Looking for a modern solution.`,
+        message: `Interested in ${serviceType.toLowerCase().replace('_', ' ')} development services. Looking for a modern solution.`,
         serviceType,
         timeline: randomElement(timelines),
         budget: randomElement(budgets),
@@ -208,7 +208,7 @@ async function main() {
   // ============================================
   console.log('\n🚀 Creating projects...')
 
-  const projectStatuses: ProjectStatus[] = [ProjectStatus.LEAD, ProjectStatus.PAID, ProjectStatus.IN_PROGRESS, ProjectStatus.REVIEW, ProjectStatus.COMPLETED, ProjectStatus.ACTIVE, ProjectStatus.DESIGN, ProjectStatus.BUILD]
+  const projectStatuses: ProjectStatus[] = [ProjectStatus.LEAD, ProjectStatus.QUOTED, ProjectStatus.DEPOSIT_PAID, ProjectStatus.ACTIVE, ProjectStatus.REVIEW, ProjectStatus.COMPLETED, ProjectStatus.MAINTENANCE, ProjectStatus.CANCELLED]
   
   const projects = []
   for (let i = 0; i < 15; i++) {
@@ -224,7 +224,7 @@ async function main() {
         status,
         budget: new Decimal(Math.floor(2500 + Math.random() * 20000)),
         startDate: status !== ProjectStatus.LEAD ? randomPastDate(45) : null,
-        endDate: status === ProjectStatus.COMPLETED ? randomPastDate(10) : (status === ProjectStatus.IN_PROGRESS ? randomFutureDate(30) : null),
+        endDate: status === ProjectStatus.COMPLETED ? randomPastDate(10) : (status === ProjectStatus.ACTIVE ? randomFutureDate(30) : null),
         organizationId: org.id,
         assigneeId: assignee.id,
         leadId: lead?.id,
