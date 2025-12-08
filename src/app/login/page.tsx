@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, Suspense, useEffect } from 'react'
-import { Chrome, Heart, ArrowRight, Lock } from 'lucide-react'
+import { Heart, ArrowRight, Lock } from 'lucide-react'
 
 function LoginContent() {
   const router = useRouter()
@@ -24,10 +24,6 @@ function LoginContent() {
     }
   }, [status, session, router, callbackUrl])
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true)
-    try {
-      await signIn('google', { callbackUrl })
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -51,7 +47,11 @@ function LoginContent() {
       setError('An error occurred. Please try again.')
       setLoading(false)
     }
-  }   {/* Navigation */}
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
