@@ -30,10 +30,10 @@ export async function GET(req: NextRequest) {
       totalTasks,
       recentActivities,
     ] = await Promise.all([
-      // Active projects (IN_PROGRESS, REVIEW, PAID)
+      // Active projects (ACTIVE, REVIEW, DEPOSIT_PAID)
       prisma.project.count({
         where: {
-          status: { in: ["IN_PROGRESS", "REVIEW", "PAID"] },
+          status: { in: ["ACTIVE", "REVIEW", "DEPOSIT_PAID"] },
         },
       }),
       // Total projects
