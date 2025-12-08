@@ -316,11 +316,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (dbUser) {
           session.user.id = dbUser.id;
-          session.user.role = dbUser.role;
+          // Ensure role is never null - default to CLIENT if null
+          session.user.role = dbUser.role || "CLIENT";
           session.user.tosAcceptedAt = dbUser.tosAcceptedAt;
           session.user.profileDoneAt = dbUser.profileDoneAt;
           session.user.questionnaireCompleted = dbUser.questionnaireCompleted ?? null;
-          console.log(`✅ Session callback: User ${session.user.email} - questionnaireCompleted: ${dbUser.questionnaireCompleted ? 'Yes' : 'No'}`);
+          console.log(`✅ Session callback: User ${session.user.email} - role: ${session.user.role}, questionnaireCompleted: ${dbUser.questionnaireCompleted ? 'Yes' : 'No'}`);
         } else {
           // User not found in database - use token values
           console.warn(`Session callback: User ${session.user.email} not found in database, using token values`);
@@ -393,11 +394,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
           
           if (dbUser) {
-            token.role = dbUser.role;
+            // Ensure role is never null - default to CLIENT if null
+            token.role = dbUser.role || "CLIENT";
             token.tosAcceptedAt = dbUser.tosAcceptedAt?.toISOString() ?? null;
             token.profileDoneAt = dbUser.profileDoneAt?.toISOString() ?? null;
             token.questionnaireCompleted = dbUser.questionnaireCompleted?.toISOString() ?? null;
-            console.log(`🔄 JWT refreshed for ${email}: role=${dbUser.role}, questionnaireCompleted: ${dbUser.questionnaireCompleted ? 'Yes' : 'No'}`);
+            console.log(`🔄 JWT refreshed for ${email}: role=${token.role}, questionnaireCompleted: ${dbUser.questionnaireCompleted ? 'Yes' : 'No'}`);
           } else {
             // User might not exist yet during OAuth flow - don't fail
             console.log(`JWT callback: User ${email} not found in DB yet (may be during OAuth creation)`);

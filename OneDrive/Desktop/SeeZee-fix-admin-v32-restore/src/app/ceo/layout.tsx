@@ -13,9 +13,11 @@ export default async function CEOLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // CEO-only access check
+  // CEO-only access check - this will redirect to /no-access if not CEO
+  // or to /login if not authenticated
   await requireRole([ROLE.CEO]);
   
+  // If we get here, user is CEO
   // Redirect to admin dashboard where CEO features are now located
   // Note: /ceo/links has its own layout that overrides this redirect
   redirect("/admin");

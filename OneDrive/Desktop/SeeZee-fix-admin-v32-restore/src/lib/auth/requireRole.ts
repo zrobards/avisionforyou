@@ -129,18 +129,13 @@ export async function requireRole(
     }
   }
 
-  // Wrong role - redirect to appropriate dashboard based on user's role
+  // Wrong role - redirect to no-access page (prevents redirect loops)
   if (!allowedRoles.includes(user.role)) {
     console.warn(`[requireRole] Access denied: User ${user.email} with role ${user.role} tried to access route requiring ${allowedRoles.join(" or ")}`);
     
-    // Admin roles (CEO, CFO, FRONTEND, BACKEND, OUTREACH) go to admin dashboard
-    if (user.role === "CEO" || user.role === "CFO" || 
-        user.role === "FRONTEND" || user.role === "BACKEND" || user.role === "OUTREACH") {
-      redirect("/admin");
-    } else {
-      // CLIENT role goes to client dashboard
-      redirect("/client");
-    }
+    // Always redirect to no-access page to prevent loops
+    // The no-access page will show appropriate message and link to user's dashboard
+    redirect("/no-access");
   }
 
   return user;

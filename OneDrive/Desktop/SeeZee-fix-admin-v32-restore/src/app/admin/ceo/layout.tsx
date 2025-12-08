@@ -14,9 +14,9 @@ export default async function CEOLayout({
 }) {
   const user = await getCurrentUser();
   
-  // Only CEO can access
+  // Only CEO can access - redirect to no-access to prevent loops
   if (!user || user.role !== ROLE.CEO) {
-    redirect("/admin");
+    redirect("/no-access");
   }
 
   return (
