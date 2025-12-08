@@ -23,15 +23,14 @@ function mapUserRoleToRole(userRole: string | null | undefined): Role {
   
   const role = userRole.toUpperCase();
   
-  // Direct matches
-  if (["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH", "CLIENT"].includes(role)) {
+  // Direct matches - these roles can access admin dashboard
+  if (["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"].includes(role)) {
     return role as Role;
   }
   
-  // Map legacy roles
+  // Map legacy/admin roles to admin-capable roles
   if (role === "ADMIN" || role === "STAFF") {
-    // ADMIN/STAFF can access admin dashboard - map to CEO for now
-    // TODO: Consider creating ADMIN role in Role type
+    // ADMIN/STAFF can access admin dashboard - map to CEO for full access
     return "CEO";
   }
   
@@ -45,7 +44,19 @@ function mapUserRoleToRole(userRole: string | null | undefined): Role {
     return "FRONTEND";
   }
   
-  // Default to CLIENT for unknown roles
+  // INTERN and PARTNER should also get admin access
+  if (role === "INTERN" || role === "PARTNER") {
+    // Give them FRONTEND access level
+    return "FRONTEND";
+  }
+  
+  // CLIENT role - no admin access
+  if (role === "CLIENT") {
+    return "CLIENT";
+  }
+  
+  // Default to CLIENT for unknown roles (safe default)
+  console.warn(`Unknown role "${role}" mapped to CLIENT`);
   return "CLIENT";
 }
 
@@ -60,7 +71,13 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     return null;
   }
 
-  const mappedRole = mapUserRoleToRole(session.user.role as string);
+  const rawRole = session.user.role as string;
+  const mappedRole = mapUserRoleToRole(rawRole);
+  
+  // Debug logging
+  if (rawRole !== mappedRole) {
+    console.log(`[getCurrentUser] Role mapping: ${rawRole} -> ${mappedRole} for user ${session.user.email}`);
+  }
 
   return {
     id: session.user.id || "",
@@ -92,6 +109,9 @@ export async function requireRole(
     redirect("/login");
   }
 
+  // Debug logging
+  console.log(`[requireRole] User: ${user.email}, Role: ${user.role}, Allowed: ${allowedRoles.join(", ")}`);
+
   // CEO email always has access - bypass role check for admin routes
   const CEO_EMAIL = "seanspm1007@gmail.com";
   if (user.email === CEO_EMAIL || user.email === "seanpm1007@gmail.com") {
@@ -111,6 +131,8 @@ export async function requireRole(
 
   // Wrong role - redirect to appropriate dashboard based on user's role
   if (!allowedRoles.includes(user.role)) {
+    console.warn(`[requireRole] Access denied: User ${user.email} with role ${user.role} tried to access route requiring ${allowedRoles.join(" or ")}`);
+    
     // Admin roles (CEO, CFO, FRONTEND, BACKEND, OUTREACH) go to admin dashboard
     if (user.role === "CEO" || user.role === "CFO" || 
         user.role === "FRONTEND" || user.role === "BACKEND" || user.role === "OUTREACH") {
