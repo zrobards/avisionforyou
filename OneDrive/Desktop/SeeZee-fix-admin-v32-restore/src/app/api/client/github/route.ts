@@ -119,7 +119,7 @@ export async function GET() {
                 projects: {
                   where: {
                     status: {
-                      in: ["IN_PROGRESS", "REVIEW", "PAID", "COMPLETED", "ACTIVE"],
+                      in: ["ACTIVE", "REVIEW", "DEPOSIT_PAID", "COMPLETED"],
                     },
                   },
                   orderBy: {
