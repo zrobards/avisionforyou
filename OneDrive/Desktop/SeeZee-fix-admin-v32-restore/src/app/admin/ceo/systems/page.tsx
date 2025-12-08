@@ -4,6 +4,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { SystemsClient } from "@/components/admin/SystemsClient";
+import { ProjectStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,15 @@ export default async function CEOSystemsPage() {
     prisma.session.count(),
     prisma.project.count({
       where: {
-        status: { in: ["ACTIVE", "IN_PROGRESS", "DESIGN", "BUILD", "REVIEW"] },
+        status: { 
+          in: [
+            ProjectStatus.ACTIVE,
+            ProjectStatus.REVIEW,
+            ProjectStatus.DEPOSIT_PAID,
+            ProjectStatus.QUOTED,
+            ProjectStatus.MAINTENANCE
+          ] 
+        },
       },
     }),
   ]);

@@ -3,7 +3,8 @@
  * Shows questionnaire responses, receipt, and status management
  */
 
-import { notFound } from "next/navigation";
+import { auth } from "@/auth";
+import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { LeadDetailClient } from "@/components/admin/LeadDetailClient";
 
@@ -16,6 +17,12 @@ interface LeadDetailPageProps {
 }
 
 export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
+  const session = await auth();
+  
+  if (!session?.user || !["CEO", "CFO"].includes(session.user.role || "")) {
+    redirect("/login");
+  }
+
   try {
     const { id } = await params;
     
@@ -25,7 +32,8 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
       notFound();
     }
 
-    const lead = await prisma.lead.findUnique({
+    // First, try to find as a Lead
+    let lead = await prisma.lead.findUnique({
       where: { id },
       include: {
         organization: true,
@@ -33,8 +41,49 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
       },
     });
 
+    // If not found as a Lead, check if it's a ProjectRequest
     if (!lead) {
-      console.log(`Lead not found with ID: ${id}`);
+      const projectRequest = await prisma.projectRequest.findUnique({
+        where: { id },
+      });
+
+      if (projectRequest) {
+        // Convert ProjectRequest to Lead-like format for display
+        lead = {
+          id: projectRequest.id,
+          name: projectRequest.name || projectRequest.title || "New Project Request",
+          email: projectRequest.email || projectRequest.contactEmail || "",
+          phone: null,
+          company: projectRequest.company,
+          status: "NEW" as any,
+          source: "Project Request",
+          message: projectRequest.description,
+          notes: null,
+          requirements: null,
+          serviceType: Array.isArray(projectRequest.services) 
+            ? projectRequest.services.join(", ") 
+            : projectRequest.services || null,
+          timeline: projectRequest.timeline,
+          budget: projectRequest.budget,
+          createdAt: projectRequest.createdAt,
+          updatedAt: projectRequest.updatedAt,
+          convertedAt: null,
+          organizationId: null,
+          organization: null,
+          project: null,
+          metadata: {
+            type: "ProjectRequest",
+            originalId: projectRequest.id,
+            projectType: projectRequest.projectType,
+            goal: projectRequest.goal,
+            resourcesUrl: projectRequest.resourcesUrl,
+          } as any,
+        } as any;
+      }
+    }
+
+    if (!lead) {
+      console.log(`Lead or ProjectRequest not found with ID: ${id}`);
       notFound();
     }
 

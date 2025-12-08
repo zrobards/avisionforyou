@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { fetchJson, normalizeItems } from "@/lib/client-api";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { shouldShowPreClientDashboard, getDashboardState, getActiveProjectRequest } from "@/lib/dashboard-state";
@@ -73,6 +74,7 @@ interface Message {
 
 export default function ClientDashboardClient() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
@@ -82,87 +84,123 @@ export default function ClientDashboardClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!session?.user) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        // Fetch all data in parallel
-        const [projectsData, invoicesData, projectRequestsData, overviewData] = await Promise.all([
-          fetchJson<any>("/api/client/projects").catch(() => ({ items: [] })),
-          fetchJson<any>("/api/client/invoices").catch(() => ({ invoices: [] })),
-          fetchJson<any>("/api/client/requests").catch(() => ({ requests: [] })),
-          fetchJson<any>("/api/client/overview").catch(() => ({})),
-        ]);
+  const fetchData = async () => {
+    if (!session?.user) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Fetch all data in parallel
+      const [projectsData, invoicesData, projectRequestsData, overviewData] = await Promise.all([
+        fetchJson<any>("/api/client/projects").catch((err) => {
+          console.error('Failed to fetch projects:', err);
+          return { items: [] };
+        }),
+        fetchJson<any>("/api/client/invoices").catch((err) => {
+          console.error('Failed to fetch invoices:', err);
+          return { invoices: [] };
+        }),
+        fetchJson<any>("/api/client/requests").catch((err) => {
+          console.error('Failed to fetch project requests:', err);
+          return { requests: [] };
+        }),
+        fetchJson<any>("/api/client/overview").catch((err) => {
+          console.error('Failed to fetch overview:', err);
+          return {};
+        }),
+      ]);
 
-        // Process activity data from overview
-        if (overviewData?.activity?.items) {
-          const processedActivities: Activity[] = overviewData.activity.items.map((item: any) => {
-            // Map activity types to ActivityFeed types
-            let type: Activity['type'] = 'PROJECT_CREATED';
-            if (item.type === 'FILE_UPLOAD' || item.description?.includes('file')) {
-              type = 'FILE_UPLOAD';
-            } else if (item.type === 'MESSAGE' || item.description?.includes('message')) {
-              type = 'MESSAGE';
-            } else if (item.type === 'MILESTONE' || item.description?.includes('milestone')) {
-              type = 'MILESTONE';
-            } else if (item.type === 'PAYMENT' || item.description?.includes('payment') || item.description?.includes('invoice')) {
-              type = 'PAYMENT';
-            } else if (item.type === 'TASK_COMPLETED' || item.description?.includes('task')) {
-              type = 'TASK_COMPLETED';
-            }
+      // Process activity data from overview
+      if (overviewData?.activity?.items) {
+        const processedActivities: Activity[] = overviewData.activity.items.map((item: any) => {
+          // Map activity types to ActivityFeed types
+          let type: Activity['type'] = 'PROJECT_CREATED';
+          if (item.type === 'FILE_UPLOAD' || item.description?.includes('file')) {
+            type = 'FILE_UPLOAD';
+          } else if (item.type === 'MESSAGE' || item.description?.includes('message')) {
+            type = 'MESSAGE';
+          } else if (item.type === 'MILESTONE' || item.description?.includes('milestone')) {
+            type = 'MILESTONE';
+          } else if (item.type === 'PAYMENT' || item.description?.includes('payment') || item.description?.includes('invoice')) {
+            type = 'PAYMENT';
+          } else if (item.type === 'TASK_COMPLETED' || item.description?.includes('task')) {
+            type = 'TASK_COMPLETED';
+          }
 
-            return {
-              id: item.id,
-              type,
-              title: item.title || 'Activity',
-              description: item.description,
-              metadata: item.metadata || {},
-              createdAt: new Date(item.createdAt),
-              createdBy: item.user?.name || 'System',
-            };
-          });
-          setActivities(processedActivities);
-        }
-
-        setProjects(normalizeItems(projectsData));
-        setInvoices(normalizeItems(invoicesData));
-        // Project requests are returned from /api/client/requests endpoint
-        const projectRequestsList = projectRequestsData?.requests || [];
-        setProjectRequests(projectRequestsList);
-        // Also set requests for the "Recent Requests" section (using same data)
-        setRequests(projectRequestsList.map((req: ProjectRequest) => ({
-          id: req.id,
-          title: req.title || 'Untitled Request',
-          description: req.description || undefined,
-          status: req.status,
-          createdAt: req.createdAt,
-        })));
-        
-        // Messages might be in overview or separate endpoint
-        if (overviewData?.messages) {
-          setMessages(normalizeItems(overviewData.messages));
-        } else if (overviewData?.activity?.items) {
-          // Map activity items to messages format if needed
-          setMessages(overviewData.activity.items.map((item: any) => ({
+          return {
             id: item.id,
-            senderName: item.user?.name || 'System',
-            message: item.description || item.title || '',
-            createdAt: item.createdAt,
-          })));
-        }
-      } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
-        setError('Failed to load dashboard data. Please refresh the page.');
-      } finally {
-        setLoading(false);
+            type,
+            title: item.title || 'Activity',
+            description: item.description,
+            metadata: item.metadata || {},
+            createdAt: new Date(item.createdAt),
+            createdBy: item.user?.name || 'System',
+          };
+        });
+        setActivities(processedActivities);
+      }
+
+      setProjects(normalizeItems(projectsData));
+      setInvoices(normalizeItems(invoicesData));
+      // Project requests are returned from /api/client/requests endpoint
+      const projectRequestsList = projectRequestsData?.requests || [];
+      console.log('Project requests fetched:', projectRequestsList.length, projectRequestsList);
+      setProjectRequests(projectRequestsList);
+      // Also set requests for the "Recent Requests" section (using same data)
+      setRequests(projectRequestsList.map((req: ProjectRequest) => ({
+        id: req.id,
+        title: req.title || 'Untitled Request',
+        description: req.description || undefined,
+        status: req.status,
+        createdAt: req.createdAt,
+      })));
+      
+      // Messages might be in overview or separate endpoint
+      if (overviewData?.messages) {
+        setMessages(normalizeItems(overviewData.messages));
+      } else if (overviewData?.activity?.items) {
+        // Map activity items to messages format if needed
+        setMessages(overviewData.activity.items.map((item: any) => ({
+          id: item.id,
+          senderName: item.user?.name || 'System',
+          message: item.description || item.title || '',
+          createdAt: item.createdAt,
+        })));
+      }
+    } catch (err) {
+      console.error('Failed to fetch dashboard data:', err);
+      setError('Failed to load dashboard data. Please refresh the page.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [session]);
+
+  // Refresh data when page becomes visible (handles case when user navigates back after deletion)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && session?.user) {
+        fetchData();
       }
     };
 
-    fetchData();
+    const handleFocus = () => {
+      if (session?.user) {
+        fetchData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [session]);
 
   const activeProjects = projects.filter((p) => {
@@ -185,6 +223,33 @@ export default function ClientDashboardClient() {
   });
   
   const recentMessages = messages.slice(0, 3);
+
+  // Handle project navigation with error checking
+  const handleProjectClick = async (projectId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    try {
+      // Verify project exists before navigating
+      const response = await fetch(`/api/client/projects/${projectId}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          // Project doesn't exist, refresh data and show error
+          await fetchData();
+          alert('This project no longer exists. The dashboard has been refreshed.');
+          return;
+        }
+        throw new Error('Failed to verify project');
+      }
+      
+      // Project exists, navigate to it
+      router.push(`/client/projects/${projectId}`);
+    } catch (err) {
+      console.error('Error verifying project:', err);
+      // Refresh data in case project was deleted
+      await fetchData();
+      alert('Unable to access this project. The dashboard has been refreshed.');
+    }
+  };
 
   // Determine dashboard state
   const dashboardState = getDashboardState(projectRequests, projects);
@@ -419,19 +484,90 @@ export default function ClientDashboardClient() {
                     <p className="text-gray-400 text-sm mb-4 leading-relaxed">
                       This project is waiting for conversion from lead to active project.
                     </p>
-                    <Link
-                      href={`/client/projects/${project.id}`}
+                    <button
+                      onClick={(e) => handleProjectClick(project.id, e)}
                       className="inline-flex items-center gap-2 text-trinity-red hover:text-white hover:gap-3 transition-all font-semibold group/link"
                     >
                       View Details
                       <FiArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                    </Link>
+                    </button>
                   </div>
                 </motion.div>
               ))}
             </div>
           </motion.div>
         )}
+      </div>
+    );
+  }
+
+  // Check if user has absolutely no projects and no active requests
+  const hasNoProjects = projects.length === 0;
+  const hasNoActiveProjects = activeProjects.length === 0;
+  const hasNoProjectRequests = projectRequests.length === 0;
+  const hasNoActiveProjectRequests = activeProjectRequests.length === 0;
+
+  // Show empty state if user has no projects at all and no active requests
+  if (hasNoProjects && hasNoActiveProjectRequests) {
+    return (
+      <div className="space-y-10">
+        {/* Empty State - No Projects */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative bg-gradient-to-r from-blue-900/40 via-purple-900/40 to-blue-900/40 rounded-xl border border-blue-600/50 p-12 overflow-hidden shadow-xl text-center"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-transparent" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl" />
+          <div className="relative z-10">
+            <div className="w-24 h-24 mx-auto mb-6 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/30">
+              <FiFolder className="w-12 h-12 text-blue-400" />
+            </div>
+            <h1 className="text-4xl font-heading font-bold text-white mb-4 tracking-tight">
+              Welcome, {session?.user?.name || 'User'}!
+            </h1>
+            <p className="text-gray-200 text-lg mb-8 max-w-2xl mx-auto">
+              You don't have any projects yet. Get started by submitting a project request and we'll help bring your vision to life!
+            </p>
+            <Link
+              href="/start"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-blue-500/50 hover:scale-105 active:scale-95"
+            >
+              <FiPlus className="w-5 h-5" />
+              Start Your First Project
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Helpful Information */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          <div className="bg-gradient-to-br from-gray-900 to-gray-900/80 rounded-xl border border-gray-800 p-6">
+            <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
+              <FiCheckCircle className="w-6 h-6 text-blue-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">Fast Turnaround</h3>
+            <p className="text-gray-400 text-sm">Get your website built in 48 hours</p>
+          </div>
+          <div className="bg-gradient-to-br from-gray-900 to-gray-900/80 rounded-xl border border-gray-800 p-6">
+            <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
+              <FiBriefcase className="w-6 h-6 text-purple-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">Professional Quality</h3>
+            <p className="text-gray-400 text-sm">Expert design and development</p>
+          </div>
+          <div className="bg-gradient-to-br from-gray-900 to-gray-900/80 rounded-xl border border-gray-800 p-6">
+            <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
+              <FiMessageSquare className="w-6 h-6 text-green-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">Ongoing Support</h3>
+            <p className="text-gray-400 text-sm">We're here to help every step of the way</p>
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -652,13 +788,13 @@ export default function ClientDashboardClient() {
                       <span>Due: {new Date(project.dueDate).toLocaleDateString()}</span>
                     </div>
                   )}
-                  <Link
-                    href={`/client/projects/${project.id}`}
+                  <button
+                    onClick={(e) => handleProjectClick(project.id, e)}
                     className="inline-flex items-center gap-2 text-trinity-red hover:text-white hover:gap-3 transition-all font-semibold group/link"
                   >
                     View Details
                     <FiArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                  </Link>
+                  </button>
                 </div>
               </motion.div>
             ))}

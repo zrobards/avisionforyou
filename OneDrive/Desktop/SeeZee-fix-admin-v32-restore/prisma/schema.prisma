@@ -77,6 +77,7 @@ model User {
   briefQuestionnaire     BriefQuestionnaire?  @relation("UserBriefQuestionnaire")
   revenueSplitsCreated   RevenueSplit[]       @relation("RevenueSplitCreatedBy")
   clientTasksCreated     ClientTask[]         @relation("ClientTaskCreatedBy")
+  leads                  Lead[]
   invitedBy              User?                @relation("Inviter", fields: [invitedById], references: [id])
   invitees               User[]               @relation("Inviter")
 
@@ -131,24 +132,27 @@ model OrganizationMember {
 }
 
 model Lead {
-  id             String        @id @default(cuid())
+  id             String           @id @default(cuid())
   name           String
   email          String
   message        String?
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime         @default(now())
   company        String?
   budget         String?
   phone          String?
-  source         String?       @default("website")
+  source         String?          @default("website")
   timeline       String?
-  updatedAt      DateTime      @updatedAt
+  updatedAt      DateTime         @updatedAt
   convertedAt    DateTime?
   organizationId String?
+  userId         String?
   requirements   Json?
-  serviceType    String?
-  status         LeadStatus    @default(NEW)
+  serviceType    ServiceCategory?
+  status         LeadStatus       @default(NEW)
   metadata       Json?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
+  internalNotes  String?
+  organization   Organization?    @relation(fields: [organizationId], references: [id])
+  user           User?            @relation(fields: [userId], references: [id])
   project        Project?
 
   @@map("leads")
@@ -184,6 +188,7 @@ model Project {
   clientTasks          ClientTask[]
   projectQuestionnaire ProjectQuestionnaire?
   revenueSplits        RevenueSplit[]
+  maintenancePlanRel   MaintenancePlan?
   assignee             User?                 @relation("ProjectAssignee", fields: [assigneeId], references: [id])
   lead                 Lead?                 @relation(fields: [leadId], references: [id])
   organization         Organization          @relation(fields: [organizationId], references: [id])
@@ -212,32 +217,32 @@ model ProjectMilestone {
 }
 
 model Invoice {
-  id              String        @id @default(cuid())
-  number          String        @unique
-  status          InvoiceStatus @default(DRAFT)
-  total           Decimal
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  amount          Decimal
-  currency        String        @default("USD")
-  description     String?
-  dueDate         DateTime
-  organizationId  String
-  paidAt          DateTime?
-  projectId       String?
-  sentAt          DateTime?
-  stripeInvoiceId String?
-  tax             Decimal?      @default(0)
-  title           String
+  id                 String        @id @default(cuid())
+  number             String        @unique
+  status             InvoiceStatus @default(DRAFT)
+  total              Decimal
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  amount             Decimal
+  currency           String        @default("USD")
+  description        String?
+  dueDate            DateTime
+  organizationId     String
+  paidAt             DateTime?
+  projectId          String?
+  sentAt             DateTime?
+  stripeInvoiceId    String?
+  tax                Decimal?      @default(0)
+  title              String
   customerApprovedAt DateTime?
-  adminApprovedAt DateTime?
-  invoiceType     String?       @default("deposit") // "deposit", "final", "subscription", "custom"
-  isFirstInvoice  Boolean       @default(false) // Marks the first invoice that sets project price
-  leadId          String?
-  items           InvoiceItem[]
-  organization    Organization  @relation(fields: [organizationId], references: [id])
-  project         Project?      @relation(fields: [projectId], references: [id])
-  payments        Payment[]
+  adminApprovedAt    DateTime?
+  invoiceType        String?       @default("deposit") // "deposit", "final", "subscription", "custom"
+  isFirstInvoice     Boolean       @default(false) // Marks the first invoice that sets project price
+  leadId             String?
+  items              InvoiceItem[]
+  organization       Organization  @relation(fields: [organizationId], references: [id])
+  project            Project?      @relation(fields: [projectId], references: [id])
+  payments           Payment[]
 
   @@map("invoices")
 }
@@ -268,6 +273,24 @@ model Payment {
   invoice         Invoice       @relation(fields: [invoiceId], references: [id])
 
   @@map("payments")
+}
+
+model MaintenancePlan {
+  id                      String                @id @default(cuid())
+  projectId               String                @unique
+  tier                    String
+  monthlyPrice            Decimal
+  features                Json?
+  billingDay              Int                   @default(1)
+  status                  MaintenancePlanStatus @default(ACTIVE)
+  stripeSubscriptionId    String?
+  stripeCheckoutSessionId String?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  cancelledAt             DateTime?
+  project                 Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("maintenance_plans")
 }
 
 model PricingRule {
@@ -498,20 +521,20 @@ model Questionnaire {
 }
 
 model Subscription {
-  id                     String          @id @default(cuid())
-  projectId              String
-  stripeId               String          @unique
-  priceId                String
-  status                 String
-  currentPeriodEnd       DateTime?
-  createdAt              DateTime        @default(now())
-  updatedAt              DateTime        @updatedAt
-  planName               String?         // "Standard Monthly", "Premium Monthly", "Standard Annual", "Premium Annual"
-  changeRequestsAllowed  Int             @default(2) // Number of change requests allowed per period
-  changeRequestsUsed     Int             @default(0) // Number of change requests used in current period
-  resetDate              DateTime?       // When change requests reset
-  project                Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  changeRequests         ChangeRequest[]
+  id                    String          @id @default(cuid())
+  projectId             String
+  stripeId              String          @unique
+  priceId               String
+  status                String
+  currentPeriodEnd      DateTime?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  planName              String? // "Standard Monthly", "Premium Monthly", "Standard Annual", "Premium Annual"
+  changeRequestsAllowed Int             @default(2) // Number of change requests allowed per period
+  changeRequestsUsed    Int             @default(0) // Number of change requests used in current period
+  resetDate             DateTime? // When change requests reset
+  project               Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  changeRequests        ChangeRequest[]
 
   @@map("subscriptions")
 }
@@ -582,7 +605,7 @@ model Activity {
   readAt      DateTime?
   createdAt   DateTime     @default(now())
   projectId   String?
-  createdBy   String?      // User ID or "SYSTEM"
+  createdBy   String? // User ID or "SYSTEM"
   user        User?        @relation(fields: [userId], references: [id])
 
   @@index([createdAt])
@@ -906,7 +929,7 @@ model AISuggestion {
   type        String
   title       String
   description String
-  confidence  Int      // 0-100
+  confidence  Int // 0-100
   source      String
   status      String   @default("NEW") // NEW, ACCEPTED, DISMISSED
   metadata    Json?
@@ -982,21 +1005,13 @@ enum ServiceType {
 
 enum ProjectStatus {
   LEAD
-  BRIEF_PENDING
-  BRIEF_SUBMITTED
-  QUOTE_READY
+  QUOTED
   DEPOSIT_PAID
-  PAID
-  IN_PROGRESS
+  ACTIVE
   REVIEW
   COMPLETED
+  MAINTENANCE
   CANCELLED
-  PLANNING
-  ACTIVE
-  DESIGN
-  BUILD
-  LAUNCH
-  ON_HOLD
 }
 
 enum InvoiceStatus {
@@ -1115,4 +1130,17 @@ enum CompletionStatus {
   NOT_STARTED
   IN_PROGRESS
   COMPLETE
+}
+
+enum ServiceCategory {
+  BUSINESS_WEBSITE
+  NONPROFIT_WEBSITE
+  PERSONAL_WEBSITE
+  MAINTENANCE_PLAN
+}
+
+enum MaintenancePlanStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
 }

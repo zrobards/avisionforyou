@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { mapBudgetToTier } from "@/lib/budget-mapping";
 
 export async function POST(req: Request) {
   try {
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
         projectType,
         goal,
         timeline,
-        budget,
+        budget: mapBudgetToTier(budget),
       },
     });
 

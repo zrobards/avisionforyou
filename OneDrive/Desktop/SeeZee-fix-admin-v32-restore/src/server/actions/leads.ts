@@ -4,15 +4,20 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { feedHelpers } from "@/lib/feed/emit";
-import { Prisma } from "@prisma/client";
+import { Prisma, ProjectStatus } from "@prisma/client";
 
 /**
- * Approve a lead and create a project
- * CEO/Admin action to convert lead to active project
+ * SeeZee V2: Convert a lead to a project
+ * CEO/CFO action to convert lead to active project with QUOTED status
+ * This is the ONLY lead conversion function - all duplicates have been removed
  */
-export async function approveLeadAndCreateProject(leadId: string) {
+export async function convertLeadToProject(leadId: string, projectData?: { 
+  estimatedBudget?: number;
+  notes?: string;
+}) {
   const session = await auth();
   
+  // Enforce CEO/CFO role requirement
   if (!session?.user || !["CEO", "CFO"].includes(session.user.role || "")) {
     return { success: false, error: "Unauthorized: CEO or CFO role required" };
   }
@@ -65,7 +70,7 @@ export async function approveLeadAndCreateProject(leadId: string) {
       });
     }
 
-    // Extract questionnaireId from lead metadata
+    // Extract questionnaireId from lead metadata (legacy support)
     const questionnaireId = lead.metadata && typeof lead.metadata === 'object' && 'qid' in lead.metadata 
       ? (lead.metadata as any).qid 
       : null;
@@ -81,19 +86,20 @@ export async function approveLeadAndCreateProject(leadId: string) {
       }
     }
 
-    // Create the project
-    // Status starts as PLANNING (awaiting payment)
-    // Budget should be set when creating project - extract from lead if available
+    // Create the project with QUOTED status (V2 workflow)
+    // Budget should be set manually in admin after conversion
     const project = await prisma.project.create({
       data: {
         name: lead.company || `Project for ${lead.name}`,
         description: lead.message || `${lead.serviceType || "Web"} project`,
-        status: "PLANNING", // Awaiting deposit payment
+        status: ProjectStatus.QUOTED, // V2: Project is being quoted
         organizationId: orgId,
         leadId: lead.id,
         questionnaireId,
-        // Extract budget from lead budget field or metadata if available
-        budget: lead.budget ? new Prisma.Decimal(lead.budget) : null,
+        // Set budget from projectData if provided, otherwise null (admin will set manually)
+        budget: projectData?.estimatedBudget ? new Prisma.Decimal(projectData.estimatedBudget) : null,
+        // Store any conversion notes in metadata
+        metadata: projectData?.notes ? { conversionNotes: projectData.notes } : undefined,
       },
     });
 
@@ -142,9 +148,9 @@ export async function approveLeadAndCreateProject(leadId: string) {
     revalidatePath("/admin/pipeline/leads");
     revalidatePath(`/admin/pipeline/leads/${leadId}`);
     revalidatePath("/admin/pipeline/projects");
+    revalidatePath(`/admin/pipeline/projects/${project.id}`);
     revalidatePath("/admin/pipeline");
-    revalidatePath("/admin/projects"); // Main projects page
-    revalidatePath(`/admin/projects/${project.id}`); // New project detail page
+    revalidatePath("/admin/projects");
     
     // Revalidate client pages so the new project appears
     revalidatePath("/client");
@@ -153,8 +159,11 @@ export async function approveLeadAndCreateProject(leadId: string) {
 
     return { success: true, projectId: project.id };
   } catch (error) {
-    console.error("[Approve Lead Error]", error);
+    console.error("[Convert Lead to Project Error]", error);
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
     return { success: false, error: errorMessage };
   }
 }
+
+// Legacy alias for backward compatibility - will be removed in cleanup phase
+export const approveLeadAndCreateProject = convertLeadToProject;

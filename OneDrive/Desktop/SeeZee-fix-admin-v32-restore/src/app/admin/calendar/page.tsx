@@ -72,7 +72,7 @@ export default async function CalendarPage() {
   const projects = await db.project.findMany({
     where: {
       status: {
-        in: ["IN_PROGRESS", "REVIEW"],
+        in: ["ACTIVE", "REVIEW"],
       },
     },
     include: {

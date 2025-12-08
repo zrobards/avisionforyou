@@ -399,3 +399,7 @@ export async function generateInvoicePDFBase64(invoice: InvoiceData): Promise<st
   return buffer.toString('base64');
 }
 
+
+
+
+

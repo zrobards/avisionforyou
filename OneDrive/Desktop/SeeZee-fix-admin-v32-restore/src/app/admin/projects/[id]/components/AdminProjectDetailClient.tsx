@@ -464,3 +464,7 @@ export function AdminProjectDetailClient({ project }: AdminProjectDetailClientPr
   );
 }
 
+
+
+
+

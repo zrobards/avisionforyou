@@ -103,13 +103,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { projectId, title, description, type, dueDate, requiresUpload } = body as {
+    const { projectId, title, description, type, dueDate, requiresUpload, attachments } = body as {
       projectId?: string;
       title?: string;
       description?: string;
       type?: string;
       dueDate?: string;
       requiresUpload?: boolean;
+      attachments?: string[];
     };
 
     if (!projectId || !title || !description) {
@@ -157,7 +158,7 @@ export async function POST(req: NextRequest) {
       return addCorsHeaders(response, req.headers.get("origin"));
     }
 
-    // Create the task
+    // Create the task with attachments stored in data field
     const task = await prisma.clientTask.create({
       data: {
         projectId,
@@ -169,6 +170,7 @@ export async function POST(req: NextRequest) {
         requiresUpload: requiresUpload || false,
         assignedToClient: true,
         createdById: session.user.id,
+        data: attachments && attachments.length > 0 ? { attachments } : null,
       },
       include: {
         project: {
@@ -364,4 +366,7 @@ export async function DELETE(req: NextRequest) {
     return addCorsHeaders(response, req.headers.get("origin"));
   }
 }
+
+
+
 

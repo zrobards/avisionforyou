@@ -2,54 +2,96 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { sendWelcomeEmail } from '@/lib/mailer';
+import { mapBudgetToTier } from '@/lib/budget-mapping';
 
-import { LeadStatus, ProjectStatus } from '@prisma/client';
+import { LeadStatus, ProjectStatus, BudgetTier } from '@prisma/client';
 
 export async function POST(req: NextRequest) {
   try {
-    // Get the authenticated user's session
-    const session = await auth();
-    
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized - please sign in' }, { status: 401 });
-    }
-
     const body = await req.json();
     
-    // Check for active project requests - limit to 1 submission
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true, name: true, email: true },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Check for active project requests
-    const activeRequests = await prisma.projectRequest.findMany({
-      where: {
-        userId: user.id,
-        status: {
-          in: ['DRAFT', 'SUBMITTED', 'REVIEWING', 'NEEDS_INFO'],
-        },
-      },
-    });
-
-    if (activeRequests.length > 0) {
+    // REJECT LEGACY QUESTIONNAIRE FIELDS - SeeZee V2 Migration
+    // These fields are from the old questionnaire system and should no longer be accepted
+    const legacyFields = ['qid', 'packageId', 'selectedFeatures', 'answers', 'package'];
+    const hasLegacyFields = legacyFields.some(field => field in body);
+    
+    if (hasLegacyFields) {
       return NextResponse.json(
         { 
-          error: 'You already have an active project request. Please wait for it to be reviewed before submitting a new one.',
-          activeRequest: {
-            id: activeRequests[0].id,
-            title: activeRequests[0].title,
-            status: activeRequests[0].status,
-          },
+          error: 'Invalid request format. The old questionnaire system is no longer supported. Please use the new service intake form.',
+          code: 'LEGACY_FORMAT_REJECTED'
         },
         { status: 400 }
       );
     }
-    const { qid, packageId, serviceType, email, name, phone, company, referralSource, stage, outreachProgram, projectType, projectGoals, timeline, specialRequirements, nonprofitStatus, nonprofitEIN } = body;
+
+    // Get the authenticated user's session (optional for new flow)
+    const session = await auth();
+    
+    // Extract data from new simplified format
+    const { serviceType, email, name, phone, company, projectGoals, budget, timeline, nonprofitStatus, nonprofitEIN, attachments } = body;
+    
+    // Validate required fields for new flow
+    if (!serviceType || !email || !name || !projectGoals) {
+      return NextResponse.json({ error: 'Missing required fields: serviceType, email, name, projectGoals' }, { status: 400 });
+    }
+    
+    // Get or create user
+    let user = null;
+    if (session?.user?.email) {
+      user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true, name: true, email: true },
+      });
+    }
+    
+    // If no authenticated user, try to find or create by email
+    if (!user && email) {
+      user = await prisma.user.findUnique({
+        where: { email: email },
+        select: { id: true, name: true, email: true },
+      });
+      
+      // Create user if they don't exist (for unauthenticated submissions)
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            email: email,
+            name: name,
+            role: 'CLIENT',
+          },
+          select: { id: true, name: true, email: true },
+        });
+      }
+    }
+
+    // Check for active project requests if user exists
+    if (user) {
+      const activeRequests = await prisma.projectRequest.findMany({
+        where: {
+          userId: user.id,
+          status: {
+            in: ['DRAFT', 'SUBMITTED', 'REVIEWING', 'NEEDS_INFO'],
+          },
+        },
+      });
+
+      if (activeRequests.length > 0) {
+        return NextResponse.json(
+          { 
+            error: 'You already have an active project request. Please wait for it to be reviewed before submitting a new one.',
+            activeRequest: {
+              id: activeRequests[0].id,
+              title: activeRequests[0].title,
+              status: activeRequests[0].status,
+            },
+          },
+          { status: 400 }
+        );
+      }
+    }
+    
+    const { qid, packageId, referralSource, stage, outreachProgram, projectType, specialRequirements } = body;
 
     // Handle both formats: questionnaire-based (qid) and form-based (packageId)
     if (qid) {
@@ -126,7 +168,7 @@ export async function POST(req: NextRequest) {
           description: `Package: ${selectedPackage}\nFeatures: ${selectedFeatures?.length || 0} selected\nTotal: $${totals?.total || 0}\nTimeline: ${answers?.timeline || 'Not specified'}`,
           contactEmail: user.email!,
           company: '',
-          budget: 'UNKNOWN', // Can be mapped from totals if needed
+          budget: BudgetTier.UNKNOWN, // Can be mapped from totals if needed
           timeline: answers?.timeline || null,
           services: services as any,
           status: 'SUBMITTED',
@@ -181,14 +223,14 @@ export async function POST(req: NextRequest) {
           phone: phone || null,
           company: company || null,
           organizationId: organization.id, // Link to organization
-          message: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}${nonprofitStatus ? `\n\nNonprofit Status: ${nonprofitStatus}` : ''}${nonprofitEIN ? `\n\nEIN: ${nonprofitEIN}` : ''}`,
+          message: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nBudget: ${budget || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}${nonprofitStatus ? `\n\nNonprofit Status: ${nonprofitStatus}` : ''}${nonprofitEIN ? `\n\nEIN: ${nonprofitEIN}` : ''}`,
           source: referralSource || 'Service Selection',
           status: LeadStatus.NEW,
-          serviceType: selectedService.toUpperCase().replace(/-/g, '_'),
+          serviceType: selectedService, // ServiceCategory enum value (BUSINESS_WEBSITE, etc.)
           metadata: {
-            userId: user.id,
-            serviceType: selectedService,
-            package: packageId, // Keep for backward compatibility
+            userId: user?.id,
+            budget: budget || null,
+            attachments: attachments || null,
             referralSource: referralSource || null,
             stage: stage || null,
             outreachProgram: outreachProgram || null,
@@ -225,12 +267,12 @@ export async function POST(req: NextRequest) {
       // 3. Create ProjectRequest so it appears in client dashboard
       const projectRequest = await prisma.projectRequest.create({
         data: {
-          userId: user.id,
+          userId: user!.id, // user is guaranteed to exist by this point
           title: projectGoals || `${selectedService} Service Request`,
-          description: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}${nonprofitStatus ? `\n\nNonprofit Status: ${nonprofitStatus}` : ''}${nonprofitEIN ? `\n\nEIN: ${nonprofitEIN}` : ''}`,
+          description: `Project Goals: ${projectGoals || 'Not specified'}\n\nTimeline: ${timeline || 'Not specified'}\n\nBudget: ${budget || 'Not specified'}\n\nSpecial Requirements: ${specialRequirements || 'None'}${nonprofitStatus ? `\n\nNonprofit Status: ${nonprofitStatus}` : ''}${nonprofitEIN ? `\n\nEIN: ${nonprofitEIN}` : ''}`,
           contactEmail: email,
           company: company || null,
-          budget: 'UNKNOWN',
+          budget: mapBudgetToTier(budget),
           timeline: timeline || null,
           services: services as any,
           status: 'SUBMITTED',
@@ -238,7 +280,11 @@ export async function POST(req: NextRequest) {
       });
 
       // 4. Create Project automatically
-      const isNonprofitProject = outreachProgram?.includes('nonprofit') || nonprofitStatus?.includes('501(c)(3)') || selectedService === 'nonprofit';
+      const isNonprofitProject = 
+        outreachProgram?.includes?.('nonprofit') || 
+        (typeof nonprofitStatus === 'string' && nonprofitStatus.includes('501(c)(3)')) ||
+        nonprofitStatus === true ||
+        selectedService === 'NONPROFIT_WEBSITE';
       const project = await prisma.project.create({
         data: {
           name: `${name}'s Project`,
@@ -279,26 +325,28 @@ export async function POST(req: NextRequest) {
       });
 
       // 6. Create activity/feed event for admin notification
-      await prisma.activity.create({
-        data: {
-          type: 'PROJECT_CREATED',
-          title: 'New Project Created', // Added title which is required
-          description: `New project inquiry from ${name}`,
-          userId: session.user.id,
-          metadata: {
-            projectId: project.id,
-            service: selectedService,
-            serviceType: selectedService,
-            timeline: timeline,
-            isNonprofit: isNonprofitProject,
+      if (user) {
+        await prisma.activity.create({
+          data: {
+            type: 'PROJECT_CREATED',
+            title: 'New Project Created', // Added title which is required
+            description: `New project inquiry from ${name}`,
+            userId: user.id,
+            metadata: {
+              projectId: project.id,
+              service: selectedService,
+              serviceType: selectedService,
+              timeline: timeline,
+              isNonprofit: isNonprofitProject,
+            },
           },
-        },
-      });
+        });
+      }
 
       // 7. Send welcome email
       try {
         const emailResult = await sendWelcomeEmail({
-          to: session.user.email!,
+          to: email,
           firstName: name.split(' ')[0], // Get first name
           dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/client`,
         });

@@ -1,6 +1,7 @@
 import { AdminAppShell } from "@/components/admin/AdminAppShell";
 import { getCurrentUser } from "@/lib/auth/requireRole";
 import { ClientTasksClient } from "@/components/admin/ClientTasksClient";
+import { prisma } from "@/lib/prisma";
 
 interface TaskRow {
   id: string;
@@ -10,6 +11,10 @@ interface TaskRow {
   status: string;
   priority: string;
   dueDate: string | null;
+  type: string;
+  requiresUpload: boolean;
+  createdAt: string;
+  completedAt: string | null;
 }
 
 export const dynamic = "force-dynamic";
@@ -21,25 +26,53 @@ export default async function ClientTasksPage() {
     return null;
   }
 
-  const { getTasks } = await import("@/server/actions/tasks");
-  const tasksResult = await getTasks({ status: undefined });
-  const tasks = tasksResult.success ? tasksResult.tasks : [];
+  // Fetch ALL client tasks across all projects
+  const clientTasks = await prisma.clientTask.findMany({
+    include: {
+      project: {
+        include: {
+          organization: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      createdBy: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: [
+      { status: "asc" },
+      { dueDate: "asc" },
+      { createdAt: "desc" },
+    ],
+  });
 
-  const rows: TaskRow[] = tasks.map((task: any) => ({
+  const rows: TaskRow[] = clientTasks.map((task) => ({
     id: task.id,
     title: task.title,
     project: task.project?.name ?? "Unassigned",
-    client: task.project?.organization?.name ?? task.project?.clientName ?? "—",
-    status: String(task.status ?? "").toLowerCase(),
-    priority: String(task.priority ?? "").toLowerCase(),
+    client: task.project?.organization?.name ?? "—",
+    status: task.status,
+    priority: "medium", // ClientTask doesn't have priority, using default
     dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
+    type: task.type,
+    requiresUpload: task.requiresUpload,
+    createdAt: task.createdAt.toISOString(),
+    completedAt: task.completedAt ? task.completedAt.toISOString() : null,
   }));
 
   const overdue = rows.filter(
-    (task) => task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "done",
+    (task) => task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "completed",
   ).length;
 
-  const openTasks = rows.filter((task) => task.status !== "done").length;
+  const openTasks = rows.filter((task) => task.status !== "completed").length;
 
   return (
     <AdminAppShell user={user}>
@@ -50,7 +83,7 @@ export default async function ClientTasksPage() {
           </span>
           <h1 className="text-4xl font-heading font-bold gradient-text">Client Tasks</h1>
           <p className="max-w-2xl text-base text-gray-300 leading-relaxed">
-            Monitor deliverables and automation touchpoints across every client engagement. Prioritize, reassign, and track progress in one view.
+            Monitor all client tasks and assignments across every project. Create new assignments with file attachments, track progress, and ensure everyone completes their deliverables.
           </p>
         </header>
 

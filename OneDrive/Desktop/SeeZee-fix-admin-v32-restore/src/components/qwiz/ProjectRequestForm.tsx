@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2 } from 'lucide-react';
 import type { PackageTier } from '@/lib/qwiz/packages';
@@ -95,12 +96,11 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
     }
   }, [session]);
 
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pricingInfo, setPricingInfo] = useState<{ total: number; deposit: number } | null>(null);
-  const [isApproved, setIsApproved] = useState(false);
-  const [leadId, setLeadId] = useState<string | null>(null);
 
   // Calculate pricing when component mounts
   useEffect(() => {
@@ -274,10 +274,7 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
 
     setIsSubmitting(true);
     try {
-      // First create the lead
-      await onSubmit(formData);
-
-      // Create lead via API
+      // Create lead via API (single submission point)
       const leadResponse = await fetch('/api/leads/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -299,50 +296,41 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
 
       if (!leadResponse.ok) {
         const error = await leadResponse.json();
+        
+        // Handle specific error cases
+        if (error.error?.includes('active project request')) {
+          router.push('/client?message=active-request');
+          return;
+        }
+        
         throw new Error(error.error || 'Failed to create lead');
       }
 
       const leadData = await leadResponse.json();
-      setLeadId(leadData.leadId);
-
-      // Lead created successfully - show success message
-      setIsSubmitting(false);
-      setIsApproved(true);
+      
+      // Call onSubmit callback if provided (for any additional processing)
+      if (onSubmit) {
+        try {
+          await onSubmit(formData);
+        } catch (onSubmitError) {
+          // Log but don't fail if onSubmit has issues
+          console.warn('onSubmit callback error:', onSubmitError);
+        }
+      }
+      
+      // Redirect to success page with leadId
+      if (leadData.leadId) {
+        router.push(`/start/questionnaire/success?leadId=${leadData.leadId}`);
+      } else {
+        router.push('/start/questionnaire/success');
+      }
     } catch (error: any) {
       console.error('Failed to submit request:', error);
-      alert(error.message || 'Failed to submit request. Please try again.');
+      setErrors({ submit: error.message || 'Failed to submit request. Please try again.' });
       setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
-
-  if (isApproved) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="relative w-full max-w-2xl glass-effect rounded-xl border-2 border-gray-700 hover:border-trinity-red transition-all duration-300 shadow-large overflow-hidden"
-        >
-          <div className="p-8 space-y-6 text-center">
-            <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-2xl font-heading font-bold gradient-text mb-2">Request Submitted Successfully!</h3>
-            <p className="text-white/80 mb-4">
-              Your project request is awaiting CEO review.
-            </p>
-            <p className="text-white/60 mb-6">
-              We'll review your {selectedPackage} package request and get back to you within 24 hours. Once approved, you'll receive an invoice for the starting deposit.
-            </p>
-            <button
-              onClick={onClose}
-              className="px-6 py-3 bg-trinity-red hover:bg-trinity-maroon rounded-lg text-white font-medium transition-all duration-200 shadow-medium transform hover:-translate-y-1 glow-on-hover"
-            >
-              OK
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto">
@@ -372,6 +360,18 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
             />
           </div>
         </div>
+
+        {/* Error Message */}
+        {errors.submit && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 w-full bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded-lg"
+          >
+            <p className="font-semibold mb-1">Submission Error</p>
+            <p>{errors.submit}</p>
+          </motion.div>
+        )}
 
         {/* Question Card */}
         <AnimatePresence mode="wait">

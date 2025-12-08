@@ -15,8 +15,10 @@ export default function ProjectsPage() {
       title: 'Red Head Printing',
       client: 'Tina',
       status: 'Work in Progress',
-      description:
-        'A high-performance e-commerce platform for Red Head Printing built with Next.js and Express. Features include a full product catalog, shopping cart, custom file uploads for print designs, Stripe payment processing, and an admin dashboard for order management.',
+      goal: 'Launch an online store to sell custom printing services and products 24/7',
+      whatWeBuilt: 'A full e-commerce platform with product catalog, shopping cart, custom file uploads for print designs, Stripe payments, and order management',
+      problemSolved: 'Tina needed a way to take orders online without manually processing each request. Customers can now upload their designs, select products, and check out instantly.',
+      result: 'Professional e-commerce store launching in 3 weeks',
       packageType: 'E-Commerce Store',
       features: [
         'Next.js frontend with SSR/SSG',
@@ -34,11 +36,13 @@ export default function ProjectsPage() {
     {
       id: 'big-red-bus',
       title: 'Big Red Bus',
-      client: 'FBLA Project',
+      client: 'Partner Nonprofit',
       status: 'Work in Progress',
-      description:
-        'A nonprofit directory platform for mental health and autism support organizations. Built with React, TypeScript, and Vite, this FBLA project helps people discover and support local nonprofits through an interactive directory with filtering, search, and detailed organization profiles.',
-      packageType: 'Business Site',
+      goal: 'Create a professional nonprofit directory to connect families with mental health and autism support organizations',
+      whatWeBuilt: 'A searchable directory platform with filtering, organization profiles, mission pages, and donation functionality',
+      problemSolved: 'Small nonprofits often look unprofessional online. We proved they can have modern, clean websites without big-agency budgets.',
+      result: 'A shared brand for community work and FBLA competition',
+      packageType: 'Internal + Partner Nonprofit',
       features: [
         'Nonprofit directory with filtering',
         'Search and category filters',
@@ -82,7 +86,7 @@ export default function ProjectsPage() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-xl text-white leading-relaxed mb-4"
               >
-                SeeZee is new and we're actively building client websites. Here's what we're working on right now.
+                Show, don't tell. Here's real work we're building for real businesses.
               </motion.p>
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
@@ -90,7 +94,7 @@ export default function ProjectsPage() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-lg text-trinity-red font-semibold"
               >
-                Every project gets the same fast, professional treatment.
+                Your project could be next.
               </motion.p>
             </div>
           </ScrollAnimation>
@@ -115,7 +119,7 @@ export default function ProjectsPage() {
                           {project.status}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 mb-4 text-gray-200">
+                      <div className="flex items-center gap-4 mb-6 text-gray-200">
                         <div className="flex items-center gap-2">
                           <FiUser className="w-4 h-4" />
                           <span className="text-sm">Client: {project.client}</span>
@@ -125,16 +129,33 @@ export default function ProjectsPage() {
                           <span className="text-sm">{project.packageType}</span>
                         </div>
                       </div>
-                      <p className="text-lg text-white leading-relaxed mb-6">
-                        {project.description}
-                      </p>
+                    </div>
+
+                    {/* Project Story */}
+                    <div className="space-y-4 mb-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-trinity-red mb-2">Goal</h3>
+                        <p className="text-white leading-relaxed">{project.goal}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-trinity-red mb-2">What We Built</h3>
+                        <p className="text-white leading-relaxed">{project.whatWeBuilt}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-trinity-red mb-2">Problem We Solved</h3>
+                        <p className="text-white leading-relaxed">{project.problemSolved}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-trinity-red mb-2">Result</h3>
+                        <p className="text-white leading-relaxed font-semibold">{project.result}</p>
+                      </div>
                     </div>
 
                     <div className="mb-6">
-                      <h3 className="text-lg font-semibold text-white mb-4">Features:</h3>
+                      <h3 className="text-lg font-semibold text-white mb-4">Technical Features:</h3>
                       <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {project.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start text-white">
+                          <li key={idx} className="flex items-start text-gray-300">
                             <span className="text-trinity-red mr-2">•</span>
                             <span>{feature}</span>
                           </li>
@@ -200,10 +221,10 @@ export default function ProjectsPage() {
           <ScrollAnimation>
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-6">
-                Ready to Start Your Project?
+                Your project could be next.
               </h2>
               <p className="text-xl text-white mb-8 leading-relaxed">
-                Join our growing list of clients. We'll have your website live in 48 hours.
+                Join our growing list of clients. Professional websites delivered in 2-3 weeks.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link

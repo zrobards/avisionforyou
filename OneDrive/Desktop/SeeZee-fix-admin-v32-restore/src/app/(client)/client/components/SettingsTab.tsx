@@ -1,6 +1,8 @@
 "use client";
 
-import { Settings, Package, Calendar, User, Link as LinkIcon, Github } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Settings, Package, Calendar, User, Link as LinkIcon, Github, Trash2, AlertTriangle } from "lucide-react";
 
 interface SettingsTabProps {
   project: {
@@ -20,6 +22,10 @@ interface SettingsTabProps {
 }
 
 export function SettingsTab({ project, assignee, isAdmin = false }: SettingsTabProps) {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   // Extract questionnaire data
   const questionnaireData = project.questionnaire?.data as any;
   const packageName = questionnaireData?.selectedPackage || 'Not specified';
@@ -27,6 +33,49 @@ export function SettingsTab({ project, assignee, isAdmin = false }: SettingsTabP
   const timeline = questionnaireData?.questionnaire?.timeline || 'Not specified';
   const totals = questionnaireData?.totals;
   const totalAmount = totals?.finalTotal || totals?.subtotal || null;
+
+  const handleDeleteProject = async () => {
+    if (!confirm(`Are you sure you want to delete "${project.name}"? This action cannot be undone and will permanently remove all project data, files, and history.`)) {
+      return;
+    }
+
+    // Double confirmation for destructive action
+    if (!confirm('This is your final confirmation. The project will be permanently deleted. Continue?')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const response = await fetch(`/api/client/projects/${project.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to delete project';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Redirect to projects page after successful deletion
+      router.push('/client/projects');
+      router.refresh();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Failed to delete project. Please try again.';
+      console.error('Failed to delete project:', error);
+      setDeleteError(errorMessage);
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -163,8 +212,50 @@ export function SettingsTab({ project, assignee, isAdmin = false }: SettingsTabP
             </p>
           </div>
         )}
+
+        {/* Delete Project Section - Only for clients */}
+        {!isAdmin && (
+          <div className="p-4 bg-red-500/10 rounded-xl border border-red-500/30">
+            <div className="flex items-start gap-3 mb-4">
+              <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-red-300 mb-2">Danger Zone</h4>
+                <p className="text-sm text-red-200/80 mb-4">
+                  Once you delete a project, there is no going back. All project data, files, messages, and history will be permanently removed.
+                </p>
+              </div>
+            </div>
+            
+            {deleteError && (
+              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-lg">
+                <p className="text-sm text-red-300">{deleteError}</p>
+              </div>
+            )}
+
+            <button
+              onClick={handleDeleteProject}
+              disabled={isDeleting}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors"
+            >
+              {isDeleting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  Delete Project
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+
+
 

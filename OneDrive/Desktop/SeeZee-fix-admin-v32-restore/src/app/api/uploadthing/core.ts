@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 
 const f = createUploadthing();
 
+const ADMIN_ROLES = ["ADMIN", "CEO", "CFO", "STAFF", "FRONTEND", "BACKEND", "OUTREACH", "DESIGNER", "DEV"];
+
 // File router for handling uploads
 export const ourFileRouter = {
   // Training file uploader (PDFs, videos, etc.)
@@ -42,6 +44,32 @@ export const ourFileRouter = {
     })
     .onUploadComplete(async ({ metadata, file }) => {
       console.log("Resource upload complete:", file.url);
+      return { uploadedBy: metadata.userId, fileUrl: file.url };
+    }),
+
+  // Admin project file uploader (for admin dashboard)
+  adminProjectFileUploader: f({
+    image: { maxFileSize: "8MB", maxFileCount: 10 },
+    video: { maxFileSize: "64MB", maxFileCount: 5 },
+    pdf: { maxFileSize: "32MB", maxFileCount: 10 },
+    blob: { maxFileSize: "32MB", maxFileCount: 10 },
+  })
+    .middleware(async () => {
+      const session = await auth();
+      
+      if (!session?.user) {
+        throw new Error("Unauthorized");
+      }
+
+      // Check if user has admin role
+      if (!ADMIN_ROLES.includes(session.user.role || "")) {
+        throw new Error("Forbidden - Admin access required");
+      }
+
+      return { userId: session.user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("Admin file upload complete:", file.url);
       return { uploadedBy: metadata.userId, fileUrl: file.url };
     }),
 

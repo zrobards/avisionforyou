@@ -6,7 +6,8 @@
 
 import { useState } from "react";
 import { Kanban, type KanbanColumn, type KanbanItem } from "@/components/admin/Kanban";
-import { updateLeadStatus, convertLeadToProject } from "@/server/actions/pipeline";
+import { updateLeadStatus } from "@/server/actions/pipeline";
+import { convertLeadToProject } from "@/server/actions/leads";
 
 interface KanbanClientProps {
   pipeline: any;

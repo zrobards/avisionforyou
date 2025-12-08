@@ -19,7 +19,7 @@ export default async function InvoicesPage() {
 
   const projectIds = projects.map((p) => p.id);
 
-  const invoices = projectIds.length > 0
+  const rawInvoices = projectIds.length > 0
     ? await db.invoice.findMany({
         where: {
           projectId: { in: projectIds },
@@ -37,6 +37,14 @@ export default async function InvoicesPage() {
         },
       })
     : [];
+
+  // Convert Decimal fields to numbers for client component serialization
+  const invoices = rawInvoices.map((invoice) => ({
+    ...invoice,
+    amount: Number(invoice.amount),
+    tax: Number(invoice.tax || 0),
+    total: Number(invoice.total),
+  }));
 
   return (
     <div className="space-y-6">

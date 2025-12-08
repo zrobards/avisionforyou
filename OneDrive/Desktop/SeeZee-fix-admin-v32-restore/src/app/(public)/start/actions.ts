@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { RequestStatus } from "@prisma/client";
+import { mapBudgetToTier } from "@/lib/budget-mapping";
 
 // Validation schema for project requests
 const RequestSchema = z.object({
@@ -47,6 +48,7 @@ export async function createRequest(formData: FormData) {
     const request = await prisma.projectRequest.create({
       data: {
         ...parsed,
+        budget: mapBudgetToTier(parsed.budget),
         userId,
         status: "SUBMITTED",
       },
@@ -122,7 +124,7 @@ export async function saveDraft(formData: FormData) {
       data: {
         ...input,
         services: input.services as any[],
-        budget: input.budget as any,
+        budget: mapBudgetToTier(input.budget),
         userId: session.user.id,
         status: RequestStatus.DRAFT,
       },

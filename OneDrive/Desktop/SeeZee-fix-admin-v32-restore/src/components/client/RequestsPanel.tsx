@@ -1,13 +1,13 @@
 /**
  * Wired RequestsPanel Component
- * AI-powered request generation and manual request creation
+ * Manual request creation and navigation to AI Web Support
  */
 
 "use client";
 
 import { useState } from "react";
-import { useProjectRequests, useProjectSummary, createRequest } from "@/hooks/useProject";
-import { Loader2, Sparkles, Send, ChevronDown } from "lucide-react";
+import { useProjectRequests, createRequest } from "@/hooks/useProject";
+import { Loader2, Send, ChevronDown } from "lucide-react";
 import { StatusPill } from "./StatusPill";
 
 interface RequestsPanelProps {
@@ -16,16 +16,11 @@ interface RequestsPanelProps {
 
 export function RequestsPanel({ projectId }: RequestsPanelProps) {
   const { requests, isLoading, mutate } = useProjectRequests(projectId);
-  const { summary, isLoading: loadingSummary, refetch } = useProjectSummary(projectId);
   
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  const handleAnalyze = async () => {
-    await refetch();
-  };
 
   const handleCreateManual = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,84 +46,8 @@ export function RequestsPanel({ projectId }: RequestsPanelProps) {
     }
   };
 
-  const handleAcceptSuggestion = async (suggestion: { title: string; details: string }) => {
-    setSubmitting(true);
-    try {
-      await createRequest(projectId, {
-        title: suggestion.title,
-        details: suggestion.details,
-        source: "AI",
-      });
-      
-      mutate(); // Refresh request list
-    } catch (error) {
-      console.error("Failed to accept suggestion:", error);
-      alert("Failed to create request. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* AI Analysis Section */}
-      <div className="glass-panel p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-400" />
-            <div>
-              <h3 className="text-lg font-semibold">Team Suggestions</h3>
-              <p className="text-xs text-zinc-400">
-                Optional ideas from our build notes—review and send only if they help.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleAnalyze}
-            disabled={loadingSummary}
-            className="btn-gradient text-sm px-4 py-2 rounded-lg disabled:opacity-50"
-          >
-            {loadingSummary ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Checking…
-              </>
-            ) : (
-              "Check for updates"
-            )}
-          </button>
-        </div>
-
-        {summary && summary.suggestions && summary.suggestions.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-sm text-zinc-400">{summary.summary}</p>
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium text-zinc-300">Suggested follow-ups</h4>
-              {summary.suggestions.map((suggestion, idx) => (
-                <div
-                  key={idx}
-                  className="glass-panel p-4 space-y-2 border border-purple-500/20"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 space-y-1">
-                      <p className="font-medium text-white">{suggestion.title}</p>
-                      <p className="text-sm text-zinc-400">{suggestion.details}</p>
-                    </div>
-                    <button
-                      onClick={() => handleAcceptSuggestion(suggestion)}
-                      disabled={submitting}
-                      className="btn-gradient text-xs px-3 py-1.5 rounded whitespace-nowrap disabled:opacity-50"
-                    >
-                      Add Request
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Manual Request Form */}
       <div className="glass-panel p-6 space-y-4">
         <button
@@ -213,11 +132,6 @@ export function RequestsPanel({ projectId }: RequestsPanelProps) {
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-white">{request.title}</p>
-                      {request.source === "AI" && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                          AI
-                        </span>
-                      )}
                     </div>
                     <p className="text-sm text-zinc-400">{request.details}</p>
                     <p className="text-xs text-zinc-500">

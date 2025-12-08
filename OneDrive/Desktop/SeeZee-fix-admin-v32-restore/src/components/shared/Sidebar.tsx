@@ -23,6 +23,9 @@ import {
   FiShield,
   FiZap,
   FiPlus,
+  FiHeart,
+  FiBook,
+  FiFileText,
 } from 'react-icons/fi'
 import LogoHeader from './LogoHeader'
 import { fetchJson } from '@/lib/client-api'
@@ -64,11 +67,18 @@ export default function Sidebar() {
 
   const isActive = (path: string) => pathname === path
 
-  const navLinks = [
+  // Regular navigation links
+  const regularNavLinks = [
     { path: '/', label: 'Home', icon: FiHome },
     { path: '/services', label: 'Services', icon: FiBriefcase },
-    { path: '/projects', label: 'Projects', icon: FiFolder },
+    { path: '/projects', label: 'Case Studies', icon: FiFileText },
     { path: '/about', label: 'About', icon: FiInfo },
+  ]
+
+  // Featured navigation links (Philosophy and Big Red Bus)
+  const featuredNavLinks = [
+    { path: '/philosophy', label: 'Philosophy', icon: FiBook },
+    { path: '/case-studies/big-red-bus', label: 'Big Red Bus', icon: FiHeart },
   ]
 
   const isAuthenticated = !!session
@@ -206,7 +216,8 @@ export default function Sidebar() {
 
           {/* Navigation */}
           <nav className="main-sidebar-nav flex-1 p-4 space-y-2 overflow-y-auto">
-            {navLinks.map((link, index) => {
+            {/* Regular Nav: Home */}
+            {regularNavLinks.slice(0, 1).map((link, index) => {
               const Icon = link.icon
               const active = isActive(link.path)
               return (
@@ -219,18 +230,115 @@ export default function Sidebar() {
                   <Link
                     href={link.path}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-[background-color] duration-150 ease-in-out ${
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-150 ease-in-out ${
                       collapsed ? 'justify-center' : ''
                     } ${
                       active
-                        ? 'bg-trinity-red border border-trinity-red shadow-lg'
-                        : 'hover:bg-gray-800'
+                        ? 'bg-trinity-red/15 border-l-[3px] border-trinity-red text-white'
+                        : 'hover:bg-gray-800 text-gray-300'
                     }`}
                     aria-current={active ? 'page' : undefined}
                     title={collapsed ? link.label : undefined}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
-                    {!collapsed && <span className="font-medium">{link.label}</span>}
+                    {!collapsed && <span className="font-medium text-sm">{link.label}</span>}
+                  </Link>
+                </motion.div>
+              )
+            })}
+
+            {/* Divider */}
+            {!collapsed && <div className="h-px bg-gray-800 my-3 mx-4"></div>}
+
+            {/* Featured Nav Section: Philosophy & Big Red Bus */}
+            {!collapsed && (
+              <div className="bg-trinity-red/5 rounded-lg p-2 mb-3 border border-trinity-red/20">
+                {featuredNavLinks.map((link, index) => {
+                  const Icon = link.icon
+                  const active = isActive(link.path)
+                  return (
+                    <motion.div
+                      key={link.path}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: (index + 1) * 0.05 }}
+                    >
+                      <Link
+                        href={link.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 ease-in-out mb-1 last:mb-0 ${
+                          active
+                            ? 'bg-trinity-red/20 border-l-[3px] border-trinity-red text-white font-semibold'
+                            : 'hover:bg-trinity-red/10 text-gray-200 hover:text-white'
+                        }`}
+                        aria-current={active ? 'page' : undefined}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="font-semibold text-sm">{link.label}</span>
+                      </Link>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Collapsed Featured Nav */}
+            {collapsed && featuredNavLinks.map((link, index) => {
+              const Icon = link.icon
+              const active = isActive(link.path)
+              return (
+                <motion.div
+                  key={link.path}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: (index + 1) * 0.05 }}
+                >
+                  <Link
+                    href={link.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center justify-center p-3 rounded-lg transition-all duration-150 ease-in-out ${
+                      active
+                        ? 'bg-trinity-red/20 border border-trinity-red/30 text-white'
+                        : 'hover:bg-gray-800 text-gray-300'
+                    }`}
+                    aria-current={active ? 'page' : undefined}
+                    title={link.label}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                  </Link>
+                </motion.div>
+              )
+            })}
+
+            {/* Divider */}
+            {!collapsed && <div className="h-px bg-gray-800 my-3 mx-4"></div>}
+
+            {/* Regular Nav: Services, Case Studies, About */}
+            {regularNavLinks.slice(1).map((link, index) => {
+              const Icon = link.icon
+              const active = isActive(link.path)
+              return (
+                <motion.div
+                  key={link.path}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: (index + 2) * 0.05 }}
+                >
+                  <Link
+                    href={link.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-150 ease-in-out ${
+                      collapsed ? 'justify-center' : ''
+                    } ${
+                      active
+                        ? 'bg-trinity-red/15 border-l-[3px] border-trinity-red text-white'
+                        : 'hover:bg-gray-800 text-gray-300'
+                    }`}
+                    aria-current={active ? 'page' : undefined}
+                    title={collapsed ? link.label : undefined}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    {!collapsed && <span className="font-medium text-sm">{link.label}</span>}
                   </Link>
                 </motion.div>
               )
@@ -241,7 +349,7 @@ export default function Sidebar() {
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: navLinks.length * 0.05 }}
+                transition={{ delay: (regularNavLinks.length + featuredNavLinks.length) * 0.05 }}
                 className="pt-2"
               >
                 <Link
@@ -265,86 +373,52 @@ export default function Sidebar() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="px-2 mb-3 flex items-center gap-2"
+                    className="px-2 mb-3"
                   >
-                    <FiZap className="w-4 h-4 text-trinity-red" />
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                      Quick Access
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Quick Actions
                     </span>
                   </motion.div>
                 )}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: navLinks.length * 0.05 }}
+                  transition={{ delay: (regularNavLinks.length + featuredNavLinks.length) * 0.05 }}
+                  className="space-y-2"
                 >
-                  {/* Show "Start Project" if no active request, otherwise show Dashboard */}
-                  {!hasActiveRequest && !isAdmin ? (
-                    <Link
-                      href="/start"
-                      onClick={() => setSidebarOpen(false)}
-                      className={`dashboard-quick-access group relative flex items-center gap-3 px-4 py-4 rounded-xl font-semibold overflow-hidden ${
-                        collapsed ? 'justify-center' : ''
-                      }`}
-                      aria-label="Start Project"
-                      title={collapsed ? 'Start Project' : undefined}
-                    >
-                      {/* Animated background gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-[length:200%_100%] animate-gradient"></div>
-                      
-                      {/* Content */}
-                      <div className="relative flex items-center gap-3 w-full">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                          <FiPlus className="w-5 h-5 text-white" />
-                        </div>
+                  {/* Primary CTA: Start Project */}
+                  <Link
+                    href="/start"
+                    onClick={() => setSidebarOpen(false)}
+                    className={`group relative flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                      collapsed ? 'justify-center' : ''
+                    } bg-trinity-red hover:bg-red-700 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5`}
+                    aria-label="Start Project"
+                    title={collapsed ? 'Start Project' : undefined}
+                  >
+                    <FiPlus className="w-5 h-5 flex-shrink-0" />
+                    {!collapsed && (
+                      <>
+                        <span className="font-semibold text-sm">Start New Project</span>
                         {!collapsed && (
-                          <div className="flex-1">
-                            <div className="text-white text-sm font-bold">
-                              Start Project
-                            </div>
-                            <div className="text-white/70 text-xs">
-                              Begin your new project
-                            </div>
-                          </div>
+                          <span className="ml-auto text-xs opacity-80">Begin your project</span>
                         )}
-                        {!collapsed && (
-                          <FiZap className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
-                        )}
-                      </div>
-                    </Link>
-                  ) : (
-                    <Link
-                      href={isAdmin ? '/admin' : '/client'}
-                      onClick={() => setSidebarOpen(false)}
-                      className={`dashboard-quick-access group relative flex items-center gap-3 px-4 py-4 rounded-xl font-semibold overflow-hidden ${
-                        collapsed ? 'justify-center' : ''
-                      }`}
-                      aria-label={isAdmin ? 'Admin Dashboard' : 'Client Dashboard'}
-                      title={collapsed ? (isAdmin ? 'Admin Dashboard' : 'Client Dashboard') : undefined}
-                    >
-                      {/* Animated background gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-trinity-red via-red-600 to-trinity-red bg-[length:200%_100%] animate-gradient"></div>
-                      
-                      {/* Content */}
-                      <div className="relative flex items-center gap-3 w-full">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                          <FiLayout className="w-5 h-5 text-white" />
-                        </div>
-                        {!collapsed && (
-                          <div className="flex-1">
-                            <div className="text-white text-sm font-bold">
-                              {isAdmin ? 'Admin Dashboard' : 'Client Dashboard'}
-                            </div>
-                            <div className="text-white/70 text-xs">
-                              Manage your workspace
-                            </div>
-                          </div>
-                        )}
-                        {!collapsed && (
-                          <FiZap className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
-                        )}
-                      </div>
-                    </Link>
+                      </>
+                    )}
+                  </Link>
+
+                  {/* Secondary Links */}
+                  {!collapsed && (
+                    <>
+                      <Link
+                        href={isAdmin ? '/admin' : '/client'}
+                        onClick={() => setSidebarOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-gray-400 hover:text-white transition-colors duration-150 text-sm"
+                      >
+                        <FiLayout className="w-4 h-4" />
+                        <span>{isAdmin ? 'Admin' : 'Client Portal'}</span>
+                      </Link>
+                    </>
                   )}
                 </motion.div>
               </div>
@@ -353,19 +427,14 @@ export default function Sidebar() {
 
           {/* User Profile Section (when authenticated) */}
           {isAuthenticated && (
-            <div className="p-4 border-t border-gray-800">
+            <div className="p-3 border-t border-gray-800">
               {!collapsed ? (
                 <div className="relative" ref={profileDropdownRef}>
-                  {/* Profile Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-[background-color] duration-150 ease-in-out group"
-                  >
-                    {/* Avatar with role badge */}
-                    <div className="relative">
-                      <div className={`w-11 h-11 ${roleBadge.color} rounded-full flex items-center justify-center text-white font-bold shadow-lg ${roleBadge.glow} overflow-hidden`}>
+                  {/* Compact Profile Bar */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {/* Avatar */}
+                      <div className={`w-9 h-9 ${roleBadge.color} rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg overflow-hidden`}>
                         {user?.image ? (
                           <img 
                             src={user.image} 
@@ -376,35 +445,26 @@ export default function Sidebar() {
                           user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'
                         )}
                       </div>
-                      {/* Role Badge Icon */}
-                      <div className={`absolute -bottom-1 -right-1 w-5 h-5 ${roleBadge.color} rounded-full flex items-center justify-center border-2 border-white/20 shadow-lg`}>
-                        {(() => {
-                          const BadgeIcon = roleBadge.icon
-                          return <BadgeIcon className="w-3 h-3 text-white" />
-                        })()}
-                      </div>
-                    </div>
-
-                    {/* User Info */}
-                    <div className="flex-1 min-w-0 text-left">
-                      <p className="text-sm font-semibold text-white truncate flex items-center gap-2">
-                        {user?.name || 'User'}
-                      </p>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${roleBadge.color} text-white`}>
+                      {/* User Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">
+                          {user?.name || 'User'}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate">
                           {roleBadge.label}
-                        </span>
+                        </p>
                       </div>
                     </div>
-
-                    {/* Dropdown Arrow */}
-                    <motion.div
-                      animate={{ rotate: profileDropdownOpen ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
+                    {/* Menu Button */}
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                      className="p-1.5 text-gray-400 hover:text-white transition-colors duration-150 rounded"
                     >
-                      <FiChevronDown className="w-4 h-4 text-gray-400 group-hover:text-white transition-[color] duration-150 ease-in-out" />
-                    </motion.div>
-                  </motion.button>
+                      <FiChevronDown className={`w-4 h-4 transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                    </motion.button>
+                  </div>
 
                   {/* Dropdown Menu */}
                   <AnimatePresence>

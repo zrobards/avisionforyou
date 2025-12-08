@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import StatusBadge from "@/components/ui/StatusBadge";
-import { FiCalendar, FiFlag, FiUsers, FiCheckSquare } from "react-icons/fi";
+import { FiCalendar, FiFlag, FiUsers, FiCheckSquare, FiPlus, FiFile, FiDownload } from "react-icons/fi";
+import { AdvancedAssignmentForm } from "./AdvancedAssignmentForm";
 
 interface TaskRow {
   id: string;
@@ -12,6 +14,10 @@ interface TaskRow {
   status: string;
   priority: string;
   dueDate: string | null;
+  type?: string;
+  requiresUpload?: boolean;
+  createdAt?: string;
+  completedAt?: string | null;
 }
 
 interface ClientTasksClientProps {
@@ -21,6 +27,8 @@ interface ClientTasksClientProps {
 }
 
 export function ClientTasksClient({ rows, overdue, openTasks }: ClientTasksClientProps) {
+  const [showAssignmentForm, setShowAssignmentForm] = useState(false);
+
   const columns: DataTableColumn<TaskRow>[] = [
     {
       header: "Task",
@@ -67,6 +75,15 @@ export function ClientTasksClient({ rows, overdue, openTasks }: ClientTasksClien
         </div>
       ),
     },
+    {
+      header: "Type",
+      key: "type",
+      render: (task) => (
+        <span className="text-xs text-gray-400 capitalize">
+          {task.type || "general"}
+        </span>
+      ),
+    },
   ];
 
   return (
@@ -104,9 +121,31 @@ export function ClientTasksClient({ rows, overdue, openTasks }: ClientTasksClien
         </div>
       </section>
 
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold text-white">All Client Tasks</h2>
+        <button
+          onClick={() => setShowAssignmentForm(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-trinity-red/20 hover:bg-trinity-red/30 text-trinity-red border border-trinity-red/40 rounded-lg transition-all text-sm font-medium"
+        >
+          <FiPlus className="w-4 h-4" />
+          Create Assignment
+        </button>
+      </div>
+
       <div className="glass-effect rounded-2xl border-2 border-gray-700 p-6 hover:border-trinity-red/30 transition-all duration-300">
         <DataTable columns={columns} data={rows} emptyMessage="No tasks found" />
       </div>
+
+      {showAssignmentForm && (
+        <AdvancedAssignmentForm
+          isOpen={showAssignmentForm}
+          onClose={() => setShowAssignmentForm(false)}
+          onSuccess={() => {
+            setShowAssignmentForm(false);
+            window.location.reload();
+          }}
+        />
+      )}
     </>
   );
 }

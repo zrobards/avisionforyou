@@ -25,7 +25,7 @@ interface CreateLinkParams {
  * Get all links
  */
 export async function getLinks(filter?: { category?: LinkCategory; pinned?: boolean }) {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const where: any = {};
@@ -58,7 +58,7 @@ export async function getLinks(filter?: { category?: LinkCategory; pinned?: bool
  * Create a link
  */
 export async function createLink(params: CreateLinkParams) {
-  const user = await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  const user = await requireRole([ROLE.CEO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const link = await db.link.create({
@@ -75,6 +75,7 @@ export async function createLink(params: CreateLinkParams) {
     });
 
     revalidatePath("/admin/links");
+    revalidatePath("/ceo/links");
     return { success: true, link };
   } catch (error) {
     console.error("Failed to create link:", error);
@@ -86,7 +87,7 @@ export async function createLink(params: CreateLinkParams) {
  * Update a link
  */
 export async function updateLink(linkId: string, data: Partial<CreateLinkParams>) {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const link = await db.link.update({
@@ -95,6 +96,7 @@ export async function updateLink(linkId: string, data: Partial<CreateLinkParams>
     });
 
     revalidatePath("/admin/links");
+    revalidatePath("/ceo/links");
     return { success: true, link };
   } catch (error) {
     console.error("Failed to update link:", error);
@@ -106,7 +108,7 @@ export async function updateLink(linkId: string, data: Partial<CreateLinkParams>
  * Delete a link
  */
 export async function deleteLink(linkId: string) {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     await db.link.delete({
@@ -114,6 +116,7 @@ export async function deleteLink(linkId: string) {
     });
 
     revalidatePath("/admin/links");
+    revalidatePath("/ceo/links");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete link:", error);
@@ -125,7 +128,7 @@ export async function deleteLink(linkId: string) {
  * Toggle link pinned status
  */
 export async function toggleLinkPin(linkId: string) {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const link = await db.link.findUnique({
@@ -142,6 +145,7 @@ export async function toggleLinkPin(linkId: string) {
     });
 
     revalidatePath("/admin/links");
+    revalidatePath("/ceo/links");
     return { success: true, link: updated };
   } catch (error) {
     console.error("Failed to toggle link pin:", error);
@@ -153,7 +157,7 @@ export async function toggleLinkPin(linkId: string) {
  * Reorder links
  */
 export async function reorderLinks(linkIds: string[]) {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     // Update order for each link
@@ -167,6 +171,7 @@ export async function reorderLinks(linkIds: string[]) {
     );
 
     revalidatePath("/admin/links");
+    revalidatePath("/ceo/links");
     return { success: true };
   } catch (error) {
     console.error("Failed to reorder links:", error);

@@ -77,21 +77,26 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               createdAt: true,
             },
           },
-          changeRequests: {
+          requests: {
             orderBy: { createdAt: "desc" },
             select: {
               id: true,
-              description: true,
-              status: true,
+              title: true,
+              details: true,
+              state: true,
+              source: true,
               createdAt: true,
             },
           },
           messageThreads: {
-            where: { projectId: id },
+            where: { 
+              projectId: id,
+              clientId: session.user.id,
+            },
             include: {
               messages: {
                 orderBy: { createdAt: "asc" },
-                take: 50,
+                take: 100,
               },
             },
           },
@@ -157,12 +162,12 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     createdAt: task.createdAt,
   })) || [];
 
-  // Transform change requests
-  const transformedRequests = (project as any).changeRequests?.map((request: any) => ({
+  // Transform requests
+  const transformedRequests = (project as any).requests?.map((request: any) => ({
     id: request.id,
-    title: request.description?.substring(0, 50) || 'Change Request', // Use first 50 chars as title
-    description: request.description,
-    status: request.status,
+    title: request.title,
+    description: request.details,
+    status: request.state,
     priority: null,
     createdAt: request.createdAt,
   })) || [];

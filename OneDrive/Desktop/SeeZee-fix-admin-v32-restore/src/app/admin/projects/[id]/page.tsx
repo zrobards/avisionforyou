@@ -261,3 +261,7 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
   );
 }
 
+
+
+
+

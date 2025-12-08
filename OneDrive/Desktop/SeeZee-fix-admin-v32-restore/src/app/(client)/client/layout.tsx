@@ -44,13 +44,15 @@ export default async function ClientDashboardLayout({
     ROLE.OUTREACH,
   ];
 
+  // Allow access if role is in allowedRoles list
+  // If not in allowedRoles, redirect based on user type
   if (!allowedRoles.includes(user.role)) {
-    // Wrong role - redirect to appropriate dashboard based on user's role
-    if (user.role === "CEO" || user.role === "CFO" || 
-        user.role === "FRONTEND" || user.role === "BACKEND" || user.role === "OUTREACH") {
+    // Staff/admin roles that aren't explicitly allowed - redirect to admin
+    const staffRoles = ["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH", "ADMIN", "STAFF"];
+    if (staffRoles.includes(user.role)) {
       redirect("/admin");
     } else {
-      // Unknown role - redirect to login
+      // Unknown role or no access - redirect to login
       redirect("/login");
     }
   }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { FaTwitter, FaLinkedin, FaGithub } from 'react-icons/fa'
+import { FaInstagram, FaLinkedin, FaGithub } from 'react-icons/fa'
 import LogoHeader from './LogoHeader'
 
 export default function Footer() {
@@ -28,29 +28,35 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <motion.a
-                href="#"
+                href="https://www.instagram.com/sean.mcculloch7/?hl=en"
                 whileHover={{ scale: 1.1, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 className="text-white hover:text-trinity-red transition-colors focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md p-1"
-                aria-label="Twitter"
+                aria-label="Instagram"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <FaTwitter className="h-6 w-6" />
+                <FaInstagram className="h-6 w-6" />
               </motion.a>
               <motion.a
-                href="#"
+                href="https://www.linkedin.com/in/sean-mcculloch-58a3761a9/"
                 whileHover={{ scale: 1.1, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 className="text-white hover:text-trinity-red transition-colors focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md p-1"
                 aria-label="LinkedIn"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <FaLinkedin className="h-6 w-6" />
               </motion.a>
               <motion.a
-                href="#"
+                href="https://github.com/SeanSpon"
                 whileHover={{ scale: 1.1, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 className="text-white hover:text-trinity-red transition-colors focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md p-1"
                 aria-label="GitHub"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <FaGithub className="h-6 w-6" />
               </motion.a>
@@ -93,6 +99,22 @@ export default function Footer() {
                   About
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/philosophy"
+                  className="text-white hover:text-trinity-red transition-colors focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md px-1"
+                >
+                  Philosophy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/case-studies/big-red-bus"
+                  className="text-white hover:text-trinity-red transition-colors focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md px-1"
+                >
+                  Case Studies
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -102,22 +124,21 @@ export default function Footer() {
             <ul className="space-y-2 text-white">
               <li>
                 <a
-                  href="mailto:hello@seezee.com"
+                  href="mailto:seezee.enterprises@gmail.com"
                   className="text-white hover:text-trinity-red transition-colors focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md px-1"
                 >
-                  hello@seezee.com
+                  seezee.enterprises@gmail.com
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+15551234567"
+                  href="tel:+15024352986"
                   className="text-white hover:text-trinity-red transition-colors focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md px-1"
                 >
-                  +1 (555) 123-4567
+                  1(502) 435-2986
                 </a>
               </li>
-              <li>123 Design Street</li>
-              <li>Creative City, CC 12345</li>
+              <li>louisville kentucky</li>
             </ul>
           </div>
         </div>

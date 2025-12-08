@@ -46,7 +46,7 @@ export default function ProjectsLayout({
           position: 2,
           name: 'Big Red Bus Nonprofit Directory',
           description:
-            'A nonprofit directory platform for mental health and autism support organizations with filtering and search functionality',
+            'Partner nonprofit project — a shared brand for community work and experiments in how small orgs can look professional online. A nonprofit directory platform for mental health and autism support organizations with filtering and search functionality',
           creator: {
             '@type': 'Organization',
             name: 'SeeZee Studio',

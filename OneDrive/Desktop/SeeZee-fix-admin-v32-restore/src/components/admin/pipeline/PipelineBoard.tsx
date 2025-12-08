@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { FiBriefcase, FiMail, FiPhone, FiEdit2, FiEye } from "react-icons/fi";
 import { LeadModal } from "./LeadModal";
 import { updateLeadStatus, LeadStatus } from "@/server/actions/pipeline";
+import { getPipeline } from "@/server/actions";
 import { useRouter } from "next/navigation";
 
 interface Lead {
@@ -46,9 +47,26 @@ export function PipelineBoard({ stages }: PipelineBoardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draggingLead, setDraggingLead] = useState<string | null>(null);
 
-  const handleLeadClick = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsModalOpen(true);
+  const handleLeadClick = async (lead: Lead) => {
+    try {
+      // Verify lead exists before opening modal
+      const result = await getPipeline();
+      if (result.success) {
+        const leadExists = result.leads.some((l: any) => l.id === lead.id);
+        if (!leadExists) {
+          // Lead was deleted, refresh page
+          alert('This lead has been deleted. The page will refresh.');
+          router.refresh();
+          return;
+        }
+      }
+      setSelectedLead(lead);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error verifying lead:', error);
+      alert('Unable to access this lead. The page will refresh.');
+      router.refresh();
+    }
   };
 
   const handleDragStart = (e: React.DragEvent, lead: Lead) => {

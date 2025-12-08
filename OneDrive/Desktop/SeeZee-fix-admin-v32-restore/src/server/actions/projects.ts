@@ -6,114 +6,6 @@ import { revalidatePath } from "next/cache";
 import { emitFeedEvent } from "@/lib/feed";
 import { ProjectStatus } from "@prisma/client";
 
-interface ApproveLeadInput {
-  leadId: string;
-  projectName?: string;
-  budget?: number;
-  startDate?: Date;
-  endDate?: Date;
-  assigneeId?: string;
-}
-
-/**
- * CEO Action: Approve a lead and create a project
- * This is the gateway from lead → project workflow
- */
-export async function approveLead(input: ApproveLeadInput) {
-  const session = await auth();
-
-  if (!session?.user || session.user.role !== "CEO") {
-    throw new Error("Unauthorized: CEO role required");
-  }
-
-  const { leadId, projectName, budget, startDate, endDate, assigneeId } = input;
-
-  try {
-    // Fetch the lead
-    const lead = await prisma.lead.findUnique({
-      where: { id: leadId },
-      include: { organization: true },
-    });
-
-    if (!lead) {
-      throw new Error("Lead not found");
-    }
-
-    if (lead.status === "CONVERTED") {
-      throw new Error("Lead already converted to project");
-    }
-
-    // Create project from lead
-    const project = await prisma.project.create({
-      data: {
-        name: projectName || `${lead.company || lead.name} Project`,
-        description: typeof lead.requirements === 'string' ? lead.requirements : (lead.message || ""),
-        status: "PLANNING" as ProjectStatus, // Use string literal until Prisma client regenerates
-        organizationId: lead.organizationId || "",
-        leadId: lead.id,
-        budget: budget ? budget.toString() : (typeof lead.budget === 'string' ? lead.budget : null),
-        startDate: startDate || new Date(),
-        endDate: endDate || null,
-        assigneeId: assigneeId || null,
-      },
-    });
-
-    // Update lead status
-    await prisma.lead.update({
-      where: { id: leadId },
-      data: {
-        status: "CONVERTED",
-        convertedAt: new Date(),
-      },
-    });
-
-    // Update related ProjectRequest status to APPROVED if it exists
-    // Match by email (Lead.email matches ProjectRequest.contactEmail or ProjectRequest.email)
-    try {
-      await prisma.projectRequest.updateMany({
-        where: {
-          OR: [
-            { contactEmail: lead.email },
-            { email: lead.email },
-          ],
-          status: { not: "APPROVED" }, // Only update if not already approved
-        },
-        data: {
-          status: "APPROVED",
-          updatedAt: new Date(),
-        },
-      });
-    } catch (error) {
-      // Log but don't fail if ProjectRequest update fails
-      console.error("[approveLead] Failed to update ProjectRequest status:", error);
-    }
-
-    // Emit feed events
-    await emitFeedEvent(project.id, "lead.created", {
-      leadId: lead.id,
-      name: lead.name,
-      email: lead.email,
-      company: lead.company,
-    });
-
-    await emitFeedEvent(project.id, "project.created", {
-      name: project.name,
-      status: project.status,
-      createdBy: session.user.name,
-    });
-
-    revalidatePath("/admin/leads");
-    revalidatePath("/admin/pipeline");
-    revalidatePath("/admin/projects");
-
-    // Return only a plain identifier to avoid passing Prisma objects to client
-    return { success: true, projectId: project.id };
-  } catch (error) {
-    console.error("[approveLead] Error:", error);
-    throw error;
-  }
-}
-
 /**
  * Update project status and emit feed event
  */
@@ -157,6 +49,76 @@ export async function updateProjectStatus(projectId: string, newStatus: ProjectS
   } catch (error) {
     console.error("[updateProjectStatus] Error:", error);
     throw error;
+  }
+}
+
+/**
+ * SeeZee V2: Update project budget and pricing configuration
+ * CEO/CFO action to set manual pricing for a project
+ */
+export async function updateProjectBudget(
+  projectId: string,
+  totalPrice: number,
+  depositPercent: number = 50,
+  finalPercent: number = 50
+) {
+  const session = await auth();
+
+  if (!session?.user || !["CEO", "CFO"].includes(session.user.role || "")) {
+    return { success: false, error: "Unauthorized: CEO or CFO role required" };
+  }
+
+  try {
+    // Validate inputs
+    if (totalPrice <= 0) {
+      return { success: false, error: "Total price must be greater than 0" };
+    }
+
+    if (depositPercent + finalPercent !== 100) {
+      return { success: false, error: "Deposit and final percentages must sum to 100" };
+    }
+
+    if (depositPercent < 0 || finalPercent < 0) {
+      return { success: false, error: "Percentages must be positive" };
+    }
+
+    // Verify project exists
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
+    });
+
+    if (!project) {
+      return { success: false, error: "Project not found" };
+    }
+
+    // Update project with new budget
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        budget: totalPrice,
+      },
+    });
+
+    // Emit feed event
+    await emitFeedEvent(projectId, "budget.set", {
+      amount: totalPrice,
+      depositPercent,
+      finalPercent,
+      setBy: session.user.name,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Revalidate paths
+    revalidatePath(`/admin/pipeline/projects/${projectId}`);
+    revalidatePath(`/admin/projects/${projectId}`);
+    revalidatePath("/admin/pipeline");
+
+    return { success: true };
+  } catch (error) {
+    console.error("[updateProjectBudget] Error:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+    return { success: false, error: errorMessage };
   }
 }
 

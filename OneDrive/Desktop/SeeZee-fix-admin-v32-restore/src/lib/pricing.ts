@@ -143,3 +143,159 @@ export function getPricingBreakdown(result: PricingResult): string[] {
   
   return lines;
 }
+
+// ============================================================================
+// NEW V2 PRICING UTILITIES FOR MANUAL PRICING WORKFLOW
+// ============================================================================
+
+import { Decimal } from "@prisma/client/runtime/library";
+
+export interface InvoiceSplits {
+  depositAmount: number;
+  finalAmount: number;
+  depositPercent: number;
+  finalPercent: number;
+}
+
+/**
+ * Calculates deposit and final invoice amounts based on project budget and percentages
+ * @param budget - Total project budget as Decimal or number
+ * @param depositPercent - Percentage for deposit (default 50)
+ * @param finalPercent - Percentage for final payment (default 50)
+ * @returns Object with deposit and final amounts
+ */
+export function calculateInvoiceSplits(
+  budget: Decimal | number,
+  depositPercent: number = 50,
+  finalPercent: number = 50
+): InvoiceSplits {
+  // Validate percentages
+  if (depositPercent + finalPercent !== 100) {
+    throw new Error("Deposit and final percentages must sum to 100");
+  }
+
+  if (depositPercent < 0 || finalPercent < 0) {
+    throw new Error("Percentages must be positive");
+  }
+
+  // Convert Decimal to number if needed
+  const budgetAmount = typeof budget === "number" 
+    ? budget 
+    : Number(budget.toString());
+
+  if (budgetAmount <= 0) {
+    throw new Error("Budget must be greater than 0");
+  }
+
+  const depositAmount = Math.round((budgetAmount * depositPercent) / 100 * 100) / 100;
+  const finalAmount = Math.round((budgetAmount * finalPercent) / 100 * 100) / 100;
+
+  return {
+    depositAmount,
+    finalAmount,
+    depositPercent,
+    finalPercent,
+  };
+}
+
+/**
+ * Formats a price as USD currency
+ * @param amount - Amount to format
+ * @returns Formatted currency string
+ */
+export function formatCurrency(amount: number | Decimal): string {
+  const numAmount = typeof amount === "number" 
+    ? amount 
+    : Number(amount.toString());
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(numAmount);
+}
+
+/**
+ * Converts cents to dollars
+ * @param cents - Amount in cents
+ * @returns Amount in dollars
+ */
+export function centsToDollars(cents: number): number {
+  return Math.round(cents) / 100;
+}
+
+/**
+ * Converts dollars to cents
+ * @param dollars - Amount in dollars
+ * @returns Amount in cents
+ */
+export function dollarsToCents(dollars: number): number {
+  return Math.round(dollars * 100);
+}
+
+/**
+ * Calculates tax amount based on subtotal and tax rate
+ * @param subtotal - Subtotal amount
+ * @param taxRate - Tax rate as decimal (e.g., 0.08 for 8%)
+ * @returns Tax amount
+ */
+export function calculateTax(subtotal: number | Decimal, taxRate: number): number {
+  const subtotalAmount = typeof subtotal === "number" 
+    ? subtotal 
+    : Number(subtotal.toString());
+
+  return Math.round(subtotalAmount * taxRate * 100) / 100;
+}
+
+/**
+ * Validates if pricing data is set for a project
+ * @param budget - Project budget
+ * @returns True if budget is set and valid
+ */
+export function hasValidPricing(budget: Decimal | number | null | undefined): boolean {
+  if (!budget) return false;
+  
+  const amount = typeof budget === "number" 
+    ? budget 
+    : Number(budget.toString());
+  
+  return amount > 0;
+}
+
+/**
+ * Gets pricing metadata from project metadata JSON
+ * @param metadata - Project metadata object
+ * @returns Pricing configuration or defaults
+ */
+export function getPricingFromMetadata(metadata: any): {
+  depositPercent: number;
+  finalPercent: number;
+} {
+  const defaults = { depositPercent: 50, finalPercent: 50 };
+  
+  if (!metadata || !metadata.pricing) {
+    return defaults;
+  }
+
+  return {
+    depositPercent: metadata.pricing.depositPercent || defaults.depositPercent,
+    finalPercent: metadata.pricing.finalPercent || defaults.finalPercent,
+  };
+}
+
+/**
+ * Creates pricing metadata for storing in project
+ * @param depositPercent - Deposit percentage
+ * @param finalPercent - Final percentage
+ * @returns Metadata object
+ */
+export function createPricingMetadata(
+  depositPercent: number,
+  finalPercent: number
+): { pricing: { depositPercent: number; finalPercent: number } } {
+  return {
+    pricing: {
+      depositPercent,
+      finalPercent,
+    },
+  };
+}

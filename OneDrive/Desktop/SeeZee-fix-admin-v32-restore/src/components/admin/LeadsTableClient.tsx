@@ -4,9 +4,9 @@
  * Leads Table Client Component
  */
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DataTable, type Column } from "@/components/admin/DataTable";
-import { updateLeadStatus, deleteLead, updateLead } from "@/server/actions";
+import { updateLeadStatus, deleteLead, updateLead, getPipeline } from "@/server/actions";
 import { approveLeadAndCreateProject } from "@/server/actions/leads";
 import { Plus, Trash2, Edit2, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -55,10 +55,114 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
   const [editForm, setEditForm] = useState<Partial<Lead>>({});
   const [converting, setConverting] = useState<string | null>(null);
   const [convertError, setConvertError] = useState<string | null>(null);
+  const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const deletedLeadIdsRef = useRef<Set<string>>(new Set());
+  const lastDeleteTimeRef = useRef<number>(0);
+
+  // Only sync with initialLeads if we haven't recently deleted a lead
+  // This prevents stale server props from overwriting our local state after deletion
+  useEffect(() => {
+    const timeSinceDelete = Date.now() - lastDeleteTimeRef.current;
+    // If we deleted a lead recently (within 3 seconds), ignore prop updates
+    if (timeSinceDelete < 3000) {
+      return;
+    }
+
+    // Check if any of our deleted leads are in the new props (shouldn't happen)
+    const hasDeletedLeads = initialLeads.some(lead => deletedLeadIdsRef.current.has(lead.id));
+    if (hasDeletedLeads) {
+      // Server still has deleted leads, filter them out
+      setLeads(prev => prev.filter(l => !deletedLeadIdsRef.current.has(l.id)));
+      return;
+    }
+
+    // Normal sync - only if counts differ significantly
+    if (Math.abs(initialLeads.length - leads.length) > 1) {
+      setLeads(initialLeads);
+    }
+  }, [initialLeads]);
 
   const isCEO = session?.user?.role === "CEO";
   const isCFO = session?.user?.role === "CFO";
   const canConvert = isCEO || isCFO;
+
+  // Refresh leads data
+  const refreshLeads = async (force = false) => {
+    // Prevent multiple simultaneous refreshes
+    if (isRefreshing && !force) return;
+    
+    // Don't refresh if we just refreshed recently (within 1 second)
+    const now = Date.now();
+    if (!force && now - lastRefreshTime < 1000) return;
+
+    setIsRefreshing(true);
+    try {
+      const result = await getPipeline();
+      if (result.success) {
+        setLeads(result.leads);
+        setLastRefreshTime(Date.now());
+      }
+    } catch (error) {
+      console.error("Failed to refresh leads:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Refresh leads when page becomes visible (handles case when user navigates back after deletion)
+  // But only if it's been a while since last refresh to avoid conflicts with delete operations
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Only refresh if it's been more than 2 seconds since last refresh
+        const now = Date.now();
+        if (now - lastRefreshTime > 2000) {
+          refreshLeads();
+        }
+      }
+    };
+
+    const handleFocus = () => {
+      // Only refresh if it's been more than 2 seconds since last refresh
+      const now = Date.now();
+      if (now - lastRefreshTime > 2000) {
+        refreshLeads();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [lastRefreshTime]);
+
+  // Handle lead click with existence verification
+  const handleLeadClick = async (lead: Lead) => {
+    try {
+      // Verify lead exists before navigating
+      const result = await getPipeline();
+      if (result.success) {
+        const leadExists = result.leads.some((l: any) => l.id === lead.id);
+        if (!leadExists) {
+          // Lead was deleted, refresh and show message
+          setLeads(result.leads);
+          alert('This lead has been deleted. The list has been refreshed.');
+          return;
+        }
+      }
+      // Lead exists, navigate to it
+      router.push(`/admin/pipeline/leads/${lead.id}`);
+    } catch (error) {
+      console.error('Error verifying lead:', error);
+      // Refresh data in case lead was deleted
+      await refreshLeads();
+      alert('Unable to access this lead. The list has been refreshed.');
+    }
+  };
 
   const handleStatusChange = async (leadId: string, newStatus: string) => {
     setUpdating(leadId);
@@ -68,9 +172,10 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
       setLeads((prev) =>
         prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
       );
+      // Refresh after a short delay to ensure server has processed
+      setTimeout(() => refreshLeads(true), 300);
     }
     setUpdating(null);
-    router.refresh();
   };
 
   const handleDelete = async (leadId: string, e: React.MouseEvent) => {
@@ -82,13 +187,27 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
     setDeleting(leadId);
     const result = await deleteLead(leadId);
 
-    if (result.success) {
+    // If lead is already deleted (not found), treat it as success and remove from UI
+    if (result.success || result.error === "Lead not found") {
+      // Track this deletion
+      deletedLeadIdsRef.current.add(leadId);
+      lastDeleteTimeRef.current = Date.now();
+      
+      // Remove from local state immediately
       setLeads((prev) => prev.filter((l) => l.id !== leadId));
+      
+      // Wait a bit to ensure server has processed the deletion, then force refresh
+      setTimeout(async () => {
+        await refreshLeads(true); // Force refresh to bypass debounce
+        // Clean up the deleted lead ID after refresh (keep it for a bit longer to prevent re-adding)
+        setTimeout(() => {
+          deletedLeadIdsRef.current.delete(leadId);
+        }, 2000);
+      }, 1000);
     } else {
       alert(result.error || "Failed to delete lead");
     }
     setDeleting(null);
-    router.refresh();
   };
 
   const handleEdit = async (lead: Lead, e: React.MouseEvent) => {
@@ -120,7 +239,8 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
       );
       setEditing(null);
       setEditForm({});
-      router.refresh();
+      // Refresh after a short delay to ensure server has processed
+      setTimeout(() => refreshLeads(true), 300);
     } else {
       alert(result.error || "Failed to update lead");
     }
@@ -254,7 +374,7 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
             Add Lead
           </button>
         }
-        onRowClick={(lead) => router.push(`/admin/pipeline/leads/${lead.id}`)}
+        onRowClick={(lead) => handleLeadClick(lead)}
       />
 
       {/* Edit Modal */}

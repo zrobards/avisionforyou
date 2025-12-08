@@ -6,6 +6,7 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   
   if (!session?.user || !["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"].includes(session.user.role || "")) {
+    // CEO is already included, but keeping for clarity
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

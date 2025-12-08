@@ -19,13 +19,35 @@ export default function PipelineOverview() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const loadPipeline = async () => {
+    const pipelineResult = await getPipeline();
+    setLeads(pipelineResult.success ? pipelineResult.leads : []);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    async function loadPipeline() {
-      const pipelineResult = await getPipeline();
-      setLeads(pipelineResult.success ? pipelineResult.leads : []);
-      setLoading(false);
-    }
     loadPipeline();
+  }, []);
+
+  // Refresh data when page becomes visible (handles case when user navigates back after deletion)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadPipeline();
+      }
+    };
+
+    const handleFocus = () => {
+      loadPipeline();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const stages = STAGES.map((stage) => ({

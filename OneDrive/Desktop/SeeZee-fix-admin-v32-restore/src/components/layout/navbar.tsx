@@ -10,6 +10,7 @@ import { Notifications } from "@/components/navbar/Notifications";
 import { ContextPill } from "@/components/navbar/ContextPill";
 import { ProfileMenu } from "@/components/navbar/ProfileMenu";
 import { MobileMenu } from "@/components/navbar/MobileMenu";
+import { LogoMinimal } from "@/components/Logo";
 import { fetchJson } from "@/lib/client-api";
 import { getActiveProjectRequest } from "@/lib/dashboard-state";
 
@@ -77,11 +78,9 @@ export function Navbar() {
             <Menu className="h-5 w-5" />
           </button>
 
-          {/* Brand */}
-          <Link href="/" className="font-extrabold tracking-tight text-xl lg:text-2xl">
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              SEEZEE
-            </span>
+          {/* Brand Logo */}
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <LogoMinimal size={45} />
           </Link>
 
           {/* Primary Nav - Desktop */}

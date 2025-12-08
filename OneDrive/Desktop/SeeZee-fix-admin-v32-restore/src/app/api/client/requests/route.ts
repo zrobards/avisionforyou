@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch ProjectRequests for this user
-    const requests = await prisma.projectRequest.findMany({
+    // Try by userId first, then fallback to email if no results
+    let requests = await prisma.projectRequest.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
       select: {
@@ -44,6 +45,34 @@ export async function GET(req: NextRequest) {
         updatedAt: true,
       },
     });
+
+    // If no requests found by userId, try by email (for older requests that might not have userId)
+    if (requests.length === 0 && session.user.email) {
+      requests = await prisma.projectRequest.findMany({
+        where: {
+          OR: [
+            { contactEmail: session.user.email },
+            { email: session.user.email },
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          contactEmail: true,
+          email: true,
+          company: true,
+          budget: true,
+          timeline: true,
+          services: true,
+          notes: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    }
 
     // For each request, find related project by matching email with Lead email
     const requestsWithProjects = await Promise.all(

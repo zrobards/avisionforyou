@@ -14,31 +14,38 @@ export interface DashboardState {
 /**
  * Check if user has active project request
  * Active statuses: DRAFT, SUBMITTED, REVIEWING, NEEDS_INFO
- * Returns false if project request has an associated project (already approved)
+ * Excludes APPROVED and REJECTED statuses (these are considered final)
  */
 export function hasActiveProjectRequest(projectRequests: any[]): boolean {
   if (!projectRequests || projectRequests.length === 0) return false;
   
   const activeStatuses = ['DRAFT', 'SUBMITTED', 'REVIEWING', 'NEEDS_INFO'];
+  const finalStatuses = ['APPROVED', 'REJECTED'];
+  
   return projectRequests.some((req) => {
     const status = String(req.status || '').toUpperCase();
-    // Don't count as active if a project has been created from this request
-    return activeStatuses.includes(status) && !req.project;
+    // Only count as active if status is in active list and not in final statuses
+    // Don't rely on req.project as it may be incorrectly linked via email matching
+    return activeStatuses.includes(status) && !finalStatuses.includes(status);
   });
 }
 
 /**
  * Get the active project request
- * Returns null if project request has an associated project (already approved)
+ * Returns the first request with active status (DRAFT, SUBMITTED, REVIEWING, NEEDS_INFO)
+ * Excludes APPROVED and REJECTED statuses
  */
 export function getActiveProjectRequest(projectRequests: any[]): any | null {
   if (!projectRequests || projectRequests.length === 0) return null;
   
   const activeStatuses = ['DRAFT', 'SUBMITTED', 'REVIEWING', 'NEEDS_INFO'];
+  const finalStatuses = ['APPROVED', 'REJECTED'];
+  
   return projectRequests.find((req) => {
     const status = String(req.status || '').toUpperCase();
-    // Don't count as active if a project has been created from this request
-    return activeStatuses.includes(status) && !req.project;
+    // Only return if status is in active list and not in final statuses
+    // Don't rely on req.project as it may be incorrectly linked via email matching
+    return activeStatuses.includes(status) && !finalStatuses.includes(status);
   }) || null;
 }
 

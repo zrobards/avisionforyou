@@ -29,7 +29,7 @@ export default async function ProjectRequestsPage({
         <div>
           <h1 className="text-3xl font-bold gradient-text">Change Requests</h1>
           <p className="text-zinc-400 mt-1">
-            AI-powered request generation and management
+            Submit and manage change requests for your project
           </p>
         </div>
       </div>

@@ -23,6 +23,10 @@ module.exports = {
         'glow-pink': '0 0 20px rgba(236, 72, 153, 0.4), 0 0 40px rgba(236, 72, 153, 0.2)',
         'glow-lg-blue': '0 0 30px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3), 0 0 90px rgba(59, 130, 246, 0.1)',
         'glow-lg-purple': '0 0 30px rgba(168, 85, 247, 0.5), 0 0 60px rgba(168, 85, 247, 0.3), 0 0 90px rgba(168, 85, 247, 0.1)',
+        // Big Red Bus glow effects
+        'glow-red': '0 0 20px rgba(220, 20, 60, 0.5), 0 0 40px rgba(220, 20, 60, 0.3)',
+        'glow-lg-red': '0 0 30px rgba(220, 20, 60, 0.6), 0 0 60px rgba(220, 20, 60, 0.4), 0 0 90px rgba(220, 20, 60, 0.2)',
+        'glow-amber': '0 0 20px rgba(255, 165, 0, 0.4), 0 0 40px rgba(255, 165, 0, 0.2)',
         soft: '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
         medium: '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         large: '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.06)',
@@ -40,14 +44,25 @@ module.exports = {
           800: '#7f1d1d',
           900: '#450a0a',
         },
+        // Big Red Bus Theme
+        'bus-red': '#DC143C',
+        'bus-red-dark': '#B01030',
+        'bus-red-light': '#FF1744',
+        'bus-navy': '#050914',
+        'bus-navy-light': '#0B0F1A',
+        'bus-asphalt': '#120414',
+        'bus-amber': '#FFA500',
+        'bus-amber-light': '#FFB732',
+        'bus-amber-dark': '#FF8C00',
+        // Legacy Trinity colors (kept for backwards compatibility)
         trinity: {
           maroon: '#8B0000',
-          red: '#C41E3A',
+          red: '#DC143C',
           gold: '#FFD700',
           'gold-light': '#FFE87C',
           'gold-dark': '#DAA520',
         },
-        'trinity-red': '#C41E3A',
+        'trinity-red': '#DC143C',
         'trinity-maroon': '#8B0000',
       },
       fontFamily: {

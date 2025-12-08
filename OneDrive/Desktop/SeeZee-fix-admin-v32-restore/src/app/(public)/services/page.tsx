@@ -18,6 +18,9 @@ import {
   FiCode,
   FiUsers,
   FiStar,
+  FiHeart,
+  FiCalendar,
+  FiMail,
 } from 'react-icons/fi'
 
 export default function ServicesPage() {
@@ -41,8 +44,8 @@ export default function ServicesPage() {
                 transition={{ duration: 0.6 }}
                 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white mb-6"
               >
-                <span className="gradient-text">Custom Websites</span>{' '}
-                <span className="text-white">Built for Your Business</span>
+                <span className="gradient-text">Digital Infrastructure</span>{' '}
+                <span className="text-white">for Nonprofits</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
@@ -50,7 +53,7 @@ export default function ServicesPage() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-xl text-white leading-relaxed mb-8"
               >
-                No cookie-cutter templates. No confusing packages. Just professional websites tailored to your exact needs.
+                Three clear tiers. Designed to fit where your nonprofit is right now.
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -70,310 +73,61 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* Nonprofit Tiers Section */}
       <section className="py-20 bg-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
-              Our Simple Process
+              Three Tiers. Built for Nonprofits.
             </h2>
             <p className="text-xl text-white max-w-2xl mx-auto">
-              From your first questionnaire to a live website in 2-3 weeks. Simple, fast, and stress-free.
+              Choose the infrastructure that matches your nonprofit's stage and needs.
             </p>
           </div>
 
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {/* Step 1 */}
-            <ScrollAnimation delay={0.1}>
-              <div className="text-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="w-16 h-16 bg-trinity-red rounded-full flex items-center justify-center mb-6 mx-auto text-white text-2xl font-bold shadow-large"
-                >
-                  1
-                </motion.div>
-                <h3 className="text-xl font-heading font-semibold text-white mb-3">
-                  Quick Questionnaire
-                </h3>
-                <p className="text-white/80">
-                  Tell us about your business and needs. Takes just 2 minutes.
-                </p>
-              </div>
-            </ScrollAnimation>
-
-            {/* Step 2 */}
-            <ScrollAnimation delay={0.2}>
-              <div className="text-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="w-16 h-16 bg-trinity-red rounded-full flex items-center justify-center mb-6 mx-auto text-white text-2xl font-bold shadow-large"
-                >
-                  2
-                </motion.div>
-                <h3 className="text-xl font-heading font-semibold text-white mb-3">
-                  Access Your Portal
-                </h3>
-                <p className="text-white/80">
-                  Get instant access to your personal project dashboard.
-                </p>
-              </div>
-            </ScrollAnimation>
-
-            {/* Step 3 */}
-            <ScrollAnimation delay={0.3}>
-              <div className="text-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="w-16 h-16 bg-trinity-red rounded-full flex items-center justify-center mb-6 mx-auto text-white text-2xl font-bold shadow-large"
-                >
-                  3
-                </motion.div>
-                <h3 className="text-xl font-heading font-semibold text-white mb-3">
-                  Project Brief
-                </h3>
-                <p className="text-white/80">
-                  Complete detailed requirements in your dashboard (10-15 minutes).
-                </p>
-              </div>
-            </ScrollAnimation>
-
-            {/* Step 4 */}
-            <ScrollAnimation delay={0.4}>
-              <div className="text-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="w-16 h-16 bg-trinity-red rounded-full flex items-center justify-center mb-6 mx-auto text-white text-2xl font-bold shadow-large"
-                >
-                  4
-                </motion.div>
-                <h3 className="text-xl font-heading font-semibold text-white mb-3">
-                  Custom Quote
-                </h3>
-                <p className="text-white/80">
-                  Receive accurate pricing within 24 hours—no surprises.
-                </p>
-              </div>
-            </ScrollAnimation>
-          </div>
-
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Step 5 */}
-            <ScrollAnimation delay={0.5}>
-              <div className="text-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="w-16 h-16 bg-trinity-red rounded-full flex items-center justify-center mb-6 mx-auto text-white text-2xl font-bold shadow-large"
-                >
-                  5
-                </motion.div>
-                <h3 className="text-xl font-heading font-semibold text-white mb-3">
-                  Approve & Pay
-                </h3>
-                <p className="text-white/80">
-                  Pay your 50% deposit securely and we'll get started.
-                </p>
-              </div>
-            </ScrollAnimation>
-
-            {/* Step 6 */}
-            <ScrollAnimation delay={0.6}>
-              <div className="text-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="w-16 h-16 bg-trinity-red rounded-full flex items-center justify-center mb-6 mx-auto text-white text-2xl font-bold shadow-large"
-                >
-                  6
-                </motion.div>
-                <h3 className="text-xl font-heading font-semibold text-white mb-3">
-                  We Build
-                </h3>
-                <p className="text-white/80">
-                  Track progress in real-time. We typically deliver in 2-3 weeks.
-                </p>
-              </div>
-            </ScrollAnimation>
-
-            {/* Step 7 */}
-            <ScrollAnimation delay={0.7}>
-              <div className="text-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="w-16 h-16 bg-trinity-red rounded-full flex items-center justify-center mb-6 mx-auto text-white text-2xl font-bold shadow-large"
-                >
-                  7
-                </motion.div>
-                <h3 className="text-xl font-heading font-semibold text-white mb-3">
-                  Launch & Support
-                </h3>
-                <p className="text-white/80">
-                  Go live with confidence. Includes monthly maintenance and support.
-                </p>
-              </div>
-            </ScrollAnimation>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="py-20 bg-gray-900">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
-              Transparent Pricing
-            </h2>
-            <p className="text-xl text-white max-w-2xl mx-auto">
-              Every project is unique. We create custom quotes based on your specific needs.
-            </p>
-          </div>
-
-          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {/* Small Business */}
-            <ScrollAnimation delay={0.1}>
-              <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 hover:border-trinity-red transition-all duration-300">
-                <h3 className="text-2xl font-heading font-bold text-white mb-4">
-                  Small Business Websites
-                </h3>
-                <div className="mb-6">
-                  <div className="text-4xl font-bold text-trinity-red mb-2">Starting at $599</div>
-                  <p className="text-white/60">Perfect for getting online quickly</p>
-                </div>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>3-5 pages</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Mobile-responsive design</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Contact forms</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Basic SEO</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>2-week delivery</span>
-                  </li>
-                </ul>
-              </div>
-            </ScrollAnimation>
-
-            {/* E-commerce/Custom */}
-            <ScrollAnimation delay={0.2}>
-              <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 hover:border-trinity-red transition-all duration-300">
-                <h3 className="text-2xl font-heading font-bold text-white mb-4">
-                  E-commerce & Custom
-                </h3>
-                <div className="mb-6">
-                  <div className="text-4xl font-bold text-trinity-red mb-2">Starting at $1,299</div>
-                  <p className="text-white/60">For online stores and complex sites</p>
-                </div>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Online store setup</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Product management</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Payment processing</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Custom features</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>3-4 week delivery</span>
-                  </li>
-                </ul>
-              </div>
-            </ScrollAnimation>
-          </div>
-
-          <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ScrollAnimation delay={0.3}>
-              <div className="text-center p-6 bg-gray-800 rounded-xl border border-gray-700">
-                <FiZap className="w-8 h-8 text-trinity-red mx-auto mb-3" />
-                <h4 className="text-lg font-semibold text-white mb-2">Rush Projects</h4>
-                <p className="text-white/70 text-sm mb-2">Need it faster?</p>
-                <p className="text-trinity-red font-semibold">+$300-500</p>
-              </div>
-            </ScrollAnimation>
-            <ScrollAnimation delay={0.4}>
-              <div className="text-center p-6 bg-gray-800 rounded-xl border border-gray-700">
-                <FiAward className="w-8 h-8 text-trinity-red mx-auto mb-3" />
-                <h4 className="text-lg font-semibold text-white mb-2">Nonprofit Organizations</h4>
-                <p className="text-white/70 text-sm mb-2">Verified 501(c)(3)</p>
-                <p className="text-trinity-red font-semibold">40% Discount</p>
-              </div>
-            </ScrollAnimation>
-          </div>
-        </div>
-      </section>
-
-      {/* Maintenance Pricing Section */}
-      <section className="py-20 bg-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
-              Ongoing Maintenance & Support
-            </h2>
-            <p className="text-xl text-white max-w-2xl mx-auto">
-              Every website includes monthly maintenance to keep everything running smoothly.
-            </p>
-          </div>
-
-          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {/* Essential */}
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {/* Tier 1: Essentials */}
             <ScrollAnimation delay={0.1}>
               <div className="bg-gray-900 border-2 border-gray-700 rounded-xl p-8 hover:border-gray-600 transition-all duration-300">
                 <h3 className="text-2xl font-heading font-bold text-white mb-2">
-                  Essential
+                  Tier 1: Essentials
                 </h3>
-                <div className="text-4xl font-bold text-trinity-red mb-4">$79<span className="text-xl text-white/60">/month</span></div>
-                <p className="text-white/60 mb-6">For simple sites</p>
+                <div className="text-4xl font-bold text-trinity-red mb-4">
+                  Starting at $3k
+                </div>
+                <p className="text-white/60 mb-6">Website + donations + basic events</p>
+                <Link
+                  href="/services/tier1"
+                  className="inline-flex items-center gap-2 text-trinity-red hover:text-trinity-maroon font-semibold mb-6"
+                >
+                  View Details <FiArrowRight className="w-4 h-4" />
+                </Link>
                 <ul className="space-y-3">
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Secure hosting included</span>
+                    <span>Modern website</span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Security & framework updates</span>
+                    <span>Donation system (Stripe)</span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Monthly backups & monitoring</span>
+                    <span>Event scheduling</span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Client dashboard access</span>
+                    <span>Basic admin dashboard</span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Self-service billing</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Email support (48hr response)</span>
-                  </li>
-                  <li className="flex items-start text-white/80">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>1 small content change/month</span>
+                    <span>Monthly maintenance</span>
                   </li>
                 </ul>
               </div>
             </ScrollAnimation>
 
-            {/* Premium */}
+            {/* Tier 2: Digital Director */}
             <ScrollAnimation delay={0.2}>
               <div className="bg-gray-900 border-2 border-trinity-red rounded-xl p-8 relative overflow-hidden shadow-large shadow-trinity-red/20">
                 <div className="absolute top-4 right-4">
@@ -383,51 +137,79 @@ export default function ServicesPage() {
                   </span>
                 </div>
                 <h3 className="text-2xl font-heading font-bold text-white mb-2">
-                  Premium
+                  Tier 2: Digital Director
                 </h3>
-                <div className="text-4xl font-bold text-trinity-red mb-4">$149<span className="text-xl text-white/60">/month</span></div>
-                <p className="text-white/60 mb-6">For growing businesses</p>
+                <div className="text-4xl font-bold text-trinity-red mb-4">
+                  $3k–$7.5k
+                </div>
+                <p className="text-white/60 mb-6">Full platform + RSVPs + email automation</p>
+                <Link
+                  href="/services/tier2"
+                  className="inline-flex items-center gap-2 text-trinity-red hover:text-trinity-maroon font-semibold mb-6"
+                >
+                  View Details <FiArrowRight className="w-4 h-4" />
+                </Link>
                 <ul className="space-y-3">
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-white">Everything in Essential</strong></span>
-                  </li>
-                  <li className="flex items-start text-white">
-                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong>🤖 AI Project Assistant</strong></span>
-                  </li>
-                  <li className="flex items-start text-white/70 pl-8">
-                    <span>• Analyzes your development</span>
-                  </li>
-                  <li className="flex items-start text-white/70 pl-8">
-                    <span>• Suggests improvements</span>
-                  </li>
-                  <li className="flex items-start text-white/70 pl-8">
-                    <span>• One-click feature requests</span>
+                    <span><strong className="text-white">Everything in Tier 1</strong></span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-white">3 hours of changes/month</strong></span>
+                    <span>RSVP system</span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Priority support (24hr response)</span>
+                    <span>Email automation</span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Monthly analytics reports</span>
+                    <span>Attendance tracking</span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Change request system</span>
+                    <span>Advanced dashboard</span>
+                  </li>
+                </ul>
+              </div>
+            </ScrollAnimation>
+
+            {/* Tier 3: Digital COO */}
+            <ScrollAnimation delay={0.3}>
+              <div className="bg-gray-900 border-2 border-gray-700 rounded-xl p-8 hover:border-gray-600 transition-all duration-300">
+                <h3 className="text-2xl font-heading font-bold text-white mb-2">
+                  Tier 3: Digital COO
+                </h3>
+                <div className="text-4xl font-bold text-trinity-red mb-4">
+                  $7.5k–$15k+
+                </div>
+                <p className="text-white/60 mb-6">CRM + grant tracking + advanced automation</p>
+                <Link
+                  href="/services/tier3"
+                  className="inline-flex items-center gap-2 text-trinity-red hover:text-trinity-maroon font-semibold mb-6"
+                >
+                  View Details <FiArrowRight className="w-4 h-4" />
+                </Link>
+                <ul className="space-y-3">
+                  <li className="flex items-start text-white/80">
+                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
+                    <span><strong className="text-white">Everything in Tier 2</strong></span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Emergency support (same-day)</span>
+                    <span>CRM integration</span>
                   </li>
                   <li className="flex items-start text-white/80">
                     <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Performance optimization</span>
+                    <span>Grant reporting</span>
+                  </li>
+                  <li className="flex items-start text-white/80">
+                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
+                    <span>Advanced automation</span>
+                  </li>
+                  <li className="flex items-start text-white/80">
+                    <FiCheck className="w-5 h-5 text-trinity-red mr-3 flex-shrink-0 mt-0.5" />
+                    <span>Custom integrations</span>
                   </li>
                 </ul>
               </div>
@@ -435,10 +217,277 @@ export default function ServicesPage() {
           </div>
 
           <div className="text-center">
-            <p className="text-white/60 text-sm">
-              <strong className="text-white">Nonprofit Organizations:</strong> Essential: $49/month | Premium: $99/month
+            <p className="text-white mb-4">
+              <span className="font-semibold">Also available:</span> Business & personal websites
+            </p>
+            <p className="text-gray-300">
+              Need a business or personal site?{' '}
+              <Link href="/start" className="text-trinity-red hover:text-trinity-maroon font-semibold underline">
+                Start here →
+              </Link>
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Feature Comparison Table */}
+      <section className="py-20 bg-gray-900">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
+              Compare Nonprofit Tiers
+            </h2>
+          </div>
+
+          <div className="max-w-5xl mx-auto overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="py-4 px-4 text-white/80 font-semibold">Feature</th>
+                  <th className="py-4 px-4 text-center text-white font-semibold">Tier 1</th>
+                  <th className="py-4 px-4 text-center text-trinity-red font-semibold">Tier 2</th>
+                  <th className="py-4 px-4 text-center text-white font-semibold">Tier 3</th>
+                </tr>
+              </thead>
+              <tbody className="text-white/70">
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">Modern website</td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">Donation system</td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">Event scheduling</td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">RSVPs</td>
+                  <td className="py-4 px-4 text-center text-white/40">—</td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">Email automation</td>
+                  <td className="py-4 px-4 text-center text-white/40">—</td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">Admin dashboard</td>
+                  <td className="py-4 px-4 text-center">Basic</td>
+                  <td className="py-4 px-4 text-center">Advanced</td>
+                  <td className="py-4 px-4 text-center">Full</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">CRM integration</td>
+                  <td className="py-4 px-4 text-center text-white/40">—</td>
+                  <td className="py-4 px-4 text-center text-white/40">—</td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">Grant reporting</td>
+                  <td className="py-4 px-4 text-center text-white/40">—</td>
+                  <td className="py-4 px-4 text-center text-white/40">—</td>
+                  <td className="py-4 px-4 text-center"><FiCheck className="w-5 h-5 text-trinity-red mx-auto" /></td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-4 px-4">Maintenance hours/month</td>
+                  <td className="py-4 px-4 text-center">2 hours</td>
+                  <td className="py-4 px-4 text-center">4 hours</td>
+                  <td className="py-4 px-4 text-center">8 hours</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Nonprofits Choose SeeZee */}
+      <section className="py-20 bg-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
+              Why Nonprofits Choose SeeZee
+            </h2>
+          </div>
+
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <ScrollAnimation delay={0.1}>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-trinity-red/20 border border-trinity-red/30 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <FiHeart className="w-8 h-8 text-trinity-red" />
+                </div>
+                <h4 className="text-xl font-semibold text-white mb-3">Specialized in Nonprofits</h4>
+                <p className="text-white/70">We understand recovery groups, community orgs, and mission-driven teams</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.2}>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-trinity-red/20 border border-trinity-red/30 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <FiUsers className="w-8 h-8 text-trinity-red" />
+                </div>
+                <h4 className="text-xl font-semibold text-white mb-3">Ongoing Partnership</h4>
+                <p className="text-white/70">Not a one-time freelancer—we act as your digital director</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.3}>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-trinity-red/20 border border-trinity-red/30 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <FiCode className="w-8 h-8 text-trinity-red" />
+                </div>
+                <h4 className="text-xl font-semibold text-white mb-3">Modern Stack</h4>
+                <p className="text-white/70">Next.js, Stripe, real-time data—built to last and scale</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.4}>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-trinity-red/20 border border-trinity-red/30 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <FiDollarSign className="w-8 h-8 text-trinity-red" />
+                </div>
+                <h4 className="text-xl font-semibold text-white mb-3">Nonprofit Pricing</h4>
+                <p className="text-white/70">Transparent budgets designed for tight nonprofit finances</p>
+              </div>
+            </ScrollAnimation>
+          </div>
+        </div>
+      </section>
+
+      {/* Secondary Section: Business & Personal Sites */}
+      <section className="py-20 bg-gray-900">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <ScrollAnimation>
+              <div className="bg-gray-800 border-2 border-gray-700 rounded-xl p-8 md:p-12">
+                <h2 className="text-3xl font-heading font-bold text-white mb-4">
+                  We Still Build Business & Personal Sites
+                </h2>
+                <p className="text-xl text-white/80 mb-6">
+                  While we specialize in nonprofit infrastructure, we also build professional websites for small businesses, startups, and personal portfolios.
+                </p>
+                <Link
+                  href="/start"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-trinity-red text-white rounded-lg hover:bg-trinity-maroon transition-all duration-200 font-semibold text-lg shadow-medium transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-800"
+                >
+                  Start a Business or Personal Project
+                  <FiArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </ScrollAnimation>
+          </div>
+        </div>
+      </section>
+      {/* FAQ Section */}
+      <section className="py-20 bg-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
+              Common Questions
+            </h2>
+          </div>
+
+          <div className="max-w-4xl mx-auto space-y-6">
+            <ScrollAnimation delay={0.1}>
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-white mb-3">How long does it take?</h4>
+                <p className="text-white/70">Most nonprofit projects are completed in 2-3 weeks, depending on tier complexity.</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.2}>
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-white mb-3">What if I don't know what tier we need?</h4>
+                <p className="text-white/70">Book a free audit and we'll review your current systems and recommend the right tier for your nonprofit's stage.</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.3}>
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-white mb-3">Do you only work with nonprofits?</h4>
+                <p className="text-white/70">No! While we specialize in nonprofit infrastructure, we also build websites for small businesses and personal projects.</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.4}>
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-white mb-3">What's included in maintenance?</h4>
+                <p className="text-white/70">Hosting, security updates, backups, content updates (varies by tier), and access to your admin dashboard.</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.5}>
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-white mb-3">Can we upgrade tiers later?</h4>
+                <p className="text-white/70">Absolutely! Start with Tier 1 and upgrade as your nonprofit grows and needs more features.</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.6}>
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-white mb-3">What if we need changes after launch?</h4>
+                <p className="text-white/70">All tiers include monthly maintenance hours for updates and changes. Additional hours can be added if needed.</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.7}>
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-white mb-3">Do we own the platform?</h4>
+                <p className="text-white/70">Yes! You own all content and data. We maintain the hosting and technical infrastructure.</p>
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation delay={0.8}>
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-white mb-3">What payment methods do you accept?</h4>
+                <p className="text-white/70">We use Stripe for secure payments. Credit cards, debit cards, and ACH transfers accepted.</p>
+              </div>
+            </ScrollAnimation>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-24 bg-gray-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <ScrollAnimation>
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-6">
+                Ready to Start Your Nonprofit Project?
+              </h2>
+              <p className="text-xl text-white/80 mb-4 leading-relaxed">
+                Book a free audit to review your current systems and get a custom quote.
+              </p>
+              <p className="text-white/60 mb-8 text-lg">
+                No commitment. We'll show you exactly what you need.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/audit"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-trinity-red text-white rounded-lg hover:bg-trinity-maroon transition-all duration-200 font-semibold text-lg shadow-medium transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900"
+                >
+                  Book Free Audit
+                  <FiArrowRight className="w-5 h-5" />
+                </Link>
+                <Link
+                  href="/case-studies/avfy"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-semibold text-lg border-2 border-white hover:border-trinity-red focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900"
+                >
+                  See AVFY Case Study
+                </Link>
+              </div>
+            </div>
+          </ScrollAnimation>
         </div>
       </section>
 

@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  /* Design tokens from Claude UI spec - Dark Mode */
-  --bg-base: #0B0F14;
-  --bg-elev: #1a1f2e;
-  --glass: rgba(30, 41, 59, 0.6);
-  --stroke: #334155;
+  /* Big Red Bus Design Tokens - Dark Night City Theme */
+  --bg-base: #050914;
+  --bg-elev: #0B0F1A;
+  --glass: rgba(11, 15, 26, 0.7);
+  --stroke: #1a2332;
   --text: #F1F5F9;
-  --text-dim: #CBD5E1;
-  --primary: #6EE7FF;
-  --accent: #8B5CF6;
+  --text-dim: #94A3B8;
+  --primary: #DC143C;
+  --accent: #FFA500;
   --success: #22C55E;
   --warning: #F59E0B;
   --danger: #EF4444;
@@ -25,10 +25,10 @@
   --r-xl: 20px;
   --r-pill: 999px;
   
-  /* Shadows */
-  --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 45px rgba(0, 0, 0, 0.45);
+  /* Shadows with red glow */
+  --shadow-sm: 0 4px 20px rgba(220, 20, 60, 0.15);
+  --shadow-md: 0 8px 30px rgba(220, 20, 60, 0.25);
+  --shadow-lg: 0 12px 45px rgba(220, 20, 60, 0.35);
   
   /* Spacing */
   --pad: clamp(16px, 2.5vw, 24px);
@@ -72,7 +72,7 @@ html, body {
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: #000000;
+  background: #050914;
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -114,47 +114,48 @@ html.light body {
 }
 
 
-/* Glass morphism utilities */
+/* Glass morphism utilities - Big Red Bus Theme */
 .glass {
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(11, 15, 26, 0.8);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid rgba(220, 20, 60, 0.2);
   border-radius: var(--r-xl);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(11, 15, 26, 0.8);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid rgba(220, 20, 60, 0.2);
   border-radius: var(--r-xl);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   padding: 24px;
 }
 
 .glass-panel {
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(11, 15, 26, 0.8);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid rgba(220, 20, 60, 0.2);
   border-radius: var(--r-xl);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   padding: 16px;
 }
 
-/* SeeZee UI v4.5 - Enhanced Glass Morphism (Better Contrast) */
+/* SeeZee UI v4.5 - Enhanced Glass Morphism (Big Red Bus) */
 .glass-container {
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(11, 15, 26, 0.6);
   backdrop-filter: blur(12px) saturate(150%);
-  border: 1px solid rgba(71, 85, 105, 0.4);
+  border: 1px solid rgba(220, 20, 60, 0.15);
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(220, 20, 60, 0.2);
   transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
 }
 
 .glass-container:hover {
-  background: rgba(30, 41, 59, 0.65);
-  border-color: rgba(71, 85, 105, 0.6);
+  background: rgba(11, 15, 26, 0.8);
+  border-color: rgba(220, 20, 60, 0.4);
   transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(220, 20, 60, 0.3), 0 0 40px rgba(220, 20, 60, 0.15);
 }
 
 .glass-container-static {
@@ -640,11 +641,11 @@ html.light body {
 }
 
 .glow-on-hover:hover {
-  box-shadow: 0 0 20px rgba(196, 30, 58, 0.5), 0 0 40px rgba(196, 30, 58, 0.3);
+  box-shadow: 0 0 20px rgba(220, 20, 60, 0.5), 0 0 40px rgba(220, 20, 60, 0.3);
 }
 
 .animated-gradient {
-  background: linear-gradient(-45deg, #000000, #1a1a1a, #0a0a0a, #1a1a1a);
+  background: linear-gradient(-45deg, #050914, #0B0F1A, #120414, #0B0F1A);
   background-size: 400% 400%;
   animation: gradient-animation 15s ease infinite;
 }
@@ -698,29 +699,29 @@ html.light body {
   --sidebar-w-collapsed: 5rem;   /* collapsed sidebar width (80px) */
 }
 
-/* Trinity Red and Maroon color aliases */
+/* Bus Red color aliases */
 .trinity-red {
-  color: #C41E3A;
+  color: #DC143C;
 }
 
 .bg-trinity-red {
-  background-color: #C41E3A;
+  background-color: #DC143C;
 }
 
 .border-trinity-red {
-  border-color: #C41E3A;
+  border-color: #DC143C;
 }
 
 .hover\:bg-trinity-maroon:hover {
-  background-color: #8B0000;
+  background-color: #B01030;
 }
 
 .hover\:text-trinity-maroon:hover {
-  color: #8B0000;
+  color: #B01030;
 }
 
 .text-trinity-red {
-  color: #C41E3A;
+  color: #DC143C;
 }
 
 .trinity-maroon {
@@ -748,9 +749,9 @@ html.light body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Gradient text utility */
+/* Gradient text utility - Big Red Bus Theme */
 .gradient-text {
-  background: linear-gradient(135deg, #C41E3A 0%, #FFD700 50%, #C41E3A 100%);
+  background: linear-gradient(135deg, #DC143C 0%, #FFA500 50%, #DC143C 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

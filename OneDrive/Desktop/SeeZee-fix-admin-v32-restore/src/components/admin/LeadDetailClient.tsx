@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Package, DollarSign, FileText, Mail, Phone, Building, Calendar, CheckCircle, XCircle } from "lucide-react";
 import { updateLeadStatus } from "@/server/actions";
-import { approveLeadAndCreateProject } from "@/server/actions/leads";
+import { convertLeadToProject } from "@/server/actions/leads";
 import { formatPrice } from "@/lib/qwiz/pricing";
 import { getPackage } from "@/lib/qwiz/packages";
 
@@ -56,7 +56,7 @@ export function LeadDetailClient({ lead, questionnaire }: LeadDetailClientProps)
     setApprovalSuccess(false);
     
     try {
-      const result = await approveLeadAndCreateProject(lead.id);
+      const result = await convertLeadToProject(lead.id);
       
       if (result.success) {
         setApprovalSuccess(true);
