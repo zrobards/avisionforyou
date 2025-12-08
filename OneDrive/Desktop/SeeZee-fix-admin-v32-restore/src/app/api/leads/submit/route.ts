@@ -122,8 +122,8 @@ export async function POST(req: NextRequest) {
       // Create lead record linked to the user
       const lead = await prisma.lead.create({
         data: {
-          name: user.name || 'Unknown',
-          email: user.email!,
+          name: user?.name || 'Unknown',
+          email: user?.email || questionnaire.userEmail,
           phone: '', // Can be added to user profile later
           company: '', // Can be added to user profile later
           message: `Package: ${selectedPackage}\nFeatures: ${selectedFeatures?.length || 0} selected\nTotal: $${totals?.total || 0}\nTimeline: ${answers?.timeline || 'Not specified'}`,
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
           status: LeadStatus.NEW,
           metadata: {
             qid,
-            userId: user.id,
+            userId: user?.id,
             package: selectedPackage,
             features: selectedFeatures,
             totals,
