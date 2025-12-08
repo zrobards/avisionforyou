@@ -1,5 +1,6 @@
 import { stripe } from "@/lib/stripe"
 import { db } from "@/lib/db"
+import { sendDonationThankYou } from "@/lib/email"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
@@ -34,17 +35,60 @@ export async function POST(request: NextRequest) {
     if (event.type === "payment_intent.succeeded") {
       const paymentIntent = event.data.object
       
+      const email = paymentIntent.receipt_email || paymentIntent.metadata?.email || ""
+      const name = paymentIntent.metadata?.name || "Anonymous"
+      const amount = paymentIntent.amount / 100
+      const frequency = paymentIntent.metadata?.frequency || "ONE_TIME"
+      
       // Save donation to database
       await db.donation.create({
         data: {
           stripeId: paymentIntent.id,
-          amount: paymentIntent.amount / 100,
+          amount: amount,
           status: "COMPLETED",
-          frequency: "ONE_TIME",
-          email: paymentIntent.receipt_email || paymentIntent.metadata?.email || "",
-          comment: paymentIntent.metadata?.name || "Anonymous"
+          frequency: frequency,
+          email: email,
+          comment: name
         }
       })
+      
+      // Send thank you email
+      if (email && email !== "") {
+        await sendDonationThankYou(name, email, amount, frequency)
+      }
+    }
+
+    // Handle checkout.session.completed for subscriptions
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object
+      
+      if (session.mode === "subscription") {
+        const email = session.customer_email || session.metadata?.email || ""
+        const name = session.metadata?.name || "Anonymous"
+        
+        // Get subscription details
+        const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
+        const amount = subscription.items.data[0].price.unit_amount! / 100
+        const interval = subscription.items.data[0].price.recurring?.interval || "month"
+        const frequency = interval === "month" ? "MONTHLY" : "YEARLY"
+        
+        // Save recurring donation
+        await db.donation.create({
+          data: {
+            stripeId: subscription.id,
+            amount: amount,
+            status: "COMPLETED",
+            frequency: frequency,
+            email: email,
+            comment: name
+          }
+        })
+        
+        // Send thank you email
+        if (email && email !== "") {
+          await sendDonationThankYou(name, email, amount, frequency)
+        }
+      }
     }
 
     // Handle customer.subscription.updated

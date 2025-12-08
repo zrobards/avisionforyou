@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { sendAdmissionConfirmation, sendAdmissionNotificationToAdmin } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,8 +39,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Send confirmation email to applicant
-    // TODO: Send notification email to admin
+    // Send confirmation email to applicant
+    await sendAdmissionConfirmation(name, email, program || 'Not specified');
+    
+    // Send notification email to admin
+    await sendAdmissionNotificationToAdmin(name, email, phone, program || 'Not specified', message || '');
 
     return NextResponse.json(
       {

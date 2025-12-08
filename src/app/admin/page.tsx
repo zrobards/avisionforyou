@@ -152,6 +152,10 @@ export default function AdminPanel() {
             >
               {refreshing ? 'Refreshing…' : 'Refresh now'}
             </button>
+            <Link href="/admin/admissions" className="flex items-center gap-2 text-white bg-purple-600/20 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition-colors">
+              <BarChart3 className="w-4 h-4" />
+              Admissions
+            </Link>
             <Link href="/admin/donations" className="flex items-center gap-2 text-white bg-red-600/20 hover:bg-red-600/30 px-4 py-2 rounded-lg transition-colors">
               <Heart className="w-4 h-4" />
               Donations
