@@ -44,7 +44,6 @@ export async function POST(request: NextRequest) {
         email: contact.email,
         company: contact.company,
         message: `Interested in ${selections.pkg} development package`,
-        serviceType: selections.pkg.toLowerCase(),
         timeline: selections.rush ? 'rush' : 'standard',
         budget: amount > 20000 ? '20plus' : amount > 10000 ? '10to20' : amount > 5000 ? '5to10' : 'under5k',
         requirements: {
