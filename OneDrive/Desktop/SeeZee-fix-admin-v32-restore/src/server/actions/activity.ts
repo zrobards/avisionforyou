@@ -65,7 +65,7 @@ export async function logActivity(data: {
     });
     
     for (const tag of tags.activity) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
     
     return { success: true, activity };
@@ -89,7 +89,7 @@ export async function markActivityAsRead(activityId: string) {
     });
     
     for (const tag of tags.activity) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
     
     return { success: true, activity };
@@ -112,7 +112,7 @@ export async function markAllActivitiesAsRead() {
     });
     
     for (const tag of tags.activity) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
     
     return { success: true };
@@ -170,7 +170,7 @@ export async function createActivity(data: {
     });
 
     for (const tag of tags.activity) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
     return { success: true, activity };
   } catch (error) {

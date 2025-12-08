@@ -72,7 +72,7 @@ export async function updateMyProfile(data: {
     });
 
     for (const tag of tags.team) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
 
     return { success: true, user };
@@ -98,7 +98,7 @@ export async function updateMyAvatar(imageUrl: string) {
     });
 
     for (const tag of tags.team) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
 
     return { success: true, user };

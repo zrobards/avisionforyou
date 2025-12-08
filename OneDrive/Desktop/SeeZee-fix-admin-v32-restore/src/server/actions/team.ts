@@ -79,7 +79,7 @@ export async function updateRole(userId: string, role: UserRole) {
     });
     
     for (const tag of tags.team) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
     
     return { success: true, user };
@@ -143,7 +143,7 @@ export async function updateUserProfile(
     });
     
     for (const tag of tags.team) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
     
     return { success: true, user };
@@ -166,7 +166,7 @@ export async function deleteUser(userId: string) {
     });
     
     for (const tag of tags.team) {
-      revalidateTag(tag);
+      revalidateTag(tag, {});
     }
     
     return { success: true };
