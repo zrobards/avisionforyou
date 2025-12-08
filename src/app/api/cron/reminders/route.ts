@@ -1,18 +1,22 @@
 import { sendBulkMeetingReminders } from '@/lib/email'
 
-// This endpoint is called by an external cron service
-// Set up: Use https://cron-job.org, AWS EventBridge, or Google Cloud Scheduler
-// Call this every 10 minutes: POST /api/cron/reminders
-// For hourly use a service like: https://cron-job.org (free tier available)
+// This endpoint is called by Vercel Cron every 10 minutes
+// Vercel Cron jobs are automatically authenticated - no Bearer token needed
+// For external cron services, use CRON_SECRET authentication
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   try {
-    // Verify the request has the correct secret
+    // Check if called by Vercel Cron (has special headers) or external service
     const authHeader = request.headers.get('authorization')
-    const cronSecret = process.env.CRON_SECRET
-
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-      return new Response('Unauthorized', { status: 401 })
+    const isVercelCron = request.headers.get('user-agent')?.includes('vercel-cron')
+    
+    // If not Vercel Cron, require authentication
+    if (!isVercelCron) {
+      const cronSecret = process.env.CRON_SECRET
+      
+      if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        return new Response('Unauthorized', { status: 401 })
+      }
     }
 
     const result = await sendBulkMeetingReminders()
@@ -29,5 +33,10 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
+}
+
+// Also support POST for external cron services
+export async function POST(request: Request) {
+  return GET(request)
 }
 

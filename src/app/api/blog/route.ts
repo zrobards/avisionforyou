@@ -1,0 +1,121 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { db } from '@/lib/db'
+
+// GET /api/blog - List all published posts (public) or all posts (admin)
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    const { searchParams } = new URL(request.url)
+    const includesDrafts = searchParams.get('drafts') === 'true'
+    
+    // Check if user is admin
+    let isAdmin = false
+    if (session?.user?.email) {
+      const user = await db.user.findUnique({
+        where: { email: session.user.email }
+      })
+      isAdmin = user?.role === 'ADMIN' || user?.role === 'STAFF'
+    }
+
+    const posts = await db.blogPost.findMany({
+      where: includesDrafts && isAdmin ? {} : { status: 'PUBLISHED' },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: { publishedAt: 'desc' }
+    })
+
+    return NextResponse.json(posts)
+  } catch (error) {
+    console.error('Error fetching blog posts:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch blog posts' },
+      { status: 500 }
+    )
+  }
+}
+
+// POST /api/blog - Create new blog post (admin only)
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session || !session.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const user = await db.user.findUnique({
+      where: { email: session.user.email }
+    })
+
+    if (user?.role !== 'ADMIN' && user?.role !== 'STAFF') {
+      return NextResponse.json(
+        { error: 'Unauthorized - Admin only' },
+        { status: 403 }
+      )
+    }
+
+    const { title, content, excerpt, status, category, tags, imageUrl } = await request.json()
+
+    if (!title || !content) {
+      return NextResponse.json(
+        { error: 'Title and content are required' },
+        { status: 400 }
+      )
+    }
+
+    // Generate slug from title
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+
+    // Calculate read time (rough estimate: 200 words per minute)
+    const wordCount = content.split(/\s+/).length
+    const readTimeMinutes = Math.ceil(wordCount / 200)
+
+    const post = await db.blogPost.create({
+      data: {
+        title,
+        slug,
+        content,
+        excerpt: excerpt || content.substring(0, 200) + '...',
+        authorId: user.id,
+        status: status || 'DRAFT',
+        category,
+        tags: tags ? JSON.stringify(tags) : null,
+        imageUrl,
+        readTimeMinutes,
+        publishedAt: status === 'PUBLISHED' ? new Date() : null
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(post, { status: 201 })
+  } catch (error) {
+    console.error('Error creating blog post:', error)
+    return NextResponse.json(
+      { error: 'Failed to create blog post' },
+      { status: 500 }
+    )
+  }
+}

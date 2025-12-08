@@ -1,32 +1,39 @@
 'use client'
 
 import Link from 'next/link'
-import { Heart } from 'lucide-react'
+import { Heart, User } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
-const team = [
-  {
-    name: "Zach Wilbert, APRN-FNP",
-    role: "Medical Director",
-    image: "/team/zach.jpg"
-  },
-  {
-    name: "Henry Fuqua, CADC",
-    role: "MindBodySoul IOP Program Director",
-    image: "/team/henry.jpg"
-  },
-  {
-    name: "Gregory Haynes, CADCA-1 PSS",
-    role: "Director of Client Engagement",
-    image: "/team/gregory.jpg"
-  },
-  {
-    name: "Steven Furlow",
-    role: "Surrender Program Director",
-    image: "/team/steve.jpg"
-  }
-]
+interface TeamMember {
+  id: string
+  name: string
+  title: string
+  bio: string
+  imageUrl?: string
+}
 
 export default function Team() {
+  const [team, setTeam] = useState<TeamMember[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchTeam()
+  }, [])
+
+  const fetchTeam = async () => {
+    try {
+      const response = await fetch('/api/team')
+      if (response.ok) {
+        const data = await response.json()
+        setTeam(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch team:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
@@ -48,6 +55,39 @@ export default function Team() {
 
       {/* Team Section */}
       <section className="max-w-7xl mx-auto px-6 py-16">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : team.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">Team information coming soon!</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {team.map((member) => (
+              <div key={member.id} className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+                <div className="h-64 overflow-hidden bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                  {member.imageUrl ? (
+                    <img 
+                      src={member.imageUrl} 
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-32 h-32 text-blue-300" />
+                  )}
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{member.name}</h3>
+                  <p className="text-blue-600 font-semibold mb-4">{member.title}</p>
+                  <p className="text-gray-600 leading-relaxed">{member.bio}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {team.map((member, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
