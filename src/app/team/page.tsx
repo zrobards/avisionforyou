@@ -14,7 +14,7 @@ export default function Team() {
 
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="text-center">
-          <p className="text-xl text-gray-600 mb-8">Team page under maintenance - coming back soon</p>
+          <p className="text-xl text-gray-600 mb-8">Team page is under maintenance - coming back soon</p>
           <Link 
             href="/" 
             className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
