@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/user/donations - Get current user's donations
 export async function GET() {
   try {
