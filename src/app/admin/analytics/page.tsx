@@ -70,6 +70,20 @@ export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/analytics');
+      if (!response.ok) throw new Error('Failed to fetch analytics');
+      const analyticsData = await response.json();
+      setData(analyticsData);
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
@@ -85,20 +99,6 @@ export default function AdminAnalyticsPage() {
       fetchData();
     }
   }, [status, router, session]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/admin/analytics');
-      if (!response.ok) throw new Error('Failed to fetch analytics');
-      const analyticsData = await response.json();
-      setData(analyticsData);
-    } catch (error) {
-      console.error('Failed to fetch analytics:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
