@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { 
@@ -70,21 +70,21 @@ export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/admin/analytics');
-      if (!response.ok) throw new Error('Failed to fetch analytics');
-      const analyticsData = await response.json();
-      setData(analyticsData);
-    } catch (error) {
-      console.error('Failed to fetch analytics:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/admin/analytics');
+        if (!response.ok) throw new Error('Failed to fetch analytics');
+        const analyticsData = await response.json();
+        setData(analyticsData);
+      } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     if (status === 'unauthenticated') {
       router.push('/login');
       return;
@@ -96,9 +96,9 @@ export default function AdminAnalyticsPage() {
         router.push('/dashboard');
         return;
       }
-      fetchData();
+      loadData();
     }
-  }, [status, router, session, fetchData]);
+  }, [status, router, session]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
