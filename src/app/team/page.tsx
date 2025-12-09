@@ -16,10 +16,6 @@ export default function Team() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchTeam();
-  }, []);
-
   const fetchTeam = async () => {
     try {
       const response = await fetch('/api/team');
@@ -33,6 +29,10 @@ export default function Team() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchTeam();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
