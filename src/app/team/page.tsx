@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Heart, User } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface TeamMember {
   id: string;
@@ -16,7 +16,7 @@ export default function Team() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchTeam = async () => {
+  const fetchTeam = useCallback(async () => {
     try {
       const response = await fetch('/api/team');
       if (response.ok) {
@@ -28,12 +28,11 @@ export default function Team() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTeam();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchTeam]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
