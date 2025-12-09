@@ -115,6 +115,64 @@ export default function AdminAnalyticsPage() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  };
+
+  const getTrendIcon = (value: number) => {
+    if (value > 5) return <ArrowUp className="w-4 h-4 text-green-600" />;
+    if (value < -5) return <ArrowDown className="w-4 h-4 text-red-600" />;
+    return <Minus className="w-4 h-4 text-gray-400" />;
+  };
+
+  const getTrendColor = (value: number) => {
+    if (value > 5) return 'text-green-600';
+    if (value < -5) return 'text-red-600';
+    return 'text-gray-600';
+  };
+
+  const exportData = () => {
+    if (!data) return;
+    const csv = `Analytics Report - ${new Date().toLocaleDateString()}
+
+OVERVIEW
+Total Users,${data.overview.totalUsers}
+Active Users (30d),${data.overview.activeUsersLast30Days}
+Donation Conversion,${data.donations.conversionRate}%
+`;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+  };
+
+  if (loading || !data) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+            <p className="text-gray-600">Comprehensive insights for nonprofit growth</p>
+          </div>
+          <button
+            onClick={exportData}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
+
         {/* Donation Methods */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Donation Methods Breakdown</h2>

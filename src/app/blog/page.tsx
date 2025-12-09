@@ -111,11 +111,6 @@ export default function BlogPage() {
     </div>
   )
 }
-  {
-    id: 6,
-    title: 'The Benefits of Behavior Modification Therapy for Addiction Recovery',
-    excerpt: 'Exploring therapeutic community circles and behavior modification techniques in addiction treatment.',
-    author: 'Lucas Bennett',
     date: 'Jan 6, 2025',
     readTime: '3 min read',
     category: 'Treatment'
