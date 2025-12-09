@@ -1,38 +1,38 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { Heart, User } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import Link from 'next/link';
+import { Heart, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface TeamMember {
-  id: string
-  name: string
-  title: string
-  bio: string
-  imageUrl?: string
+  id: string;
+  name: string;
+  title: string;
+  bio: string;
+  imageUrl?: string;
 }
 
 export default function Team() {
-  const [team, setTeam] = useState<TeamMember[]>([])
-  const [loading, setLoading] = useState(true)
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTeam()
-  }, [])
+    fetchTeam();
+  }, []);
 
   const fetchTeam = async () => {
     try {
-      const response = await fetch('/api/team')
+      const response = await fetch('/api/team');
       if (response.ok) {
-        const data = await response.json()
-        setTeam(data)
+        const data = await response.json();
+        setTeam(data);
       }
     } catch (error) {
-      console.error('Failed to fetch team:', error)
+      console.error('Failed to fetch team:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
