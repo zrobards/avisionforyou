@@ -218,8 +218,6 @@ export default function BlogPostPage() {
   );
 }
 
-Recovery communities thrive on authenticity and human connection. Yet, as these connections deepen, questions naturally arise: How do we maintain professional boundaries while honoring the genuine relationships we've developed? How do we ensure that our relationships support recovery rather than complicate it?
-
 The concept of redemption through peer bonds is central to recovery communities. There's something uniquely healing about being understood by someone who has walked a similar path. This shared experience creates a bond that often transcends typical professional relationships.
 
 However, this intensity also creates potential for boundary violations. Whether serving as a sponsor, mentor, or fellow group member, it's crucial to maintain clarity about the nature of relationships and the responsibilities they entail.

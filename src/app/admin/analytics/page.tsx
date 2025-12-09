@@ -85,21 +85,6 @@ export default function AdminAnalyticsPage() {
       fetchData();
     }
   }, [status]);
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-      return;
-    }
-
-    if (status === 'authenticated') {
-      const userRole = (session?.user as any)?.role;
-      if (userRole !== 'ADMIN') {
-        router.push('/dashboard');
-        return;
-      }
-      fetchData();
-    }
-  }, [status]);
 
   const fetchData = async () => {
     try {

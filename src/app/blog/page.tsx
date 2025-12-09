@@ -111,12 +111,6 @@ export default function BlogPage() {
     </div>
   )
 }
-    date: 'Jan 6, 2025',
-    readTime: '3 min read',
-    category: 'Treatment'
-  },
-  {
-    id: 7,
     title: 'Navigating Addiction Recovery in Louisville, KY: A Comprehensive Guide',
     excerpt: 'A comprehensive guide to resources and support available for those seeking recovery in Louisville.',
     author: 'Lucas Bennett',
