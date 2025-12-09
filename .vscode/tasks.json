@@ -35,6 +35,13 @@
 			"type": "shell",
 			"command": "npm run dev",
 			"group": "test"
+		},
+		{
+			"label": "Start Development Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"problemMatcher": []
 		}
 	]
 }
