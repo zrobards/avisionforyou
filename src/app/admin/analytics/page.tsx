@@ -84,7 +84,7 @@ export default function AdminAnalyticsPage() {
       }
       fetchData();
     }
-  }, [status]);
+  }, [status, router, session]);
 
   const fetchData = async () => {
     try {

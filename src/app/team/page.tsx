@@ -32,6 +32,7 @@ export default function Team() {
 
   useEffect(() => {
     fetchTeam();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
