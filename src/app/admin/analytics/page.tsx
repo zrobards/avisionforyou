@@ -1,60 +1,528 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BarChart3, DollarSign, Users, TrendingUp, Download, Filter, Calendar, AlertCircle } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { 
+  BarChart3, DollarSign, Users, TrendingUp, Download, Calendar, 
+  AlertCircle, Target, Activity, UserCheck, Heart, BookOpen, 
+  TrendingDown, Award, ArrowUp, ArrowDown, Minus 
+} from 'lucide-react';
 
-interface DonationStats {
-  totalDonations: number;
-  totalAmount: number;
-  averageDonation: number;
-  monthlyTrend: { month: string; amount: number }[];
-  topDonors: { name: string; amount: number; count: number }[];
-  donationMethods: { method: string; count: number; amount: number }[];
+interface AnalyticsData {
+  overview: {
+    totalUsers: number;
+    activeUsersLast30Days: number;
+    newUsersLast30Days: number;
+    userGrowthRate: number;
+    retentionRate: number;
+    userGrowthTrend: { month: string; count: number }[];
+  };
+  donations: {
+    total: number;
+    last30Days: number;
+    totalAmount: number;
+    amountLast30Days: number;
+    averageDonation: number;
+    conversionRate: number;
+    recurringDonors: number;
+    growthRate: number;
+    donationTrend: { month: string; amount: number; count: number }[];
+    donationMethods: { method: string; count: number; amount: number }[];
+    topDonors: { name: string; amount: number; count: number }[];
+  };
+  engagement: {
+    totalMeetings: number;
+    upcomingMeetings: number;
+    totalRSVPs: number;
+    rsvpsLast30Days: number;
+    attendanceRate: number;
+    avgRSVPsPerUser: number;
+    popularMeetings: { id: string; title: string; startDate: string; _count: { rsvps: number } }[];
+  };
+  programs: {
+    assessmentsCompleted: number;
+    programInterest: { program: string; count: number }[];
+  };
+  admissions: {
+    totalInquiries: number;
+    inquiriesLast30Days: number;
+    responseRate: number;
+  };
+  content: {
+    totalBlogPosts: number;
+    totalBlogViews: number;
+    avgViewsPerPost: number;
+  };
+  funnel: {
+    assessmentCompleted: number;
+    assessmentToRSVP: number;
+    rsvpToDonation: number;
+    assessmentToRSVPRate: number;
+    rsvpToDonationRate: number;
+  };
+  insights: { type: string; title: string; message: string }[];
 }
 
-interface UserStats {
-  totalUsers: number;
-  activeUsers: number;
-  newUsersThisMonth: number;
-  usersWithAssessment: number;
-  userRetention: number;
-}
-
-interface ComplianceReport {
-  generatedAt: string;
-  totalDonations: number;
-  totalAmount: number;
-  donorCount: number;
-  largestDonation: number;
-  taxStatus: 'nonprofit_501c3' | 'pending_verification';
-}
-
-export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'donations' | 'compliance' | 'stripe'>('overview');
-  const [donationStats, setDonationStats] = useState<DonationStats | null>(null);
-  const [userStats, setUserStats] = useState<UserStats | null>(null);
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+export default function AdminAnalyticsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch analytics data
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/admin/analytics');
-        if (response.ok) {
-          const data = await response.json();
-          setDonationStats(data.donations);
-          setUserStats(data.users);
-        }
-      } catch (error) {
-        console.error('Failed to fetch analytics:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (status === 'unauthenticated') {
+      router.push('/login');
+      return;
+    }
 
-    fetchData();
-  }, []);
+    if (status === 'authenticated') {
+      const userRole = (session?.user as any)?.role;
+      if (userRole !== 'ADMIN') {
+        router.push('/dashboard');
+        return;
+      }
+      fetchData();
+    }
+  }, [status]);
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+      return;
+    }
+
+    if (status === 'authenticated') {
+      const userRole = (session?.user as any)?.role;
+      if (userRole !== 'ADMIN') {
+        router.push('/dashboard');
+        return;
+      }
+      fetchData();
+    }
+  }, [status]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/analytics');
+      if (!response.ok) throw new Error('Failed to fetch analytics');
+      const analyticsData = await response.json();
+      setData(analyticsData);
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+        {/* Donation Methods */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Donation Methods Breakdown</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {data.donations.donationMethods.map((method, idx) => (
+              <div key={idx} className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+                <p className="text-sm text-gray-600 mb-1">{method.method}</p>
+                <p className="text-2xl font-bold text-gray-900 mb-2">{formatCurrency(method.amount)}</p>
+                <p className="text-sm text-gray-600">{method.count} donations</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+  const getTrendIcon = (value: number) => {
+    if (value > 5) return <ArrowUp className="w-4 h-4 text-green-600" />;
+    if (value < -5) return <ArrowDown className="w-4 h-4 text-red-600" />;
+    return <Minus className="w-4 h-4 text-gray-400" />;
+  };
+
+  const getTrendColor = (value: number) => {
+    if (value > 5) return 'text-green-600';
+    if (value < -5) return 'text-red-600';
+    return 'text-gray-600';
+  };
+
+  const exportData = () => {
+    if (!data) return;
+    const csv = `
+Analytics Report - ${new Date().toLocaleDateString()}
+
+OVERVIEW
+Total Users,${data.overview.totalUsers}
+Active Users (30d),${data.overview.activeUsersLast30Days}
+New Users (30d),${data.overview.newUsersLast30Days}
+User Growth Rate,${data.overview.userGrowthRate}%
+Retention Rate,${data.overview.retentionRate}%
+
+DONATIONS
+Total Donations,${data.donations.total}
+Total Amount,${formatCurrency(data.donations.totalAmount)}
+Average Donation,${formatCurrency(data.donations.averageDonation)}
+Conversion Rate,${data.donations.conversionRate}%
+Recurring Donors,${data.donations.recurringDonors}
+Growth Rate,${data.donations.growthRate}%
+
+ENGAGEMENT
+Total Meetings,${data.engagement.totalMeetings}
+Upcoming Meetings,${data.engagement.upcomingMeetings}
+Total RSVPs,${data.engagement.totalRSVPs}
+Attendance Rate,${data.engagement.attendanceRate}%
+`;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+  };
+
+  if (loading || !data) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Header */}
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+            <p className="text-gray-600">Comprehensive insights for nonprofit growth and optimization</p>
+          </div>
+          <button
+            onClick={exportData}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
+
+        {/* Insights Banner */}
+        {data.insights.length > 0 && (
+          <div className="mb-8 space-y-3">
+            {data.insights.map((insight, idx) => (
+              <div
+                key={idx}
+                className={`p-4 rounded-lg border-l-4 ${
+                  insight.type === 'success'
+                    ? 'bg-green-50 border-green-500'
+                    : insight.type === 'warning'
+                    ? 'bg-yellow-50 border-yellow-500'
+                    : 'bg-blue-50 border-blue-500'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                    insight.type === 'success'
+                      ? 'text-green-600'
+                      : insight.type === 'warning'
+                      ? 'text-yellow-600'
+                      : 'text-blue-600'
+                  }`} />
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{insight.title}</h3>
+                    <p className="text-sm text-gray-700 mt-1">{insight.message}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              {getTrendIcon(data.overview.userGrowthRate)}
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Total Users</p>
+            <p className="text-3xl font-bold text-gray-900">{data.overview.totalUsers.toLocaleString()}</p>
+            <p className={`text-sm mt-2 ${getTrendColor(data.overview.userGrowthRate)}`}>
+              {data.overview.userGrowthRate > 0 ? '+' : ''}{data.overview.userGrowthRate}% this month
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <DollarSign className="w-6 h-6 text-green-600" />
+              </div>
+              {getTrendIcon(data.donations.growthRate)}
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
+            <p className="text-3xl font-bold text-gray-900">{formatCurrency(data.donations.totalAmount)}</p>
+            <p className={`text-sm mt-2 ${getTrendColor(data.donations.growthRate)}`}>
+              {data.donations.growthRate > 0 ? '+' : ''}{data.donations.growthRate}% this month
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <UserCheck className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Retention Rate</p>
+            <p className="text-3xl font-bold text-gray-900">{data.overview.retentionRate}%</p>
+            <p className="text-sm text-gray-600 mt-2">90-day cohort</p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-orange-100 rounded-lg">
+                <Target className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Conversion Rate</p>
+            <p className="text-3xl font-bold text-gray-900">{data.donations.conversionRate}%</p>
+            <p className="text-sm text-gray-600 mt-2">Users who donate</p>
+          </div>
+        </div>
+
+        {/* Conversion Funnel */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">User Journey Funnel</h2>
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Assessment Completed</p>
+                    <p className="text-sm text-gray-600">{data.funnel.assessmentCompleted} users</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-gray-900">100%</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pl-6 border-l-2 border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Activity className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">RSVP to Meeting</p>
+                    <p className="text-sm text-gray-600">{data.funnel.assessmentToRSVP} users</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-gray-900">{data.funnel.assessmentToRSVPRate}%</p>
+                  <p className="text-sm text-gray-600">conversion</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pl-12 border-l-2 border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Heart className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Made Donation</p>
+                    <p className="text-sm text-gray-600">{data.funnel.rsvpToDonation} users</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-gray-900">{data.funnel.rsvpToDonationRate}%</p>
+                  <p className="text-sm text-gray-600">conversion</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* User Growth Chart */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">User Growth Trend</h2>
+            <div className="space-y-3">
+              {data.overview.userGrowthTrend.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <p className="text-sm text-gray-600 w-20">{item.month}</p>
+                  <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
+                    <div
+                      className="bg-blue-500 h-full rounded-full flex items-center justify-end pr-3"
+                      style={{
+                        width: `${Math.max((item.count / Math.max(...data.overview.userGrowthTrend.map(i => i.count))) * 100, 5)}%`
+                      }}
+                    >
+                      <span className="text-xs font-semibold text-white">{item.count}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Donation Trend Chart */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Donation Revenue Trend</h2>
+            <div className="space-y-3">
+              {data.donations.donationTrend.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <p className="text-sm text-gray-600 w-20">{item.month}</p>
+                  <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
+                    <div
+                      className="bg-green-500 h-full rounded-full flex items-center justify-end pr-3"
+                      style={{
+                        width: `${Math.max((item.amount / Math.max(...data.donations.donationTrend.map(i => i.amount))) * 100, 5)}%`
+                      }}
+                    >
+                      <span className="text-xs font-semibold text-white">{formatCurrency(item.amount)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Top Donors */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Top Donors</h2>
+            <div className="space-y-3">
+              {data.donations.topDonors.map((donor, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <Award className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{donor.name}</p>
+                      <p className="text-sm text-gray-600">{donor.count} donations</p>
+                    </div>
+                  </div>
+                  <p className="text-lg font-bold text-green-600">{formatCurrency(donor.amount)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Program Interest */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Program Interest</h2>
+            <div className="space-y-3">
+              {data.programs.programInterest.map((program, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <p className="text-sm text-gray-700 w-40 truncate">{program.program}</p>
+                  <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
+                    <div
+                      className="bg-purple-500 h-full rounded-full flex items-center justify-end pr-3"
+                      style={{
+                        width: `${Math.max((program.count / Math.max(...data.programs.programInterest.map(p => p.count))) * 100, 10)}%`
+                      }}
+                    >
+                      <span className="text-xs font-semibold text-white">{program.count}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <Calendar className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-900">Meeting Engagement</h3>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Meetings:</span>
+                <span className="font-semibold">{data.engagement.totalMeetings}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total RSVPs:</span>
+                <span className="font-semibold">{data.engagement.totalRSVPs}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Attendance Rate:</span>
+                <span className="font-semibold text-green-600">{data.engagement.attendanceRate}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Avg RSVPs/User:</span>
+                <span className="font-semibold">{data.engagement.avgRSVPsPerUser.toFixed(1)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <BookOpen className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold text-gray-900">Content Performance</h3>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Published Posts:</span>
+                <span className="font-semibold">{data.content.totalBlogPosts}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Views:</span>
+                <span className="font-semibold">{data.content.totalBlogViews.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Avg Views/Post:</span>
+                <span className="font-semibold text-purple-600">{data.content.avgViewsPerPost}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <Heart className="w-5 h-5 text-red-600" />
+              <h3 className="font-semibold text-gray-900">Admission Inquiries</h3>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Inquiries:</span>
+                <span className="font-semibold">{data.admissions.totalInquiries}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Last 30 Days:</span>
+                <span className="font-semibold">{data.admissions.inquiriesLast30Days}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Response Rate:</span>
+                <span className="font-semibold text-green-600">{data.admissions.responseRate}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Donation Methods */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Donation Methods Breakdown</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {data.donations.donationMethods.map((method, idx) => (
+              <div key={idx} className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+                <p className="text-sm text-gray-600 mb-1">{method.method}</p>
+                <p className="text-2xl font-bold text-gray-900 mb-2">{formatCurrency(method.amount)}</p>
+                <p className="text-sm text-gray-600">{method.count} donations</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
   const handleExportCSV = () => {
     // Generate CSV export
