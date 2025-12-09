@@ -217,7 +217,6 @@ export default function BlogPostPage() {
     </div>
   );
 }
-    date: 'Jun 5, 2025',
     readTime: '5 min read',
     category: 'Ethics',
     content: `One of the most complex challenges in recovery communities is navigating dual relationships—those that involve both professional and personal dimensions. The bond between peers in recovery can be incredibly powerful, but it requires careful attention to ethical boundaries.
