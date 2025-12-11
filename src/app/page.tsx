@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ImpactMetrics from '@/components/shared/ImpactMetrics'
 
 const TESTIMONIALS = [
   {
@@ -75,6 +76,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Impact Metrics */}
+      <ImpactMetrics />
 
       <section className="py-20 bg-blue-50">
         <div className="max-w-7xl mx-auto px-4">

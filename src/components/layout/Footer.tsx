@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Heart } from 'lucide-react';
+import NewsletterSignup from '@/components/shared/NewsletterSignup';
 
 export default function Footer() {
   return (
@@ -126,21 +127,8 @@ export default function Footer() {
           </div>
 
           {/* Newsletter Section */}
-          <div className="bg-gradient-to-r from-indigo-900 to-blue-900 rounded-xl p-8 mb-12">
-            <div className="max-w-xl">
-              <h3 className="text-white text-2xl font-bold mb-2">Stay Updated</h3>
-              <p className="text-gray-300 mb-4">Get the latest recovery resources and community updates delivered to your inbox.</p>
-              <form className="flex gap-3" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                />
-                <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold">
-                  Subscribe
-                </button>
-              </form>
-            </div>
+          <div className="mt-12">
+            <NewsletterSignup />
           </div>
         </div>
       </div>

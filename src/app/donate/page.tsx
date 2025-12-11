@@ -2,9 +2,15 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Heart, Home, Coffee, Bed, Users } from 'lucide-react'
 
-const amounts = [1, 20, 50, 100, 250, 500]
+const impactLevels = [
+  { amount: 25, label: '$25', impact: 'Provides 10 meals', icon: Coffee, color: 'from-blue-500 to-blue-600' },
+  { amount: 50, label: '$50', impact: 'Supports 1 day of shelter', icon: Home, color: 'from-green-500 to-green-600' },
+  { amount: 100, label: '$100', impact: 'Covers 1 week of recovery support', icon: Heart, color: 'from-purple-500 to-purple-600' },
+  { amount: 250, label: '$250', impact: 'Provides 1 month of peer counseling', icon: Users, color: 'from-orange-500 to-orange-600' },
+  { amount: 500, label: '$500', impact: 'Sponsors 1 full recovery program bed', icon: Bed, color: 'from-red-500 to-red-600' },
+]
 
 export default function Donate() {
   const [selectedAmount, setSelectedAmount] = useState(50)
@@ -95,162 +101,228 @@ export default function Donate() {
       </section>
 
       <section className="py-20 bg-white">
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg shadow-lg p-10">
-            <h2 className="text-3xl font-bold mb-2 text-gray-900">Choose Your Impact</h2>
-            <p className="text-gray-600 mb-8">Your donation helps us provide housing, treatment, meals, and employment support.</p>
-
-            {!stripeConfigured && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-amber-800">
-                  <p className="font-semibold mb-1">Stripe Not Configured</p>
-                  <p>Donations are not yet enabled. Visit Admin Dashboard to set up Stripe.</p>
-                </div>
+        <div className="max-w-4xl mx-auto px-4">
+          {!stripeConfigured && (
+            <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6 flex gap-4">
+              <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="font-semibold text-yellow-900 mb-1">Demo Mode</h3>
+                <p className="text-sm text-yellow-800">
+                  Stripe is not configured. Add your keys to enable live donations.
+                </p>
               </div>
-            )}
+            </div>
+          )}
+
+          <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg shadow-xl p-10">
+            <h2 className="text-3xl font-bold mb-2 text-gray-900">Choose Your Impact</h2>
+            <p className="text-gray-600 mb-8">Every donation directly transforms lives in our community</p>
+
+            {/* Frequency Toggle */}
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Donation Frequency</label>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setFrequency('ONE_TIME')}
+                  className={`flex-1 py-3 px-6 rounded-lg font-semibold transition ${
+                    frequency === 'ONE_TIME'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-500'
+                  }`}
+                >
+                  One-Time
+                </button>
+                <button
+                  onClick={() => setFrequency('MONTHLY')}
+                  className={`flex-1 py-3 px-6 rounded-lg font-semibold transition relative ${
+                    frequency === 'MONTHLY'
+                      ? 'bg-green-600 text-white shadow-lg'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:border-green-500'
+                  }`}
+                >
+                  Monthly
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                    2x Impact
+                  </span>
+                </button>
+              </div>
+              {frequency === 'MONTHLY' && (
+                <p className="text-sm text-green-700 mt-2">
+                  💚 Monthly giving provides sustainable support and helps us plan long-term programs
+                </p>
+              )}
+            </div>
+
+            {/* Impact Amount Cards */}
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Select Impact Level</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {impactLevels.map(({ amount, label, impact, icon: Icon, color }) => (
+                  <button
+                    key={amount}
+                    onClick={() => {
+                      setSelectedAmount(amount)
+                      setCustomAmount('')
+                    }}
+                    className={`p-4 rounded-lg border-2 transition-all transform hover:scale-105 ${
+                      selectedAmount === amount && !customAmount
+                        ? 'border-blue-600 bg-blue-50 shadow-lg'
+                        : 'border-gray-300 bg-white hover:border-blue-400'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br ${color} flex items-center justify-center`}>
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900 mb-1">{label}</p>
+                    <p className="text-xs text-gray-600">{impact}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Amount */}
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Or Enter Custom Amount</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">$</span>
+                <input
+                  type="number"
+                  value={customAmount}
+                  onChange={(e) => {
+                    setCustomAmount(e.target.value)
+                    setSelectedAmount(0)
+                  }}
+                  placeholder="Enter amount"
+                  min="1"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                />
+              </div>
+            </div>
 
             {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                {error}
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 flex gap-2">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <p>{error}</p>
               </div>
             )}
 
-            <div className="space-y-6">
-              {/* Donation Amount Selection */}
-              <div>
-                <label className="block text-lg font-bold text-gray-900 mb-4">Select Amount</label>
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  {amounts.map((amount) => (
-                    <button
-                      key={amount}
-                      onClick={() => {
-                        setSelectedAmount(amount)
-                        setCustomAmount('')
-                      }}
-                      className={`py-3 px-4 rounded-lg font-bold text-center transition ${
-                        selectedAmount === amount && !customAmount
-                          ? 'bg-blue-600 text-white shadow-lg'
-                          : 'bg-white text-gray-900 border-2 border-gray-300 hover:border-blue-600'
-                      }`}
-                    >
-                      ${amount}
-                    </button>
-                  ))}
-                </div>
-                
-                <label className="block text-sm text-gray-600 mb-2">Or enter custom amount</label>
-                <div className="flex gap-2">
-                  <span className="inline-flex items-center px-3 bg-gray-200 rounded-l-lg text-gray-600">$</span>
+            {/* Donor Information */}
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-4">Your Information</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
                   <input
-                    type="number"
-                    value={customAmount}
-                    onChange={(e) => {
-                      setCustomAmount(e.target.value)
-                      setSelectedAmount(0)
-                    }}
-                    placeholder="Enter amount"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                    min="1"
-                    step="0.01"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Full Name"
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email Address"
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Frequency Selection */}
-              <div>
-                <label className="block text-lg font-bold text-gray-900 mb-4">Donation Type</label>
-                <div className="space-y-3">
-                  {[
-                    { value: 'ONE_TIME', label: 'One-Time Donation', desc: 'Give once and make an immediate impact' },
-                    { value: 'MONTHLY', label: 'Monthly Support', desc: 'Sustain our programs with recurring support' },
-                    { value: 'YEARLY', label: 'Annual Support', desc: 'Provide yearly impact for long-term stability' }
-                  ].map((option) => (
-                    <label key={option.value} className="flex items-center p-3 border-2 rounded-lg cursor-pointer transition hover:border-blue-600" style={{borderColor: frequency === option.value ? 'rgb(37, 99, 235)' : 'rgb(209, 213, 219)'}}>
-                      <input
-                        type="radio"
-                        name="frequency"
-                        value={option.value}
-                        checked={frequency === option.value}
-                        onChange={(e) => setFrequency(e.target.value)}
-                        className="w-4 h-4 text-blue-600"
-                      />
-                      <div className="ml-3">
-                        <p className="font-bold text-gray-900">{option.label}</p>
-                        <p className="text-sm text-gray-600">{option.desc}</p>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
+            </div>
 
-              {/* Contact Information */}
-              <div className="bg-white rounded-lg p-6">
-                <h3 className="font-bold text-gray-900 mb-4">Your Information</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                      placeholder="Your name"
-                    />
+            {/* Impact Preview */}
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mb-8 border-2 border-green-200">
+              <div className="text-center">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Your Total Impact</p>
+                <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 mb-3">
+                  ${(finalAmount || 0).toFixed(2)}
+                </p>
+                <p className="text-gray-700 leading-relaxed">
+                  {finalAmount < 25 && 'Will provide meals and basic necessities for someone in recovery'}
+                  {finalAmount >= 25 && finalAmount < 50 && 'Will fund 2 weeks of shelter and daily support services'}
+                  {finalAmount >= 50 && finalAmount < 100 && 'Will provide job training and housing assistance for one client'}
+                  {finalAmount >= 100 && finalAmount < 250 && 'Will fund a month of comprehensive recovery services including counseling'}
+                  {finalAmount >= 250 && 'Will provide ongoing support, housing, and treatment for multiple clients in need'}
+                </p>
+                {frequency === 'MONTHLY' && (
+                  <div className="mt-4 inline-block bg-green-100 px-4 py-2 rounded-full">
+                    <p className="text-sm font-semibold text-green-800">
+                      💚 Annual Impact: ${((finalAmount || 0) * 12).toFixed(2)}
+                    </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                      placeholder="your@email.com"
-                    />
-                  </div>
-                </div>
+                )}
               </div>
+            </div>
 
-              {/* Impact Statement */}
-              <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-lg p-6 text-center">
-                <p className="text-gray-900 font-bold mb-2">Your Impact</p>
-                <p className="text-3xl font-bold text-green-600">${(finalAmount || 0).toFixed(2)}</p>
-                <p className="text-gray-700 mt-2">provides {finalAmount < 25 ? 'meals for clients in recovery' : finalAmount < 100 ? '2 weeks of shelter and support' : finalAmount < 500 ? 'a month of comprehensive recovery services' : 'ongoing support for multiple clients'}</p>
-              </div>
+            {/* Donate Button */}
+            <button
+              onClick={handleDonate}
+              disabled={loading || !finalAmount || !name || !email}
+              className="w-full px-8 py-5 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-bold text-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Processing...
+                </span>
+              ) : (
+                `Complete Donation${finalAmount > 0 ? ` - $${finalAmount.toFixed(2)}` : ''}`
+              )}
+            </button>
 
-              {/* Donation Button */}
-              <button
-                onClick={handleDonate}
-                disabled={loading}
-                className="w-full px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg font-bold text-lg hover:shadow-lg transition disabled:opacity-50"
-              >
-                {loading ? 'Processing...' : `Donate ${finalAmount > 0 ? `$${finalAmount.toFixed(2)}` : 'Now'}`}
-              </button>
-
-              {/* Security Badge */}
-              <p className="text-center text-sm text-gray-600">
-                🔒 Powered by Stripe | Your donation is secure and tax-deductible
+            {/* Security & Tax Info */}
+            <div className="mt-6 flex flex-col items-center gap-2 text-center">
+              <p className="text-sm text-gray-600 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+                Secure payment powered by Stripe
+              </p>
+              <p className="text-xs text-gray-500">
+                A Vision For You Recovery is a 501(c)(3) nonprofit. Your donation is tax-deductible.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 bg-blue-50">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Every Dollar Matters</h2>
+      {/* Impact Stories Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-blue-50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-4 text-gray-900">Your Donations Change Lives</h2>
+          <p className="text-xl text-gray-600 mb-12">See the real impact of your generosity</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow">
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                <Coffee className="w-8 h-8 text-white" />
+              </div>
               <p className="text-4xl font-bold text-blue-600 mb-2">$25</p>
-              <p className="text-gray-700">Provides 10 nutritious meals for clients</p>
+              <p className="text-gray-700 font-semibold mb-2">Daily Essentials</p>
+              <p className="text-sm text-gray-600">Provides 10 nutritious meals and basic necessities</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow">
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                <Home className="w-8 h-8 text-white" />
+              </div>
               <p className="text-4xl font-bold text-green-600 mb-2">$100</p>
-              <p className="text-gray-700">Supports 1 week of intensive treatment services</p>
+              <p className="text-gray-700 font-semibold mb-2">Safe Housing</p>
+              <p className="text-sm text-gray-600">Funds 1 week of shelter and intensive support services</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <p className="text-4xl font-bold text-blue-600 mb-2">$500</p>
-              <p className="text-gray-700">Provides 1 month of housing and comprehensive support</p>
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                <Heart className="w-8 h-8 text-white" />
+              </div>
+              <p className="text-4xl font-bold text-purple-600 mb-2">$500</p>
+              <p className="text-gray-700 font-semibold mb-2">Full Recovery Program</p>
+              <p className="text-sm text-gray-600">Provides 1 month of comprehensive treatment and housing</p>
             </div>
           </div>
         </div>

@@ -382,3 +382,19 @@ model AdmissionInquiry {
   @@index([email])
   @@map("admission_inquiries")
 }
+
+// Newsletter Subscriber Model
+model NewsletterSubscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  subscribed    Boolean  @default(true)
+  subscribedAt  DateTime @default(now())
+  unsubscribedAt DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+  @@index([subscribed])
+  @@map("newsletter_subscribers")
+}
