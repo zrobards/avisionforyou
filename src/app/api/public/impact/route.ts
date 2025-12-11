@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/lib/db'
+import { db } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,9 +7,9 @@ export async function GET() {
   try {
     // Fetch impact metrics from database
     const [meetings, rsvps, donations] = await Promise.all([
-      prisma.meeting.count(),
-      prisma.rSVP.count(),
-      prisma.donation.aggregate({
+      db.meeting.count(),
+      db.rSVP.count(),
+      db.donation.aggregate({
         _sum: {
           amount: true
         }
@@ -17,7 +17,7 @@ export async function GET() {
     ])
 
     // Calculate lives impacted (rough estimate based on RSVPs and unique donors)
-    const uniqueDonors = await prisma.donation.groupBy({
+    const uniqueDonors = await db.donation.groupBy({
       by: ['userId'],
       _count: true
     })

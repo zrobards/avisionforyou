@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/db'
-import { sendEmail } from '@/lib/email'
+import { db } from '@/lib/db'
+import { Resend } from 'resend'
 
 export const dynamic = 'force-dynamic'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if already subscribed
-    const existing = await prisma.newsletterSubscriber.findUnique({
+    const existing = await db.newsletterSubscriber.findUnique({
       where: { email }
     })
 
@@ -28,14 +30,14 @@ export async function POST(req: NextRequest) {
         )
       } else {
         // Re-subscribe if previously unsubscribed
-        await prisma.newsletterSubscriber.update({
+        await db.newsletterSubscriber.update({
           where: { email },
           data: { subscribed: true, subscribedAt: new Date() }
         })
       }
     } else {
       // Create new subscriber
-      await prisma.newsletterSubscriber.create({
+      await db.newsletterSubscriber.create({
         data: {
           email,
           subscribed: true,
@@ -46,7 +48,8 @@ export async function POST(req: NextRequest) {
 
     // Send welcome email
     try {
-      await sendEmail({
+      await resend.emails.send({
+        from: 'A Vision For You <noreply@avisionforyou.org>',
         to: email,
         subject: 'Welcome to A Vision For You Recovery Newsletter',
         html: `
