@@ -20,7 +20,6 @@ export default function Donate() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [donated, setDonated] = useState(false)
 
   const stripeConfigured = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 
     !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.includes('placeholder')
@@ -56,9 +55,7 @@ export default function Donate() {
         return
       }
 
-      // Redirect to Stripe checkout
       if (data.url) {
-        // Track donation event in Google Analytics
         if (typeof window !== 'undefined' && (window as any).gtag) {
           (window as any).gtag('event', 'donation', {
             value: amount,
@@ -80,23 +77,11 @@ export default function Donate() {
 
   return (
     <div className="min-h-screen bg-white">
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-blue-600">Vision For You</Link>
-          <div className="hidden md:flex space-x-8">
-            <Link href="/programs" className="text-gray-700 hover:text-blue-600 font-medium">Programs</Link>
-            <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium">About</Link>
-            <Link href="/blog" className="text-gray-700 hover:text-blue-600 font-medium">Blog</Link>
-            <Link href="/donate" className="text-gray-700 hover:text-blue-600 font-medium">Donate</Link>
-            <Link href="/login" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign In</Link>
-          </div>
-        </div>
-      </nav>
-
-      <section className="bg-gradient-to-r from-blue-700 to-green-600 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Make a Donation</h1>
-          <p className="text-xl opacity-95">Your generosity directly supports lives transformed through recovery</p>
+      <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-20">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h1 className="text-5xl font-bold mb-4">Make an Impact Today</h1>
+          <p className="text-xl opacity-90 mb-6">Your donation directly transforms lives through recovery support, housing, and hope</p>
+          <p className="text-lg opacity-75">A Vision For You Recovery is a 501(c)(3) nonprofit - EIN: XX-XXXXXXX</p>
         </div>
       </section>
 
@@ -118,7 +103,6 @@ export default function Donate() {
             <h2 className="text-3xl font-bold mb-2 text-gray-900">Choose Your Impact</h2>
             <p className="text-gray-600 mb-8">Every donation directly transforms lives in our community</p>
 
-            {/* Frequency Toggle */}
             <div className="mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-3">Donation Frequency</label>
               <div className="flex gap-4">
@@ -153,7 +137,6 @@ export default function Donate() {
               )}
             </div>
 
-            {/* Impact Amount Cards */}
             <div className="mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-3">Select Impact Level</label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -180,7 +163,6 @@ export default function Donate() {
               </div>
             </div>
 
-            {/* Custom Amount */}
             <div className="mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-2">Or Enter Custom Amount</label>
               <div className="relative">
@@ -206,7 +188,6 @@ export default function Donate() {
               </div>
             )}
 
-            {/* Donor Information */}
             <div className="mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-4">Your Information</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -233,9 +214,6 @@ export default function Donate() {
               </div>
             </div>
 
-            </div>
-
-            {/* Impact Preview */}
             <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mb-8 border-2 border-green-200">
               <div className="text-center">
                 <p className="text-sm font-semibold text-gray-600 mb-2">Your Total Impact</p>
@@ -259,7 +237,6 @@ export default function Donate() {
               </div>
             </div>
 
-            {/* Donate Button */}
             <button
               onClick={handleDonate}
               disabled={loading || !finalAmount || !name || !email}
@@ -278,7 +255,6 @@ export default function Donate() {
               )}
             </button>
 
-            {/* Security & Tax Info */}
             <div className="mt-6 flex flex-col items-center gap-2 text-center">
               <p className="text-sm text-gray-600 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -294,7 +270,6 @@ export default function Donate() {
         </div>
       </section>
 
-      {/* Impact Stories Section */}
       <section className="py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4 text-gray-900">Your Donations Change Lives</h2>
@@ -331,12 +306,36 @@ export default function Donate() {
       <footer className="bg-gray-900 text-gray-300 py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div><h4 className="text-white font-bold mb-4">A Vision For You</h4><p className="text-sm">Supporting recovery and transformation for those facing homelessness, addiction, and mental health challenges.</p></div>
-            <div><h4 className="text-white font-bold mb-4">Links</h4><ul className="space-y-2 text-sm"><li><Link href="/programs" className="hover:text-white">Programs</Link></li><li><Link href="/about" className="hover:text-white">About</Link></li><li><Link href="/blog" className="hover:text-white">Blog</Link></li><li><Link href="/donate" className="hover:text-white">Donate</Link></li></ul></div>
-            <div><h4 className="text-white font-bold mb-4">Account</h4><ul className="space-y-2 text-sm"><li><Link href="/login" className="hover:text-white">Sign In</Link></li><li><Link href="/signup" className="hover:text-white">Create Account</Link></li></ul></div>
-            <div><h4 className="text-white font-bold mb-4">Contact</h4><p className="text-sm mb-2"><strong>1675 Story Ave, Louisville, KY 40206</strong></p><p className="text-sm mb-2"><a href="tel:+15027496344" className="hover:text-white">(502) 749-6344</a></p><p className="text-sm"><a href="mailto:info@avisionforyourecovery.org" className="hover:text-white">info@avisionforyourecovery.org</a></p></div>
+            <div>
+              <h4 className="text-white font-bold mb-4">A Vision For You</h4>
+              <p className="text-sm">Supporting recovery and transformation for those facing homelessness, addiction, and mental health challenges.</p>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-4">Links</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/programs" className="hover:text-white">Programs</Link></li>
+                <li><Link href="/about" className="hover:text-white">About</Link></li>
+                <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
+                <li><Link href="/donate" className="hover:text-white">Donate</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-4">Account</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/login" className="hover:text-white">Sign In</Link></li>
+                <li><Link href="/signup" className="hover:text-white">Create Account</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-4">Contact</h4>
+              <p className="text-sm mb-2"><strong>1675 Story Ave, Louisville, KY 40206</strong></p>
+              <p className="text-sm mb-2"><a href="tel:+15027496344" className="hover:text-white">(502) 749-6344</a></p>
+              <p className="text-sm"><a href="mailto:info@avisionforyourecovery.org" className="hover:text-white">info@avisionforyourecovery.org</a></p>
+            </div>
           </div>
-          <div className="border-t border-gray-700 pt-8 text-center text-sm"><p>&copy; 2025 A Vision For You Recovery. All rights reserved.</p></div>
+          <div className="border-t border-gray-700 pt-8 text-center text-sm">
+            <p>&copy; 2025 A Vision For You Recovery. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
