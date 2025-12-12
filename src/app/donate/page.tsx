@@ -77,7 +77,7 @@ export default function Donate() {
 
   return (
     <div className="min-h-screen bg-white">
-      <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-12 sm:py-20">
+      <section className="bg-gradient-to-r from-brand-purple to-brand-green text-white py-12 sm:py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Make an Impact Today</h1>
           <p className="text-lg sm:text-xl opacity-90 mb-4 sm:mb-6">Your donation directly transforms lives through recovery support, housing, and hope</p>
@@ -110,8 +110,8 @@ export default function Donate() {
                   onClick={() => setFrequency('ONE_TIME')}
                   className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition ${
                     frequency === 'ONE_TIME'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-500'
+                      ? 'bg-brand-purple text-white shadow-lg'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:border-brand-purple'
                   }`}
                 >
                   One-Time
@@ -120,8 +120,8 @@ export default function Donate() {
                   onClick={() => setFrequency('MONTHLY')}
                   className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition relative ${
                     frequency === 'MONTHLY'
-                      ? 'bg-green-600 text-white shadow-lg'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:border-green-500'
+                      ? 'bg-brand-green text-brand-purple shadow-lg'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:border-brand-green'
                   }`}
                 >
                   Monthly
@@ -131,7 +131,7 @@ export default function Donate() {
                 </button>
               </div>
               {frequency === 'MONTHLY' && (
-                <p className="text-xs sm:text-sm text-green-700 mt-2">
+                <p className="text-xs sm:text-sm text-brand-purple mt-2">
                   💚 Monthly giving provides sustainable support and helps us plan long-term programs
                 </p>
               )}
@@ -149,8 +149,8 @@ export default function Donate() {
                     }}
                     className={`p-3 sm:p-4 rounded-lg border-2 transition-all transform active:scale-95 sm:hover:scale-105 ${
                       selectedAmount === amount && !customAmount
-                        ? 'border-blue-600 bg-blue-50 shadow-lg'
-                        : 'border-gray-300 bg-white hover:border-blue-400'
+                        ? 'border-brand-purple bg-purple-50 shadow-lg'
+                        : 'border-gray-300 bg-white hover:border-brand-green'
                     }`}
                   >
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 rounded-full bg-gradient-to-br ${color} flex items-center justify-center`}>
@@ -176,7 +176,7 @@ export default function Donate() {
                   }}
                   placeholder="Enter amount"
                   min="1"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent text-lg"
                 />
               </div>
             </div>
@@ -198,7 +198,7 @@ export default function Donate() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Full Name"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -208,16 +208,16 @@ export default function Donate() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email Address"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mb-8 border-2 border-green-200">
+            <div className="bg-gradient-to-r from-purple-50 to-green-50 rounded-lg p-6 mb-8 border-2 border-brand-green">
               <div className="text-center">
                 <p className="text-sm font-semibold text-gray-600 mb-2">Your Total Impact</p>
-                <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 mb-3">
+                <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-green mb-3">
                   ${(finalAmount || 0).toFixed(2)}
                 </p>
                 <p className="text-gray-700 leading-relaxed">
@@ -228,8 +228,8 @@ export default function Donate() {
                   {finalAmount >= 250 && 'Will provide ongoing support, housing, and treatment for multiple clients in need'}
                 </p>
                 {frequency === 'MONTHLY' && (
-                  <div className="mt-4 inline-block bg-green-100 px-4 py-2 rounded-full">
-                    <p className="text-sm font-semibold text-green-800">
+                  <div className="mt-4 inline-block bg-brand-green/20 px-4 py-2 rounded-full">
+                    <p className="text-sm font-semibold text-brand-purple">
                       💚 Annual Impact: ${((finalAmount || 0) * 12).toFixed(2)}
                     </p>
                   </div>
@@ -240,7 +240,7 @@ export default function Donate() {
             <button
               onClick={handleDonate}
               disabled={loading || !finalAmount || !name || !email}
-              className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-bold text-lg sm:text-xl shadow-xl active:scale-95 sm:hover:shadow-2xl sm:hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-brand-purple to-brand-green text-white rounded-xl font-bold text-lg sm:text-xl shadow-xl active:scale-95 sm:hover:shadow-2xl sm:hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

@@ -32,15 +32,15 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-700 via-blue-600 to-green-600 text-white py-24">
+      <section className="bg-gradient-to-r from-brand-purple via-purple-700 to-brand-green text-white py-24">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-4">A Vision For You Recovery</h1>
           <p className="text-xl mb-2 font-semibold">501(c)(3) Charity</p>
           <p className="text-lg md:text-xl mb-8 opacity-95">"To empower the homeless, addicted, maladjusted, and mentally ill to lead productive lives through housing, education, self-help, treatment, or any other available resource"</p>
           <div className="flex justify-center gap-4 flex-wrap">
-            <Link href="/login?callbackUrl=/assessment" className="px-8 py-4 bg-white text-blue-600 rounded-lg font-bold hover:bg-gray-50 transition">Explore Programs</Link>
-            <Link href="/donate" className="px-8 py-4 bg-green-500 text-white rounded-lg font-bold hover:bg-green-600 transition">Make a Donation</Link>
-            <a href="tel:+15027496344" className="px-8 py-4 border-2 border-white text-white rounded-lg font-bold hover:bg-white/10 transition">Call (502) 749-6344</a>
+            <Link href="/login?callbackUrl=/assessment" className="px-8 py-4 bg-white text-brand-purple rounded-lg font-bold hover:bg-brand-green hover:text-white transition">Explore Programs</Link>
+            <Link href="/donate" className="px-8 py-4 bg-brand-green text-brand-purple rounded-lg font-bold hover:bg-green-400 transition">Make a Donation</Link>
+            <a href="tel:+15027496344" className="px-8 py-4 border-2 border-white text-white rounded-lg font-bold hover:bg-brand-green hover:border-brand-green transition">Call (502) 749-6344</a>
           </div>
         </div>
       </section>
@@ -57,7 +57,7 @@ export default function Home() {
             <li>✓ Primary Care Referral</li>
             <li>✓ Career Reentry & Aftercare</li>
           </ul>
-          <p className="text-lg font-semibold text-blue-600">Our approach? Provide clients with the recovery path that will best meet their individual needs.</p>
+          <p className="text-lg font-semibold text-brand-purple">Our approach? Provide clients with the recovery path that will best meet their individual needs.</p>
         </div>
       </section>
 

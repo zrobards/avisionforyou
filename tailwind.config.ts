@@ -9,9 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: '#0b5fbf',
-        recovery: '#10a37f',
+        primary: '#7f3d8b',
+        secondary: '#b6e41f',
+        recovery: '#b6e41f',
         cream: '#f5e6d3',
+        'brand-green': '#b6e41f',
+        'brand-purple': '#7f3d8b',
       },
     },
   },

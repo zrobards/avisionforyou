@@ -12,35 +12,35 @@ export default function Navbar() {
   const isAdmin = (session?.user as any)?.role === 'ADMIN' || (session?.user as any)?.role === 'STAFF'
 
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 border-b border-blue-700 backdrop-blur-sm shadow-lg">
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-brand-purple to-purple-900 border-b border-purple-700 backdrop-blur-sm shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white hover:text-blue-100 transition-colors">
-            <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
+          <Link href="/" className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white hover:text-brand-green transition-colors">
+            <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-brand-green" />
             <span className="hidden xs:inline">A Vision For You</span>
             <span className="inline xs:hidden">AVFY</span>
           </Link>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 text-white hover:text-blue-200 transition-colors">
+            <Link href="/" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <Home className="w-4 h-4" />
               Home
             </Link>
-            <Link href="/programs" className="flex items-center gap-2 text-white hover:text-blue-200 transition-colors">
+            <Link href="/programs" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <Calendar className="w-4 h-4" />
               Programs
             </Link>
-            <Link href="/meetings" className="flex items-center gap-2 text-white hover:text-blue-200 transition-colors">
+            <Link href="/meetings" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <Users className="w-4 h-4" />
               Meetings
             </Link>
-            <Link href="/blog" className="flex items-center gap-2 text-white hover:text-blue-200 transition-colors">
+            <Link href="/blog" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <BookOpen className="w-4 h-4" />
               Blog
             </Link>
-            <Link href="/donate" className="flex items-center gap-2 text-white hover:text-blue-200 transition-colors">
+            <Link href="/donate" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <DollarSign className="w-4 h-4" />
               Donate
             </Link>
@@ -54,7 +54,7 @@ export default function Navbar() {
               <>
                 <Link
                   href="/notifications"
-                  className="hidden sm:flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors"
+                  className="hidden sm:flex items-center gap-2 bg-purple-700 hover:bg-brand-green text-white p-2 rounded-lg transition-colors"
                   title="Your meeting notifications"
                 >
                   <Bell className="w-4 h-4" />
@@ -62,7 +62,7 @@ export default function Navbar() {
                 <div className="hidden sm:block relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    className="flex items-center gap-2 bg-purple-700 hover:bg-brand-green text-white px-4 py-2 rounded-lg transition-colors"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden md:inline">{session.user?.name || 'Account'}</span>
@@ -77,7 +77,7 @@ export default function Navbar() {
                       
                       <Link
                         href="/dashboard"
-                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-blue-50 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-purple-50 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-4 h-4" />
@@ -121,7 +121,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="hidden sm:block bg-white text-blue-900 px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                className="hidden sm:block bg-brand-green text-brand-purple px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-green-400 transition-colors"
               >
                 Sign In
               </Link>
@@ -130,7 +130,7 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="md:hidden flex items-center justify-center w-10 h-10 bg-blue-700 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              className="md:hidden flex items-center justify-center w-10 h-10 bg-purple-700 hover:bg-brand-green text-white rounded-lg transition-colors"
               aria-label="Toggle menu"
             >
               {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -140,12 +140,12 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="md:hidden absolute left-0 right-0 top-full bg-blue-900 border-t border-blue-700 shadow-xl">
+          <div className="md:hidden absolute left-0 right-0 top-full bg-brand-purple border-t border-purple-700 shadow-xl">
             <div className="px-4 py-4 space-y-2">
               {/* Navigation Links */}
               <Link
                 href="/"
-                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
                 onClick={() => setShowMobileMenu(false)}
               >
                 <Home className="w-5 h-5" />
