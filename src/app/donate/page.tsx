@@ -77,38 +77,38 @@ export default function Donate() {
 
   return (
     <div className="min-h-screen bg-white">
-      <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-20">
+      <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-12 sm:py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-4">Make an Impact Today</h1>
-          <p className="text-xl opacity-90 mb-6">Your donation directly transforms lives through recovery support, housing, and hope</p>
-          <p className="text-lg opacity-75">A Vision For You Recovery is a 501(c)(3) nonprofit - EIN: XX-XXXXXXX</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Make an Impact Today</h1>
+          <p className="text-lg sm:text-xl opacity-90 mb-4 sm:mb-6">Your donation directly transforms lives through recovery support, housing, and hope</p>
+          <p className="text-sm sm:text-lg opacity-75">A Vision For You Recovery is a 501(c)(3) nonprofit - EIN: XX-XXXXXXX</p>
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-8 sm:py-12 md:py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4">
           {!stripeConfigured && (
-            <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6 flex gap-4">
-              <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+            <div className="mb-6 sm:mb-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4 sm:p-6 flex gap-3 sm:gap-4">
+              <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-semibold text-yellow-900 mb-1">Demo Mode</h3>
-                <p className="text-sm text-yellow-800">
+                <h3 className="font-semibold text-yellow-900 mb-1 text-sm sm:text-base">Demo Mode</h3>
+                <p className="text-xs sm:text-sm text-yellow-800">
                   Stripe is not configured. Add your keys to enable live donations.
                 </p>
               </div>
             </div>
           )}
 
-          <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg shadow-xl p-10">
-            <h2 className="text-3xl font-bold mb-2 text-gray-900">Choose Your Impact</h2>
-            <p className="text-gray-600 mb-8">Every donation directly transforms lives in our community</p>
+          <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg shadow-xl p-6 sm:p-8 md:p-10">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900">Choose Your Impact</h2>
+            <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">Every donation directly transforms lives in our community</p>
 
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-3">Donation Frequency</label>
-              <div className="flex gap-4">
+              <div className="flex gap-3 sm:gap-4">
                 <button
                   onClick={() => setFrequency('ONE_TIME')}
-                  className={`flex-1 py-3 px-6 rounded-lg font-semibold transition ${
+                  className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition ${
                     frequency === 'ONE_TIME'
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-500'
@@ -118,28 +118,28 @@ export default function Donate() {
                 </button>
                 <button
                   onClick={() => setFrequency('MONTHLY')}
-                  className={`flex-1 py-3 px-6 rounded-lg font-semibold transition relative ${
+                  className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition relative ${
                     frequency === 'MONTHLY'
                       ? 'bg-green-600 text-white shadow-lg'
                       : 'bg-white text-gray-700 border border-gray-300 hover:border-green-500'
                   }`}
                 >
                   Monthly
-                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                  <span className="absolute -top-2 -right-1 sm:-right-2 bg-orange-500 text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
                     2x Impact
                   </span>
                 </button>
               </div>
               {frequency === 'MONTHLY' && (
-                <p className="text-sm text-green-700 mt-2">
+                <p className="text-xs sm:text-sm text-green-700 mt-2">
                   💚 Monthly giving provides sustainable support and helps us plan long-term programs
                 </p>
               )}
             </div>
 
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-3">Select Impact Level</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 {impactLevels.map(({ amount, label, impact, icon: Icon, color }) => (
                   <button
                     key={amount}
@@ -147,16 +147,16 @@ export default function Donate() {
                       setSelectedAmount(amount)
                       setCustomAmount('')
                     }}
-                    className={`p-4 rounded-lg border-2 transition-all transform hover:scale-105 ${
+                    className={`p-3 sm:p-4 rounded-lg border-2 transition-all transform active:scale-95 sm:hover:scale-105 ${
                       selectedAmount === amount && !customAmount
                         ? 'border-blue-600 bg-blue-50 shadow-lg'
                         : 'border-gray-300 bg-white hover:border-blue-400'
                     }`}
                   >
-                    <div className={`w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br ${color} flex items-center justify-center`}>
-                      <Icon className="w-6 h-6 text-white" />
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 rounded-full bg-gradient-to-br ${color} flex items-center justify-center`}>
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <p className="text-2xl font-bold text-gray-900 mb-1">{label}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{label}</p>
                     <p className="text-xs text-gray-600">{impact}</p>
                   </button>
                 ))}
@@ -240,7 +240,7 @@ export default function Donate() {
             <button
               onClick={handleDonate}
               disabled={loading || !finalAmount || !name || !email}
-              className="w-full px-8 py-5 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-bold text-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-bold text-lg sm:text-xl shadow-xl active:scale-95 sm:hover:shadow-2xl sm:hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

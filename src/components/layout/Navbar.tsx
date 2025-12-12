@@ -2,25 +2,27 @@
 
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { Heart, Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell } from 'lucide-react'
+import { Heart, Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navbar() {
   const { data: session, status } = useSession()
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
   const isAdmin = (session?.user as any)?.role === 'ADMIN' || (session?.user as any)?.role === 'STAFF'
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 border-b border-blue-700 backdrop-blur-sm shadow-lg">
-      <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-white hover:text-blue-100 transition-colors">
-            <Heart className="w-6 h-6 text-red-400" />
-            <span>A Vision For You</span>
+          <Link href="/" className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white hover:text-blue-100 transition-colors">
+            <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
+            <span className="hidden xs:inline">A Vision For You</span>
+            <span className="inline xs:hidden">AVFY</span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 text-white hover:text-blue-200 transition-colors">
               <Home className="w-4 h-4" />
@@ -44,20 +46,20 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* User Menu */}
-          <div className="flex items-center gap-4">
+          {/* User Menu & Mobile Menu Button */}
+          <div className="flex items-center gap-2 sm:gap-4">
             {status === 'loading' ? (
               <div className="animate-pulse bg-blue-700 rounded-full w-10 h-10"></div>
             ) : session ? (
               <>
                 <Link
                   href="/notifications"
-                  className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors"
+                  className="hidden sm:flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors"
                   title="Your meeting notifications"
                 >
                   <Bell className="w-4 h-4" />
                 </Link>
-                <div className="relative">
+                <div className="hidden sm:block relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
@@ -119,13 +121,129 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="bg-white text-blue-900 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                className="hidden sm:block bg-white text-blue-900 px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
               >
                 Sign In
               </Link>
             )}
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="md:hidden flex items-center justify-center w-10 h-10 bg-blue-700 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              aria-label="Toggle menu"
+            >
+              {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {showMobileMenu && (
+          <div className="md:hidden absolute left-0 right-0 top-full bg-blue-900 border-t border-blue-700 shadow-xl">
+            <div className="px-4 py-4 space-y-2">
+              {/* Navigation Links */}
+              <Link
+                href="/"
+                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <Home className="w-5 h-5" />
+                <span className="font-medium">Home</span>
+              </Link>
+              <Link
+                href="/programs"
+                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <Calendar className="w-5 h-5" />
+                <span className="font-medium">Programs</span>
+              </Link>
+              <Link
+                href="/meetings"
+                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <Users className="w-5 h-5" />
+                <span className="font-medium">Meetings</span>
+              </Link>
+              <Link
+                href="/blog"
+                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <BookOpen className="w-5 h-5" />
+                <span className="font-medium">Blog</span>
+              </Link>
+              <Link
+                href="/donate"
+                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <DollarSign className="w-5 h-5" />
+                <span className="font-medium">Donate</span>
+              </Link>
+
+              {/* User Section */}
+              {session ? (
+                <>
+                  <div className="border-t border-blue-700 my-2 pt-2">
+                    <div className="px-4 py-2">
+                      <p className="text-xs text-blue-300 uppercase font-semibold mb-1">Signed in as</p>
+                      <p className="text-white font-medium">{session.user?.name}</p>
+                      <p className="text-sm text-blue-300">{session.user?.email}</p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    <Settings className="w-5 h-5" />
+                    <span className="font-medium">My Dashboard</span>
+                  </Link>
+                  <Link
+                    href="/notifications"
+                    className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    <Bell className="w-5 h-5" />
+                    <span className="font-medium">My Meetings</span>
+                  </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      <Users className="w-5 h-5" />
+                      <span className="font-medium">Admin Panel</span>
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      setShowMobileMenu(false)
+                      signOut({ callbackUrl: '/' })
+                    }}
+                    className="flex items-center gap-3 w-full text-red-400 hover:bg-red-900/20 px-4 py-3 rounded-lg transition-colors"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span className="font-medium">Sign Out</span>
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center justify-center gap-2 bg-white text-blue-900 px-4 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors mt-2"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <User className="w-5 h-5" />
+                  <span>Sign In</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   )
