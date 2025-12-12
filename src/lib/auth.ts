@@ -15,7 +15,7 @@ export const authOptions: NextAuthOptions = {
         allowDangerousEmailAccountLinking: true
       })
     ] : []),
-    // Credentials provider - works in both dev and production for demo
+    // Credentials provider - proper password validation
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -27,21 +27,34 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email and password required')
         }
 
-        // For demo: accept any email/password and create/update user
         try {
-          const user = await db.user.upsert({
-            where: { email: credentials.email },
-            update: { name: credentials.email.split('@')[0] },
-            create: {
-              email: credentials.email,
-              name: credentials.email.split('@')[0],
-              role: credentials.email === process.env.ADMIN_EMAIL ? 'ADMIN' : 'USER'
-            }
+          const bcrypt = require('bcryptjs')
+          
+          // Find user in database
+          const user = await db.user.findUnique({
+            where: { email: credentials.email }
           })
-          return user
+
+          if (!user || !user.passwordHash) {
+            throw new Error('Invalid credentials')
+          }
+
+          // Verify password
+          const isValidPassword = await bcrypt.compare(credentials.password, user.passwordHash)
+          
+          if (!isValidPassword) {
+            throw new Error('Invalid credentials')
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          }
         } catch (error) {
           console.error('Auth error:', error)
-          throw new Error('Authentication failed')
+          return null
         }
       }
     })
