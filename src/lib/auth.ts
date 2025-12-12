@@ -1,6 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import NextAuth, { type NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
+import EmailProvider from "next-auth/providers/email"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 
@@ -13,6 +14,20 @@ export const authOptions: NextAuthOptions = {
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         allowDangerousEmailAccountLinking: true
+      })
+    ] : []),
+    // Email magic link - requires Resend API key
+    ...(process.env.RESEND_API_KEY ? [
+      EmailProvider({
+        server: {
+          host: 'smtp.resend.com',
+          port: 465,
+          auth: {
+            user: 'resend',
+            pass: process.env.RESEND_API_KEY,
+          },
+        },
+        from: process.env.EMAIL_FROM || 'noreply@avisionforyou.org',
       })
     ] : []),
     // Credentials provider - proper password validation
