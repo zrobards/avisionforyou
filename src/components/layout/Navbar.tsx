@@ -33,45 +33,47 @@ export default function Navbar() {
             
             {/* About Dropdown */}
             <div 
-              className="relative"
+              className="relative group"
               onMouseEnter={() => setShowAboutDropdown(true)}
               onMouseLeave={() => setShowAboutDropdown(false)}
             >
-              <button className="flex items-center gap-1 text-white hover:text-brand-green transition-colors">
+              <button className="flex items-center gap-1 text-white hover:text-brand-green transition-colors py-2">
                 About
                 <ChevronDown className="w-4 h-4" />
               </button>
               
               {showAboutDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                  <Link
-                    href="/about"
-                    className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
-                    onClick={() => setShowAboutDropdown(false)}
-                  >
-                    About Us
-                  </Link>
-                  <Link
-                    href="/team"
-                    className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
-                    onClick={() => setShowAboutDropdown(false)}
-                  >
-                    Our Team
-                  </Link>
-                  <Link
-                    href="/impact"
-                    className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
-                    onClick={() => setShowAboutDropdown(false)}
-                  >
-                    Our Impact
-                  </Link>
-                  <Link
-                    href="/social"
-                    className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
-                    onClick={() => setShowAboutDropdown(false)}
-                  >
-                    Social Media
-                  </Link>
+                <div className="absolute top-full left-0 pt-2 z-50">
+                  <div className="bg-white rounded-lg shadow-xl border border-gray-200 py-2 w-48">
+                    <Link
+                      href="/about"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      onClick={() => setShowAboutDropdown(false)}
+                    >
+                      About Us
+                    </Link>
+                    <Link
+                      href="/team"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      onClick={() => setShowAboutDropdown(false)}
+                    >
+                      Our Team
+                    </Link>
+                    <Link
+                      href="/impact"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      onClick={() => setShowAboutDropdown(false)}
+                    >
+                      Our Impact
+                    </Link>
+                    <Link
+                      href="/social"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      onClick={() => setShowAboutDropdown(false)}
+                    >
+                      Social Media
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
