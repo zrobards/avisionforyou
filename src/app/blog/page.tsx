@@ -41,28 +41,19 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
+      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between mb-8">
-            <Link href="/" className="text-2xl font-bold">A Vision For You</Link>
-            <nav className="hidden md:flex gap-8">
-              <Link href="/programs" className="hover:text-blue-200 transition">Programs</Link>
-              <Link href="/about" className="hover:text-blue-200 transition">About</Link>
-              <Link href="/team" className="hover:text-blue-200 transition">Team</Link>
-              <Link href="/donate" className="text-yellow-300 font-bold hover:text-yellow-200 transition">Donate</Link>
-            </nav>
-          </div>
           <h1 className="text-4xl font-bold">Recovery Stories & Resources</h1>
-          <p className="text-blue-100 mt-2">Insights, experiences, and guidance for your recovery journey</p>
+          <p className="text-purple-100 mt-2">Insights, experiences, and guidance for your recovery journey</p>
         </div>
       </header>
 
@@ -88,12 +79,12 @@ export default function BlogPage() {
                   )}
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-purple-100 text-brand-purple px-3 py-1 rounded-full text-sm font-medium">
                         {post.category}
                       </span>
                       <span className="text-gray-500 text-sm">{post.readTimeMinutes} min read</span>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition">
+                    <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand-purple transition">
                       {post.title}
                     </h2>
                     <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
