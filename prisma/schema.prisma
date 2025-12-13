@@ -398,3 +398,87 @@ model NewsletterSubscriber {
   @@index([subscribed])
   @@map("newsletter_subscribers")
 }
+
+// Contact Inquiry Model
+model ContactInquiry {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  department    String   // "general", "programs", "donate", "volunteer", "press", "careers"
+  subject       String
+  message       String   @db.Text
+  status        ContactStatus @default(NEW)
+  assignedTo    String?
+  notes         String?  @db.Text
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([department])
+  @@index([createdAt])
+  @@map("contact_inquiries")
+}
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  RESPONDED
+  RESOLVED
+  ARCHIVED
+}
+
+// Team Member Model (for leadership page)
+model TeamMember {
+  id            String   @id @default(cuid())
+  name          String
+  title         String
+  role          TeamRole @default(STAFF)
+  bio           String   @db.Text
+  credentials   String?  // e.g., "MBA, CPA", "MD, PhD"
+  email         String?
+  phone         String?
+  linkedin      String?
+  imageUrl      String?
+  order         Int?
+  isActive      Boolean  @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([role])
+  @@index([order])
+  @@index([isActive])
+  @@map("team_members")
+}
+
+enum TeamRole {
+  BOARD_PRESIDENT
+  BOARD_VP
+  BOARD_TREASURER
+  BOARD_SECRETARY
+  BOARD_MEMBER
+  EXECUTIVE_DIRECTOR
+  STAFF
+}
+
+// Program Outcome Model (for impact tracking)
+model ProgramOutcome {
+  id            String   @id @default(cuid())
+  programName   String   // "Surrender House", "MindBodySoul IOP", "Moving Mountains", "Overall"
+  metric        String   // "completion_rate", "retention_90day", "housing_stability", "employment"
+  value         Float    // The percentage or numeric value
+  unit          String   @default("percent") // "percent", "count", "dollars"
+  period        String   // "2024", "Q1 2024", "Last 12 months"
+  description   String?  @db.Text
+  isPublic      Boolean  @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([programName])
+  @@index([metric])
+  @@index([isPublic])
+  @@map("program_outcomes")
+}
