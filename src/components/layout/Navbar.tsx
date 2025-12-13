@@ -2,13 +2,15 @@
 
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { Heart, Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell, Menu, X } from 'lucide-react'
+import { Heart, Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell, Menu, X, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navbar() {
   const { data: session, status } = useSession()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [showAboutDropdown, setShowAboutDropdown] = useState(false)
+  const [showMobileAboutMenu, setShowMobileAboutMenu] = useState(false)
   const isAdmin = (session?.user as any)?.role === 'ADMIN' || (session?.user as any)?.role === 'STAFF'
 
   return (
@@ -28,18 +30,55 @@ export default function Navbar() {
               <Home className="w-4 h-4" />
               Home
             </Link>
-            <Link href="/about" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
-              About
-            </Link>
+            
+            {/* About Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setShowAboutDropdown(true)}
+              onMouseLeave={() => setShowAboutDropdown(false)}
+            >
+              <button className="flex items-center gap-1 text-white hover:text-brand-green transition-colors">
+                About
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              
+              {showAboutDropdown && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                  <Link
+                    href="/about"
+                    className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                    onClick={() => setShowAboutDropdown(false)}
+                  >
+                    About Us
+                  </Link>
+                  <Link
+                    href="/team"
+                    className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                    onClick={() => setShowAboutDropdown(false)}
+                  >
+                    Our Team
+                  </Link>
+                  <Link
+                    href="/impact"
+                    className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                    onClick={() => setShowAboutDropdown(false)}
+                  >
+                    Our Impact
+                  </Link>
+                  <Link
+                    href="/social"
+                    className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                    onClick={() => setShowAboutDropdown(false)}
+                  >
+                    Social Media
+                  </Link>
+                </div>
+              )}
+            </div>
+
             <Link href="/programs" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <Calendar className="w-4 h-4" />
               Programs
-            </Link>
-            <Link href="/team" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
-              Team
-            </Link>
-            <Link href="/impact" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
-              Impact
             </Link>
             <Link href="/meetings" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <Users className="w-4 h-4" />
@@ -163,13 +202,63 @@ export default function Navbar() {
                 <Home className="w-5 h-5" />
                 <span className="font-medium">Home</span>
               </Link>
-              <Link
-                href="/about"
-                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <span className="font-medium">About</span>
-              </Link>
+              
+              {/* About Dropdown for Mobile */}
+              <div>
+                <button
+                  onClick={() => setShowMobileAboutMenu(!showMobileAboutMenu)}
+                  className="flex items-center justify-between w-full text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
+                >
+                  <span className="font-medium">About</span>
+                  <ChevronDown className={`w-5 h-5 transition-transform ${showMobileAboutMenu ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {showMobileAboutMenu && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    <Link
+                      href="/about"
+                      className="flex items-center gap-3 text-purple-100 hover:bg-purple-800 px-4 py-2 rounded-lg transition-colors"
+                      onClick={() => {
+                        setShowMobileMenu(false)
+                        setShowMobileAboutMenu(false)
+                      }}
+                    >
+                      <span className="text-sm">About Us</span>
+                    </Link>
+                    <Link
+                      href="/team"
+                      className="flex items-center gap-3 text-purple-100 hover:bg-purple-800 px-4 py-2 rounded-lg transition-colors"
+                      onClick={() => {
+                        setShowMobileMenu(false)
+                        setShowMobileAboutMenu(false)
+                      }}
+                    >
+                      <span className="text-sm">Our Team</span>
+                    </Link>
+                    <Link
+                      href="/impact"
+                      className="flex items-center gap-3 text-purple-100 hover:bg-purple-800 px-4 py-2 rounded-lg transition-colors"
+                      onClick={() => {
+                        setShowMobileMenu(false)
+                        setShowMobileAboutMenu(false)
+                      }}
+                    >
+                      <span className="text-sm">Our Impact</span>
+                    </Link>
+                    <Link
+                      href="/social"
+                      className="flex items-center gap-3 text-purple-100 hover:bg-purple-800 px-4 py-2 rounded-lg transition-colors"
+                      onClick={() => {
+                        setShowMobileMenu(false)
+                        setShowMobileAboutMenu(false)
+                      }}
+                    >
+                      <span className="text-sm">Social Media</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               <Link
                 href="/programs"
                 className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
@@ -177,20 +266,6 @@ export default function Navbar() {
               >
                 <Calendar className="w-5 h-5" />
                 <span className="font-medium">Programs</span>
-              </Link>
-              <Link
-                href="/team"
-                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <span className="font-medium">Team</span>
-              </Link>
-              <Link
-                href="/impact"
-                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <span className="font-medium">Impact</span>
               </Link>
               <Link
                 href="/meetings"
