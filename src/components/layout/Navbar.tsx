@@ -28,9 +28,18 @@ export default function Navbar() {
               <Home className="w-4 h-4" />
               Home
             </Link>
+            <Link href="/about" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+              About
+            </Link>
             <Link href="/programs" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <Calendar className="w-4 h-4" />
               Programs
+            </Link>
+            <Link href="/team" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+              Team
+            </Link>
+            <Link href="/impact" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+              Impact
             </Link>
             <Link href="/meetings" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <Users className="w-4 h-4" />
@@ -39,6 +48,9 @@ export default function Navbar() {
             <Link href="/blog" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <BookOpen className="w-4 h-4" />
               Blog
+            </Link>
+            <Link href="/contact" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+              Contact
             </Link>
             <Link href="/donate" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <DollarSign className="w-4 h-4" />
@@ -152,16 +164,37 @@ export default function Navbar() {
                 <span className="font-medium">Home</span>
               </Link>
               <Link
+                href="/about"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <span className="font-medium">About</span>
+              </Link>
+              <Link
                 href="/programs"
-                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
                 onClick={() => setShowMobileMenu(false)}
               >
                 <Calendar className="w-5 h-5" />
                 <span className="font-medium">Programs</span>
               </Link>
               <Link
+                href="/team"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <span className="font-medium">Team</span>
+              </Link>
+              <Link
+                href="/impact"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <span className="font-medium">Impact</span>
+              </Link>
+              <Link
                 href="/meetings"
-                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
                 onClick={() => setShowMobileMenu(false)}
               >
                 <Users className="w-5 h-5" />
@@ -169,15 +202,22 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/blog"
-                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
                 onClick={() => setShowMobileMenu(false)}
               >
                 <BookOpen className="w-5 h-5" />
                 <span className="font-medium">Blog</span>
               </Link>
               <Link
+                href="/contact"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <span className="font-medium">Contact</span>
+              </Link>
+              <Link
                 href="/donate"
-                className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
                 onClick={() => setShowMobileMenu(false)}
               >
                 <DollarSign className="w-5 h-5" />
