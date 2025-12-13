@@ -99,7 +99,7 @@ export default function Donate() {
             </div>
           )}
 
-          <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg shadow-xl p-6 sm:p-8 md:p-10">
+          <div className="bg-gradient-to-br from-purple-50 to-green-50 rounded-lg shadow-xl p-6 sm:p-8 md:p-10">
             <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900">Choose Your Impact</h2>
             <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">Every donation directly transforms lives in our community</p>
 
@@ -270,16 +270,16 @@ export default function Donate() {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-b from-white to-blue-50">
+      <section className="py-20 bg-gradient-to-b from-white to-purple-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4 text-gray-900">Your Donations Change Lives</h2>
           <p className="text-xl text-gray-600 mb-12">See the real impact of your generosity</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full flex items-center justify-center">
                 <Coffee className="w-8 h-8 text-white" />
               </div>
-              <p className="text-4xl font-bold text-blue-600 mb-2">$25</p>
+              <p className="text-4xl font-bold text-brand-purple mb-2">$25</p>
               <p className="text-gray-700 font-semibold mb-2">Daily Essentials</p>
               <p className="text-sm text-gray-600">Provides 10 nutritious meals and basic necessities</p>
             </div>

@@ -67,10 +67,10 @@ export default function Home() {
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">As a 501(c)(3) Charity, we offer multiple programs to support your recovery journey.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {PROGRAMS.map((program, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-blue-600">
+              <div key={idx} className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-brand-purple">
                 <h3 className="text-2xl font-bold mb-3 text-gray-900">{program.title}</h3>
                 <p className="text-gray-600 mb-4">{program.description}</p>
-                <Link href="/login?callbackUrl=/assessment" className="text-blue-600 font-semibold hover:text-blue-700">Start Now →</Link>
+                <Link href="/login?callbackUrl=/assessment" className="text-brand-purple font-semibold hover:text-purple-700">Start Now →</Link>
               </div>
             ))}
           </div>
@@ -80,7 +80,7 @@ export default function Home() {
       {/* Impact Metrics */}
       <ImpactMetrics />
 
-      <section className="py-20 bg-blue-50">
+      <section className="py-20 bg-purple-50">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-16">Success Stories</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -96,18 +96,18 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            <div><div className="text-5xl font-bold mb-2">500+</div><p className="text-blue-100">Lives Transformed</p></div>
-            <div><div className="text-5xl font-bold mb-2">7</div><p className="text-blue-100">Recovery Residences</p></div>
-            <div><div className="text-5xl font-bold mb-2">6</div><p className="text-blue-100">Program Types</p></div>
-            <div><div className="text-5xl font-bold mb-2">100%</div><p className="text-blue-100">Tax-Deductible</p></div>
+            <div><div className="text-5xl font-bold mb-2">500+</div><p className="text-brand-green">Lives Transformed</p></div>
+            <div><div className="text-5xl font-bold mb-2">7</div><p className="text-brand-green">Recovery Residences</p></div>
+            <div><div className="text-5xl font-bold mb-2">6</div><p className="text-brand-green">Program Types</p></div>
+            <div><div className="text-5xl font-bold mb-2">100%</div><p className="text-brand-green">Tax-Deductible</p></div>
           </div>
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-purple-50 to-indigo-50 py-20">
+      <section className="bg-gradient-to-br from-purple-50 to-green-50 py-20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
@@ -131,16 +131,16 @@ export default function Home() {
                   <span>Safe, Moderated, & Private Community</span>
                 </li>
               </ul>
-              <Link href="/community" className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 inline-block">
+              <Link href="/community" className="px-8 py-3 bg-brand-purple text-white rounded-lg font-semibold hover:bg-purple-700 inline-block">
                 Explore Our Community
               </Link>
             </div>
-            <div className="bg-white rounded-lg shadow-xl p-8 border-l-4 border-indigo-600">
+            <div className="bg-white rounded-lg shadow-xl p-8 border-l-4 border-brand-purple">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Why Join?</h3>
               <div className="space-y-4">
                 <div className="flex gap-3">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 font-bold">1</div>
+                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-100 text-brand-purple font-bold">1</div>
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Real Connection</h4>
@@ -149,7 +149,7 @@ export default function Home() {
                 </div>
                 <div className="flex gap-3">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 font-bold">2</div>
+                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-100 text-brand-purple font-bold">2</div>
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">24/7 Support</h4>
@@ -158,7 +158,7 @@ export default function Home() {
                 </div>
                 <div className="flex gap-3">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 font-bold">3</div>
+                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-100 text-brand-purple font-bold">3</div>
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Safe Space</h4>

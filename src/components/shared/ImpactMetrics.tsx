@@ -152,7 +152,7 @@ export default function ImpactMetrics() {
           </p>
           <a
             href="/donate"
-            className="inline-block px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 text-white font-bold rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="inline-block px-8 py-4 bg-gradient-to-r from-brand-purple to-brand-green text-white font-bold rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
           >
             Join Our Mission
           </a>

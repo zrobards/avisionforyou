@@ -5,10 +5,10 @@ import Link from 'next/link';
 export default function Team() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
+      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
           <h1 className="text-4xl font-bold mb-2">Our Team</h1>
-          <p className="text-blue-100">Meet the people dedicated to your recovery journey</p>
+          <p className="text-brand-green">Meet the people dedicated to your recovery journey</p>
         </div>
       </header>
 
@@ -17,7 +17,7 @@ export default function Team() {
           <p className="text-xl text-gray-600 mb-8">Team page is under maintenance - coming back soon</p>
           <Link 
             href="/" 
-            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="inline-block px-6 py-3 bg-brand-purple text-white rounded-lg hover:bg-purple-700 transition"
           >
             Return Home
           </Link>

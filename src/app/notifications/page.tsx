@@ -52,7 +52,7 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-green-50 py-12 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse space-y-4">
             {[...Array(3)].map((_, i) => (
@@ -65,7 +65,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-green-50 py-12 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -102,7 +102,7 @@ export default function NotificationsPage() {
             </p>
             <Link
               href="/meetings"
-              className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+              className="inline-block bg-brand-purple text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
             >
               Browse Meetings
             </Link>
@@ -110,9 +110,9 @@ export default function NotificationsPage() {
         )}
 
         {/* Reminder Settings Info */}
-        <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="mt-12 bg-purple-50 border border-purple-200 rounded-lg p-6">
           <div className="flex items-start">
-            <Bell className="w-6 h-6 text-blue-600 mt-1 mr-4 flex-shrink-0" />
+            <Bell className="w-6 h-6 text-brand-purple mt-1 mr-4 flex-shrink-0" />
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">
                 Notification Preferences
@@ -122,11 +122,11 @@ export default function NotificationsPage() {
               </p>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-center">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full mr-2" />
+                  <span className="w-2 h-2 bg-brand-green rounded-full mr-2" />
                   24 hours before your RSVP'd meeting
                 </li>
                 <li className="flex items-center">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full mr-2" />
+                  <span className="w-2 h-2 bg-brand-green rounded-full mr-2" />
                   1 hour before the meeting starts
                 </li>
               </ul>
@@ -183,7 +183,7 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
           {isOnline ? (
             <>
               <div className="flex items-center text-gray-700">
-                <Clock className="w-5 h-5 mr-2 text-blue-600" />
+                <Clock className="w-5 h-5 mr-2 text-brand-purple" />
                 <span>Online Meeting</span>
               </div>
               {meeting.link && (
@@ -191,7 +191,7 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
                   href={meeting.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block text-blue-600 hover:text-blue-700 underline text-sm"
+                  className="inline-block text-brand-purple hover:text-purple-700 underline text-sm"
                 >
                   Join Meeting →
                 </a>
@@ -199,14 +199,14 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
             </>
           ) : (
             <div className="flex items-center text-gray-700">
-              <MapPin className="w-5 h-5 mr-2 text-blue-600" />
+              <MapPin className="w-5 h-5 mr-2 text-brand-purple" />
               <span>{meeting.location || 'Location TBD'}</span>
             </div>
           )}
         </div>
 
         <div className="flex gap-3 pt-4 border-t">
-          <button className="flex-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition font-medium flex items-center justify-center">
+          <button className="flex-1 px-4 py-2 bg-purple-50 text-brand-purple rounded-lg hover:bg-purple-100 transition font-medium flex items-center justify-center">
             <Bell className="w-4 h-4 mr-2" />
             Notifications On
           </button>

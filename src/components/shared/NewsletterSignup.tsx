@@ -49,14 +49,14 @@ export default function NewsletterSignup() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-8 text-white">
+    <div className="bg-gradient-to-r from-brand-purple to-brand-green rounded-lg p-8 text-white">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
           <Mail className="w-6 h-6" />
         </div>
         <div>
           <h3 className="text-xl font-bold">Stay Connected</h3>
-          <p className="text-blue-100 text-sm">Get recovery resources and community updates</p>
+          <p className="text-purple-100 text-sm">Get recovery resources and community updates</p>
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default function NewsletterSignup() {
           <button
             type="submit"
             disabled={status === 'loading' || status === 'success'}
-            className="px-6 py-3 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-white text-brand-purple font-bold rounded-lg hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === 'loading' ? 'Subscribing...' : status === 'success' ? '✓ Subscribed' : 'Subscribe'}
           </button>
@@ -86,7 +86,7 @@ export default function NewsletterSignup() {
         )}
       </form>
 
-      <p className="text-xs text-blue-100 mt-3">
+      <p className="text-xs text-purple-100 mt-3">
         We respect your privacy. Unsubscribe anytime.
       </p>
     </div>
