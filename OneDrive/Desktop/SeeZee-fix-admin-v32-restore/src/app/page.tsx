@@ -26,88 +26,486 @@ export default function HomePage() {
     <div className="w-full">
       <StickyCTA />
       
-      {/* Hero Section */}
-      <section className="bg-[#0a1128] py-20 lg:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a1128] via-[#0a1128] to-[#1a1a40] opacity-90"></div>
-        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-5"></div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left side - Content */}
-            <div>
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold mb-6 text-white leading-tight"
-                style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
-              >
-                Hi, I'm Sean. This is Zach.{' '}
-                <span className="text-[#ef4444]">We build technology that doesn't overwhelm you.</span>
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="text-xl md:text-2xl text-gray-300 mb-10 leading-relaxed"
-              >
-                Most organizations come to us because their tech feels too complicated, broken, or impossible to manage. We fix that — and stick around to make sure it keeps working as you grow.
-              </motion.p>
-              <motion.p
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="text-lg text-gray-300 mb-10 leading-relaxed"
-              >
-                We specialize in websites and systems for nonprofits, mental health organizations, and community groups who need technology to feel simple, trustworthy, and human.
-              </motion.p>
+      {/* Hero Section - Centered & Bold */}
+      <section className="bg-[#0a0a0a] py-32 lg:py-40 relative overflow-hidden min-h-[90vh] flex items-center">
+        {/* Animated Background Gradient */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#0a1128] to-[#1a1a40]"
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 100%'],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            repeatType: 'reverse',
+          }}
+          style={{ backgroundSize: '200% 200%' }}
+        />
+        
+        {/* Subtle Grid Pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-[0.03]"></div>
+        
+        {/* Floating Elements */}
+        {/* Big Red Bus Logo - Top Right */}
+        <motion.div
+          className="absolute top-20 right-[10%] hidden lg:block opacity-25"
+          animate={{
+            y: [0, -20, 0],
+            rotate: [0, 5, 0],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <Image
+            src="/logos/Stylized Red Bus Logo with Integrated Text.png"
+            alt=""
+            width={300}
+            height={200}
+            className="select-none"
+            style={{ imageRendering: 'crisp-edges' }}
+          />
+        </motion.div>
+
+        {/* AVFY Purple Circle - Bottom Left */}
+        <motion.div
+          className="absolute bottom-32 left-[8%] w-64 h-64 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl hidden lg:block"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+
+        {/* Red Glow - Top Left */}
+        <motion.div
+          className="absolute top-20 left-[5%] w-96 h-96 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-full blur-3xl hidden lg:block"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+        />
+
+        {/* Floating UI Screenshot - Left */}
+        <motion.div
+          className="absolute left-[5%] top-1/2 -translate-y-1/2 opacity-20 hidden xl:block"
+          animate={{
+            y: [-20, 20, -20],
+            rotate: [-2, 2, -2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div className="w-64 h-48 bg-gray-800/70 rounded-lg border border-white/30 p-4">
+            <div className="w-full h-3 bg-white/50 rounded mb-2"></div>
+            <div className="w-3/4 h-3 bg-white/50 rounded mb-4"></div>
+            <div className="w-full h-20 bg-white/30 rounded"></div>
+          </div>
+        </motion.div>
+
+        {/* Floating Code Snippet - Right */}
+        <motion.div
+          className="absolute right-[5%] top-1/3 opacity-25 hidden xl:block"
+          animate={{
+            y: [20, -20, 20],
+            rotate: [2, -2, 2],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        >
+          <div className="w-72 h-40 bg-gray-900/70 rounded-lg border border-cyan-500/40 p-4 font-mono text-xs text-cyan-300">
+            <div className="mb-1">{'<section className="...">'}</div>
+            <div className="ml-4 mb-1">{'<h1>Build Tech</h1>'}</div>
+            <div className="ml-4 mb-1">{'<p>That Works</p>'}</div>
+            <div className="mb-1">{'</section>'}</div>
+          </div>
+        </motion.div>
+
+        {/* Floating Math Formulas & Code Symbols */}
+        {/* Math Formula 1 - Top Center */}
+        <motion.div
+          className="absolute top-32 left-[20%] opacity-15 hidden lg:block font-serif text-white/40 text-2xl"
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          ∫ f(x)dx = F(x) + C
+        </motion.div>
+
+        {/* Math Formula 2 - Right Side */}
+        <motion.div
+          className="absolute top-[45%] right-[15%] opacity-12 hidden lg:block font-serif text-purple-300/30 text-xl"
+          animate={{
+            x: [0, 20, 0],
+            y: [0, -15, 0],
+            opacity: [0.12, 0.2, 0.12],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 3,
+          }}
+        >
+          lim<sub>x→∞</sub> (1 + 1/x)<sup>x</sup> = e
+        </motion.div>
+
+        {/* Math Formula 3 - Bottom Right */}
+        <motion.div
+          className="absolute bottom-[25%] right-[8%] opacity-10 hidden xl:block font-serif text-cyan-300/40 text-lg"
+          animate={{
+            y: [0, 25, 0],
+            rotate: [0, 3, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 5,
+          }}
+        >
+          ∇²φ = ∂²φ/∂x² + ∂²φ/∂y²
+        </motion.div>
+
+        {/* Math Formula 4 - Left Side */}
+        <motion.div
+          className="absolute top-[60%] left-[12%] opacity-12 hidden lg:block font-serif text-red-300/30 text-xl"
+          animate={{
+            x: [-10, 10, -10],
+            y: [0, -20, 0],
+          }}
+          transition={{
+            duration: 16,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+        >
+          E = mc² = γm₀c²
+        </motion.div>
+
+        {/* Code Symbol 1 - Top Left */}
+        <motion.div
+          className="absolute top-[35%] left-[8%] opacity-15 hidden xl:block font-mono text-green-300/40 text-sm"
+          animate={{
+            y: [0, -25, 0],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 14,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 4,
+          }}
+        >
+          const build = (idea) =&gt; reality;
+        </motion.div>
+
+        {/* Math Symbol 5 - Bottom Left */}
+        <motion.div
+          className="absolute bottom-[35%] left-[18%] opacity-10 hidden lg:block font-serif text-orange-300/30 text-3xl"
+          animate={{
+            rotate: [0, 360],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        >
+          Σ
+        </motion.div>
+
+        {/* Math Formula 6 - Center Right */}
+        <motion.div
+          className="absolute top-[25%] right-[25%] opacity-12 hidden xl:block font-serif text-blue-300/35 text-lg"
+          animate={{
+            y: [0, 20, 0],
+            x: [0, -15, 0],
+          }}
+          transition={{
+            duration: 17,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 6,
+          }}
+        >
+          ∂u/∂t = α∇²u
+        </motion.div>
+
+        {/* Code Symbol 2 - Middle Right */}
+        <motion.div
+          className="absolute top-[55%] right-[20%] opacity-15 hidden lg:block font-mono text-pink-300/40 text-xs"
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.15, 0.3, 0.15],
+          }}
+          transition={{
+            duration: 19,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 7,
+          }}
+        >
+          {'{ accessible: true, beautiful: true }'}
+        </motion.div>
+
+        {/* Math Symbol 7 - Top Right Corner */}
+        <motion.div
+          className="absolute top-[15%] right-[30%] opacity-10 hidden lg:block font-serif text-yellow-300/30 text-2xl"
+          animate={{
+            rotate: [0, -10, 0],
+            y: [0, 15, 0],
+          }}
+          transition={{
+            duration: 13,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        >
+          π ≈ 3.14159
+        </motion.div>
+
+        {/* Math Formula 8 - Lower Left */}
+        <motion.div
+          className="absolute bottom-[45%] left-[25%] opacity-12 hidden xl:block font-serif text-indigo-300/35 text-base"
+          animate={{
+            x: [0, 15, 0],
+            opacity: [0.12, 0.22, 0.12],
+          }}
+          transition={{
+            duration: 21,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 8,
+          }}
+        >
+          √(a² + b²) = c
+        </motion.div>
+
+        {/* Code Symbol 3 - Bottom Center */}
+        <motion.div
+          className="absolute bottom-[30%] left-[40%] opacity-10 hidden lg:block font-mono text-teal-300/40 text-sm"
+          animate={{
+            y: [0, -20, 0],
+            scale: [1, 1.05, 1],
+          }}
+          transition={{
+            duration: 16,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 9,
+          }}
+        >
+          npm install empathy
+        </motion.div>
+
+        {/* Math Symbol 9 - Far Right */}
+        <motion.div
+          className="absolute top-[70%] right-[10%] opacity-15 hidden xl:block font-serif text-purple-300/40 text-4xl"
+          animate={{
+            rotate: [0, 5, 0],
+            y: [0, -10, 0],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 10,
+          }}
+        >
+          ∞
+        </motion.div>
+
+        {/* Main Content - Centered */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl">
+          <div className="text-center">
+            
+            {/* Location Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-cyan-500/10 border border-cyan-500/20 rounded-full backdrop-blur-sm"
+            >
+              <FiMapPin className="w-4 h-4 text-cyan-400" />
+              <span className="text-cyan-400 font-mono text-sm tracking-wide">Louisville, Kentucky</span>
+            </motion.div>
+
+            {/* Main Headline - Bold & Dramatic */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading font-black mb-8 leading-[1.1]"
+              style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
+            >
+              <span className="text-white">Technology That </span>
+              <span className="text-white block mt-2">Actually Works.</span>
+              <span className="text-white block mt-4">For Organizations</span>
+              <span className="block mt-2">
+                <span className="text-white">That Actually </span>
+                <motion.span 
+                  className="text-[#ef4444] inline-block"
+                  animate={{
+                    textShadow: [
+                      '0 0 20px rgba(239, 68, 68, 0.3)',
+                      '0 0 40px rgba(239, 68, 68, 0.5)',
+                      '0 0 20px rgba(239, 68, 68, 0.3)',
+                    ]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  Matter
+                </motion.span>
+                <span className="text-white">.</span>
+              </span>
+            </motion.h1>
+
+            {/* Subheadline */}
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light"
+            >
+              Sean & Zach build accessible platforms for mental health organizations, 
+              recovery centers, and nonprofits that need technology to feel{' '}
+              <span className="text-white font-semibold">simple, trustworthy, and human</span>.
+            </motion.p>
+
+            {/* CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+            >
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="flex flex-col sm:flex-row gap-4 mb-6"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href="/case-studies/big-red-bus"
-                  className="px-8 py-4 bg-[#ef4444] text-white rounded-lg hover:bg-[#dc2626] transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-[#ef4444]/50 transform hover:scale-105"
+                  href="/start"
+                  className="inline-flex items-center gap-2 px-10 py-5 bg-[#ef4444] text-white rounded-lg font-bold text-lg shadow-2xl hover:shadow-[#ef4444]/50 transition-all duration-300 group relative overflow-hidden"
                 >
-                  View Our Work
-                  <FiArrowRight className="inline-block ml-2 w-5 h-5" />
-                </Link>
-                <Link
-                  href="/philosophy"
-                  className="px-8 py-4 border-2 border-white/20 text-gray-300 rounded-lg hover:border-[#ef4444] hover:text-white transition-all duration-300 font-semibold text-lg hover:shadow-lg"
-                >
-                  Our Philosophy
+                  <span className="relative z-10">Start Your Project</span>
+                  <FiArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-[#ef4444] to-[#dc2626]"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.3 }}
+                  />
                 </Link>
               </motion.div>
-            </div>
-            
-            {/* Right side - Big Red Bus Logo */}
-            <div className="flex items-center justify-center">
+              
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="relative"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <div className="bg-gray-900/50 backdrop-blur rounded-2xl p-8 border border-gray-800">
-                  <ImageLightbox
-                    src="/logos/Stylized Red Bus Logo with Integrated Text.png"
-                    alt="Big Red Bus - Mental Health Community Platform"
-                    width={600}
-                    height={400}
-                    className="w-full h-auto"
-                    priority
-                    caption="Big Red Bus — Mental Health Community Platform"
+                <Link
+                  href="/projects"
+                  className="inline-flex items-center gap-2 px-10 py-5 border-2 border-white/20 text-white rounded-lg hover:border-white hover:bg-white/5 transition-all duration-300 font-semibold text-lg backdrop-blur-sm"
+                >
+                  See Our Work
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Proof Points - Trust Badges */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="flex flex-wrap gap-4 justify-center max-w-3xl mx-auto"
+            >
+              {[
+                { icon: <FiCheck className="w-4 h-4" />, text: 'FBLA Competitors' },
+                { icon: <FiEye className="w-4 h-4" />, text: 'Accessibility-First' },
+                { icon: <FiUsers className="w-4 h-4" />, text: '2 Active Projects' },
+                { icon: <FiHeart className="w-4 h-4" />, text: 'Nonprofit Specialists' },
+              ].map((badge, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.9 + index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full backdrop-blur-sm hover:border-white/30 transition-all duration-300"
+                >
+                  <span className="text-cyan-400">{badge.icon}</span>
+                  <span className="text-gray-300 text-sm font-medium">{badge.text}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1.5 }}
+              className="mt-20"
+            >
+              <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="inline-flex flex-col items-center gap-2 text-gray-500"
+              >
+                <span className="text-xs uppercase tracking-wider font-mono">Scroll to explore</span>
+                <div className="w-6 h-10 border-2 border-gray-700 rounded-full p-1">
+                  <motion.div
+                    animate={{ y: [0, 12, 0] }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="w-1.5 h-3 bg-cyan-500 rounded-full mx-auto"
                   />
-                  <p className="text-center text-gray-400 text-sm mt-4">
-                    Big Red Bus — Mental Health Community Platform
-                  </p>
                 </div>
               </motion.div>
-            </div>
+            </motion.div>
+
           </div>
         </div>
+
+        {/* Bottom Gradient Fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#1a2332] to-transparent"></div>
       </section>
 
       {/* Built by Sean & Zach Section */}
@@ -160,9 +558,9 @@ export default function HomePage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {[
-                { icon: '📊', title: '10+ Projects', subtitle: 'Delivered on time' },
+                { icon: '🚀', title: '2 Active Projects', subtitle: 'Serving 500+ people annually' },
                 { icon: '⚡', title: '<24 Hour', subtitle: 'Average response time' },
-                { icon: '🎓', title: 'FBLA Certified', subtitle: 'Real competition experience' }
+                { icon: '✅', title: 'Open For Business', subtitle: 'Accepting new clients now' }
               ].map((stat, index) => (
                 <motion.div
                   key={index}

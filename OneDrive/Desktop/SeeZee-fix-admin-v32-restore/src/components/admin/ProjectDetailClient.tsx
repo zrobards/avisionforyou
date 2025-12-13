@@ -20,24 +20,24 @@ interface ProjectDetailClientProps {
 }
 
 const statusColors: Record<string, string> = {
-  PLANNING: "bg-slate-500/20 text-slate-400 border-slate-500/30",
-  LEAD: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  PAID: "bg-green-500/20 text-green-400 border-green-500/30",
-  ACTIVE: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  IN_PROGRESS: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  REVIEW: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  COMPLETED: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  CANCELLED: "bg-red-500/20 text-red-400 border-red-500/30",
+  LEAD: "bg-blue-500/20 border-blue-500/30",
+  QUOTED: "bg-purple-500/20 border-purple-500/30",
+  DEPOSIT_PAID: "bg-green-500/20 border-green-500/30",
+  ACTIVE: "bg-teal-500/20 border-teal-500/30",
+  REVIEW: "bg-orange-500/20 border-orange-500/30",
+  COMPLETED: "bg-emerald-500/20 border-emerald-500/30",
+  MAINTENANCE: "bg-cyan-500/20 border-cyan-500/30",
+  CANCELLED: "bg-red-500/20 border-red-500/30",
 };
 
 const statusOptions = [
-  { value: "PLANNING", label: "Planning" },
   { value: "LEAD", label: "Lead" },
-  { value: "PAID", label: "Paid" },
+  { value: "QUOTED", label: "Quoted" },
+  { value: "DEPOSIT_PAID", label: "Deposit Paid" },
   { value: "ACTIVE", label: "Active" },
-  { value: "IN_PROGRESS", label: "In Progress" },
   { value: "REVIEW", label: "Review" },
   { value: "COMPLETED", label: "Completed" },
+  { value: "MAINTENANCE", label: "Maintenance" },
   { value: "CANCELLED", label: "Cancelled" },
 ];
 
@@ -477,10 +477,21 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
               bg-slate-900 cursor-pointer
               ${statusColors[status] || statusColors.LEAD}
               ${updating ? "opacity-50 cursor-wait" : ""}
+              text-white
             `}
+            style={{
+              color: 'white',
+            }}
           >
             {statusOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
+              <option 
+                key={opt.value} 
+                value={opt.value}
+                style={{
+                  backgroundColor: '#1e293b',
+                  color: 'white',
+                }}
+              >
                 {opt.label}
               </option>
             ))}

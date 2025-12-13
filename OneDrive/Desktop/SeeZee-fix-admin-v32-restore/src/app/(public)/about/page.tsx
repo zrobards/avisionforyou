@@ -119,7 +119,7 @@ export default function AboutPage() {
                   SeeZee was born at <span className="text-white font-semibold">Trinity High School</span>, where Sean and Zach first discovered their passion for building technology that serves others.
                 </p>
                 <p>
-                  Through our involvement with <span className="text-white font-semibold">FBLA (Future Business Leaders of America)</span>, <span className="text-white font-semibold">National Honor Society</span>, and <span className="text-white font-semibold">Beta Club</span>, we learned that business and service go hand in hand. These organizations taught us the importance of leadership, community engagement, and using our skills to make a real difference.
+                  Through our involvement with <span className="text-white font-semibold">FBLA (Future Business Leaders of America)</span>, we learned that business and service go hand in hand. This organization taught us the importance of leadership, community engagement, and using our skills to make a real difference.
                 </p>
                 <p>
                   Our early projects — websites built for FBLA competitions, community service initiatives, and local nonprofits — showed us that there was a gap in the market. Organizations that needed help the most were being overlooked by traditional agencies.
@@ -128,7 +128,7 @@ export default function AboutPage() {
                   That's when SeeZee became more than a school project — it became our mission.
                 </p>
                 <p>
-                  Today, we continue to partner with FBLA chapters, Beta Club programs, and National Honor Society initiatives, offering students real-world experience by working on projects for nonprofits and community organizations. This creates a cycle of impact: students learn valuable skills, communities get the support they need, and organizations receive professional websites at affordable rates.
+                  Today, we continue to partner with FBLA chapters, offering students real-world experience by working on projects for nonprofits and community organizations. This creates a cycle of impact: students learn valuable skills, communities get the support they need, and organizations receive professional websites at affordable rates.
                 </p>
               </div>
             </ScrollAnimation>
@@ -158,30 +158,6 @@ export default function AboutPage() {
                     width={180}
                     height={100}
                     className="h-20 w-auto object-contain"
-                  />
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center justify-center bg-white rounded-xl p-4 shadow-lg"
-                >
-                  <Image
-                    src="/logos/nhs-logo.png"
-                    alt="National Honor Society"
-                    width={100}
-                    height={120}
-                    className="h-24 w-auto object-contain"
-                  />
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center justify-center bg-white rounded-xl p-4 shadow-lg"
-                >
-                  <Image
-                    src="/logos/beta-club-logo.png"
-                    alt="Beta Club"
-                    width={100}
-                    height={120}
-                    className="h-24 w-auto object-contain"
                   />
                 </motion.div>
               </div>

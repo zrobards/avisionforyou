@@ -28,12 +28,12 @@ interface LeadsTableClientProps {
 }
 
 const statusColors: Record<string, string> = {
-  NEW: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  CONTACTED: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  QUALIFIED: "bg-green-500/20 text-green-400 border-green-500/30",
-  PROPOSAL_SENT: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  CONVERTED: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  LOST: "bg-red-500/20 text-red-400 border-red-500/30",
+  NEW: "bg-blue-500/20 border-blue-500/30",
+  CONTACTED: "bg-yellow-500/20 border-yellow-500/30",
+  QUALIFIED: "bg-green-500/20 border-green-500/30",
+  PROPOSAL_SENT: "bg-purple-500/20 border-purple-500/30",
+  CONVERTED: "bg-emerald-500/20 border-emerald-500/30",
+  LOST: "bg-red-500/20 border-red-500/30",
 };
 
 const statusOptions = [
@@ -308,10 +308,21 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
             bg-transparent cursor-pointer
             ${statusColors[lead.status] || statusColors.NEW}
             ${updating === lead.id ? "opacity-50 cursor-wait" : ""}
+            text-white
           `}
+          style={{
+            color: 'white',
+          }}
         >
           {statusOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <option 
+              key={opt.value} 
+              value={opt.value}
+              style={{
+                backgroundColor: '#1e293b',
+                color: 'white',
+              }}
+            >
               {opt.label}
             </option>
           ))}

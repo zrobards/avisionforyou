@@ -31,6 +31,7 @@ interface FormData {
   // Project Details
   selectedTier: string;
   pricing: string;
+  budget: string; // For non-nonprofit services
   pricingComfort: string; // 'yes' | 'discuss-discount' | 'custom-quote'
   goals: string;
   importantFeatures: string[];
@@ -140,6 +141,7 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
     bestTimeToCall: '',
     selectedTier: selectedTierName,
     pricing: pricingDisplay,
+    budget: '',
     pricingComfort: '',
     goals: '',
     importantFeatures: [],
@@ -269,6 +271,7 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
       } else {
         // Standard form fields
         submissionData.company = formData.organizationName || '';
+        submissionData.budget = formData.budget;
       }
 
       // Submit lead data
@@ -654,7 +657,7 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
               <select
                 id="budget"
                 name="budget"
-                value={formData.pricing}
+                value={formData.budget}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trinity-red focus:border-transparent"
               >

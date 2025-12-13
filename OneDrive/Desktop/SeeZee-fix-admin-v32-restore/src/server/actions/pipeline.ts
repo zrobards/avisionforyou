@@ -480,40 +480,74 @@ export async function getInvoices() {
 
 /**
  * Delete a lead (CEO only)
+ * Handles both actual Leads and ProjectRequests that are displayed as leads
  */
 export async function deleteLead(leadId: string) {
   const user = await requireRole([ROLE.CEO]);
 
   try {
+    // First, try to find it as a Lead
     const lead = await db.lead.findUnique({
       where: { id: leadId },
     });
 
-    if (!lead) {
-      return { success: false, error: "Lead not found" };
+    if (lead) {
+      await db.lead.delete({
+        where: { id: leadId },
+      });
+
+      // Create activity log
+      await createActivity({
+        type: "LEAD_UPDATED",
+        title: `Lead deleted`,
+        description: `${lead.name} (${lead.email})`,
+        userId: user.id,
+        entityType: "Lead",
+        entityId: leadId,
+        metadata: {
+          action: "DELETE",
+          leadName: lead.name,
+        },
+      });
+
+      revalidatePath("/admin/pipeline/leads");
+      revalidatePath("/admin/pipeline");
+      
+      return { success: true };
     }
 
-    await db.lead.delete({
+    // Not found as Lead, check if it's a ProjectRequest
+    const projectRequest = await db.projectRequest.findUnique({
       where: { id: leadId },
     });
 
-    // Create activity log
-    await createActivity({
-      type: "LEAD_UPDATED",
-      title: `Lead deleted`,
-      description: `${lead.name} (${lead.email})`,
-      userId: user.id,
-      entityType: "Lead",
-      entityId: leadId,
-      metadata: {
-        action: "DELETE",
-        leadName: lead.name,
-      },
-    });
+    if (projectRequest) {
+      await db.projectRequest.delete({
+        where: { id: leadId },
+      });
 
-    revalidatePath("/admin/pipeline/leads");
-    revalidatePath("/admin/pipeline");
-    return { success: true };
+      // Create activity log
+      await createActivity({
+        type: "LEAD_UPDATED",
+        title: `Project request deleted`,
+        description: `${projectRequest.name || projectRequest.title || "Project Request"} (${projectRequest.email || projectRequest.contactEmail || ""})`,
+        userId: user.id,
+        entityType: "ProjectRequest",
+        entityId: leadId,
+        metadata: {
+          action: "DELETE",
+          projectRequestName: projectRequest.name || projectRequest.title,
+        },
+      });
+
+      revalidatePath("/admin/pipeline/leads");
+      revalidatePath("/admin/pipeline");
+      
+      return { success: true };
+    }
+
+    // Not found in either table
+    return { success: false, error: "Lead not found" };
   } catch (error) {
     console.error("Failed to delete lead:", error);
     return { success: false, error: "Failed to delete lead" };
