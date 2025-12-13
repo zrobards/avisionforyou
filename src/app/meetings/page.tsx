@@ -95,28 +95,11 @@ export default function Meetings() {
 
   return (
     <div className="min-h-screen bg-white">
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-blue-600">Vision For You</Link>
-          <div className="hidden md:flex space-x-8">
-            <Link href="/programs" className="text-gray-700 hover:text-blue-600 font-medium">Programs</Link>
-            <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium">About</Link>
-            <Link href="/blog" className="text-gray-700 hover:text-blue-600 font-medium">Blog</Link>
-            <Link href="/donate" className="text-gray-700 hover:text-blue-600 font-medium">Donate</Link>
-            {session?.user ? (
-              <Link href="/dashboard" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Dashboard</Link>
-            ) : (
-              <Link href="/login" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign In</Link>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      <section className="bg-gradient-to-r from-blue-700 to-green-600 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-5xl font-bold mb-4">Upcoming Sessions</h1>
-          <p className="text-xl opacity-95">Join our community support meetings and programs</p>
-          {!session?.user && <p className="text-lg mt-4 opacity-90">📌 Sign in to RSVP for sessions</p>}
+          <p className="text-xl text-purple-100">Join our community support meetings and programs</p>
+          {!session?.user && <p className="text-lg mt-4 text-purple-100">📌 Sign in to RSVP for sessions</p>}
         </div>
       </section>
 
@@ -135,7 +118,7 @@ export default function Meetings() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {meetings.map((meeting) => (
-                <div key={meeting.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-blue-600">
+                <div key={meeting.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-brand-purple">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-xl font-bold text-gray-900 flex-1">{meeting.title}</h3>
@@ -162,7 +145,7 @@ export default function Meetings() {
                   </div>
 
                   {!session?.user ? (
-                    <Link href={`/login?callbackUrl=/meetings`} className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition text-center block">
+                    <Link href={`/login?callbackUrl=/meetings`} className="w-full px-4 py-3 bg-brand-purple text-white rounded-lg font-semibold hover:bg-purple-800 transition text-center block">
                       Sign In to RSVP
                     </Link>
                   ) : rsvps.includes(meeting.id) ? (
@@ -177,7 +160,7 @@ export default function Meetings() {
                     <button
                       onClick={() => handleRsvp(meeting.id)}
                       disabled={!!actionId}
-                      className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50"
+                      className="w-full px-4 py-3 bg-brand-green text-white rounded-lg font-semibold hover:bg-green-400 transition disabled:opacity-50"
                     >
                       {actionId === meeting.id ? 'Processing...' : 'RSVP Now'}
                     </button>
@@ -190,16 +173,16 @@ export default function Meetings() {
         </div>
       </section>
 
-      <section className="py-16 bg-blue-50">
+      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Join?</h2>
           <p className="text-lg text-gray-700 mb-8">Create an account to track your RSVPs and stay connected with our community.</p>
           {!session?.user ? (
-            <Link href="/signup" className="inline-block px-8 py-4 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition">
+            <Link href="/signup" className="inline-block px-8 py-4 bg-brand-purple text-white rounded-lg font-bold hover:bg-purple-800 transition">
               Create Account
             </Link>
           ) : (
-            <Link href="/dashboard" className="inline-block px-8 py-4 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition">
+            <Link href="/dashboard" className="inline-block px-8 py-4 bg-brand-purple text-white rounded-lg font-bold hover:bg-purple-800 transition">
               View My RSVPs
             </Link>
           )}
