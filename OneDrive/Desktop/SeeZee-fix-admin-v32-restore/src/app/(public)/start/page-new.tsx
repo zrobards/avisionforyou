@@ -85,14 +85,26 @@ export default function StartPage() {
           window.location.href = url;
         } else {
           // Submit as quote/lead
-          await fetch('/api/leads/submit', {
+          const leadResponse = await fetch('/api/leads/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ qid }),
           });
           
+          if (!leadResponse.ok) {
+            const error = await leadResponse.json();
+            throw new Error(error.error || 'Failed to submit lead');
+          }
+          
+          const leadData = await leadResponse.json();
           setStatus('submitted');
-          router.push('/start/success');
+          
+          // Redirect to success page with leadId if available
+          if (leadData.leadId) {
+            router.push(`/start/questionnaire/success?leadId=${leadData.leadId}`);
+          } else {
+            router.push('/start/success?qid=' + qid);
+          }
         }
       } catch (error) {
         console.error('Submit error:', error);

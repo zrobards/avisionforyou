@@ -242,7 +242,7 @@ async function handleCheckoutSessionCompleted(
       update: {
         name: `${selectedService} for ${contact.company || contact.name || 'Client'}`,
         description,
-        status: ProjectStatus.PAID,
+        status: ProjectStatus.ACTIVE,
         organization: { connect: { id: organizationId } },
         ...(budgetDecimal ? { budget: budgetDecimal } : {}),
         ...(stripeCustomerId ? { stripeCustomerId } : {}),
@@ -250,7 +250,7 @@ async function handleCheckoutSessionCompleted(
       create: {
         name: `${selectedService} for ${contact.company || contact.name || 'Client'}`,
         description,
-        status: ProjectStatus.PAID,
+        status: ProjectStatus.ACTIVE,
         organization: { connect: { id: organizationId } },
         questionnaire: { connect: { id: questionnaireId } },
         ...(budgetDecimal ? { budget: budgetDecimal } : {}),

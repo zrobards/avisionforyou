@@ -1,7 +1,7 @@
 import { generatePageMetadata } from '@/lib/metadata'
 
 export const metadata = generatePageMetadata({
-  title: 'About Us - Meet the Team',
+  title: 'About SeeZee - Built by Sean & Zach',
   description:
     'Meet Sean and Zach, the Louisville-based developers behind SeeZee Studio. We build fast, affordable websites for small businesses with lifetime maintenance and dashboard access. Learn about our mission to make web design simple, fast, and accessible.',
   path: '/about',

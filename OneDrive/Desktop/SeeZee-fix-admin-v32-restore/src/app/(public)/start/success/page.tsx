@@ -16,6 +16,7 @@ function SuccessPageContent() {
   const searchParams = useSearchParams();
   const [leadData, setLeadData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const redirectTo = searchParams.get('redirectTo') || '/client';
 
   useEffect(() => {
     const qid = searchParams.get('qid');
@@ -37,7 +38,7 @@ function SuccessPageContent() {
   }, [searchParams]);
 
   const handleViewDashboard = () => {
-    router.push('/client');
+    router.push(redirectTo);
   };
 
   if (loading) {
@@ -219,8 +220,11 @@ function SuccessPageContent() {
               <Mail className="w-5 h-5" />
               <span className="font-semibold">Confirmation Email Sent</span>
             </div>
-            <p className="text-white/60 text-sm">
+            <p className="text-white/60 text-sm mb-3">
               A copy of this receipt has been sent to your email. Our team will review your project and respond within 24 hours.
+            </p>
+            <p className="text-cyan-300 text-sm font-medium">
+              💡 <strong>Tip:</strong> Log in with the email you used to submit this form to view your project request in the client dashboard.
             </p>
           </motion.div>
 
@@ -264,13 +268,13 @@ function SuccessPageContent() {
             transition={{ delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <button
-              onClick={handleViewDashboard}
+            <Link
+              href={`/login?returnUrl=${encodeURIComponent(redirectTo)}`}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-xl text-white font-bold transition-all shadow-lg shadow-blue-500/30"
             >
-              View in Client Dashboard
+              Log In to View Dashboard
               <ArrowRight className="w-5 h-5" />
-            </button>
+            </Link>
             <Link
               href="/"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-semibold transition-all"

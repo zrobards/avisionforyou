@@ -66,7 +66,7 @@ export function TaskCompletionForm({ task, onComplete, onCancel }: TaskCompletio
 
     try {
       const response = await fetch("/api/client/tasks", {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -78,9 +78,40 @@ export function TaskCompletionForm({ task, onComplete, onCancel }: TaskCompletio
         }),
       });
 
+      // Handle response - check for errors first
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to complete task");
+        let errorMessage = `Failed to complete task (${response.status})`;
+        try {
+          // Try to parse JSON error response
+          const text = await response.text();
+          if (text && text.trim()) {
+            try {
+              const errorData = JSON.parse(text);
+              errorMessage = errorData.error || errorMessage;
+            } catch {
+              // If not JSON, use the text as error message
+              errorMessage = text;
+            }
+          }
+        } catch (parseError) {
+          // If we can't read the response, use the default error message
+          console.error("Failed to read error response:", parseError);
+        }
+        throw new Error(errorMessage);
+      }
+
+      // For successful responses, the API returns JSON with the updated task
+      // We don't need to parse it, but we should handle empty responses gracefully
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        try {
+          const data = await response.json();
+          // Successfully parsed - task was updated
+        } catch (jsonError) {
+          // If response is empty or invalid JSON, that's okay - the task was still updated
+          // The status code 200 indicates success even if body is empty
+          console.warn("Response was successful but could not parse JSON:", jsonError);
+        }
       }
 
       setSuccess(true);

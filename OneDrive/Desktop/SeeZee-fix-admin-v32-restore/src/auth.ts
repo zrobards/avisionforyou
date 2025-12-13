@@ -294,9 +294,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.warn("Session callback: No email in session, using token values");
           session.user.id = token.sub!;
           session.user.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-          session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? new Date(token.tosAcceptedAt) : null);
-          session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? new Date(token.profileDoneAt) : null);
-          session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? new Date(token.questionnaireCompleted) : null);
+          session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? token.tosAcceptedAt : null);
+          session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? token.profileDoneAt : null);
+          session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null);
           return session;
         }
 
@@ -318,18 +318,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           session.user.id = dbUser.id;
           // Ensure role is never null - default to CLIENT if null
           session.user.role = dbUser.role || "CLIENT";
-          session.user.tosAcceptedAt = dbUser.tosAcceptedAt;
-          session.user.profileDoneAt = dbUser.profileDoneAt;
-          session.user.questionnaireCompleted = dbUser.questionnaireCompleted ?? null;
+          session.user.tosAcceptedAt = dbUser.tosAcceptedAt?.toISOString() ?? null;
+          session.user.profileDoneAt = dbUser.profileDoneAt?.toISOString() ?? null;
+          session.user.questionnaireCompleted = dbUser.questionnaireCompleted?.toISOString() ?? null;
           console.log(`✅ Session callback: User ${session.user.email} - role: ${session.user.role}, questionnaireCompleted: ${dbUser.questionnaireCompleted ? 'Yes' : 'No'}`);
         } else {
           // User not found in database - use token values
           console.warn(`Session callback: User ${session.user.email} not found in database, using token values`);
           session.user.id = token.sub!;
           session.user.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-          session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? new Date(token.tosAcceptedAt) : null);
-          session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? new Date(token.profileDoneAt) : null);
-          session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? new Date(token.questionnaireCompleted) : null);
+          session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? token.tosAcceptedAt : null);
+          session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? token.profileDoneAt : null);
+          session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null);
         }
       } catch (error) {
         // Handle database connection errors gracefully
@@ -355,9 +355,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Always fallback to token values to prevent session from failing
         session.user.id = token.sub!;
         session.user.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-        session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? new Date(token.tosAcceptedAt) : null);
-        session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? new Date(token.profileDoneAt) : null);
-        session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? new Date(token.questionnaireCompleted) : null);
+        session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? token.tosAcceptedAt : null);
+        session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? token.profileDoneAt : null);
+        session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null);
         console.warn(`⚠️ Session callback error fallback: questionnaireCompleted set to ${session.user.questionnaireCompleted ? 'Yes' : 'No'}`);
       }
 
@@ -404,7 +404,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             // User might not exist yet during OAuth flow - don't fail
             console.log(`JWT callback: User ${email} not found in DB yet (may be during OAuth creation)`);
             token.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-            token.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null);
+            token.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null) as any;
           }
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);

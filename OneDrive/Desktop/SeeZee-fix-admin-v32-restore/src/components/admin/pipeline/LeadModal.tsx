@@ -5,6 +5,7 @@ import { Modal } from "../shared/Modal";
 import { updateLead, deleteLead, LeadStatus } from "@/server/actions/pipeline";
 import { useRouter } from "next/navigation";
 import { FiUser, FiMail, FiPhone, FiBriefcase, FiMessageSquare, FiDollarSign, FiCalendar, FiTag } from "react-icons/fi";
+import { ServiceCategory } from "@prisma/client";
 
 interface Lead {
   id: string;
@@ -60,7 +61,10 @@ export function LeadModal({ isOpen, onClose, lead }: LeadModalProps) {
     setLoading(true);
     setError(null);
 
-    const result = await updateLead(lead.id, formData);
+    const result = await updateLead(lead.id, {
+      ...formData,
+      serviceType: formData.serviceType ? (formData.serviceType as ServiceCategory) : null,
+    });
 
     if (result.success) {
       router.refresh();

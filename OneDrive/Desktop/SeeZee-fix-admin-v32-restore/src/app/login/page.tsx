@@ -14,7 +14,8 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  // Support both returnUrl (from middleware) and callbackUrl (from NextAuth)
+  const callbackUrl = searchParams.get("returnUrl") || searchParams.get("callbackUrl") || "/";
   const errorParam = searchParams.get("error");
 
   // Set error from URL parameter

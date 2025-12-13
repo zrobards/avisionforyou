@@ -10,7 +10,8 @@ type FeedEventType =
   | "message.sent"
   | "subscription.updated"
   | "milestone.completed"
-  | "file.uploaded";
+  | "file.uploaded"
+  | "budget.set";
 
 interface FeedEventPayload {
   [key: string]: any;
@@ -81,6 +82,7 @@ export function isClientVisible(type: FeedEventType): boolean {
     "subscription.updated",
     "milestone.completed",
     "file.uploaded",
+    "budget.set",
   ];
 
   return clientVisibleTypes.includes(type);
@@ -140,6 +142,11 @@ export function getFeedEventDisplay(type: FeedEventType, payload?: any) {
       icon: "📎",
       title: "File Shared",
       getDescription: (p) => `${p?.fileName || "File"} uploaded`,
+    },
+    "budget.set": {
+      icon: "💰",
+      title: "Budget Set",
+      getDescription: (p) => `Budget set to $${Number(p?.amount || 0).toFixed(2)}`,
     },
   };
 

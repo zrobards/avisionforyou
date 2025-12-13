@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Trophy, Rocket, Zap, Code, Palette } from 'lucide-react'
+import { FaInstagram } from 'react-icons/fa'
 
 export function About() {
   const team = [
@@ -13,7 +14,8 @@ export function About() {
       initial: 'S',
       gradient: 'from-blue-500 to-purple-600',
       textColor: 'text-blue-400',
-      description: 'Lead Engineer focused on backend infrastructure and full-stack development. Trinity High School graduate with FBLA experience in business applications. Passionate about Raspberry Pi projects, AI automation, and building scalable systems with modern technologies.'
+      description: 'Lead Engineer focused on backend infrastructure and full-stack development. Trinity High School graduate with FBLA experience in business applications. Passionate about Raspberry Pi projects, AI automation, and building scalable systems with modern technologies.',
+      instagram: 'https://www.instagram.com/sean.mcculloch7/?hl=en'
     },
     {
       name: 'Zach',
@@ -21,7 +23,8 @@ export function About() {
       initial: 'Z',
       gradient: 'from-green-500 to-blue-600',
       textColor: 'text-green-400',
-      description: 'Product Designer and Frontend Lead specializing in user experience and interface design. Focuses on client experience, presentation polish, and ensuring every project not only works perfectly but looks amazing. Trinity High School graduate with strong FBLA background.'
+      description: 'Product Designer and Frontend Lead specializing in user experience and interface design. Focuses on client experience, presentation polish, and ensuring every project not only works perfectly but looks amazing. Trinity High School graduate with strong FBLA background.',
+      instagram: 'https://www.instagram.com/zachrobards/?hl=en'
     }
   ]
 
@@ -91,6 +94,24 @@ export function About() {
                 width={400}
                 height={120}
                 className="h-20 md:h-28 w-auto object-contain"
+              />
+            </div>
+            <div className="bg-white rounded-xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-shadow">
+              <Image 
+                src="/logos/nhs-logo.png" 
+                alt="National Honor Society" 
+                width={150}
+                height={150}
+                className="h-24 md:h-32 w-auto object-contain"
+              />
+            </div>
+            <div className="bg-white rounded-xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-shadow">
+              <Image 
+                src="/logos/beta-club-logo.png" 
+                alt="Beta Club" 
+                width={150}
+                height={150}
+                className="h-24 md:h-32 w-auto object-contain"
               />
             </div>
           </motion.div>
@@ -190,7 +211,7 @@ export function About() {
                 </div>
               </div>
               <motion.p 
-                className="text-gray-300 leading-relaxed"
+                className="text-gray-300 leading-relaxed mb-4"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
@@ -198,6 +219,23 @@ export function About() {
               >
                 {member.description}
               </motion.p>
+              {member.instagram && (
+                <motion.a
+                  href={member.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-gray-400 hover:text-pink-400 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                >
+                  <FaInstagram className="w-5 h-5" />
+                  <span className="text-sm">Instagram</span>
+                </motion.a>
+              )}
               {/* Hover glow */}
               <motion.div 
                 className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${member.gradient} opacity-0 blur-xl -z-10`}

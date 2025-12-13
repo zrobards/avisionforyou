@@ -35,6 +35,11 @@ export const metadata: Metadata = {
   creator: 'SeeZee Studio',
   publisher: 'SeeZee Studio',
   metadataBase: new URL('https://see-zee.com'),
+  icons: {
+    icon: '/icon',
+    shortcut: '/favicon.svg',
+    apple: '/icon',
+  },
   alternates: {
     canonical: '/',
   },
@@ -99,7 +104,7 @@ export default function RootLayout({
         url: 'https://see-zee.com',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://see-zee.com/favicon.svg',
+          url: 'https://see-zee.com/icon.png',
         },
         description: 'Professional web and app development for small businesses',
         address: {

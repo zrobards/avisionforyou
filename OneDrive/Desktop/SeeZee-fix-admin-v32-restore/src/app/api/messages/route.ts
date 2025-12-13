@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       data: { updatedAt: new Date() }
     });
 
-    return NextResponse.json(message);
+    return NextResponse.json({ ...message, threadId: thread.id });
   } catch (error) {
     console.error("Error creating message:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

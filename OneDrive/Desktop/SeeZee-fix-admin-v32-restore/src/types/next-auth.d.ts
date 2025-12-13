@@ -6,17 +6,17 @@ declare module "next-auth" {
     user: {
       id: string;
       role: UserRole;
-      tosAcceptedAt: Date | null;
-      profileDoneAt: Date | null;
-      questionnaireCompleted: Date | null;
+      tosAcceptedAt: string | null;
+      profileDoneAt: string | null;
+      questionnaireCompleted: string | null;
     } & DefaultSession["user"];
   }
 
   interface User extends DefaultUser {
     role: UserRole;
-    tosAcceptedAt: Date | null;
-    profileDoneAt: Date | null;
-    questionnaireCompleted: Date | null;
+    tosAcceptedAt: string | null;
+    profileDoneAt: string | null;
+    questionnaireCompleted: string | null;
   }
 }
 
@@ -24,8 +24,8 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: UserRole;
-    tosAcceptedAt: Date | null;
-    profileDoneAt: Date | null;
+    tosAcceptedAt: string | null;
+    profileDoneAt: string | null;
     questionnaireCompleted: string | null;
   }
 }

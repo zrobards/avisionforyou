@@ -124,8 +124,6 @@ function QuestionnairePageContent() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isApproved, setIsApproved] = useState(false);
-  const [leadId, setLeadId] = useState<string | null>(null);
 
   // Get service type description
   const getServiceTypeDescription = (type: ServiceType | null): string => {
@@ -196,14 +194,6 @@ function QuestionnairePageContent() {
       type: 'select',
       required: false,
       options: REFERRAL_SOURCES,
-      showIf: undefined,
-    },
-    {
-      id: 'stage',
-      label: 'What stage are you at?',
-      type: 'radio',
-      required: false,
-      options: STAGE_OPTIONS,
       showIf: undefined,
     },
     {
@@ -354,19 +344,32 @@ function QuestionnairePageContent() {
 
       if (!leadResponse.ok) {
         const error = await leadResponse.json();
+        
+        // Handle specific error cases
+        if (error.error?.includes('active project request')) {
+          // Redirect to dashboard with message about active request
+          router.push('/client?message=active-request');
+          return;
+        }
+        
         throw new Error(error.error || 'Failed to create lead');
       }
 
       const leadData = await leadResponse.json();
-      setLeadId(leadData.leadId);
-
-      // Lead created successfully - show success message
-      setIsSubmitting(false);
-      setIsApproved(true);
+      
+      // Redirect to success page with leadId
+      if (leadData.leadId) {
+        router.push(`/start/questionnaire/success?leadId=${leadData.leadId}`);
+      } else {
+        // Fallback if leadId is missing
+        router.push('/start/questionnaire/success');
+      }
     } catch (error: any) {
       console.error('Failed to submit request:', error);
-      alert(error.message || 'Failed to submit request. Please try again.');
+      setErrors({ submit: error.message || 'Failed to submit request. Please try again.' });
       setIsSubmitting(false);
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -385,62 +388,6 @@ function QuestionnairePageContent() {
     );
   }
 
-  // Show success screen
-  if (isApproved) {
-    return (
-      <PageShell>
-        <div className="relative overflow-hidden animated-gradient">
-          <FloatingShapes />
-          <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-5"></div>
-          
-          <div className="relative z-10 min-h-screen flex items-center justify-center p-4 py-20">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="relative w-full max-w-2xl glass-container rounded-xl border-2 border-gray-700 hover:border-trinity-red transition-all duration-300 shadow-large overflow-hidden"
-            >
-              <div className="p-8 space-y-6 text-center">
-                <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-2xl font-heading font-bold gradient-text mb-2">Welcome to SeeZee Studio!</h3>
-                <p className="text-white/80 mb-4">
-                  Check your email for next steps and dashboard access.
-                </p>
-                
-                <div className="bg-gray-800/50 rounded-lg p-6 text-left border border-gray-700">
-                  <h4 className="text-white font-semibold mb-4">Next Steps:</h4>
-                  <div className="space-y-4">
-                    <div className="flex gap-3">
-                      <div className="w-6 h-6 rounded-full bg-trinity-red flex items-center justify-center text-white text-sm font-bold flex-shrink-0">1</div>
-                      <p className="text-white/80">Log into your project portal</p>
-                    </div>
-                    <div className="flex gap-3">
-                      <div className="w-6 h-6 rounded-full bg-trinity-red flex items-center justify-center text-white text-sm font-bold flex-shrink-0">2</div>
-                      <p className="text-white/80">Complete your detailed project brief (10-15 minutes)</p>
-                    </div>
-                    <div className="flex gap-3">
-                      <div className="w-6 h-6 rounded-full bg-trinity-red flex items-center justify-center text-white text-sm font-bold flex-shrink-0">3</div>
-                      <p className="text-white/80">Receive your custom quote within 24 hours</p>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => router.push('/client')}
-                  className="px-6 py-3 bg-trinity-red hover:bg-trinity-maroon rounded-lg text-white font-medium transition-all duration-200 shadow-medium transform hover:-translate-y-1 glow-on-hover"
-                >
-                  Go to Dashboard →
-                </button>
-
-                <p className="text-sm text-white/40">
-                  Didn't receive an email? Check your spam folder or <a href="/contact" className="text-trinity-red hover:underline">contact us</a>
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </PageShell>
-    );
-  }
 
   return (
     <PageShell>
@@ -488,6 +435,18 @@ function QuestionnairePageContent() {
 
           {/* Question Card */}
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+            {/* Error Message */}
+            {errors.submit && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded-lg"
+              >
+                <p className="font-semibold mb-1">Submission Error</p>
+                <p>{errors.submit}</p>
+              </motion.div>
+            )}
+            
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}

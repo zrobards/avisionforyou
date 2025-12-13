@@ -1,74 +1,21 @@
-﻿'use client'
+'use client'
 
 export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import ScrollAnimation from '@/components/shared/ScrollAnimation'
-import ProjectMockup from '@/components/shared/ProjectMockup'
-import { FiArrowRight, FiClock, FiUser, FiZap } from 'react-icons/fi'
+import ImageLightbox from '@/components/shared/ImageLightbox'
+import { FiCheck } from 'react-icons/fi'
 
 export default function ProjectsPage() {
-  const projects = [
-    {
-      id: 'big-red-prints',
-      title: 'Red Head Printing',
-      client: 'Tina',
-      status: 'Work in Progress',
-      goal: 'Launch an online store to sell custom printing services and products 24/7',
-      whatWeBuilt: 'A full e-commerce platform with product catalog, shopping cart, custom file uploads for print designs, Stripe payments, and order management',
-      problemSolved: 'Tina needed a way to take orders online without manually processing each request. Customers can now upload their designs, select products, and check out instantly.',
-      result: 'Professional e-commerce store launching in 3 weeks',
-      packageType: 'E-Commerce Store',
-      features: [
-        'Next.js frontend with SSR/SSG',
-        'Express backend API',
-        'Product catalog & shopping cart',
-        'File upload system for custom designs',
-        'Stripe payment integration',
-        'Order management system',
-        'Admin dashboard',
-        'User authentication',
-        'MongoDB database',
-      ],
-      mockupType: 'big-red-prints' as const,
-    },
-    {
-      id: 'big-red-bus',
-      title: 'Big Red Bus',
-      client: 'Partner Nonprofit',
-      status: 'Work in Progress',
-      goal: 'Create a professional nonprofit directory to connect families with mental health and autism support organizations',
-      whatWeBuilt: 'A searchable directory platform with filtering, organization profiles, mission pages, and donation functionality',
-      problemSolved: 'Small nonprofits often look unprofessional online. We proved they can have modern, clean websites without big-agency budgets.',
-      result: 'A shared brand for community work and FBLA competition',
-      packageType: 'Internal + Partner Nonprofit',
-      features: [
-        'Nonprofit directory with filtering',
-        'Search and category filters',
-        'Organization detail pages',
-        'Mission, Partners, Programs pages',
-        'Stories and events sections',
-        'Donation functionality',
-        'React + TypeScript + Vite',
-        'Responsive design',
-      ],
-      mockupType: 'big-red-bus' as const,
-    },
-  ]
-
   return (
-    <div className="w-full">
-      {/* Hero Section */}
-      <section className="bg-gray-900 py-24 lg:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-5"></div>
-        {/* Project-themed decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          <div className="absolute top-32 left-1/4 w-36 h-36 border-2 border-trinity-red/30 transform rotate-45"></div>
-          <div className="absolute top-20 right-1/4 w-28 h-28 border-2 border-trinity-red/25 transform -rotate-45"></div>
-          <div className="absolute bottom-32 left-1/3 w-32 h-32 border-2 border-trinity-red/20 transform rotate-12"></div>
-          <div className="absolute bottom-20 right-1/3 w-24 h-24 border-2 border-trinity-red/25 transform -rotate-12"></div>
-        </div>
+    <div className="w-full bg-[#0a1128]">
+      {/* ========================================
+          HERO SECTION
+          ======================================== */}
+      <section className="bg-[#0a1128] py-20 relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <ScrollAnimation>
             <div className="max-w-4xl mx-auto text-center">
@@ -76,173 +23,438 @@ export default function ProjectsPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white mb-6"
+                className="text-4xl md:text-5xl font-bold text-white mb-6"
               >
-                <span className="gradient-text">Active Projects</span>
+                What We're Building
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-xl text-white leading-relaxed mb-4"
+                className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto"
               >
-                Show, don't tell. Here's real work we're building for real businesses.
+                We're just getting started. Here's real work we're actively developing and what we've already shipped.
               </motion.p>
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="text-lg text-trinity-red font-semibold"
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="text-sm text-[#22d3ee] font-mono mt-4"
               >
-                Your project could be next.
+                Updated December 2024
               </motion.p>
             </div>
           </ScrollAnimation>
         </div>
       </section>
 
-      {/* Active Projects Section */}
-      <section className="py-20 bg-gray-900">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-16 max-w-6xl mx-auto">
-            {projects.map((project, index) => (
-              <ScrollAnimation key={project.id} delay={index * 0.2}>
-                <div className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 items-center`}>
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="mb-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">
-                          {project.title}
-                        </h2>
-                        <span className="px-3 py-1 bg-yellow-500 text-black rounded-full text-xs font-bold">
-                          {project.status}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 mb-6 text-gray-200">
-                        <div className="flex items-center gap-2">
-                          <FiUser className="w-4 h-4" />
-                          <span className="text-sm">Client: {project.client}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <FiZap className="w-4 h-4" />
-                          <span className="text-sm">{project.packageType}</span>
-                        </div>
-                      </div>
-                    </div>
+      {/* ========================================
+          PROJECT CARDS CONTAINER
+          ======================================== */}
+      <section className="bg-[#1a2332] py-16">
+        <div className="max-w-7xl mx-auto px-6 space-y-16">
+          
+          {/* ========================================
+              AVFY PROJECT CARD
+              ======================================== */}
+          <ScrollAnimation>
+            <div className="bg-white/[0.03] border border-white/10 rounded-[24px] overflow-hidden">
+              
+              {/* SECTION 1: HEADER */}
+              <div className="bg-gradient-to-br from-[#7f3d8b] to-[#5c2c66] p-8 rounded-t-[24px]">
+                {/* Badges */}
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span className="px-3 py-1.5 text-xs border border-white/30 text-white/90 rounded-full bg-white/10">
+                    Client Project
+                  </span>
+                  <span className="px-3 py-1.5 text-xs border border-white/30 text-white/90 rounded-full bg-white/10">
+                    501(c)(3) Nonprofit
+                  </span>
+                </div>
+                
+                {/* Status Badge */}
+                <div className="inline-block px-4 py-2 bg-green-500/20 border border-green-500/40 text-green-300 rounded-full text-sm font-medium mt-2 mb-6">
+                  🚀 Launching December 20, 2024
+                </div>
+                
+                {/* Title */}
+                <h2 className="text-3xl md:text-4xl font-bold text-white mt-4 mb-3">
+                  A Vision For You
+                </h2>
+                
+                {/* Subtitle */}
+                <p className="text-xl text-[#b6e41f] mb-2">
+                  Recovery Center Management Platform
+                </p>
+                
+                {/* Location */}
+                <p className="text-sm text-white/60">
+                  📍 Louisville, Kentucky
+                </p>
+              </div>
 
-                    {/* Project Story */}
-                    <div className="space-y-4 mb-6">
-                      <div>
-                        <h3 className="text-lg font-semibold text-trinity-red mb-2">Goal</h3>
-                        <p className="text-white leading-relaxed">{project.goal}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-trinity-red mb-2">What We Built</h3>
-                        <p className="text-white leading-relaxed">{project.whatWeBuilt}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-trinity-red mb-2">Problem We Solved</h3>
-                        <p className="text-white leading-relaxed">{project.problemSolved}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-trinity-red mb-2">Result</h3>
-                        <p className="text-white leading-relaxed font-semibold">{project.result}</p>
-                      </div>
-                    </div>
+              {/* SECTION 2: MISSION */}
+              <div className="bg-black/30 border-l-4 border-[#b6e41f] p-8">
+                <p className="text-lg text-white/90 italic leading-relaxed">
+                  "To empower the homeless, addicted, maladjusted, and mentally ill to lead productive lives through housing, education, self-help, treatment, or any other available resource."
+                </p>
+                <p className="text-sm text-white/60 mt-2">
+                  — A Vision For You Recovery
+                </p>
+              </div>
 
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold text-white mb-4">Technical Features:</h3>
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {project.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start text-gray-300">
-                            <span className="text-trinity-red mr-2">•</span>
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
+              {/* SECTION 3: MAIN CONTENT (Two Columns) */}
+              <div className="p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  
+                  {/* LEFT COLUMN */}
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4">
+                      About the Project
+                    </h3>
+                    <p className="text-base text-gray-300 leading-relaxed mb-6">
+                      A comprehensive recovery center management system serving 500+ individuals annually. Built for A Vision For You, a Louisville-based nonprofit providing four distinct recovery pathways with housing, treatment, and community support.
+                    </p>
+                    
+                    <h4 className="text-lg font-bold text-white mb-4">
+                      Four Recovery Programs
+                    </h4>
+                    
+                    {/* Programs Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {[
+                        { icon: '🏠', name: 'Surrender Program', duration: '6-9 Month Residential' },
+                        { icon: '🧠', name: 'MindBodySoul IOP', duration: 'Intensive Outpatient' },
+                        { icon: '⛪', name: 'Moving Mountains', duration: 'Faith-Based Recovery' },
+                        { icon: '💜', name: "Women's Program", duration: 'Specialized Care' }
+                      ].map((program, idx) => (
+                        <div key={idx} className="bg-white/5 p-3 rounded-lg border border-white/10">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-lg">{program.icon}</span>
+                            <span className="text-sm font-medium text-white">{program.name}</span>
+                          </div>
+                          <p className="text-xs text-gray-400">{program.duration}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Mockup */}
-                  <div className="flex-1 w-full max-w-md">
-                    <ProjectMockup projectName={project.title} type={project.mockupType} />
+                  {/* RIGHT COLUMN */}
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4">
+                      What We Built
+                    </h3>
+                    
+                    {/* Features List */}
+                    <div className="space-y-2 mb-6">
+                      {[
+                        'Client Assessment System',
+                        'Meeting & RSVP Management',
+                        'Donation Processing (Stripe)',
+                        'Impact Dashboard',
+                        'Admissions Pipeline',
+                        'Content Management',
+                        'Email Automation',
+                        'Member Management',
+                        'Role-Based Access'
+                      ].map((feature, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-gray-300">
+                          <FiCheck className="text-[#b6e41f] flex-shrink-0 w-4 h-4" />
+                          <span className="text-sm">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Tech Stack */}
+                    <h4 className="text-base font-semibold text-white mb-3">Tech Stack</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        'Next.js 14',
+                        'TypeScript',
+                        'PostgreSQL',
+                        'Prisma',
+                        'NextAuth',
+                        'Stripe'
+                      ].map((tech, idx) => (
+                        <span key={idx} className="px-3 py-1 text-xs border border-white/20 text-gray-300 rounded-full bg-white/5">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </ScrollAnimation>
-            ))}
-          </div>
-        </div>
-      </section>
+              </div>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <ScrollAnimation>
-            <div className="max-w-4xl mx-auto text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
-                SeeZee by the Numbers
-              </h2>
-              <p className="text-lg text-white">
-                We're just getting started, but we're building fast and delivering quality.
-              </p>
+              {/* SECTION 4: IMPACT STATS */}
+              <div className="bg-gradient-to-br from-[#0a1128] to-[#7f3d8b]/20 p-8">
+                <h3 className="text-xl font-bold text-white text-center mb-6">
+                  Designed To:
+                </h3>
+                
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {[
+                    { number: '500+', label: 'Community Members', sublabel: 'Served annually' },
+                    { number: '24/7', label: 'Donation Processing', sublabel: 'Automated acknowledgment' },
+                    { number: '4', label: 'Recovery Programs', sublabel: 'Distinct pathways' },
+                    { number: '25', label: 'Database Models', sublabel: 'Full platform architecture' }
+                  ].map((stat, idx) => (
+                    <div key={idx} className="text-center">
+                      <div className="text-4xl font-bold text-[#b6e41f] mb-2">
+                        {stat.number}
+                      </div>
+                      <div className="text-sm font-medium text-white mb-1">
+                        {stat.label}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {stat.sublabel}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SECTION 5: SCREENSHOTS PREVIEW */}
+              <div className="bg-black/30 p-8">
+                <h3 className="text-xl font-bold text-white text-center mb-6">
+                  Platform Preview
+                </h3>
+                
+                {/* Screenshot Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { src: '/avfy-home.png', label: '🏠 Homepage', alt: 'Homepage' },
+                    { src: '/avfy-programs.png', label: '📊 Programs', alt: 'Programs Dashboard' },
+                    { src: '/avfy-donate.png', label: '💳 Donations', alt: 'Donation System' }
+                  ].map((screenshot, idx) => (
+                    <div key={idx} className="rounded-xl overflow-hidden border-2 border-[#b6e41f]/30 hover:border-[#b6e41f]/60 transition-colors duration-300">
+                      <div className="relative aspect-video bg-gradient-to-br from-[#7f3d8b]/20 to-[#b6e41f]/10">
+                        <ImageLightbox
+                          src={screenshot.src}
+                          alt={screenshot.alt}
+                          width={600}
+                          height={400}
+                          className="w-full h-full object-cover"
+                          caption={screenshot.label}
+                        />
+                      </div>
+                      <div className="p-3 bg-white/5 text-center">
+                        <span className="text-sm text-gray-300">{screenshot.label}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <p className="text-sm text-white/60 text-center italic mt-4">
+                  Full screenshots and case study coming after December 20 launch
+                </p>
+              </div>
+
+              {/* SECTION 6: BUTTON */}
+              <div className="p-8 text-center">
+                <button
+                  disabled
+                  className="px-8 py-3 border border-gray-500 text-gray-500 rounded-lg cursor-not-allowed text-base font-medium"
+                >
+                  Full Case Study Coming Soon
+                </button>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center max-w-5xl mx-auto">
-              {[
-                { value: '2', label: 'Active Projects', icon: <FiZap className="w-8 h-8" /> },
-                { value: '48h', label: 'Build Time', icon: <FiClock className="w-8 h-8" /> },
-                { value: '100%', label: 'Client Focus', icon: <FiUser className="w-8 h-8" /> },
-                { value: '24/7', label: 'Support Ready', icon: <FiClock className="w-8 h-8" /> },
-              ].map((stat, index) => (
-                <ScrollAnimation key={index} delay={index * 0.1}>
-                  <motion.div
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    className="p-6 bg-gray-900 rounded-xl shadow-soft hover:shadow-medium transition-all border-2 border-gray-700"
-                  >
-                    <div className="text-trinity-red mb-3 flex justify-center">
-                      {stat.icon}
+          </ScrollAnimation>
+
+          {/* ========================================
+              BIG RED BUS PROJECT CARD
+              ======================================== */}
+          <ScrollAnimation>
+            <div className="bg-white/[0.03] border border-white/10 rounded-[24px] overflow-hidden">
+              
+              {/* SECTION 1: HEADER */}
+              <div className="bg-gradient-to-br from-[#0a1128] to-[#ef4444]/30 p-8 rounded-t-[24px]">
+                {/* Badges */}
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span className="px-3 py-1.5 text-xs border border-white/30 text-white/90 rounded-full bg-white/10">
+                    FBLA Competition
+                  </span>
+                  <span className="px-3 py-1.5 text-xs border border-white/30 text-white/90 rounded-full bg-white/10">
+                    Nonprofit Initiative
+                  </span>
+                </div>
+                
+                {/* Title */}
+                <h2 className="text-3xl md:text-4xl font-bold text-white mt-4 mb-3">
+                  Big Red Bus
+                </h2>
+                
+                {/* Subtitle */}
+                <p className="text-xl text-[#22d3ee]">
+                  Community Platform for Mental Health & Recovery Organizations
+                </p>
+              </div>
+
+              {/* SECTION 2: ABOUT */}
+              <div className="p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-8">
+                  
+                  {/* LEFT - Description */}
+                  <div>
+                    <p className="text-base text-gray-300 leading-relaxed mb-4">
+                      Big Red Bus is a Louisville-based nonprofit initiative using a physical bus to bring mental health resources, recovery support, and community connection directly to those who need it.
+                    </p>
+                    <p className="text-base text-gray-300 leading-relaxed">
+                      For our FBLA Coding & Programming project, we built a digital platform to help organizations like Big Red Bus connect with their communities.
+                    </p>
+                  </div>
+
+                  {/* RIGHT - Follow Info */}
+                  <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-white mb-3">
+                      Follow the Initiative
+                    </h4>
+                    <div className="space-y-2 text-sm text-gray-300">
+                      <div>
+                        <span className="text-gray-400">Instagram:</span> @brb.bigredbus
+                      </div>
+                      <div>
+                        <span className="text-gray-400">TikTok:</span> @bigredbus
+                      </div>
                     </div>
-                    <div className="text-4xl md:text-5xl font-heading font-bold text-white mb-2">
-                      {stat.value}
+                    <p className="text-xs text-gray-400 mt-3 italic">
+                      Real nonprofit inspiring our FBLA project
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3: WHAT WE BUILT */}
+              <div className="bg-black/20 p-8">
+                <h3 className="text-xl font-bold text-white mb-6">
+                  What We Built
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                  {[
+                    'Organization directory and search',
+                    'Event discovery and community resources',
+                    'Support group information',
+                    'Review and engagement system',
+                    'Deal and promotion features',
+                    'Bot verification for quality',
+                    'Accessible, cognitive-friendly design',
+                    'Mobile-first responsive layout'
+                  ].map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-gray-300">
+                      <FiCheck className="text-[#22d3ee] flex-shrink-0 w-4 h-4" />
+                      <span className="text-sm">{feature}</span>
                     </div>
-                    <div className="text-white text-lg">{stat.label}</div>
-                  </motion.div>
-                </ScrollAnimation>
-              ))}
+                  ))}
+                </div>
+                
+                {/* Tech Stack */}
+                <div className="mt-6">
+                  <h4 className="text-base font-semibold text-white mb-3">Tech Stack</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      'React',
+                      'TypeScript',
+                      'Vite',
+                      'Accessible UI'
+                    ].map((tech, idx) => (
+                      <span key={idx} className="px-3 py-1 text-xs border border-white/20 text-gray-300 rounded-full bg-white/5">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 4: SCREENSHOTS */}
+              <div className="bg-white/[0.03] p-8">
+                <h3 className="text-xl font-bold text-white text-center mb-6">
+                  Platform Interface
+                </h3>
+                
+                {/* Screenshot Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { src: '/big-red-bus-1.png', label: 'Homepage', alt: 'Homepage' },
+                    { src: '/big-red-bus-2.png', label: 'Directory', alt: 'Organization Directory' },
+                    { src: '/big-red-bus-3.png', label: 'About', alt: 'About Page' }
+                  ].map((screenshot, idx) => (
+                    <div 
+                      key={idx} 
+                      className="rounded-xl overflow-hidden border-2 border-[#ef4444]/30 hover:border-[#ef4444]/60 transition-colors duration-300"
+                    >
+                      <ImageLightbox
+                        src={screenshot.src}
+                        alt={screenshot.alt}
+                        width={600}
+                        height={400}
+                        className="w-full h-auto"
+                        caption={`Big Red Bus - ${screenshot.label}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SECTION 5: BUTTONS */}
+              <div className="p-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a
+                  href="https://fbla-coding-and-programming-web.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 border border-[#22d3ee] text-[#22d3ee] rounded-lg hover:bg-[#22d3ee] hover:text-[#0a1128] transition-all duration-300 font-medium text-base w-full sm:w-auto text-center"
+                >
+                  View Live Platform
+                </a>
+                <Link
+                  href="/case-studies/big-red-bus"
+                  className="px-6 py-3 bg-[#ef4444] text-white rounded-lg hover:bg-[#dc2626] transition-all duration-300 font-medium text-base w-full sm:w-auto text-center"
+                >
+                  Read Full Case Study
+                </Link>
+              </div>
             </div>
           </ScrollAnimation>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gray-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* ========================================
+          WHY THIS MATTERS SECTION
+          ======================================== */}
+      <section className="bg-[#0a1128] py-16">
+        <div className="max-w-3xl mx-auto px-6 text-center">
           <ScrollAnimation>
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-6">
-                Your project could be next.
-              </h2>
-              <p className="text-xl text-white mb-8 leading-relaxed">
-                Join our growing list of clients. Professional websites delivered in 2-3 weeks.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  href="/start"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-trinity-red text-white rounded-lg hover:bg-trinity-maroon transition-all duration-200 font-semibold text-lg shadow-medium transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900"
-                >
-                  Start Your Project
-                  <FiArrowRight className="w-5 h-5" />
-                </Link>
-                <Link
-                  href="/services"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-transparent text-white rounded-lg hover:bg-gray-900 transition-all duration-200 font-semibold text-lg border-2 border-white hover:border-trinity-red focus:outline-none focus:ring-2 focus:ring-trinity-red focus:ring-offset-2 focus:ring-offset-gray-900"
-                >
-                  See Our Packages
-                  <FiArrowRight className="w-5 h-5" />
-                </Link>
-              </div>
-            </div>
+            <h2 className="text-3xl font-bold text-white mb-6">
+              Why This Matters
+            </h2>
+            <p className="text-lg text-gray-300 leading-relaxed">
+              We don't list fake projects or inflate results. Every project here represents real work, real learning, and real responsibility.
+              <br /><br />
+              We're early-stage, but we take the work seriously.
+            </p>
+          </ScrollAnimation>
+        </div>
+      </section>
+
+      {/* ========================================
+          FINAL CTA SECTION
+          ======================================== */}
+      <section className="bg-[#ef4444] py-20">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <ScrollAnimation>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Your Project Could Be Next
+            </h2>
+            <p className="text-xl text-white/90 max-w-2xl mx-auto mb-8 leading-relaxed">
+              Whether you're a nonprofit, community organization, or small business — let's create something meaningful together.
+            </p>
+            <Link
+              href="/start"
+              className="inline-block px-8 py-4 bg-white text-[#ef4444] rounded-lg hover:scale-105 transition-all duration-300 font-semibold text-lg shadow-lg"
+            >
+              Start Your Project
+            </Link>
           </ScrollAnimation>
         </div>
       </section>

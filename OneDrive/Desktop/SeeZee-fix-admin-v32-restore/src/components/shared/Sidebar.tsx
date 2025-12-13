@@ -71,14 +71,14 @@ export default function Sidebar() {
   const regularNavLinks = [
     { path: '/', label: 'Home', icon: FiHome },
     { path: '/services', label: 'Services', icon: FiBriefcase },
-    { path: '/projects', label: 'Case Studies', icon: FiFileText },
+    { path: '/projects', label: 'Projects', icon: FiFileText },
     { path: '/about', label: 'About', icon: FiInfo },
   ]
 
-  // Featured navigation links (Philosophy and Big Red Bus)
+  // Featured navigation links (Philosophy and Case Studies)
   const featuredNavLinks = [
     { path: '/philosophy', label: 'Philosophy', icon: FiBook },
-    { path: '/case-studies/big-red-bus', label: 'Big Red Bus', icon: FiHeart },
+    { path: '/case-studies', label: 'Case Studies', icon: FiFileText },
   ]
 
   const isAuthenticated = !!session
@@ -313,7 +313,7 @@ export default function Sidebar() {
             {/* Divider */}
             {!collapsed && <div className="h-px bg-gray-800 my-3 mx-4"></div>}
 
-            {/* Regular Nav: Services, Case Studies, About */}
+            {/* Regular Nav: Services, Projects, About */}
             {regularNavLinks.slice(1).map((link, index) => {
               const Icon = link.icon
               const active = isActive(link.path)

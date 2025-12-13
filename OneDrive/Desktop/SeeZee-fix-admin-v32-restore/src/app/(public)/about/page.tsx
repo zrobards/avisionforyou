@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 export const dynamic = 'force-dynamic'
 
@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import ScrollAnimation from '@/components/shared/ScrollAnimation'
+import ImageLightbox from '@/components/shared/ImageLightbox'
 import { 
   FiArrowRight, 
   FiCheck, 
@@ -36,7 +37,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.6 }}
                 className="text-4xl md:text-5xl lg:text-[56px] font-heading font-bold text-white mb-6 leading-tight"
               >
-                Two Developers Building Technology That Includes Everyone.
+                Built by Sean and Zach — two developers who care about doing this right.
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
@@ -44,7 +45,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-xl md:text-2xl text-gray-300 leading-relaxed"
               >
-                We started SeeZee because nonprofits, support organizations, and community groups deserve better digital tools — accessible, affordable, and built with real empathy.
+                SeeZee Studio is a small team from Louisville building accessible, community-focused technology — starting with projects rooted in FBLA competition work and nonprofit initiatives.
               </motion.p>
             </div>
           </ScrollAnimation>
@@ -66,7 +67,7 @@ export default function AboutPage() {
                   SeeZee didn't begin as a typical web agency.
                 </p>
                 <p>
-                  It started with two college students building websites for FBLA competitions and school projects. We helped local businesses, nonprofits, and community organizations get online — fast, simple, and affordable.
+                  SeeZee started with two high school friends — Sean and Zach — building websites for FBLA competitions and community projects. We helped local businesses, nonprofits, and community organizations get online — fast, simple, and affordable.
                 </p>
                 <p className="text-xl text-white font-semibold pt-4">
                   But we kept noticing the same problem:
@@ -115,10 +116,10 @@ export default function AboutPage() {
             <ScrollAnimation delay={0.1}>
               <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
                 <p>
-                  SeeZee was born at <span className="text-white font-semibold">Trinity High School</span>, where we first discovered our passion for building technology that serves others.
+                  SeeZee was born at <span className="text-white font-semibold">Trinity High School</span>, where Sean and Zach first discovered their passion for building technology that serves others.
                 </p>
                 <p>
-                  Through our involvement with <span className="text-white font-semibold">FBLA (Future Business Leaders of America)</span> and <span className="text-white font-semibold">Beta Club</span>, we learned that business and service go hand in hand. These organizations taught us the importance of leadership, community engagement, and using our skills to make a real difference.
+                  Through our involvement with <span className="text-white font-semibold">FBLA (Future Business Leaders of America)</span>, <span className="text-white font-semibold">National Honor Society</span>, and <span className="text-white font-semibold">Beta Club</span>, we learned that business and service go hand in hand. These organizations taught us the importance of leadership, community engagement, and using our skills to make a real difference.
                 </p>
                 <p>
                   Our early projects — websites built for FBLA competitions, community service initiatives, and local nonprofits — showed us that there was a gap in the market. Organizations that needed help the most were being overlooked by traditional agencies.
@@ -127,7 +128,7 @@ export default function AboutPage() {
                   That's when SeeZee became more than a school project — it became our mission.
                 </p>
                 <p>
-                  Today, we continue to partner with FBLA chapters and Beta Club programs, offering students real-world experience by working on projects for nonprofits and community organizations. This creates a cycle of impact: students learn valuable skills, communities get the support they need, and organizations receive professional websites at affordable rates.
+                  Today, we continue to partner with FBLA chapters, Beta Club programs, and National Honor Society initiatives, offering students real-world experience by working on projects for nonprofits and community organizations. This creates a cycle of impact: students learn valuable skills, communities get the support they need, and organizations receive professional websites at affordable rates.
                 </p>
               </div>
             </ScrollAnimation>
@@ -137,38 +138,108 @@ export default function AboutPage() {
               <div className="mt-12 flex flex-wrap items-center justify-center gap-8 md:gap-12">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center bg-white rounded-xl p-4 shadow-lg"
                 >
                   <Image
-                    src="/logos/trinity-logo.svg"
+                    src="/logos/trinity-logo.png"
                     alt="Trinity High School"
-                    width={120}
-                    height={120}
-                    className="h-20 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+                    width={140}
+                    height={140}
+                    className="h-24 w-auto object-contain"
                   />
                 </motion.div>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center bg-white rounded-xl p-4 shadow-lg"
                 >
                   <Image
-                    src="/logos/fbla-logo.svg"
+                    src="/logos/fbla-logo.png"
                     alt="FBLA - Future Business Leaders of America"
-                    width={120}
-                    height={120}
-                    className="h-20 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+                    width={180}
+                    height={100}
+                    className="h-20 w-auto object-contain"
                   />
                 </motion.div>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center bg-white rounded-xl p-4 shadow-lg"
                 >
-                  <div className="bg-white/10 rounded-lg px-6 py-4 border-2 border-gray-700 hover:border-trinity-red transition-colors">
-                    <span className="text-white font-semibold text-lg">Beta Club</span>
-                  </div>
+                  <Image
+                    src="/logos/nhs-logo.png"
+                    alt="National Honor Society"
+                    width={100}
+                    height={120}
+                    className="h-24 w-auto object-contain"
+                  />
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center justify-center bg-white rounded-xl p-4 shadow-lg"
+                >
+                  <Image
+                    src="/logos/beta-club-logo.png"
+                    alt="Beta Club"
+                    width={100}
+                    height={120}
+                    className="h-24 w-auto object-contain"
+                  />
                 </motion.div>
               </div>
             </ScrollAnimation>
+          </div>
+        </div>
+      </section>
+
+      {/* Sean & Zach Photo Section */}
+      <section className="py-16 bg-[#1a2332]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <ScrollAnimation>
+            <h2 className="text-3xl text-white text-center mb-12 font-heading font-bold">
+              Sean & Zach
+            </h2>
+          </ScrollAnimation>
+          
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-5 gap-8 items-start">
+              {/* Left Column - Photo (40%) */}
+              <div className="md:col-span-2">
+                <ScrollAnimation delay={0.1}>
+                  <div className="relative">
+                    <ImageLightbox
+                      src="/sean-zach-photo.png"
+                      alt="Zach, Sean, and Gabe at prom"
+                      width={600}
+                      height={800}
+                      className="rounded-[20px] shadow-2xl w-full h-auto object-cover"
+                      caption="Left to right: Zach, Sean, Gabe"
+                    />
+                    <p className="mt-3 text-sm font-mono text-cyan-400 text-center">
+                      Left to right: Zach, Sean, Gabe
+                    </p>
+                  </div>
+                </ScrollAnimation>
+              </div>
+              
+              {/* Right Column - Text (60%) */}
+              <div className="md:col-span-3">
+                <ScrollAnimation delay={0.2}>
+                  <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
+                    <p>
+                      We're Sean and Zach — two developers from Louisville who started building together through FBLA competitions at Trinity High School.
+                    </p>
+                    <p>
+                      What began as school projects quickly became something more serious: a mission to build technology that's calm, accessible, and actually works for people who struggle with typical websites.
+                    </p>
+                    <p>
+                      Gabe rounds out our team, bringing hands-on problem-solving when projects get complicated.
+                    </p>
+                    <p>
+                      We're early-stage, but we build like professionals. We ship working prototypes, explain everything in plain English, and we're committed to sticking around after launch.
+                    </p>
+                  </div>
+                </ScrollAnimation>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -191,22 +262,48 @@ export default function AboutPage() {
                 whileHover={{ scale: 1.02, y: -4 }}
                 className="flex flex-col md:flex-row gap-8 items-start p-8 md:p-10 rounded-2xl hover:shadow-xl transition-all bg-gray-800 border-2 border-gray-700 hover:border-trinity-red"
               >
-                <motion.a
-                  href="https://www.instagram.com/sean.mcculloch7/?hl=en"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-32 h-32 rounded-full mx-auto md:mx-0 flex-shrink-0 shadow-lg overflow-hidden border-4 border-trinity-red hover:border-pink-400 transition-all cursor-pointer group relative"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  title="View Sean's Instagram"
-                >
-                  <div className="w-full h-full bg-gradient-to-br from-trinity-red to-red-700 flex items-center justify-center text-white text-5xl font-bold">
-                    S
+                <div className="w-32 h-32 rounded-full mx-auto md:mx-0 flex-shrink-0 shadow-lg overflow-hidden border-4 border-trinity-red relative group">
+                  <Image
+                    src="/sean-profile.png"
+                    alt="Sean McCulloch"
+                    width={128}
+                    height={128}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Hover Overlay with Social Icons */}
+                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                    <a
+                      href="https://www.instagram.com/sean.mcculloch7/?hl=en"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-pink-400 transition-colors"
+                      aria-label="Instagram"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaInstagram className="w-6 h-6" />
+                    </a>
+                    <a
+                      href="https://www.linkedin.com/in/sean-mcculloch-58a3761a9/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-blue-400 transition-colors"
+                      aria-label="LinkedIn"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaLinkedin className="w-6 h-6" />
+                    </a>
+                    <a
+                      href="https://github.com/SeanSpon"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-gray-300 transition-colors"
+                      aria-label="GitHub"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaGithub className="w-6 h-6" />
+                    </a>
                   </div>
-                  <div className="absolute inset-0 bg-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <FaInstagram className="w-8 h-8 text-white" />
-                  </div>
-                </motion.a>
+                </div>
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-2xl md:text-3xl font-heading font-bold text-white mb-2">
                     Sean McCulloch
@@ -303,22 +400,48 @@ export default function AboutPage() {
                 whileHover={{ scale: 1.02, y: -4 }}
                 className="flex flex-col md:flex-row gap-8 items-start p-8 md:p-10 rounded-2xl hover:shadow-xl transition-all bg-gray-800 border-2 border-gray-700 hover:border-trinity-red"
               >
-                <motion.a
-                  href="https://www.instagram.com/zachrobards/?hl=en"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-32 h-32 rounded-full mx-auto md:mx-0 flex-shrink-0 shadow-lg overflow-hidden border-4 border-trinity-red hover:border-pink-400 transition-all cursor-pointer group relative"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  title="View Zach's Instagram"
-                >
-                  <div className="w-full h-full bg-gradient-to-br from-trinity-red to-red-700 flex items-center justify-center text-white text-5xl font-bold">
-                    Z
+                <div className="w-32 h-32 rounded-full mx-auto md:mx-0 flex-shrink-0 shadow-lg overflow-hidden border-4 border-trinity-red relative group">
+                  <Image
+                    src="/zach-profile.png"
+                    alt="Zach Robards"
+                    width={128}
+                    height={128}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Hover Overlay with Social Icons */}
+                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                    <a
+                      href="https://www.instagram.com/zachrobards/?hl=en"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-pink-400 transition-colors"
+                      aria-label="Instagram"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaInstagram className="w-6 h-6" />
+                    </a>
+                    <a
+                      href="https://www.linkedin.com/in/zachary-robards-b51457337/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-blue-400 transition-colors"
+                      aria-label="LinkedIn"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaLinkedin className="w-6 h-6" />
+                    </a>
+                    <a
+                      href="https://github.com/zrobards"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-gray-300 transition-colors"
+                      aria-label="GitHub"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaGithub className="w-6 h-6" />
+                    </a>
                   </div>
-                  <div className="absolute inset-0 bg-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <FaInstagram className="w-8 h-8 text-white" />
-                  </div>
-                </motion.a>
+                </div>
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-2xl md:text-3xl font-heading font-bold text-white mb-2">
                     Zach Robards
@@ -367,17 +490,43 @@ export default function AboutPage() {
                   <p className="text-gray-300 italic mb-4">
                     Zach makes every client feel capable — even if they've never touched a computer before.
                   </p>
-                  <motion.a
-                    href="https://www.instagram.com/zachrobards/?hl=en"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all shadow-lg"
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaInstagram className="w-5 h-5" />
-                    <span className="font-semibold">Follow @zachrobards</span>
-                  </motion.a>
+                  <div className="flex flex-wrap gap-3">
+                    <motion.a
+                      href="https://github.com/zrobards"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all shadow-lg"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      aria-label="GitHub"
+                    >
+                      <FaGithub className="w-5 h-5" />
+                      <span className="font-semibold">GitHub</span>
+                    </motion.a>
+                    <motion.a
+                      href="https://www.linkedin.com/in/zachary-robards-b51457337/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      aria-label="LinkedIn"
+                    >
+                      <FaLinkedin className="w-5 h-5" />
+                      <span className="font-semibold">LinkedIn</span>
+                    </motion.a>
+                    <motion.a
+                      href="https://www.instagram.com/zachrobards/?hl=en"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all shadow-lg"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FaInstagram className="w-5 h-5" />
+                      <span className="font-semibold">Follow @zachrobards</span>
+                    </motion.a>
+                  </div>
                 </div>
               </motion.div>
             </ScrollAnimation>
@@ -414,12 +563,12 @@ export default function AboutPage() {
                 {
                   icon: <FiShield className="w-8 h-8" />,
                   title: 'Support Doesn\'t Disappear After Launch',
-                  description: 'Most agencies take your money, build a site, and vanish. We stay. We maintain, update, fix, improve, and evolve your systems as your organization grows. Long-term partnerships, not one-time projects.',
+                  description: 'Most agencies take your money, build a site, and vanish. We\'re committed to staying involved long-term. We maintain, update, fix, improve, and evolve your systems as your organization grows. Long-term partnerships, not one-time projects.',
                 },
                 {
                   icon: <FiHeart className="w-8 h-8" />,
                   title: 'Relationships Matter More Than Contracts',
-                  description: 'We work with clients for years — not because they\'re locked in by a contract, but because they genuinely like working with us. We talk like humans. We keep things simple. We deliver more than we promise.',
+                  description: 'We aim to build relationships that last for years — not because clients are locked in by a contract, but because they genuinely like working with us. We talk like humans. We keep things simple. We deliver more than we promise.',
                 },
                 {
                   icon: <FiAward className="w-8 h-8" />,
@@ -518,7 +667,7 @@ export default function AboutPage() {
                 {
                   icon: <FiShield className="w-8 h-8" />,
                   title: 'We Stay With You Long-Term',
-                  description: 'We don\'t build a site and disappear. We maintain, update, and support your platform as your organization evolves. Your success is our success.',
+                  description: 'We don\'t build a site and disappear. We\'re committed to maintaining, updating, and supporting your platform as your organization evolves. Your success is our success.',
                 },
               ].map((principle, index) => (
                 <ScrollAnimation key={index} delay={index * 0.1}>
@@ -560,7 +709,7 @@ export default function AboutPage() {
                   Too many people — especially those with cognitive challenges, mental health needs, or limited tech experience — are excluded from digital spaces because websites are too complicated, too confusing, or too expensive to access.
                 </p>
                 <p className="text-xl text-white font-semibold">
-                  We're changing that.
+                  We're working to change that.
                 </p>
                 <p>We build:</p>
                 <ul className="space-y-3 ml-6">
@@ -588,7 +737,7 @@ export default function AboutPage() {
                   We're building access. We're building dignity. We're building community.
                 </p>
                 <p className="text-lg text-gray-300 pt-4">
-                  And we're proving that technology, when designed with empathy, can lift people up instead of leaving them behind.
+                  And we're working to prove that technology, when designed with empathy, can lift people up instead of leaving them behind.
                 </p>
               </div>
             </ScrollAnimation>

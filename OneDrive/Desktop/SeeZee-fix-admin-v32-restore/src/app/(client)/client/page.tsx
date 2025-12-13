@@ -15,6 +15,7 @@ import {
   FiPlus,
 } from "react-icons/fi";
 import ComprehensiveDashboardClient from "./components/ComprehensiveDashboardClient";
+import DashboardClient from "./components/DashboardClient";
 
 export default async function ClientDashboard() {
   const session = await auth();
@@ -55,11 +56,21 @@ export default async function ClientDashboard() {
     );
   }
   
-  // No projects? Show welcome screen
-  if (!data || data.projects.length === 0) {
-    return <WelcomeScreen userName={session.user.name || undefined} />;
+  // Check if user has no projects and no project requests
+  const hasNoProjects = !data || data.projects.length === 0;
+  const hasProjectRequests = data && (data.stats.activeRequests > 0 || (data.recentRequests && data.recentRequests.length > 0));
+  
+  // If no projects and no project requests, redirect to /start
+  if (hasNoProjects && !hasProjectRequests) {
+    redirect("/start");
   }
   
+  // If no projects but has project requests, use DashboardClient which handles pre-client state
+  if (hasNoProjects && hasProjectRequests) {
+    return <DashboardClient />;
+  }
+  
+  // User has projects, show the comprehensive dashboard
   const activeProjects = data.projects.filter((p) => {
     const status = String(p.status || '').toUpperCase();
     return ['ACTIVE', 'IN_PROGRESS', 'DESIGN', 'BUILD', 'REVIEW', 'PLANNING', 'LAUNCH'].includes(status);

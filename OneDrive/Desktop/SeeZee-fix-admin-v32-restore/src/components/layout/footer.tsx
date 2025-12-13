@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { LogoMinimal } from '@/components/Logo'
+import { FaInstagram, FaLinkedin, FaGithub } from 'react-icons/fa'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -16,9 +17,9 @@ export function Footer() {
       { name: 'Terms of Service', href: '/legal/terms' },
     ],
     social: [
-      { name: 'GitHub', href: 'https://github.com' },
-      { name: 'LinkedIn', href: 'https://linkedin.com' },
-      { name: 'Twitter', href: 'https://twitter.com' },
+      { name: 'GitHub', href: 'https://github.com/SeanSpon' },
+      { name: 'LinkedIn', href: 'https://www.linkedin.com/in/sean-mcculloch-58a3761a9/' },
+      { name: 'Instagram', href: 'https://www.instagram.com/sean.mcculloch7/?hl=en' },
     ]
   }
 
@@ -43,19 +44,33 @@ export function Footer() {
             
             {/* Social links */}
             <div className="flex gap-3">
-              {navigation.social.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-red-950/30 backdrop-blur-xl border border-red-900/30 flex items-center justify-center hover:bg-red-900/50 hover:border-red-500/50 transition-all duration-300 group"
-                >
-                  <span className="text-xs text-gray-400 group-hover:text-red-400 transition-colors">
-                    {item.name[0]}
-                  </span>
-                </Link>
-              ))}
+              <Link
+                href="https://github.com/SeanSpon"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-lg bg-red-950/30 backdrop-blur-xl border border-red-900/30 flex items-center justify-center hover:bg-red-900/50 hover:border-red-500/50 transition-all duration-300 group"
+                aria-label="GitHub"
+              >
+                <FaGithub className="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" />
+              </Link>
+              <Link
+                href="https://www.linkedin.com/in/sean-mcculloch-58a3761a9/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-lg bg-red-950/30 backdrop-blur-xl border border-red-900/30 flex items-center justify-center hover:bg-red-900/50 hover:border-red-500/50 transition-all duration-300 group"
+                aria-label="LinkedIn"
+              >
+                <FaLinkedin className="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" />
+              </Link>
+              <Link
+                href="https://www.instagram.com/sean.mcculloch7/?hl=en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-lg bg-red-950/30 backdrop-blur-xl border border-red-900/30 flex items-center justify-center hover:bg-red-900/50 hover:border-red-500/50 transition-all duration-300 group"
+                aria-label="Instagram"
+              >
+                <FaInstagram className="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" />
+              </Link>
             </div>
           </div>
 

@@ -64,15 +64,15 @@ export function Navbar() {
         role="banner" 
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
           scrolled 
-            ? 'bg-slate-950/95 backdrop-blur-xl shadow-lg shadow-black/20' 
-            : 'bg-slate-950/60 backdrop-blur-xl'
-        } border-b border-white/10`}
+            ? 'bg-white/95 backdrop-blur-xl shadow-lg shadow-black/10' 
+            : 'bg-white/90 backdrop-blur-xl'
+        } border-b border-[#e2e8f0]`}
       >
         <div className="max-w-7xl mx-auto h-[var(--nav-h)] flex items-center gap-3 px-4 lg:px-6">
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+            className="md:hidden rounded-lg p-2 text-[#475569] hover:bg-[#f9fafb] hover:text-[#0f172a] transition-colors"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
@@ -122,7 +122,7 @@ export function Navbar() {
             ) : (
               <Link
                 href="/start"
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-3 lg:px-4 py-2 text-sm font-semibold text-white shadow-md hover:from-blue-600 hover:to-purple-600 transition-all"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[#dc2626] px-3 lg:px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#b91c1c] transition-all"
               >
                 <Rocket className="h-4 w-4" />
                 <span className="hidden lg:inline">Start a Project</span>

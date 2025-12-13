@@ -104,9 +104,9 @@ function SuccessPageContent() {
   const [receiptError, setReceiptError] = useState<string | null>(null);
 
   useEffect(() => {
-    const qid = searchParams.get('leadId');
-    if (qid) {
-      setLeadId(qid);
+    const leadIdParam = searchParams.get('leadId');
+    if (leadIdParam) {
+      setLeadId(leadIdParam);
     }
 
     // Hide confetti after animation

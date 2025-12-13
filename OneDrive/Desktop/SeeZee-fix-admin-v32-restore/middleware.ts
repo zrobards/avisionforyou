@@ -1,14 +1,7 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-
-// Import auth - if it fails due to missing env vars, we'll handle it in the middleware function
-let authModule: any = null;
-try {
-  authModule = require("@/auth");
-} catch (error) {
-  // Import failed - will use dynamic import in middleware
-  console.error("❌ Auth module import failed (likely missing env vars):", error instanceof Error ? error.message : String(error));
-}
+// src/middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -31,36 +24,13 @@ function getCorsHeaders(origin: string | null) {
   return headers;
 }
 
-// Routes that require authentication
-const protectedRoutes = [
-  "/start",
-  "/client",
-  "/onboarding",
-];
-
-// Routes that should be accessible to everyone
-const publicRoutes = [
-  "/",
-  "/login",
-  "/signin",
-  "/signup",
-  "/register",
-  "/about",
-  "/services",
-  "/contact",
-  "/privacy",
-  "/terms",
-];
-
-export async function middleware(request: NextRequest) {
-  const { pathname, searchParams } = request.nextUrl;
-  const method = request.method;
-  const origin = request.headers.get("origin");
-  
+export async function middleware(req: NextRequest) {
   try {
+    const { pathname, searchParams } = req.nextUrl;
+    const method = req.method;
+    const origin = req.headers.get("origin");
 
-    // CRITICAL: Never interfere with auth routes - let NextAuth handle them completely
-    // This MUST be the first check to avoid any interference with OAuth flow
+    // CRITICAL: Never interfere with auth routes
     if (pathname.startsWith("/api/auth")) {
       return NextResponse.next();
     }
@@ -71,16 +41,6 @@ export async function middleware(request: NextRequest) {
         status: 200,
         headers: getCorsHeaders(origin),
       });
-    }
-
-    // Never interfere with RSC requests
-    if (searchParams.has("_rsc")) {
-      return NextResponse.next();
-    }
-
-    // Never interfere with prefetch requests
-    if (request.headers.get("next-router-prefetch") === "1") {
-      return NextResponse.next();
     }
 
     // Add CORS headers to all API routes
@@ -96,118 +56,57 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check if route requires authentication
-    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+    const isAdminRoute = pathname.startsWith('/admin');
+    const isClientRoute = pathname.startsWith('/client');
+    const isCEORoute = pathname.startsWith('/ceo');
+    const isPortalRoute = pathname.startsWith('/portal');
+    const isOnboardingRoute = pathname.startsWith('/onboarding');
     
-    if (isProtectedRoute) {
-      try {
-        // Get session - use safe auth with fallback
-        let session = null;
-        try {
-          if (authModule?.auth) {
-            session = await authModule.auth();
-          } else {
-            // Fallback: try dynamic import if static import failed
-            try {
-              const dynamicAuth = await import("@/auth");
-              session = await dynamicAuth.auth();
-            } catch (importError) {
-              // If import fails, auth is not available - treat as no session
-              console.warn("⚠️ Auth module not available - treating as unauthenticated");
-              session = null;
-            }
-          }
-        } catch (authError) {
-          // If auth call fails (env vars missing, db error, etc.), treat as no session
-          const errorMsg = authError instanceof Error ? authError.message : String(authError);
-          console.error("❌ Auth call failed in middleware:", errorMsg);
-          // Don't crash - just treat as unauthenticated
-          session = null;
-        }
-      
-      // If no session, redirect to login with return URL
-      if (!session?.user) {
-        const url = new URL("/login", request.url);
-        url.searchParams.set("returnUrl", pathname);
-        return NextResponse.redirect(url);
-      }
-
-      // Check if user needs to complete onboarding questionnaire
-      // (except if they're already on the onboarding page)
-      if (!pathname.startsWith("/onboarding") && session.user.email) {
-        // Check if user has completed the brief questionnaire
-        // For CLIENT role users trying to access /start
-        if (pathname.startsWith("/start") && session.user.role === "CLIENT") {
-          // Check if questionnaireCompleted field exists (handles null and undefined)
-          const questionnaireCompleted = session.user.questionnaireCompleted;
-          console.log(`🔍 Middleware check: User ${session.user.email} - questionnaireCompleted: ${questionnaireCompleted ? 'Yes' : 'No'}, path: ${pathname}`);
-          
-          if (!questionnaireCompleted) {
-            // Redirect to brief questionnaire
-            console.log(`🔄 Redirecting ${session.user.email} to questionnaire (questionnaireCompleted is ${questionnaireCompleted === null ? 'null' : 'undefined'})`);
-            const url = new URL("/onboarding/brief-questionnaire", request.url);
-            return NextResponse.redirect(url);
-          }
-          
-          console.log(`✅ User ${session.user.email} has completed questionnaire, allowing access to ${pathname}`);
-        }
-      }
-    } catch (error) {
-      // Handle auth errors gracefully - log and redirect to login
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error("❌ Middleware auth check failed:", errorMessage);
-      
-      // Check if it's a database connection error
-      const isDbError = 
-        errorMessage.includes("Can't reach database server") ||
-        errorMessage.includes("P1001") ||
-        errorMessage.includes("P1000") ||
-        errorMessage.includes("connection") ||
-        errorMessage.includes("ECONNREFUSED") ||
-        errorMessage.includes("timeout") ||
-        errorMessage.includes("DATABASE_URL") ||
-        errorMessage.includes("PrismaClient") ||
-        errorMessage.includes("prisma");
-      
-      if (isDbError) {
-        console.error("💡 Database connection error detected. Check your DATABASE_URL and ensure the database is running.");
-      }
-      
-      // Redirect to login on any auth error (don't crash the middleware)
-      const url = new URL("/login", request.url);
-      url.searchParams.set("returnUrl", pathname);
-      url.searchParams.set("error", "AuthError");
-      return NextResponse.redirect(url);
+    const isProtectedRoute = isAdminRoute || isClientRoute || isCEORoute || isPortalRoute || isOnboardingRoute;
+    
+    // Only check auth on protected routes
+    if (!isProtectedRoute) {
+      return NextResponse.next();
     }
-  }
+
+    // Read NextAuth JWT (edge-safe, no Prisma)
+    // Let getToken use NextAuth's internal secret resolution
+    // and match the secureCookie behavior for production HTTPS
+    const token = await getToken({
+      req,
+      secureCookie: process.env.NODE_ENV === 'production',
+    });
+
+    // TEMP DEBUG: log what we see in prod
+    console.log('🔐 Middleware token:', token ? 'present' : 'null', 'for path:', pathname);
+
+    const isLoggedIn = !!token;
+
+    if (!isLoggedIn) {
+      const loginUrl = new URL('/login', req.url);
+      loginUrl.searchParams.set('returnUrl', pathname + searchParams.toString());
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // User is authenticated
+    console.log(`✅ Middleware: User ${token?.email} authenticated, allowing access to ${pathname}`);
 
     return NextResponse.next();
-  } catch (error) {
-    // Top-level error handler - catch any unexpected errors in middleware
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error("❌ Middleware top-level error:", errorMessage);
-    console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack");
-    
-    // For API routes, return 500 error
-    if (pathname.startsWith("/api")) {
-      return NextResponse.json(
-        { error: "Internal server error", message: "Middleware error" },
-        { status: 500 }
-      );
-    }
-    
-    // For page routes, try to continue (don't crash)
-    // This allows the page to load even if middleware has issues
+  } catch (err) {
+    console.error('Middleware error:', err);
+    // Fail open instead of 500-ing the whole app
     return NextResponse.next();
   }
 }
 
+// 🎯 FIXED: Only match protected routes, NOT /login or other public pages
 export const config = {
   matcher: [
-    // Match all API routes EXCEPT auth routes (NextAuth handles those)
-    "/api/((?!auth).*)",
-    // Match all pages except Next.js internals
-    "/((?!_next/static|_next/image|favicon.ico|api/auth).*)",
+    '/admin/:path*',
+    '/client/:path*',
+    '/ceo/:path*',
+    '/portal/:path*',
+    '/onboarding/:path*',
+    '/api/((?!auth).*)',  // All API routes except auth
   ],
 };
-
-
