@@ -3,6 +3,30 @@ import { db } from './db'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  from = 'A Vision For You <noreply@avisionforyou.org>',
+}: {
+  to: string
+  subject: string
+  html: string
+  from?: string
+}) {
+  try {
+    return await resend.emails.send({
+      from,
+      to,
+      subject,
+      html,
+    })
+  } catch (error) {
+    console.error('Failed to send email:', error)
+    throw error
+  }
+}
+
 interface ReminderType {
   type: '24h' | '1h'
   field: 'reminder24hSent' | 'reminder1hSent'

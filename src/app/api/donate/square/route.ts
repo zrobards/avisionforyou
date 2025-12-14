@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkoutApi, customersApi } from "@/lib/square"
+import { getCheckoutApi, getCustomersApi } from "@/lib/square"
 import { db } from "@/lib/db"
 import { v4 as uuidv4 } from "uuid"
 
@@ -24,6 +24,9 @@ export async function POST(request: NextRequest) {
     // Amount in cents
     const amountInCents = Math.round(amount * 100)
     const idempotencyKey = uuidv4()
+
+    const customersApi = getCustomersApi()
+    const checkoutApi = getCheckoutApi()
 
     // Create or get customer
     let customerId: string | undefined
