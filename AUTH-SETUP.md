@@ -73,13 +73,36 @@ Once configured, users can sign in by entering their email. They'll receive a ma
 ## 4. Production Deployment (Vercel)
 
 ### Add Environment Variables in Vercel:
-1. Go to your Vercel project settings
-2. Navigate to "Environment Variables"
-3. Add all the variables from your `.env.local`
-4. Make sure to update `NEXTAUTH_URL` to your production URL:
-   ```
-   NEXTAUTH_URL=https://yourdomain.vercel.app
-   ```
+1. Go to your Vercel project: https://vercel.com/dashboard
+2. Select your project (avisionforyou)
+3. Navigate to "Settings" → "Environment Variables"
+4. Add the following variables:
+
+| Variable | Value | Environment |
+|----------|-------|-------------|
+| `NEXTAUTH_SECRET` | (same as .env.local) | Production, Preview, Development |
+| `NEXTAUTH_URL` | `https://avisionforyou.vercel.app` | Production |
+| `DATABASE_URL` | (your Neon PostgreSQL URL) | All |
+| `GOOGLE_CLIENT_ID` | (from Google Cloud Console) | All |
+| `GOOGLE_CLIENT_SECRET` | (from Google Cloud Console) | All |
+| `RESEND_API_KEY` | (from resend.com) | All |
+
+5. Deploy after adding variables:
+```bash
+git push origin main
+```
+
+### Verify Google OAuth is Working:
+1. Visit: https://avisionforyou.vercel.app/login
+2. Look for "Sign in with Google" button
+3. Click it and verify Google OAuth flow works
+4. Check that redirects to https://avisionforyou.vercel.app/api/auth/callback/google
+
+### If Google OAuth Not Showing:
+- Ensure `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set in Vercel
+- Verify redirect URI in Google Cloud Console includes: `https://avisionforyou.vercel.app/api/auth/callback/google`
+- Wait 2-5 minutes for Vercel to rebuild with new environment variables
+- Clear browser cache and try again
 
 ## Authentication Methods
 
@@ -104,8 +127,20 @@ Once configured, users can sign in by entering their email. They'll receive a ma
 3. Check that you're using the correct password
 
 ### Google login not showing?
-- Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to `.env.local`
+- ✅ Google OAuth is configured in code (src/lib/auth.ts)
+- Ensure `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are in `.env.local` (development)
+- For production: add these variables in Vercel dashboard
 - Restart your dev server: `npm run dev`
+- If still not showing, verify Google credentials are correct
+
+### Google OAuth Error: "redirect_uri_mismatch"?
+- Go to Google Cloud Console: https://console.cloud.google.com
+- Select your project
+- Go to "APIs & Services" → "Credentials" → Select your OAuth app
+- Edit and verify "Authorized redirect URIs" includes:
+  - `http://localhost:3000/api/auth/callback/google` (for local)
+  - `https://avisionforyou.vercel.app/api/auth/callback/google` (for production)
+- Save and retry
 
 ### Email login not showing?
 - Add `RESEND_API_KEY` to `.env.local`
