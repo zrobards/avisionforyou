@@ -2,6 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -22,6 +23,16 @@ import {
 } from 'react-icons/fi'
 
 export default function HomePage() {
+  const [photoSrc, setPhotoSrc] = useState('/sean-zach-photo.png')
+  
+  const handleMuscleClick = () => {
+    // Play the sound effect
+    const audio = new Audio('/grrr-sound.mp3')
+    audio.play().catch(err => console.log('Audio play failed:', err))
+    
+    // Swap to fortnitr1 photo
+    setPhotoSrc('/fortnitr1.png')
+  }
   return (
     <div className="w-full">
       <StickyCTA />
@@ -518,7 +529,7 @@ export default function HomePage() {
                 <div className="relative w-full max-w-2xl">
                   <div className="rounded-2xl overflow-hidden border-2 border-[#ef4444]/30 shadow-2xl hover:shadow-[#ef4444]/40 transition-all duration-300">
                     <ImageLightbox
-                      src="/sean-zach-photo.png"
+                      src={photoSrc}
                       alt="Sean, Zach & Gabe"
                       width={700}
                       height={500}
@@ -547,7 +558,14 @@ export default function HomePage() {
                   We started with Big Red Bus and learned how to build accessible technology that feels simple and human. When you work with SeeZee, you get a real team: we both code, we both stay involved, and we build with you from first draft to long-term support.
                 </p>
                 <p className="text-sm text-gray-400 italic">
-                  Gabe (the guy on the right) brings the muscle to the fight — handling the heavy lifting when projects need extra hands.
+                  Gabe (the guy on the right) brings the{' '}
+                  <span 
+                    onClick={handleMuscleClick}
+                    className="cursor-pointer hover:text-[#ef4444] transition-colors duration-200 font-bold"
+                  >
+                    muscle
+                  </span>
+                  {' '}to the fight — handling the heavy lifting when projects need extra hands.
                 </p>
                 <p className="text-white font-semibold">
                   We don't just pitch ideas — we show up with drafts, designs, and a clear plan.
