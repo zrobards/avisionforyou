@@ -229,6 +229,7 @@ model Donation {
   
   stripeId          String?
   stripeSubscriptionId String?
+  squarePaymentId   String?
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

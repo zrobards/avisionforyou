@@ -20,9 +20,11 @@ export default function Donate() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'square'>('square')
 
   const stripeConfigured = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 
     !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.includes('placeholder')
+  const squareConfigured = process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === 'sandbox'
 
   const handleDonate = async () => {
     setError('')
@@ -39,10 +41,20 @@ export default function Donate() {
       return
     }
 
+    // Check if recurring donation is supported
+    if (frequency !== 'ONE_TIME' && paymentMethod === 'square') {
+      setError('Recurring donations not yet supported with Square. Please use one-time donation.')
+      return
+    }
+
     setLoading(true)
 
     try {
-      const response = await fetch('/api/donate/checkout', {
+      const endpoint = paymentMethod === 'square' 
+        ? '/api/donate/square' 
+        : '/api/donate/checkout'
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, frequency, email, name })
@@ -102,6 +114,41 @@ export default function Donate() {
           <div className="bg-gradient-to-br from-purple-50 to-green-50 rounded-lg shadow-xl p-6 sm:p-8 md:p-10">
             <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900">Choose Your Impact</h2>
             <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">Every donation directly transforms lives in our community</p>
+
+            {squareConfigured && (
+              <div className="mb-8 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Payment Method</label>
+                <div className="flex gap-3 sm:gap-4">
+                  <button
+                    onClick={() => setPaymentMethod('square')}
+                    className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition ${
+                      paymentMethod === 'square'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-600'
+                    }`}
+                  >
+                    Square (Sandbox Test)
+                  </button>
+                  {stripeConfigured && (
+                    <button
+                      onClick={() => setPaymentMethod('stripe')}
+                      className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition ${
+                        paymentMethod === 'stripe'
+                          ? 'bg-brand-purple text-white shadow-lg'
+                          : 'bg-white text-gray-700 border border-gray-300 hover:border-brand-purple'
+                      }`}
+                    >
+                      Stripe
+                    </button>
+                  )}
+                </div>
+                {paymentMethod === 'square' && (
+                  <p className="text-xs sm:text-sm text-blue-700 mt-2">
+                    ✨ Sandbox mode - Use test card: 4532 0151 1283 0366
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="mb-6 sm:mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-3">Donation Frequency</label>
@@ -260,7 +307,7 @@ export default function Donate() {
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                 </svg>
-                Secure payment powered by Stripe
+                Secure payment powered by {paymentMethod === 'square' ? 'Square' : 'Stripe'}
               </p>
               <p className="text-xs text-gray-500">
                 A Vision For You Recovery is a 501(c)(3) nonprofit. Your donation is tax-deductible.
