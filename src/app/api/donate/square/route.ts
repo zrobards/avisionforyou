@@ -62,27 +62,22 @@ export async function POST(request: NextRequest) {
 
     // Create payment link for one-time donations
     if (frequency === "ONE_TIME") {
-      const checkoutResult = await checkoutApi.createPaymentLink({
-        idempotencyKey,
-        quickPay: {
-          name: "A Vision For You Recovery - Donation",
-          priceAmount: amountInCents,
-          currency: "USD",
-          description: "Support our recovery programs and community"
-        },
-        checkoutOptions: {
-          askForShippingAddress: false,
-          customFields: [
-            {
-              title: "Impact Message",
-              placeholder: "Share why this cause matters to you (optional)"
-            }
-          ]
-        },
-        prePopulatedData: {
-          buyerEmail: email
-        }
-      })
+      try {
+        const checkoutResult = await checkoutApi.createPaymentLink({
+          idempotencyKey,
+          quickPay: {
+            name: "A Vision For You Recovery - Donation",
+            priceAmount: amountInCents,
+            currency: "USD",
+            description: "Support our recovery programs and community"
+          },
+          checkoutOptions: {
+            askForShippingAddress: false
+          },
+          prePopulatedData: {
+            buyerEmail: email
+          }
+        })
 
       if (!checkoutResult.result.paymentLink) {
         return NextResponse.json(
@@ -114,6 +109,13 @@ export async function POST(request: NextRequest) {
         console.error("Database error:", dbError)
         return NextResponse.json(
           { error: "Donation created but failed to save record" },
+          { status: 500 }
+        )
+      }
+      } catch (squareError) {
+        console.error("Square checkout error:", squareError)
+        return NextResponse.json(
+          { error: "Failed to create payment link" },
           { status: 500 }
         )
       }

@@ -1,7 +1,17 @@
+'use client'
+
+import { ReactNode } from 'react'
+import Navbar from '@/components/layout/Navbar'
+
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
-  return children
+  return (
+    <>
+      <Navbar />
+      {children}
+    </>
+  )
 }
