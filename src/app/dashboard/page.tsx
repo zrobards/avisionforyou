@@ -100,9 +100,9 @@ export default function Dashboard() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your dashboard...</p>
         </div>
       </div>
@@ -113,16 +113,16 @@ export default function Dashboard() {
   const filteredMeetings = filter === 'all' ? upcomingMeetings : upcomingMeetings.filter(m => m.format === filter.toUpperCase())
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-8">
+      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-8 border-b border-purple-700 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">Welcome, {session?.user?.name}!</h1>
-            <p className="text-blue-100 mt-2">Your personal recovery dashboard</p>
+            <p className="text-purple-100 mt-2">Your personal recovery dashboard</p>
           </div>
           <div className="flex gap-4">
-            <Link href="/assessment" className="flex items-center gap-2 bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50">
+            <Link href="/assessment" className="flex items-center gap-2 bg-brand-green text-brand-purple px-4 py-2 rounded-lg font-semibold hover:bg-green-400 transition">
               <Settings className="w-4 h-4" />
               Reassess
             </Link>
@@ -133,9 +133,9 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Assessment Status */}
         {assessment ? (
-          <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-6">
+          <div className="mb-8 bg-green-50 border border-brand-green rounded-lg p-6">
             <div className="flex gap-4">
-              <Heart className="w-6 h-6 text-green-600 flex-shrink-0" />
+              <Heart className="w-6 h-6 text-brand-green flex-shrink-0" />
               <div>
                 <h3 className="font-bold text-gray-900 mb-2">Assessment Completed</h3>
                 <p className="text-gray-700">Based on your assessment, we recommend the <strong>{assessment.recommendedProgram}</strong> program. You can view upcoming sessions below.</p>
@@ -143,13 +143,13 @@ export default function Dashboard() {
             </div>
           </div>
         ) : (
-          <div className="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="mb-8 bg-purple-50 border border-brand-purple rounded-lg p-6">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="font-bold text-gray-900 mb-2">Complete Your Assessment</h3>
                 <p className="text-gray-700">Take our quick assessment to help us match you with the best program for your recovery journey.</p>
               </div>
-              <Link href="/assessment" className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">
+              <Link href="/assessment" className="bg-brand-purple text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-800 transition">
                 Start Assessment
               </Link>
             </div>
@@ -163,19 +163,19 @@ export default function Dashboard() {
             <div className="flex gap-2">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg font-semibold ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                className={`px-4 py-2 rounded-lg font-semibold transition ${filter === 'all' ? 'bg-brand-purple text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-brand-purple'}`}
               >
                 All
               </button>
               <button
                 onClick={() => setFilter('online')}
-                className={`px-4 py-2 rounded-lg font-semibold ${filter === 'online' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                className={`px-4 py-2 rounded-lg font-semibold transition ${filter === 'online' ? 'bg-brand-purple text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-brand-purple'}`}
               >
                 Online
               </button>
               <button
                 onClick={() => setFilter('in_person')}
-                className={`px-4 py-2 rounded-lg font-semibold ${filter === 'in_person' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                className={`px-4 py-2 rounded-lg font-semibold transition ${filter === 'in_person' ? 'bg-brand-purple text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-brand-purple'}`}
               >
                 In-Person
               </button>
@@ -190,13 +190,13 @@ export default function Dashboard() {
           ) : (
             <div className="grid gap-6">
               {filteredMeetings.map(meeting => (
-                <div key={meeting.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 border-l-4 border-blue-600">
+                <div key={meeting.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 border-l-4 border-brand-purple">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-gray-900 mb-1">{meeting.title}</h3>
                       <p className="text-gray-600">{meeting.description}</p>
                     </div>
-                    <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-semibold">
+                    <span className="bg-purple-100 text-brand-purple px-3 py-1 rounded-full text-sm font-semibold">
                       {meeting.format === 'ONLINE' ? '🌐 Online' : '📍 In-Person'}
                     </span>
                   </div>
@@ -213,13 +213,13 @@ export default function Dashboard() {
                   </div>
 
                   {meeting.format === 'ONLINE' && meeting.link && (
-                    <div className="mb-4 bg-blue-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-700"><strong>Meeting Link:</strong> <a href={meeting.link} className="text-blue-600 hover:underline">{meeting.link}</a></p>
+                    <div className="mb-4 bg-purple-50 p-3 rounded-lg border border-purple-200">
+                      <p className="text-sm text-gray-700"><strong>Meeting Link:</strong> <a href={meeting.link} className="text-brand-purple hover:underline">{meeting.link}</a></p>
                     </div>
                   )}
 
                   {meeting.format === 'IN_PERSON' && meeting.location && (
-                    <div className="mb-4 bg-blue-50 p-3 rounded-lg">
+                    <div className="mb-4 bg-purple-50 p-3 rounded-lg border border-purple-200">
                       <p className="text-sm text-gray-700"><strong>Location:</strong> {meeting.location}</p>
                     </div>
                   )}
@@ -229,7 +229,7 @@ export default function Dashboard() {
                     className={`w-full py-2 rounded-lg font-semibold transition ${
                       userRsvps.includes(meeting.id)
                         ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-gradient-to-r from-brand-purple to-purple-700 text-white hover:from-purple-800 hover:to-purple-900'
                     }`}
                   >
                     {userRsvps.includes(meeting.id) ? '✓ RSVP\'d' : 'RSVP'}
@@ -241,11 +241,11 @@ export default function Dashboard() {
         </div>
 
         {/* Community Link */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-8 text-center">
+        <div className="bg-gradient-to-r from-brand-purple to-brand-green text-white rounded-lg p-8 text-center shadow-lg">
           <Users className="w-12 h-12 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Join Our Community</h2>
           <p className="mb-6">Connect with others, attend online AA meetings, chat with peers, and find support 24/7</p>
-          <a href="https://mightynetworks.com/" target="_blank" rel="noopener noreferrer" className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-gray-50 transition">
+          <a href="https://mightynetworks.com/" target="_blank" rel="noopener noreferrer" className="inline-block bg-white text-brand-purple px-8 py-3 rounded-lg font-bold hover:bg-gray-50 transition">
             Visit Mighty Networks Community
           </a>
         </div>
