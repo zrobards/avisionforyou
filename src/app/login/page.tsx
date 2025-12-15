@@ -160,9 +160,13 @@ function LoginContent() {
               🔐 Your data is encrypted and secure.
             </p>
             {process.env.NODE_ENV === 'development' && (
-              <p className="text-xs text-brand-green text-center mt-2">
-                💡 Tip: Use <code className="bg-slate-800 px-1 py-0.5 rounded">zacharyrobards@gmail.com</code> for admin access
-              </p>
+              <div className="text-xs text-brand-green text-center mt-2 space-y-1">
+                <p>💡 Development Mode: Email/Password Authentication Enabled</p>
+                <p className="text-slate-400">Set up admin with: POST to /api/auth/setup-admin</p>
+                <code className="bg-slate-800 px-2 py-1 rounded block text-xs text-purple-300 mt-1">
+                  {'{email: "admin@test.com", password: "pass"}'} 
+                </code>
+              </div>
             )}
           </div>
 

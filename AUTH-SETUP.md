@@ -1,11 +1,25 @@
 # Authentication Setup Guide
 
-## Quick Start - Create Admin User
+## Quick Start - Email/Password Login
 
-1. Visit: `http://localhost:3000/setup-admin`
-2. Enter admin email and password
-3. Click "Create Admin User"
-4. Go to `/login` and sign in with your credentials
+### Method 1: Use Seed Data (Local Development)
+```bash
+npm run seed
+```
+- **Email:** `admin@avisionforyou.org`
+- **Password:** `AdminPassword123!`
+
+### Method 2: Create Admin via API (Local & Vercel)
+```bash
+curl -X POST http://localhost:3000/api/auth/setup-admin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@test.com",
+    "password": "SecurePassword123"
+  }'
+```
+
+Then go to `/login` and sign in with your credentials.
 
 ## Required Environment Variables
 
