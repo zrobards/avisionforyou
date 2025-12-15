@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { BarChart3, Users, Calendar, TrendingUp, Heart, ArrowLeft } from 'lucide-react'
+import { BarChart3, Users, Calendar, TrendingUp, Heart, ArrowLeft, Share2 } from 'lucide-react'
 
 interface AdminData {
   users: any[]
@@ -182,6 +182,10 @@ export default function AdminPanel() {
             <Link href="/admin/donations" className="flex items-center gap-2 text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors text-sm">
               <Heart className="w-4 h-4" />
               Donations
+            </Link>
+            <Link href="/admin/social" className="flex items-center gap-2 text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors text-sm">
+              <Share2 className="w-4 h-4" />
+              Social Media
             </Link>
           </div>
         </div>

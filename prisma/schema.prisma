@@ -483,3 +483,34 @@ model ProgramOutcome {
   @@index([isPublic])
   @@map("program_outcomes")
 }
+
+// Social Media Post Model for multi-platform management
+model SocialMediaPost {
+  id            String    @id @default(cuid())
+  description   String    @db.Text
+  videoUrl      String?   // URL to uploaded video
+  platforms     String[]  // Array of platform IDs: facebook, instagram, twitter, youtube
+  status        String    @default("draft") // draft, scheduled, posted, failed
+  scheduledFor  DateTime? // When to post (if scheduled)
+  postedAt      DateTime? // When it was actually posted
+  
+  // Platform-specific IDs (for tracking posts on each platform)
+  facebookPostId   String?
+  instagramPostId  String?
+  twitterPostId    String?
+  youtubeVideoId   String?
+  
+  // Engagement metrics
+  likes         Int       @default(0)
+  comments      Int       @default(0)
+  shares        Int       @default(0)
+  views         Int       @default(0)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([createdAt])
+  @@map("social_media_posts")
+}
