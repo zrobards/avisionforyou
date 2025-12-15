@@ -4,7 +4,17 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/shared/ToastProvider'
-import { Search, Plus, Filter, X, Calendar, Users, Clock, MapPin } from 'lucide-react'
+import { Search, Plus, Filter, X, Calendar, Users, Clock, MapPin, Edit2, Trash2, ChevronDown } from 'lucide-react'
+
+interface RSVP {
+  id: string
+  user: {
+    id: string
+    name: string | null
+    email: string
+  }
+  status: string
+}
 
 interface Meeting {
   id: string
@@ -16,6 +26,7 @@ interface Meeting {
   location: string | null
   link: string | null
   _count?: { rsvps: number }
+  rsvps?: RSVP[]
 }
 
 export default function AdminMeetingsPage() {
@@ -28,6 +39,8 @@ export default function AdminMeetingsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterFormat, setFilterFormat] = useState<string>('ALL')
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [expandedRsvps, setExpandedRsvps] = useState<string | null>(null)
   const [createError, setCreateError] = useState('')
   const [createSuccess, setCreateSuccess] = useState(false)
   const [formData, setFormData] = useState({
@@ -82,10 +95,10 @@ export default function AdminMeetingsPage() {
   const fetchMeetings = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/meetings')
+      const response = await fetch('/api/admin/meetings')
       if (!response.ok) throw new Error('Failed to fetch meetings')
       const data = await response.json()
-      setMeetings(data)
+      setMeetings(data.meetings || data)
     } catch (err) {
       console.error(err)
       showToast('Failed to load meetings', 'error')
@@ -94,7 +107,7 @@ export default function AdminMeetingsPage() {
     }
   }
 
-  const handleCreateMeeting = async (e: React.FormEvent) => {
+  const handleSaveMeeting = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreateError('')
     setCreateSuccess(false)
@@ -105,15 +118,18 @@ export default function AdminMeetingsPage() {
     }
 
     try {
-      const response = await fetch('/api/meetings', {
-        method: 'POST',
+      const method = editingId ? 'PATCH' : 'POST'
+      const url = editingId ? `/api/admin/meetings/${editingId}` : '/api/admin/meetings'
+
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       })
 
       if (!response.ok) {
         const result = await response.json()
-        throw new Error(result.error || 'Failed to create meeting')
+        throw new Error(result.error || `Failed to ${editingId ? 'update' : 'create'} meeting`)
       }
 
       setCreateSuccess(true)
@@ -126,12 +142,49 @@ export default function AdminMeetingsPage() {
         location: '',
         link: ''
       })
+      setEditingId(null)
       await fetchMeetings()
       setShowCreateForm(false)
 
       setTimeout(() => setCreateSuccess(false), 3000)
     } catch (err: any) {
       setCreateError(err.message || 'Network error')
+    }
+  }
+
+  const handleEditMeeting = (meeting: Meeting) => {
+    setFormData({
+      title: meeting.title,
+      description: meeting.description || '',
+      startTime: meeting.startTime,
+      endTime: meeting.endTime || '',
+      format: meeting.format as 'ONLINE' | 'IN_PERSON',
+      location: meeting.location || '',
+      link: meeting.link || ''
+    })
+    setEditingId(meeting.id)
+    setShowCreateForm(true)
+  }
+
+  const handleDeleteMeeting = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this meeting?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/meetings/${id}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || 'Failed to delete meeting')
+      }
+
+      showToast('Meeting deleted successfully', 'success')
+      await fetchMeetings()
+    } catch (err: any) {
+      showToast(err.message || 'Failed to delete meeting', 'error')
     }
   }
 
@@ -270,11 +323,23 @@ export default function AdminMeetingsPage() {
                   type="submit"
                   className="px-4 py-2 bg-brand-green text-white rounded-lg hover:bg-brand-green/90 transition-smooth hover-scale font-medium"
                 >
-                  Create Meeting
+                  {editingId ? 'Update Meeting' : 'Create Meeting'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowCreateForm(false)}
+                  onClick={() => {
+                    setShowCreateForm(false)
+                    setEditingId(null)
+                    setFormData({
+                      title: '',
+                      description: '',
+                      startTime: '',
+                      endTime: '',
+                      format: 'ONLINE',
+                      location: '',
+                      link: ''
+                    })
+                  }}
                   className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-smooth hover-scale font-medium"
                 >
                   Cancel
@@ -332,7 +397,7 @@ export default function AdminMeetingsPage() {
             </div>
           ) : (
             filteredMeetings.map((meeting, index) => (
-              <div key={meeting.id} className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 hover:shadow-md transition-smooth hover-scale animate-fade-in" style={{animationDelay: `${index * 50}ms`}}>
+              <div key={meeting.id} className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 hover:shadow-md transition-smooth animate-fade-in" style={{animationDelay: `${index * 50}ms`}}>
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
                     <h3 className="font-bold text-gray-900 text-lg">{meeting.title}</h3>
@@ -355,14 +420,49 @@ export default function AdminMeetingsPage() {
                           {meeting.location}
                         </span>
                       )}
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 cursor-pointer hover:text-brand-purple" onClick={() => setExpandedRsvps(expandedRsvps === meeting.id ? null : meeting.id)}>
                         <Users className="w-4 h-4" />
-                        {meeting._count?.rsvps || 0} RSVPs
+                        {meeting.rsvps?.length || 0} RSVPs
                       </span>
                       <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
                         {meeting.format}
                       </span>
                     </div>
+
+                    {/* Expanded RSVP List */}
+                    {expandedRsvps === meeting.id && meeting.rsvps && meeting.rsvps.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 space-y-2 animate-slide-down">
+                        <h4 className="font-semibold text-gray-700 text-sm">RSVPs:</h4>
+                        <ul className="space-y-1">
+                          {meeting.rsvps.map((rsvp) => (
+                            <li key={rsvp.id} className="text-sm text-gray-600 flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 rounded-full bg-brand-green" />
+                              <span className="font-medium">{rsvp.user.name || 'Unknown'}</span>
+                              <span className="text-gray-500">({rsvp.user.email})</span>
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">{rsvp.status}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditMeeting(meeting)}
+                      className="p-2 text-gray-600 hover:text-brand-purple hover:bg-brand-purple/10 rounded-lg transition-smooth"
+                      title="Edit meeting"
+                    >
+                      <Edit2 className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMeeting(meeting.id)}
+                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-smooth"
+                      title="Delete meeting"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
               </div>
