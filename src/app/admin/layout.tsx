@@ -36,24 +36,24 @@ export default function AdminLayout({
       {/* Sidebar */}
       <aside
         className={`${
-          sidebarOpen ? 'w-64' : 'w-0'
+          sidebarOpen ? 'w-56' : 'w-0'
         } bg-gradient-to-b from-brand-purple via-purple-800 to-purple-900 text-white transition-all duration-300 overflow-hidden fixed h-screen z-40 shadow-lg`}
       >
-        <div className="p-6 h-full flex flex-col">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white">Admin</h2>
-            <p className="text-purple-200 text-xs mt-1">Dashboard</p>
+        <div className="px-4 py-4 h-full flex flex-col">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-white">Admin</h2>
+            <p className="text-purple-200 text-xs mt-0.5">Dashboard</p>
           </div>
-          <nav className="space-y-1 flex-1">
+          <nav className="space-y-0.5 flex-1">
             {adminMenuItems.map(item => {
               const Icon = item.icon
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/20 transition-colors text-sm font-medium text-white/90 hover:text-white"
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-white/20 transition-colors text-xs font-medium text-white/90 hover:text-white"
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4" />
                   {item.label}
                 </Link>
               )
@@ -61,12 +61,12 @@ export default function AdminLayout({
           </nav>
 
           {/* Logout Button */}
-          <div className="pt-8 border-t border-white/20">
+          <div className="pt-4 border-t border-white/20">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/20 transition-colors text-sm w-full text-left font-medium text-white/90 hover:text-white"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-white/20 transition-colors text-xs w-full text-left font-medium text-white/90 hover:text-white"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-4 h-4" />
               Logout
             </button>
           </div>
@@ -74,7 +74,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : 'ml-0'} transition-all duration-300`}>
+      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-56' : 'ml-0'} transition-all duration-300`}>
         {/* Top Bar */}
         <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30 h-16 flex items-center">
           <div className="flex items-center justify-between px-6 w-full">
