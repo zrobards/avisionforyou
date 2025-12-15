@@ -136,18 +136,6 @@ export default function About() {
           </div>
         </div>
       </section>
-
-      <footer className="bg-gray-900 text-gray-300 py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div><h4 className="text-white font-bold mb-4">A Vision For You</h4><p className="text-sm">Supporting recovery and transformation for those facing homelessness, addiction, and mental health challenges.</p></div>
-            <div><h4 className="text-white font-bold mb-4">Links</h4><ul className="space-y-2 text-sm"><li><Link href="/programs" className="hover:text-white">Programs</Link></li><li><Link href="/about" className="hover:text-white">About</Link></li><li><Link href="/blog" className="hover:text-white">Blog</Link></li><li><Link href="/donate" className="hover:text-white">Donate</Link></li></ul></div>
-            <div><h4 className="text-white font-bold mb-4">Account</h4><ul className="space-y-2 text-sm"><li><Link href="/login" className="hover:text-white">Sign In</Link></li><li><Link href="/signup" className="hover:text-white">Create Account</Link></li></ul></div>
-            <div><h4 className="text-white font-bold mb-4">Contact</h4><p className="text-sm mb-2"><strong>1675 Story Ave, Louisville, KY 40206</strong></p><p className="text-sm mb-2"><a href="tel:+15027496344" className="hover:text-white">(502) 749-6344</a></p><p className="text-sm"><a href="mailto:info@avisionforyourecovery.org" className="hover:text-white">info@avisionforyourecovery.org</a></p></div>
-          </div>
-          <div className="border-t border-gray-700 pt-8 text-center text-sm"><p>&copy; 2025 A Vision For You Recovery. All rights reserved.</p></div>
-        </div>
-      </footer>
     </div>
   )
 }

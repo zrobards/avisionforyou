@@ -473,6 +473,12 @@ export async function sendDonationConfirmationEmail(
   frequency: string
 ) {
   try {
+    // Check if Resend API key is configured
+    if (!process.env.RESEND_API_KEY) {
+      console.warn("Donation email: RESEND_API_KEY not configured - email not sent")
+      return false
+    }
+
     const isDonationIdValid = donationId && typeof donationId === 'string' && donationId.length > 0
     
     const html = `
@@ -573,10 +579,15 @@ export async function sendDonationConfirmationEmail(
       from: 'A Vision For You Recovery <noreply@avisionforyou.org>'
     })
 
-    console.log('Donation confirmation email sent:', result)
+    console.log('✅ Donation confirmation email sent successfully to:', recipientEmail, result)
     return true
   } catch (error) {
-    console.error('Failed to send donation confirmation email:', error)
+    console.error('❌ Failed to send donation confirmation email:', {
+      recipientEmail,
+      donorName,
+      amount,
+      error: error instanceof Error ? error.message : String(error)
+    })
     return false
   }
 }

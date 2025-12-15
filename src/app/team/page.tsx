@@ -252,13 +252,6 @@ export default function Team() {
           </div>
         </div>
       </section>
-
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p>&copy; 2025 A Vision For You Recovery. All rights reserved.</p>
-          <p className="text-sm text-gray-500 mt-2">EIN: XX-XXXXXXX | 501(c)(3) Nonprofit Organization</p>
-        </div>
-      </footer>
     </div>
   )
 }

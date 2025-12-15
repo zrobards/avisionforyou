@@ -166,39 +166,6 @@ export default function Programs() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4">A Vision For You</h3>
-              <p className="text-slate-300">1675 Story Ave, Louisville, KY 40206</p>
-              <p className="text-slate-300">(502) 749-6344</p>
-              <p className="text-slate-300">info@avisionforyourecovery.org</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">Quick Links</h3>
-              <ul className="space-y-2 text-slate-300">
-                <li><Link href="/programs" className="hover:text-white transition">Programs</Link></li>
-                <li><Link href="/team" className="hover:text-white transition">Team</Link></li>
-                <li><Link href="/about" className="hover:text-white transition">About Us</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition">Blog</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">Support Us</h3>
-              <ul className="space-y-2 text-slate-300">
-                <li><Link href="/donate" className="hover:text-white transition">Donate</Link></li>
-                <li><Link href="/admission" className="hover:text-white transition">Apply for Admission</Link></li>
-                <li><a href="mailto:info@avisionforyourecovery.org" className="hover:text-white transition">Contact Us</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-slate-700 pt-8 text-center text-slate-400">
-            <p>&copy; 2025 A Vision For You Recovery. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

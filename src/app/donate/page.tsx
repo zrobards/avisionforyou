@@ -396,9 +396,6 @@ export default function Donate() {
               <p className="text-sm"><a href="mailto:info@avisionforyourecovery.org" className="hover:text-white">info@avisionforyourecovery.org</a></p>
             </div>
           </div>
-          <div className="border-t border-gray-700 pt-8 text-center text-sm">
-            <p>&copy; 2025 A Vision For You Recovery. All rights reserved.</p>
-          </div>
         </div>
       </footer>
     </div>

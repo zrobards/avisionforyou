@@ -91,17 +91,22 @@ export async function POST(request: NextRequest) {
         console.log("Square: Saved donation record:", donation.id)
 
         // Send confirmation email with thank you and monthly donor appeal
+        console.log("Square: Attempting to send confirmation email to:", email)
         try {
-          await sendDonationConfirmationEmail(
+          const emailSent = await sendDonationConfirmationEmail(
             donation.id,
             email,
             name,
             amount,
             frequency
           )
-          console.log("Square: Confirmation email sent to", email)
+          if (emailSent) {
+            console.log("Square: ✅ Confirmation email sent successfully to", email)
+          } else {
+            console.log("Square: ⚠️ Email function returned false for", email)
+          }
         } catch (emailError) {
-          console.error("Square: Failed to send email, but donation saved:", emailError)
+          console.error("Square: ❌ Failed to send email, but donation saved:", emailError)
           // Don't fail the donation if email fails
         }
 
