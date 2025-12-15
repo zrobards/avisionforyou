@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import { AuthProvider } from "@/providers"
 import { ToastProvider } from "@/components/shared/ToastProvider"
-import Navbar from "@/components/layout/Navbar"
-import Footer from "@/components/layout/Footer"
+import ConditionalLayout from "@/components/layout/ConditionalLayout"
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics"
 import "./globals.css"
 
@@ -72,9 +71,9 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <ToastProvider>
-            <Navbar />
-            {children}
-            <Footer />
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
           </ToastProvider>
         </AuthProvider>
       </body>
