@@ -136,19 +136,19 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+    <>
       {/* Header */}
-      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-4 border-b border-purple-700 shadow-lg">
-        <div className="max-w-7xl mx-auto px-6">
+      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
+        <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-purple-100 text-sm">Manage users, meetings, and content</p>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-gray-600 text-sm">Welcome back! Here's your overview.</p>
             </div>
             <button
               onClick={() => fetchAdminData(true)}
               disabled={refreshing}
-              className="text-sm px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg border border-white/30 transition-colors disabled:opacity-50"
+              className="text-sm px-4 py-2 bg-brand-purple hover:bg-brand-purple/90 text-white rounded-lg transition-colors disabled:opacity-50"
             >
               {refreshing ? 'Refreshing…' : 'Refresh'}
             </button>
@@ -156,233 +156,179 @@ export default function AdminPanel() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Statistics */}
-        <div className="grid md:grid-cols-5 gap-6 mb-12">>
-          {[
-            { icon: Users, label: 'Total Users', value: data?.stats.totalUsers || 0, color: 'blue' },
-            { icon: Calendar, label: 'Completed Assessments', value: data?.stats.completedAssessments || 0, color: 'green' },
-            { icon: TrendingUp, label: 'Total RSVPs', value: data?.stats.totalRsvps || 0, color: 'purple' },
-            { icon: BarChart3, label: 'Upcoming Meetings', value: data?.stats.upcomingMeetings || 0, color: 'orange' },
-            { icon: Heart, label: 'Donations', value: data?.stats.totalDonations || 0, color: 'red', helper: `$${(data?.stats.donationVolume || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` }
-          ].map((stat, idx) => {
-            const Icon = stat.icon
-            const colorMap = {
-              blue: 'bg-blue-500',
-              green: 'bg-green-500',
-              purple: 'bg-purple-500',
-              orange: 'bg-orange-500',
-              red: 'bg-red-500'
-            }
-            return (
-              <div key={idx} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">{stat.label}</p>
-                    <p className="text-3xl font-bold text-white">{stat.value}</p>
-                    {stat.helper && <p className="text-sm text-gray-400">{stat.helper}</p>}
-                  </div>
-                  <div className={`${colorMap[stat.color as keyof typeof colorMap]} p-3 rounded-lg`}>
-                    <Icon className="w-6 h-6 text-white" />
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              { icon: Users, label: 'Total Users', value: data?.stats.totalUsers || 0, color: 'blue' },
+              { icon: Calendar, label: 'Completed Assessments', value: data?.stats.completedAssessments || 0, color: 'green' },
+              { icon: TrendingUp, label: 'Total RSVPs', value: data?.stats.totalRsvps || 0, color: 'purple' },
+              { icon: BarChart3, label: 'Upcoming Meetings', value: data?.stats.upcomingMeetings || 0, color: 'orange' },
+              { icon: Heart, label: 'Donations', value: data?.stats.totalDonations || 0, color: 'red', helper: `$${(data?.stats.donationVolume || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` }
+            ].map((stat, idx) => {
+              const Icon = stat.icon
+              const colorMap = {
+                blue: 'bg-blue-100 text-blue-600',
+                green: 'bg-green-100 text-green-600',
+                purple: 'bg-purple-100 text-purple-600',
+                orange: 'bg-orange-100 text-orange-600',
+                red: 'bg-red-100 text-red-600'
+              }
+              return (
+                <div key={idx} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-gray-600 text-sm font-medium">{stat.label}</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value.toLocaleString()}</p>
+                      {stat.helper && <p className="text-sm text-gray-500 mt-1">{stat.helper}</p>}
+                    </div>
+                    <div className={`${colorMap[stat.color as keyof typeof colorMap]} p-3 rounded-lg`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Tabs */}
-        <div className="mb-8 flex gap-4 border-b border-gray-700">
-          {['overview', 'users', 'meetings'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 font-semibold capitalize border-b-2 transition ${
-                activeTab === tab
-                  ? 'border-blue-500 text-blue-400'
-                  : 'border-transparent text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <h2 className="text-xl font-bold text-white mb-4">Quick Stats</h2>
-              <div className="space-y-3 text-gray-300">
-                <p>Total active users: <span className="text-white font-bold">{data?.users.length || 0}</span></p>
-                <p>Assessment completion rate: <span className="text-white font-bold">{data?.stats.completedAssessments && data?.users.length ? Math.round((data.stats.completedAssessments / data.users.length) * 100) : 0}%</span></p>
-                <p>Average RSVPs per meeting: <span className="text-white font-bold">{data?.stats.totalRsvps && data?.stats.upcomingMeetings ? Math.round(data.stats.totalRsvps / data.stats.upcomingMeetings) : 0}</span></p>
-              </div>
-            </div>
+              )
+            })}
           </div>
-        )}
 
-        {/* Users Tab */}
-        {activeTab === 'users' && (
-          <div>
-            <h2 className="text-xl font-bold text-white mb-6">Registered Users</h2>
-            <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
-              <table className="w-full">
-                <thead className="bg-gray-700">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-gray-300 font-semibold">Name</th>
-                    <th className="px-6 py-4 text-left text-gray-300 font-semibold">Email</th>
-                    <th className="px-6 py-4 text-left text-gray-300 font-semibold">Assessment</th>
-                    <th className="px-6 py-4 text-left text-gray-300 font-semibold">RSVPs</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {data?.users.map(user => (
-                    <tr key={user.id} className="hover:bg-gray-750 transition">
-                      <td className="px-6 py-4 text-gray-200">{user.name}</td>
-                      <td className="px-6 py-4 text-gray-200">{user.email}</td>
-                      <td className="px-6 py-4">
-                        {user.assessment ? (
-                          <span className="bg-green-900 text-green-300 px-3 py-1 rounded-full text-sm">Completed</span>
-                        ) : (
-                          <span className="bg-gray-700 text-gray-400 px-3 py-1 rounded-full text-sm">Pending</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-gray-200">{user.rsvps?.length || 0}</td>
-                    </tr>
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Tabs */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                {/* Tabs */}
+                <div className="flex border-b border-gray-200">
+                  {['overview', 'users', 'meetings'].map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-6 py-3 font-medium text-sm transition capitalize ${
+                        activeTab === tab
+                          ? 'border-b-2 border-brand-purple text-brand-purple'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      {tab}
+                    </button>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Meetings Tab */}
-        {activeTab === 'meetings' && (
-          <div className="space-y-8">
-            {/* Meeting Creation */}
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <h2 className="text-xl font-bold text-white mb-6">Create Meeting</h2>
-              
-              {createSuccess && (
-                <div className="mb-4 p-4 bg-green-600/20 border border-green-600/50 rounded-lg">
-                  <p className="text-green-400 font-semibold">✓ Meeting created successfully! Users can now RSVP and will receive email reminders.</p>
-                </div>
-              )}
-              
-              {createError && (
-                <div className="mb-4 p-4 bg-red-600/20 border border-red-600/50 rounded-lg">
-                  <p className="text-red-400 font-semibold">✗ {createError}</p>
-                </div>
-              )}
-              
-              <form onSubmit={handleCreateMeeting} className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-300 font-semibold mb-2">Title</label>
-                    <input
-                      type="text"
-                      value={newMeeting.title}
-                      onChange={e => setNewMeeting({...newMeeting, title: e.target.value})}
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 font-semibold mb-2">Program</label>
-                    <select value={newMeeting.program} onChange={e => setNewMeeting({...newMeeting, program: e.target.value})} className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white">
-                      <option value="MINDBODYSOUL_IOP">MindBodySoul IOP</option>
-                      <option value="SURRENDER_PROGRAM">Surrender Program</option>
-                      <option value="MOVING_MOUNTAINS">Moving Mountains</option>
-                    </select>
-                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-gray-300 font-semibold mb-2">Description</label>
-                  <textarea
-                    value={newMeeting.description}
-                    onChange={e => setNewMeeting({...newMeeting, description: e.target.value})}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-300 font-semibold mb-2">Start Time</label>
-                    <input
-                      type="datetime-local"
-                      value={newMeeting.startTime}
-                      onChange={e => setNewMeeting({...newMeeting, startTime: e.target.value})}
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 font-semibold mb-2">End Time</label>
-                    <input
-                      type="datetime-local"
-                      value={newMeeting.endTime}
-                      onChange={e => setNewMeeting({...newMeeting, endTime: e.target.value})}
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-300 font-semibold mb-2">Format</label>
-                    <select value={newMeeting.format} onChange={e => setNewMeeting({...newMeeting, format: e.target.value})} className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white">
-                      <option value="ONLINE">Online</option>
-                      <option value="IN_PERSON">In-Person</option>
-                    </select>
-                  </div>
-                  {newMeeting.format === 'ONLINE' && (
-                    <div>
-                      <label className="block text-gray-300 font-semibold mb-2">Meeting Link</label>
-                      <input
-                        type="url"
-                        value={newMeeting.link}
-                        onChange={e => setNewMeeting({...newMeeting, link: e.target.value})}
-                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                      />
+                <div className="p-6">
+                {/* Overview Tab */}
+                {activeTab === 'overview' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <p className="text-gray-600 text-sm">Active Users</p>
+                        <p className="text-2xl font-bold text-gray-900">{data?.users.length || 0}</p>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <p className="text-gray-600 text-sm">Completion Rate</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {data?.stats.completedAssessments && data?.users.length 
+                            ? Math.round((data.stats.completedAssessments / data.users.length) * 100) 
+                            : 0}%
+                        </p>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <p className="text-gray-600 text-sm">Avg RSVPs per Meeting</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {data?.stats.totalRsvps && data?.stats.upcomingMeetings 
+                            ? Math.round(data.stats.totalRsvps / data.stats.upcomingMeetings) 
+                            : 0}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <p className="text-gray-600 text-sm">Total Donations</p>
+                        <p className="text-2xl font-bold text-gray-900">${(data?.stats.donationVolume || 0).toLocaleString()}</p>
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                >
-                  Create Meeting
-                </button>
-              </form>
+                {/* Users Tab */}
+                {activeTab === 'users' && (
+                  <div className="space-y-4">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-200">
+                            <th className="px-4 py-3 text-left text-gray-600 font-semibold">Name</th>
+                            <th className="px-4 py-3 text-left text-gray-600 font-semibold">Email</th>
+                            <th className="px-4 py-3 text-left text-gray-600 font-semibold">Assessment</th>
+                            <th className="px-4 py-3 text-left text-gray-600 font-semibold">RSVPs</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {data?.users.slice(0, 10).map(user => (
+                            <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
+                              <td className="px-4 py-3 text-gray-900">{user.name}</td>
+                              <td className="px-4 py-3 text-gray-700">{user.email}</td>
+                              <td className="px-4 py-3">
+                                {user.assessment ? (
+                                  <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">Completed</span>
+                                ) : (
+                                  <span className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">Pending</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-gray-700">{user.rsvps?.length || 0}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-sm text-gray-500">Showing 10 of {data?.users.length || 0} users</p>
+                  </div>
+                )}
+
+                {/* Meetings Tab */}
+                {activeTab === 'meetings' && (
+                  <div className="space-y-4">
+                    {data?.meetings.slice(0, 5).map(meeting => (
+                      <div key={meeting.id} className="p-4 border border-gray-200 rounded-lg hover:border-gray-300">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold text-gray-900">{meeting.title}</h3>
+                            <p className="text-sm text-gray-600 mt-1">{meeting.description}</p>
+                          </div>
+                          <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">{meeting.format}</span>
+                        </div>
+                        <div className="flex gap-4 text-sm text-gray-500 mt-3">
+                          <span>📅 {new Date(meeting.startTime).toLocaleDateString()}</span>
+                          <span>👥 {meeting.rsvps?.length || 0} RSVPs</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                </div>
+              </div>
             </div>
 
-            {/* Meetings List */}
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <h2 className="text-xl font-bold text-white mb-6">All Meetings</h2>
-              <div className="space-y-4">
-                {data?.meetings.map(meeting => (
-                  <div key={meeting.id} className="bg-gray-700 p-4 rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-bold text-white">{meeting.title}</h3>
-                      <span className="bg-blue-600 px-3 py-1 rounded-full text-sm text-white">{meeting.format}</span>
-                    </div>
-                    <p className="text-gray-300 mb-3">{meeting.description}</p>
-                    <div className="flex gap-8 text-sm text-gray-400">
-                      <p>📅 {new Date(meeting.startTime).toLocaleDateString()}</p>
-                      <p>👥 {meeting.rsvps?.length || 0} RSVPs</p>
-                    </div>
-                  </div>
-                ))}
+            {/* Right Column - Recent Activity */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div className="space-y-3">
+                  <Link href="/admin/users" className="block w-full text-center px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition font-medium text-sm">
+                    Manage Users
+                  </Link>
+                  <Link href="/admin/meetings" className="block w-full text-center px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition font-medium text-sm">
+                    Create Meeting
+                  </Link>
+                  <Link href="/admin/blog" className="block w-full text-center px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition font-medium text-sm">
+                    Write Blog Post
+                  </Link>
+                  <Link href="/admin/social" className="block w-full text-center px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition font-medium text-sm">
+                    Social Media
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

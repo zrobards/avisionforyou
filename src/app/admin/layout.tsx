@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, Users, Calendar, FileText, Heart, Share2, BarChart3, Mail, Settings, LogOut, Home } from 'lucide-react'
+import { Menu, X, Users, Calendar, FileText, Heart, Share2, BarChart3, Mail, LogOut, Home } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 
@@ -32,16 +32,16 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
       {/* Sidebar */}
       <aside
         className={`${
           sidebarOpen ? 'w-64' : 'w-0'
         } bg-gradient-to-b from-brand-purple to-purple-900 text-white transition-all duration-300 overflow-hidden fixed h-screen z-40`}
       >
-        <div className="p-6">
+        <div className="p-6 h-full flex flex-col">
           <h2 className="text-xl font-bold mb-8">Admin Panel</h2>
-          <nav className="space-y-2">
+          <nav className="space-y-1 flex-1">
             {adminMenuItems.map(item => {
               const Icon = item.icon
               return (
@@ -49,7 +49,7 @@ export default function AdminLayout({
                   key={item.href}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-sm"
+                  className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm font-medium"
                 >
                   <Icon className="w-5 h-5" />
                   {item.label}
@@ -59,10 +59,10 @@ export default function AdminLayout({
           </nav>
 
           {/* Logout Button */}
-          <div className="mt-8 pt-8 border-t border-white/20">
+          <div className="pt-8 border-t border-white/20">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-sm w-full text-left"
+              className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm w-full text-left font-medium"
             >
               <LogOut className="w-5 h-5" />
               Logout
@@ -74,8 +74,8 @@ export default function AdminLayout({
       {/* Main Content */}
       <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : 'ml-0'} transition-all duration-300`}>
         {/* Top Bar */}
-        <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-          <div className="flex items-center justify-between p-4">
+        <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30 h-16 flex items-center">
+          <div className="flex items-center justify-between px-6 w-full">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -95,7 +95,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto bg-gray-50">
           {children}
         </main>
       </div>
