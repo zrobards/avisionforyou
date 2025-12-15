@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { BarChart3, Users, Calendar, TrendingUp, Heart, Share2, Search, X, Plus, Edit2, Check } from 'lucide-react'
+import { BarChart3, Users, Calendar, TrendingUp, Heart, Share2, Search } from 'lucide-react'
 
 interface AdminData {
   users: any[]
@@ -19,13 +19,6 @@ interface AdminData {
   }
 }
 
-interface QuickAction {
-  id: string
-  label: string
-  href: string
-  icon: string
-}
-
 export default function AdminPanel() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -33,13 +26,6 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
-  const [editingQuickActions, setEditingQuickActions] = useState(false)
-  const [quickActions, setQuickActions] = useState<QuickAction[]>([
-    { id: '1', label: 'Manage Users', href: '/admin/users', icon: 'users' },
-    { id: '2', label: 'View Meetings', href: '/admin/meetings', icon: 'calendar' },
-    { id: '3', label: 'Social Media', href: '/admin/social', icon: 'share' },
-    { id: '4', label: 'Write Blog', href: '/admin/blog', icon: 'filetext' },
-  ])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -81,22 +67,6 @@ export default function AdminPanel() {
       } else {
         setRefreshing(false)
       }
-    }
-  }
-
-  const saveQuickActions = () => {
-    localStorage.setItem('adminQuickActions', JSON.stringify(quickActions))
-    setEditingQuickActions(false)
-  }
-
-  const removeQuickAction = (id: string) => {
-    setQuickActions(quickActions.filter(qa => qa.id !== id))
-  }
-
-  const toggleQuickAction = (id: string) => {
-    const action = quickActions.find(qa => qa.id === id)
-    if (action) {
-      removeQuickAction(id)
     }
   }
 
@@ -223,53 +193,6 @@ export default function AdminPanel() {
                 </Link>
               </div>
             </div>
-          </div>
-
-          {/* Quick Actions - Customizable */}
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 card-hover animate-slide-up">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Quick Actions</h2>
-              <button
-                onClick={() => setEditingQuickActions(!editingQuickActions)}
-                className="text-sm px-3 py-1 text-brand-purple border border-brand-purple rounded hover:bg-brand-purple/10 transition-smooth flex items-center gap-1"
-              >
-                <Edit2 className="w-4 h-4" />
-                {editingQuickActions ? 'Done' : 'Edit'}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-stagger">
-              {quickActions.map(action => (
-                <div key={action.id} className="relative group animate-scale-in">
-                  <Link
-                    href={action.href}
-                    className="block w-full p-4 bg-gradient-to-br from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-lg transition-smooth hover-scale text-center font-medium text-sm"
-                  >
-                    {action.label}
-                  </Link>
-                  {editingQuickActions && (
-                    <button
-                      onClick={() => removeQuickAction(action.id)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-smooth scale-0 group-hover:scale-100 origin-top-right"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {editingQuickActions && (
-              <div className="mt-4 flex gap-2 animate-slide-up">
-                <button
-                  onClick={saveQuickActions}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-smooth font-medium text-sm flex items-center gap-1 hover-scale"
-                >
-                  <Check className="w-4 h-4" />
-                  Save Changes
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>

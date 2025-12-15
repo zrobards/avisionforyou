@@ -129,56 +129,42 @@ export default function Donate() {
 
       <section className="py-8 sm:py-12 md:py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4">
-          {!stripeConfigured && (
-            <div className="mb-6 sm:mb-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4 sm:p-6 flex gap-3 sm:gap-4">
-              <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-yellow-900 mb-1 text-sm sm:text-base">Demo Mode</h3>
-                <p className="text-xs sm:text-sm text-yellow-800">
-                  Stripe is not configured. Add your keys to enable live donations.
-                </p>
-              </div>
-            </div>
-          )}
-
           <div className="bg-gradient-to-br from-purple-50 to-green-50 rounded-lg shadow-xl p-6 sm:p-8 md:p-10">
             <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900">Choose Your Impact</h2>
             <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">Every donation directly transforms lives in our community</p>
 
-            {squareConfigured && (
-              <div className="mb-8 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Payment Method</label>
-                <div className="flex gap-3 sm:gap-4">
+            <div className="mb-8 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Payment Method</label>
+              <div className="flex gap-3 sm:gap-4">
+                <button
+                  onClick={() => setPaymentMethod('square')}
+                  className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition ${
+                    paymentMethod === 'square'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-600'
+                  }`}
+                >
+                  Square (Sandbox Test)
+                </button>
+                {stripeConfigured && (
                   <button
-                    onClick={() => setPaymentMethod('square')}
+                    onClick={() => setPaymentMethod('stripe')}
                     className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition ${
-                      paymentMethod === 'square'
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-600'
+                      paymentMethod === 'stripe'
+                        ? 'bg-brand-purple text-white shadow-lg'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:border-brand-purple'
                     }`}
                   >
-                    Square (Sandbox Test)
+                    Stripe
                   </button>
-                  {stripeConfigured && (
-                    <button
-                      onClick={() => setPaymentMethod('stripe')}
-                      className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition ${
-                        paymentMethod === 'stripe'
-                          ? 'bg-brand-purple text-white shadow-lg'
-                          : 'bg-white text-gray-700 border border-gray-300 hover:border-brand-purple'
-                      }`}
-                    >
-                      Stripe
-                    </button>
-                  )}
-                </div>
-                {paymentMethod === 'square' && (
-                  <p className="text-xs sm:text-sm text-blue-700 mt-2">
-                    ✨ Sandbox mode - Use test card: 4532 0151 1283 0366
-                  </p>
                 )}
               </div>
-            )}
+              {paymentMethod === 'square' && (
+                <p className="text-xs sm:text-sm text-blue-700 mt-2">
+                  ✨ Sandbox mode - Use test card: 4532 0151 1283 0366
+                </p>
+              )}
+            </div>
 
             <div className="mb-6 sm:mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-3">Donation Frequency</label>

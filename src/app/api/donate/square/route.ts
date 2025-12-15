@@ -61,14 +61,14 @@ export async function POST(request: NextRequest) {
     // Amount in cents
     const amountInCents = Math.round(amount * 100)
     
-    // Generate a unique payment session ID
-    const paymentSessionId = uuidv4()
+    // Generate a unique donation ID
+    const donationSessionId = uuidv4()
     
-    // Create a mock Square payment link
-    // In production, this would integrate with Square's Payment Links API
-    const paymentLinkUrl = `https://square.link/u/${paymentSessionId}`
+    // Create a temporary payment page URL (using donation session ID)
+    // This will be a confirmation page that shows they need to complete payment via email
+    const paymentPageUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donationSessionId}&amount=${amount}`
 
-    console.log("Square: Creating payment session:", { paymentLinkUrl, amountInCents, name, email })
+    console.log("Square: Creating payment session:", { paymentPageUrl, amountInCents, name, email })
 
     // Create payment link for one-time donations
     if (frequency === "ONE_TIME") {
@@ -83,15 +83,16 @@ export async function POST(request: NextRequest) {
             email,
             name,
             status: "PENDING",
-            squarePaymentId: paymentSessionId
+            squarePaymentId: donationSessionId
           }
         })
 
         console.log("Square: Saved donation record:", donation.id)
 
+        // Return the payment confirmation page URL
         return NextResponse.json(
           {
-            url: paymentLinkUrl,
+            url: paymentPageUrl,
             donationId: donation.id,
             success: true
           },
@@ -99,10 +100,10 @@ export async function POST(request: NextRequest) {
         )
       } catch (dbError) {
         console.error("Square: Database error:", dbError)
-        // Still return the payment link URL even if DB save fails
+        // Still return the payment page URL even if DB save fails
         return NextResponse.json(
           {
-            url: paymentLinkUrl,
+            url: paymentPageUrl,
             donationId: null,
             warning: "Donation recorded but failed to save locally",
             success: true
