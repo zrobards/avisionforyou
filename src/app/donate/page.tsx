@@ -35,6 +35,19 @@ export default function Donate() {
       return
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+
+    // Validate name
+    if (name.trim().length < 2) {
+      setError('Please enter a valid name')
+      return
+    }
+
     const amount = customAmount ? parseFloat(customAmount) : selectedAmount
 
     if (amount < 1) {
