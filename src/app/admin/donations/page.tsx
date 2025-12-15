@@ -139,7 +139,7 @@ export default function AdminDonations() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 backdrop-blur-sm">
+      <header className="sticky top-0 z-40 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 backdrop-blur-sm animate-slide-down">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -156,7 +156,7 @@ export default function AdminDonations() {
             </div>
             <button
               onClick={downloadCSV}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 transform hover:scale-105"
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 hover-scale"
             >
               <Download className="w-4 h-4" />
               Export CSV
@@ -168,7 +168,7 @@ export default function AdminDonations() {
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Stats Grid */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 animate-stagger">
             {/* Total Amount */}
             <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 transform hover:scale-105">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-blue-500/10 transition-all duration-300"></div>
@@ -229,7 +229,7 @@ export default function AdminDonations() {
 
         {/* Secondary Stats */}
         {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12 animate-stagger">
             <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 hover:border-slate-600 transition-all">
               <p className="text-slate-400 text-xs font-semibold mb-2">One-Time</p>
               <p className="text-2xl font-bold text-white">{stats.oneTimeDonations}</p>
@@ -254,7 +254,7 @@ export default function AdminDonations() {
         )}
 
         {/* Filters and Search */}
-        <div className="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6 backdrop-blur-sm">
+        <div className="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6 backdrop-blur-sm animate-slide-up">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2">
               <Search className="w-5 h-5 text-slate-500" />
@@ -301,7 +301,7 @@ export default function AdminDonations() {
         </div>
 
         {/* Donations Table */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden backdrop-blur-sm">
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden backdrop-blur-sm animate-fade-in">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-900 border-b border-slate-700">
@@ -319,7 +319,7 @@ export default function AdminDonations() {
                   filteredDonations.map((donation, index) => (
                     <tr 
                       key={donation.id}
-                      className="hover:bg-slate-800/50 transition-colors duration-200 animate-fadeIn"
+                      className="hover:bg-slate-800/50 transition-colors duration-200 animate-fade-in"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
                       <td className="px-6 py-4 text-sm text-slate-300">
@@ -374,22 +374,6 @@ export default function AdminDonations() {
           </div>
         </div>
       </main>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-      `}</style>
     </div>
   )
 }

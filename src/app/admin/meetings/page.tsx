@@ -143,14 +143,14 @@ export default function AdminMeetingsPage() {
     <div className="p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center animate-slide-down">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Meetings Management</h1>
             <p className="text-gray-600 text-sm">Create, search, and manage meetings</p>
           </div>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition font-medium flex items-center gap-2"
+            className="px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition-smooth hover-scale font-medium flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             New Meeting
@@ -159,22 +159,22 @@ export default function AdminMeetingsPage() {
 
         {/* Create Meeting Form */}
         {showCreateForm && (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 animate-slide-down">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-gray-900">Create New Meeting</h2>
-              <button onClick={() => setShowCreateForm(false)} className="text-gray-500 hover:text-gray-700">
+              <button onClick={() => setShowCreateForm(false)} className="text-gray-500 hover:text-gray-700 transition-smooth">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {createSuccess && (
-              <div className="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg text-sm">
+              <div className="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg text-sm animate-slide-down">
                 ✓ Meeting created successfully!
               </div>
             )}
 
             {createError && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+              <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm animate-slide-down">
                 ✗ {createError}
               </div>
             )}
@@ -268,14 +268,14 @@ export default function AdminMeetingsPage() {
               <div className="flex gap-2 pt-4">
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-brand-green text-white rounded-lg hover:bg-brand-green/90 transition font-medium"
+                  className="px-4 py-2 bg-brand-green text-white rounded-lg hover:bg-brand-green/90 transition-smooth hover-scale font-medium"
                 >
                   Create Meeting
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium"
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-smooth hover-scale font-medium"
                 >
                   Cancel
                 </button>
@@ -285,7 +285,7 @@ export default function AdminMeetingsPage() {
         )}
 
         {/* Search & Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 space-y-4">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 space-y-4 animate-slide-up">
           <div className="flex gap-4 flex-wrap items-end">
             <div className="flex-1 min-w-64">
               <label className="block text-sm font-semibold text-gray-700 mb-1">Search</label>
@@ -316,7 +316,7 @@ export default function AdminMeetingsPage() {
           </div>
 
           {(searchTerm || filterFormat !== 'ALL') && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-600 animate-fade-in">
               <Filter className="w-4 h-4" />
               Showing {filteredMeetings.length} of {meetings.length} meetings
             </div>
@@ -324,15 +324,15 @@ export default function AdminMeetingsPage() {
         </div>
 
         {/* Meetings List */}
-        <div className="space-y-3">
+        <div className="space-y-3 animate-stagger">
           {filteredMeetings.length === 0 ? (
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center animate-fade-in">
               <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-600">No meetings found</p>
             </div>
           ) : (
-            filteredMeetings.map(meeting => (
-              <div key={meeting.id} className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 hover:shadow-md transition">
+            filteredMeetings.map((meeting, index) => (
+              <div key={meeting.id} className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 hover:shadow-md transition-smooth hover-scale animate-fade-in" style={{animationDelay: `${index * 50}ms`}}>
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
                     <h3 className="font-bold text-gray-900 text-lg">{meeting.title}</h3>

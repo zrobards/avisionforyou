@@ -139,7 +139,7 @@ export default function AdminPanel() {
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 animate-stagger">
             {[
               { icon: Users, label: 'Total Users', value: data?.stats.totalUsers || 0, color: 'blue' },
               { icon: Calendar, label: 'Completed Assessments', value: data?.stats.completedAssessments || 0, color: 'green' },
@@ -156,14 +156,14 @@ export default function AdminPanel() {
                 red: 'bg-red-100 text-red-600'
               }
               return (
-                <div key={idx} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div key={idx} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-smooth card-hover">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <p className="text-gray-600 text-sm font-medium">{stat.label}</p>
                       <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value.toLocaleString()}</p>
                       {stat.helper && <p className="text-sm text-gray-500 mt-1">{stat.helper}</p>}
                     </div>
-                    <div className={`${colorMap[stat.color as keyof typeof colorMap]} p-3 rounded-lg`}>
+                    <div className={`${colorMap[stat.color as keyof typeof colorMap]} p-3 rounded-lg transition-transform duration-300 group-hover:scale-110`}>
                       <Icon className="w-5 h-5" />
                     </div>
                   </div>
@@ -173,17 +173,17 @@ export default function AdminPanel() {
           </div>
 
           {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 animate-stagger">
             {/* Users Section */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div className="lg:col-span-2 animate-slide-up">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 card-hover">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-bold text-gray-900">Recent Users</h2>
-                  <Link href="/admin/users" className="text-sm text-brand-purple hover:text-brand-purple/90 font-semibold">View All →</Link>
+                  <Link href="/admin/users" className="text-sm text-brand-purple hover:text-brand-purple/90 font-semibold transition-smooth">View All →</Link>
                 </div>
-                <div className="space-y-3 mb-4">
+                <div className="space-y-3 mb-4 animate-stagger">
                   {data?.users.slice(0, 5).map(user => (
-                    <div key={user.id} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <div key={user.id} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-smooth hover-lift">
                       <div className="flex-1">
                         <p className="font-medium text-gray-900 text-sm">{user.name || 'Unknown'}</p>
                         <p className="text-xs text-gray-500">{user.email}</p>
@@ -192,22 +192,22 @@ export default function AdminPanel() {
                     </div>
                   ))}
                 </div>
-                <Link href="/admin/users" className="w-full text-center px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition font-medium text-sm">
+                <Link href="/admin/users" className="w-full text-center px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition-smooth transform hover:scale-105 font-medium text-sm">
                   Manage Users
                 </Link>
               </div>
             </div>
 
             {/* Meetings Section */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div className="lg:col-span-2 animate-slide-up">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 card-hover">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-bold text-gray-900">Upcoming Meetings</h2>
-                  <Link href="/admin/meetings" className="text-sm text-brand-purple hover:text-brand-purple/90 font-semibold">View All →</Link>
+                  <Link href="/admin/meetings" className="text-sm text-brand-purple hover:text-brand-purple/90 font-semibold transition-smooth">View All →</Link>
                 </div>
-                <div className="space-y-3 mb-4">
+                <div className="space-y-3 mb-4 animate-stagger">
                   {data?.meetings.slice(0, 5).map(meeting => (
-                    <div key={meeting.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <div key={meeting.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-smooth hover-lift">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 text-sm">{meeting.title}</p>
@@ -218,7 +218,7 @@ export default function AdminPanel() {
                     </div>
                   ))}
                 </div>
-                <Link href="/admin/meetings" className="w-full text-center px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition font-medium text-sm">
+                <Link href="/admin/meetings" className="w-full text-center px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition-smooth transform hover:scale-105 font-medium text-sm">
                   Manage Meetings
                 </Link>
               </div>
@@ -226,31 +226,31 @@ export default function AdminPanel() {
           </div>
 
           {/* Quick Actions - Customizable */}
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 card-hover animate-slide-up">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-gray-900">Quick Actions</h2>
               <button
                 onClick={() => setEditingQuickActions(!editingQuickActions)}
-                className="text-sm px-3 py-1 text-brand-purple border border-brand-purple rounded hover:bg-brand-purple/10 transition flex items-center gap-1"
+                className="text-sm px-3 py-1 text-brand-purple border border-brand-purple rounded hover:bg-brand-purple/10 transition-smooth flex items-center gap-1"
               >
                 <Edit2 className="w-4 h-4" />
                 {editingQuickActions ? 'Done' : 'Edit'}
               </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-stagger">
               {quickActions.map(action => (
-                <div key={action.id} className="relative">
+                <div key={action.id} className="relative group animate-scale-in">
                   <Link
                     href={action.href}
-                    className="block w-full p-4 bg-gradient-to-br from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-lg transition text-center font-medium text-sm"
+                    className="block w-full p-4 bg-gradient-to-br from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-lg transition-smooth hover-scale text-center font-medium text-sm"
                   >
                     {action.label}
                   </Link>
                   {editingQuickActions && (
                     <button
                       onClick={() => removeQuickAction(action.id)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-smooth scale-0 group-hover:scale-100 origin-top-right"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -260,10 +260,10 @@ export default function AdminPanel() {
             </div>
 
             {editingQuickActions && (
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 flex gap-2 animate-slide-up">
                 <button
                   onClick={saveQuickActions}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm flex items-center gap-1"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-smooth font-medium text-sm flex items-center gap-1 hover-scale"
                 >
                   <Check className="w-4 h-4" />
                   Save Changes

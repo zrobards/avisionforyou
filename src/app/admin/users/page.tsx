@@ -145,13 +145,13 @@ export default function AdminUsersPage() {
     <div className="p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div>
+        <div className="animate-slide-down">
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600 text-sm">Search, filter, and manage user roles</p>
         </div>
 
         {/* Search & Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 animate-slide-up">
           <div className="flex gap-4 flex-wrap items-end">
             <div className="flex-1 min-w-64">
               <label className="block text-sm font-semibold text-gray-700 mb-1">Search</label>
@@ -180,13 +180,13 @@ export default function AdminUsersPage() {
               </select>
             </div>
           </div>
-          <div className="text-sm text-gray-500 mt-2">
+          <div className="text-sm text-gray-500 mt-2 animate-fade-in">
             Showing {filteredUsers.length} of {users.length} users
           </div>
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden animate-slide-up">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -198,8 +198,8 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 transition">
+              {filteredUsers.map((user, index) => (
+                <tr key={user.id} className="hover:bg-gray-50 transition-smooth hover-scale animate-fade-in" style={{animationDelay: `${index * 30}ms`}}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-brand-purple to-purple-700 rounded-full flex items-center justify-center flex-shrink-0">
@@ -235,7 +235,7 @@ export default function AdminUsersPage() {
                       {user.role !== 'ADMIN' && (
                         <button
                           onClick={() => updateUserRole(user.id, 'ADMIN')}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-smooth hover-scale"
                           title="Promote to Admin"
                         >
                           <Shield className="w-4 h-4" />
@@ -244,7 +244,7 @@ export default function AdminUsersPage() {
                       {user.role === 'ADMIN' && (
                         <button
                           onClick={() => updateUserRole(user.id, 'USER')}
-                          className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition"
+                          className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-smooth hover-scale"
                           title="Demote to User"
                         >
                           <ShieldOff className="w-4 h-4" />
@@ -252,7 +252,7 @@ export default function AdminUsersPage() {
                       )}
                       <button
                         onClick={() => deleteUser(user.id, user.name || user.email)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-smooth hover-scale"
                         title="Delete User"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -265,7 +265,7 @@ export default function AdminUsersPage() {
           </table>
 
           {filteredUsers.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-500 animate-fade-in">
               <User className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p>No users found</p>
             </div>

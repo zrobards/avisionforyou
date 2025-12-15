@@ -3,6 +3,7 @@ import NextAuth, { type NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import EmailProvider from "next-auth/providers/email"
 import CredentialsProvider from "next-auth/providers/credentials"
+import bcrypt from "bcryptjs"
 import { db } from "./db"
 
 export const authOptions: NextAuthOptions = {
@@ -39,18 +40,23 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.error('Missing email or password')
           throw new Error('Email and password required')
         }
 
         try {
-          const bcrypt = require('bcryptjs')
-          
           // Find user in database
           const user = await db.user.findUnique({
             where: { email: credentials.email }
           })
 
-          if (!user || !user.passwordHash) {
+          if (!user) {
+            console.error('User not found:', credentials.email)
+            throw new Error('Invalid credentials')
+          }
+
+          if (!user.passwordHash) {
+            console.error('User has no password hash:', credentials.email)
             throw new Error('Invalid credentials')
           }
 
@@ -58,9 +64,11 @@ export const authOptions: NextAuthOptions = {
           const isValidPassword = await bcrypt.compare(credentials.password, user.passwordHash)
           
           if (!isValidPassword) {
+            console.error('Invalid password for user:', credentials.email)
             throw new Error('Invalid credentials')
           }
 
+          console.log('User authenticated successfully:', credentials.email, 'Role:', user.role)
           return {
             id: user.id,
             email: user.email,
@@ -68,7 +76,7 @@ export const authOptions: NextAuthOptions = {
             role: user.role
           }
         } catch (error) {
-          console.error('Auth error:', error)
+          console.error('Auth error:', error instanceof Error ? error.message : String(error))
           return null
         }
       }
