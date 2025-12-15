@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { BarChart3, Users, Calendar, TrendingUp, Heart, Share2 } from 'lucide-react'
+import { BarChart3, Users, Calendar, TrendingUp, Heart, Share2, Search, X, Plus, Edit2, Check } from 'lucide-react'
 
 interface AdminData {
   users: any[]
@@ -19,6 +19,13 @@ interface AdminData {
   }
 }
 
+interface QuickAction {
+  id: string
+  label: string
+  href: string
+  icon: string
+}
+
 export default function AdminPanel() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -26,18 +33,13 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('overview')
-  const [createSuccess, setCreateSuccess] = useState(false)
-  const [createError, setCreateError] = useState('')
-  const [newMeeting, setNewMeeting] = useState({
-    title: '',
-    description: '',
-    program: 'MINDBODYSOUL_IOP',
-    startTime: '',
-    endTime: '',
-    format: 'ONLINE',
-    link: ''
-  })
+  const [editingQuickActions, setEditingQuickActions] = useState(false)
+  const [quickActions, setQuickActions] = useState<QuickAction[]>([
+    { id: '1', label: 'Manage Users', href: '/admin/users', icon: 'users' },
+    { id: '2', label: 'View Meetings', href: '/admin/meetings', icon: 'calendar' },
+    { id: '3', label: 'Social Media', href: '/admin/social', icon: 'share' },
+    { id: '4', label: 'Write Blog', href: '/admin/blog', icon: 'filetext' },
+  ])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -82,41 +84,19 @@ export default function AdminPanel() {
     }
   }
 
-  const handleCreateMeeting = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setCreateError('')
-    setCreateSuccess(false)
-    
-    try {
-      const response = await fetch('/api/meetings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newMeeting)
-      })
+  const saveQuickActions = () => {
+    localStorage.setItem('adminQuickActions', JSON.stringify(quickActions))
+    setEditingQuickActions(false)
+  }
 
-      const result = await response.json()
+  const removeQuickAction = (id: string) => {
+    setQuickActions(quickActions.filter(qa => qa.id !== id))
+  }
 
-      if (response.ok) {
-        setCreateSuccess(true)
-        setNewMeeting({
-          title: '',
-          description: '',
-          program: 'MINDBODYSOUL_IOP',
-          startTime: '',
-          endTime: '',
-          format: 'ONLINE',
-          link: ''
-        })
-        await fetchAdminData()
-        
-        // Clear success message after 3 seconds
-        setTimeout(() => setCreateSuccess(false), 3000)
-      } else {
-        setCreateError(result.error || 'Failed to create meeting')
-      }
-    } catch (err) {
-      console.error('Create meeting error:', err)
-      setCreateError('Network error - failed to create meeting')
+  const toggleQuickAction = (id: string) => {
+    const action = quickActions.find(qa => qa.id === id)
+    if (action) {
+      removeQuickAction(id)
     }
   }
 
@@ -142,8 +122,8 @@ export default function AdminPanel() {
         <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600 text-sm">Welcome back! Here's your overview.</p>
+              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-600 text-sm">Manage users, meetings, and content</p>
             </div>
             <button
               onClick={() => fetchAdminData(true)}
@@ -192,140 +172,104 @@ export default function AdminPanel() {
             })}
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Tabs */}
+          {/* Main Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Users Section */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                {/* Tabs */}
-                <div className="flex border-b border-gray-200">
-                  {['overview', 'users', 'meetings'].map(tab => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-6 py-3 font-medium text-sm transition capitalize ${
-                        activeTab === tab
-                          ? 'border-b-2 border-brand-purple text-brand-purple'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      {tab}
-                    </button>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold text-gray-900">Recent Users</h2>
+                  <Link href="/admin/users" className="text-sm text-brand-purple hover:text-brand-purple/90 font-semibold">View All →</Link>
+                </div>
+                <div className="space-y-3 mb-4">
+                  {data?.users.slice(0, 5).map(user => (
+                    <div key={user.id} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900 text-sm">{user.name || 'Unknown'}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-600">{user.rsvps?.length || 0} RSVPs</span>
+                    </div>
                   ))}
                 </div>
-
-                <div className="p-6">
-                {/* Overview Tab */}
-                {activeTab === 'overview' && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600 text-sm">Active Users</p>
-                        <p className="text-2xl font-bold text-gray-900">{data?.users.length || 0}</p>
-                      </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600 text-sm">Completion Rate</p>
-                        <p className="text-2xl font-bold text-gray-900">
-                          {data?.stats.completedAssessments && data?.users.length 
-                            ? Math.round((data.stats.completedAssessments / data.users.length) * 100) 
-                            : 0}%
-                        </p>
-                      </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600 text-sm">Avg RSVPs per Meeting</p>
-                        <p className="text-2xl font-bold text-gray-900">
-                          {data?.stats.totalRsvps && data?.stats.upcomingMeetings 
-                            ? Math.round(data.stats.totalRsvps / data.stats.upcomingMeetings) 
-                            : 0}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600 text-sm">Total Donations</p>
-                        <p className="text-2xl font-bold text-gray-900">${(data?.stats.donationVolume || 0).toLocaleString()}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Users Tab */}
-                {activeTab === 'users' && (
-                  <div className="space-y-4">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-gray-200">
-                            <th className="px-4 py-3 text-left text-gray-600 font-semibold">Name</th>
-                            <th className="px-4 py-3 text-left text-gray-600 font-semibold">Email</th>
-                            <th className="px-4 py-3 text-left text-gray-600 font-semibold">Assessment</th>
-                            <th className="px-4 py-3 text-left text-gray-600 font-semibold">RSVPs</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data?.users.slice(0, 10).map(user => (
-                            <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
-                              <td className="px-4 py-3 text-gray-900">{user.name}</td>
-                              <td className="px-4 py-3 text-gray-700">{user.email}</td>
-                              <td className="px-4 py-3">
-                                {user.assessment ? (
-                                  <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">Completed</span>
-                                ) : (
-                                  <span className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">Pending</span>
-                                )}
-                              </td>
-                              <td className="px-4 py-3 text-gray-700">{user.rsvps?.length || 0}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <p className="text-sm text-gray-500">Showing 10 of {data?.users.length || 0} users</p>
-                  </div>
-                )}
-
-                {/* Meetings Tab */}
-                {activeTab === 'meetings' && (
-                  <div className="space-y-4">
-                    {data?.meetings.slice(0, 5).map(meeting => (
-                      <div key={meeting.id} className="p-4 border border-gray-200 rounded-lg hover:border-gray-300">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{meeting.title}</h3>
-                            <p className="text-sm text-gray-600 mt-1">{meeting.description}</p>
-                          </div>
-                          <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">{meeting.format}</span>
-                        </div>
-                        <div className="flex gap-4 text-sm text-gray-500 mt-3">
-                          <span>📅 {new Date(meeting.startTime).toLocaleDateString()}</span>
-                          <span>👥 {meeting.rsvps?.length || 0} RSVPs</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                </div>
+                <Link href="/admin/users" className="w-full text-center px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition font-medium text-sm">
+                  Manage Users
+                </Link>
               </div>
             </div>
 
-            {/* Right Column - Recent Activity */}
-            <div className="lg:col-span-1">
+            {/* Meetings Section */}
+            <div className="lg:col-span-2">
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                <div className="space-y-3">
-                  <Link href="/admin/users" className="block w-full text-center px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition font-medium text-sm">
-                    Manage Users
-                  </Link>
-                  <Link href="/admin/meetings" className="block w-full text-center px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition font-medium text-sm">
-                    Create Meeting
-                  </Link>
-                  <Link href="/admin/blog" className="block w-full text-center px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition font-medium text-sm">
-                    Write Blog Post
-                  </Link>
-                  <Link href="/admin/social" className="block w-full text-center px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition font-medium text-sm">
-                    Social Media
-                  </Link>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold text-gray-900">Upcoming Meetings</h2>
+                  <Link href="/admin/meetings" className="text-sm text-brand-purple hover:text-brand-purple/90 font-semibold">View All →</Link>
                 </div>
+                <div className="space-y-3 mb-4">
+                  {data?.meetings.slice(0, 5).map(meeting => (
+                    <div key={meeting.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 text-sm">{meeting.title}</p>
+                          <p className="text-xs text-gray-500 mt-1">{new Date(meeting.startTime).toLocaleDateString()}</p>
+                        </div>
+                        <span className="text-xs font-semibold text-gray-600">{meeting.rsvps?.length || 0} RSVPs</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Link href="/admin/meetings" className="w-full text-center px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition font-medium text-sm">
+                  Manage Meetings
+                </Link>
               </div>
             </div>
+          </div>
+
+          {/* Quick Actions - Customizable */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-gray-900">Quick Actions</h2>
+              <button
+                onClick={() => setEditingQuickActions(!editingQuickActions)}
+                className="text-sm px-3 py-1 text-brand-purple border border-brand-purple rounded hover:bg-brand-purple/10 transition flex items-center gap-1"
+              >
+                <Edit2 className="w-4 h-4" />
+                {editingQuickActions ? 'Done' : 'Edit'}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {quickActions.map(action => (
+                <div key={action.id} className="relative">
+                  <Link
+                    href={action.href}
+                    className="block w-full p-4 bg-gradient-to-br from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-lg transition text-center font-medium text-sm"
+                  >
+                    {action.label}
+                  </Link>
+                  {editingQuickActions && (
+                    <button
+                      onClick={() => removeQuickAction(action.id)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {editingQuickActions && (
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={saveQuickActions}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm flex items-center gap-1"
+                >
+                  <Check className="w-4 h-4" />
+                  Save Changes
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

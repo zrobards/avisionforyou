@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/shared/ToastProvider'
-import { Calendar, Edit2, Trash2, Users, Clock } from 'lucide-react'
+import { Search, Plus, Filter, X, Calendar, Users, Clock, MapPin } from 'lucide-react'
 
 interface Meeting {
   id: string
@@ -15,7 +15,7 @@ interface Meeting {
   format: string
   location: string | null
   link: string | null
-  rsvpCount: number
+  _count?: { rsvps: number }
 }
 
 export default function AdminMeetingsPage() {
@@ -23,8 +23,13 @@ export default function AdminMeetingsPage() {
   const router = useRouter()
   const { showToast } = useToast()
   const [meetings, setMeetings] = useState<Meeting[]>([])
+  const [filteredMeetings, setFilteredMeetings] = useState<Meeting[]>([])
   const [loading, setLoading] = useState(true)
-  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterFormat, setFilterFormat] = useState<string>('ALL')
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [createError, setCreateError] = useState('')
+  const [createSuccess, setCreateSuccess] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -50,7 +55,29 @@ export default function AdminMeetingsPage() {
       }
       fetchMeetings()
     }
-  }, [status])
+  }, [status, router, showToast])
+
+  // Filter meetings when search or filter changes
+  useEffect(() => {
+    let result = meetings
+    
+    // Apply search
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      result = result.filter(m => 
+        m.title.toLowerCase().includes(term) ||
+        m.description?.toLowerCase().includes(term) ||
+        m.location?.toLowerCase().includes(term)
+      )
+    }
+
+    // Apply format filter
+    if (filterFormat !== 'ALL') {
+      result = result.filter(m => m.format === filterFormat)
+    }
+
+    setFilteredMeetings(result)
+  }, [meetings, searchTerm, filterFormat])
 
   const fetchMeetings = async () => {
     try {
@@ -58,200 +85,197 @@ export default function AdminMeetingsPage() {
       const response = await fetch('/api/meetings')
       if (!response.ok) throw new Error('Failed to fetch meetings')
       const data = await response.json()
-      setMeetings(data.meetings || [])
-    } catch (error) {
+      setMeetings(data)
+    } catch (err) {
+      console.error(err)
       showToast('Failed to load meetings', 'error')
-      console.error(error)
     } finally {
       setLoading(false)
     }
   }
 
-  const startEdit = (meeting: Meeting) => {
-    setEditingMeeting(meeting)
-    setFormData({
-      title: meeting.title,
-      description: meeting.description || '',
-      startTime: new Date(meeting.startDate).toISOString().slice(0, 16),
-      endTime: new Date(meeting.endDate).toISOString().slice(0, 16),
-      format: meeting.format,
-      location: meeting.location || '',
-      link: meeting.link || ''
-    })
-  }
-
-  const cancelEdit = () => {
-    setEditingMeeting(null)
-    setFormData({
-      title: '',
-      description: '',
-      startTime: '',
-      endTime: '',
-      format: 'ONLINE',
-      location: '',
-      link: ''
-    })
-  }
-
-  const updateMeeting = async (e: React.FormEvent) => {
+  const handleCreateMeeting = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!editingMeeting) return
+    setCreateError('')
+    setCreateSuccess(false)
 
-    try {
-      const response = await fetch(`/api/meetings/${editingMeeting.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-
-      if (!response.ok) throw new Error('Failed to update meeting')
-
-      showToast('Meeting updated successfully', 'success')
-      cancelEdit()
-      fetchMeetings()
-    } catch (error) {
-      showToast('Failed to update meeting', 'error')
-      console.error(error)
-    }
-  }
-
-  const deleteMeeting = async (meetingId: string, meetingTitle: string) => {
-    if (!confirm(`Are you sure you want to delete "${meetingTitle}"? This will also delete all RSVPs.`)) {
+    if (!formData.title || !formData.startTime) {
+      setCreateError('Title and start time are required')
       return
     }
 
     try {
-      const response = await fetch(`/api/meetings/${meetingId}`, {
-        method: 'DELETE'
+      const response = await fetch('/api/meetings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       })
 
-      if (!response.ok) throw new Error('Failed to delete meeting')
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || 'Failed to create meeting')
+      }
 
-      showToast('Meeting deleted successfully', 'success')
-      fetchMeetings()
-    } catch (error) {
-      showToast('Failed to delete meeting', 'error')
-      console.error(error)
+      setCreateSuccess(true)
+      setFormData({
+        title: '',
+        description: '',
+        startTime: '',
+        endTime: '',
+        format: 'ONLINE',
+        location: '',
+        link: ''
+      })
+      await fetchMeetings()
+      setShowCreateForm(false)
+
+      setTimeout(() => setCreateSuccess(false), 3000)
+    } catch (err: any) {
+      setCreateError(err.message || 'Network error')
     }
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    )
+    return <div className="p-6 text-center">Loading meetings...</div>
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="mb-8 flex justify-between items-center">
+    <div className="p-6">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Meeting Management</h1>
-            <p className="text-gray-600">Edit or cancel meetings</p>
+            <h1 className="text-2xl font-bold text-gray-900">Meetings Management</h1>
+            <p className="text-gray-600 text-sm">Create, search, and manage meetings</p>
           </div>
+          <button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-brand-purple/90 transition font-medium flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Meeting
+          </button>
         </div>
 
-        {editingMeeting && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border-l-4 border-blue-600">
-            <h2 className="text-2xl font-bold mb-4">Edit Meeting</h2>
-            <form onSubmit={updateMeeting} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
+        {/* Create Meeting Form */}
+        {showCreateForm && (
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-gray-900">Create New Meeting</h2>
+              <button onClick={() => setShowCreateForm(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {createSuccess && (
+              <div className="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg text-sm">
+                ✓ Meeting created successfully!
+              </div>
+            )}
+
+            {createError && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+                ✗ {createError}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateMeeting} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Title *</label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
+                    placeholder="Meeting title"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Format *</label>
+                  <select
+                    value={formData.format}
+                    onChange={(e) => setFormData({ ...formData, format: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
+                  >
+                    <option value="ONLINE">Online</option>
+                    <option value="IN_PERSON">In-Person</option>
+                    <option value="HYBRID">Hybrid</option>
+                  </select>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
+                  placeholder="Meeting description"
                   rows={3}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Start Date/Time *</label>
                   <input
                     type="datetime-local"
                     value={formData.startTime}
                     onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
                     required
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">End Date/Time</label>
                   <input
                     type="datetime-local"
                     value={formData.endTime}
                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Format</label>
-                <select
-                  value={formData.format}
-                  onChange={(e) => setFormData({ ...formData, format: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="ONLINE">Online</option>
-                  <option value="IN_PERSON">In Person</option>
-                  <option value="HYBRID">Hybrid</option>
-                </select>
-              </div>
-
-              {(formData.format === 'IN_PERSON' || formData.format === 'HYBRID') && (
+              {formData.format !== 'IN_PERSON' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Physical address"
-                  />
-                </div>
-              )}
-
-              {(formData.format === 'ONLINE' || formData.format === 'HYBRID') && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Meeting Link</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Meeting Link</label>
                   <input
                     type="url"
                     value={formData.link}
                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
                     placeholder="https://zoom.us/..."
                   />
                 </div>
               )}
 
-              <div className="flex gap-3">
+              {formData.format !== 'ONLINE' && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
+                    placeholder="Meeting location"
+                  />
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-4">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  className="px-4 py-2 bg-brand-green text-white rounded-lg hover:bg-brand-green/90 transition font-medium"
                 >
-                  Save Changes
+                  Create Meeting
                 </button>
                 <button
                   type="button"
-                  onClick={cancelEdit}
-                  className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                  onClick={() => setShowCreateForm(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium"
                 >
                   Cancel
                 </button>
@@ -260,70 +284,95 @@ export default function AdminMeetingsPage() {
           </div>
         )}
 
-        <div className="grid gap-6">
-          {meetings.map((meeting) => (
-            <div key={meeting.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{meeting.title}</h3>
-                  {meeting.description && (
-                    <p className="text-gray-600 mb-3">{meeting.description}</p>
-                  )}
-                  
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(meeting.startDate).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      {new Date(meeting.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      {meeting.rsvpCount} RSVPs
-                    </div>
-                    <div className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
-                      {meeting.format}
-                    </div>
-                  </div>
-
-                  {meeting.location && (
-                    <p className="text-sm text-gray-500 mt-2">📍 {meeting.location}</p>
-                  )}
-                  {meeting.link && (
-                    <a href={meeting.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline mt-2 block">
-                      🔗 Join online
-                    </a>
-                  )}
-                </div>
-
-                <div className="flex gap-2 ml-4">
-                  <button
-                    onClick={() => startEdit(meeting)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                    title="Edit meeting"
-                  >
-                    <Edit2 className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => deleteMeeting(meeting.id, meeting.title)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                    title="Delete meeting"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
+        {/* Search & Filters */}
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 space-y-4">
+          <div className="flex gap-4 flex-wrap items-end">
+            <div className="flex-1 min-w-64">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Search</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by title, description, location..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
+                />
               </div>
             </div>
-          ))}
+            <div className="min-w-48">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Format Filter</label>
+              <select
+                value={filterFormat}
+                onChange={(e) => setFilterFormat(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
+              >
+                <option value="ALL">All Formats</option>
+                <option value="ONLINE">Online</option>
+                <option value="IN_PERSON">In-Person</option>
+                <option value="HYBRID">Hybrid</option>
+              </select>
+            </div>
+          </div>
 
-          {meetings.length === 0 && (
-            <div className="text-center py-12 text-gray-500 bg-white rounded-lg">
-              No meetings found
+          {(searchTerm || filterFormat !== 'ALL') && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Filter className="w-4 h-4" />
+              Showing {filteredMeetings.length} of {meetings.length} meetings
             </div>
           )}
         </div>
+
+        {/* Meetings List */}
+        <div className="space-y-3">
+          {filteredMeetings.length === 0 ? (
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+              <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-600">No meetings found</p>
+            </div>
+          ) : (
+            filteredMeetings.map(meeting => (
+              <div key={meeting.id} className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 hover:shadow-md transition">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 text-lg">{meeting.title}</h3>
+                    {meeting.description && (
+                      <p className="text-gray-600 text-sm mt-1">{meeting.description}</p>
+                    )}
+                    
+                    <div className="flex gap-4 mt-3 flex-wrap text-sm text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(meeting.startDate).toLocaleDateString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {new Date(meeting.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      {meeting.location && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {meeting.location}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        {meeting._count?.rsvps || 0} RSVPs
+                      </span>
+                      <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+                        {meeting.format}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <p className="text-sm text-gray-500 text-center">
+          Total: {meetings.length} meetings
+        </p>
       </div>
     </div>
   )
