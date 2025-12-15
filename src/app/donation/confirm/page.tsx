@@ -67,7 +67,7 @@ function DonationConfirmContent() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-600 font-bold">✓</span>
-                <span>A confirmation email will be sent to you shortly</span>
+                <span>A personalized thank you email with payment details will arrive shortly</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-600 font-bold">✓</span>
@@ -78,6 +78,21 @@ function DonationConfirmContent() {
                 <span>Your impact will directly help those in recovery</span>
               </li>
             </ul>
+          </div>
+
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-8">
+            <h2 className="text-lg font-semibold text-blue-900 mb-3">💡 Multiply Your Impact</h2>
+            <p className="text-blue-800 mb-3">
+              Your ${donation.amount.toFixed(2)} donation makes a difference. Imagine if you gave that amount every month...
+            </p>
+            <div className="bg-white rounded p-3 mb-3 text-sm">
+              <p><strong>Your one-time gift:</strong> ${donation.amount.toFixed(2)}</p>
+              <p><strong>If given monthly:</strong> ${(donation.amount * 12).toFixed(2)}/year</p>
+              <p className="text-green-600 font-bold mt-2">That's 12x more lives changed! 💚</p>
+            </div>
+            <p className="text-sm text-blue-700">
+              Check your email for details on becoming a monthly recurring donor with just 2x the impact.
+            </p>
           </div>
 
           <p className="text-gray-600 mb-8">

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
+import { sendDonationConfirmationEmail } from "@/lib/email"
 import { v4 as uuidv4 } from "uuid"
 
 // Simple email validation
@@ -88,6 +89,21 @@ export async function POST(request: NextRequest) {
         })
 
         console.log("Square: Saved donation record:", donation.id)
+
+        // Send confirmation email with thank you and monthly donor appeal
+        try {
+          await sendDonationConfirmationEmail(
+            donation.id,
+            email,
+            name,
+            amount,
+            frequency
+          )
+          console.log("Square: Confirmation email sent to", email)
+        } catch (emailError) {
+          console.error("Square: Failed to send email, but donation saved:", emailError)
+          // Don't fail the donation if email fails
+        }
 
         // Return the payment confirmation page URL
         return NextResponse.json(

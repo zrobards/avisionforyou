@@ -465,3 +465,119 @@ export async function sendBulkMeetingReminders() {
   }
 }
 
+export async function sendDonationConfirmationEmail(
+  donationId: string,
+  recipientEmail: string,
+  donorName: string,
+  amount: number,
+  frequency: string
+) {
+  try {
+    const isDonationIdValid = donationId && typeof donationId === 'string' && donationId.length > 0
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #7c3aed 0%, #10b981 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+            .amount { font-size: 32px; font-weight: bold; color: #7c3aed; margin: 20px 0; }
+            .impact-box { background: white; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0; border-radius: 4px; }
+            .button { display: inline-block; background: #7c3aed; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 15px 0; }
+            .footer { font-size: 12px; color: #666; margin-top: 30px; text-align: center; }
+            h1 { margin: 0; }
+            h2 { color: #7c3aed; margin-top: 0; }
+            .highlight { background: #fef08a; padding: 15px; border-radius: 6px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>💚 Thank You!</h1>
+              <p style="margin: 10px 0 0 0;">Your generosity changes lives</p>
+            </div>
+            
+            <div class="content">
+              <p>Hi ${donorName},</p>
+              
+              <p>We are incredibly grateful for your donation of <strong>$${amount.toFixed(2)}</strong> to A Vision For You Recovery. Your compassion and support make a real difference in the lives of people seeking recovery and hope.</p>
+              
+              <div class="impact-box">
+                <h3 style="margin-top: 0;">Your Impact:</h3>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                  <li>$25 = 10 meals for someone in recovery</li>
+                  <li>$50 = 1 day of shelter support</li>
+                  <li>$100 = 1 week of recovery support</li>
+                  <li>$250 = 1 month of peer counseling</li>
+                  <li>$500 = Sponsors 1 full recovery program bed</li>
+                </ul>
+              </div>
+
+              <h2>Take Your Impact Further</h2>
+              <p>Did you know that monthly recurring donations are 2x more powerful? Here's why:</p>
+              
+              <div class="highlight">
+                <strong>💡 Monthly giving allows us to:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                  <li>Plan long-term recovery programs with confidence</li>
+                  <li>Provide consistent housing and meal support</li>
+                  <li>Expand peer counseling services</li>
+                  <li>Help more people every single month</li>
+                </ul>
+              </div>
+
+              <p><strong>Consider becoming a monthly donor:</strong></p>
+              <p>For the same amount you just gave, imagine the impact of that donation recurring every month. A $50 one-time gift becomes $600/year in life-changing support.</p>
+              
+              <center>
+                <a href="https://avisionforyou.vercel.app/donate" class="button">💚 Become a Monthly Donor</a>
+              </center>
+
+              <h2>Your Donation Receipt</h2>
+              <p style="background: #f3f4f6; padding: 15px; border-radius: 6px; font-family: monospace;">
+                <strong>Donation ID:</strong> ${isDonationIdValid ? donationId : 'Pending'}<br>
+                <strong>Amount:</strong> $${amount.toFixed(2)}<br>
+                <strong>Type:</strong> ${frequency === 'MONTHLY' ? 'Monthly Recurring' : 'One-Time Gift'}<br>
+                <strong>Status:</strong> Received & Processing
+              </p>
+
+              <p>You'll receive a formal tax receipt via email shortly. A Vision For You Recovery is a 501(c)(3) nonprofit organization - your donation is tax-deductible.</p>
+
+              <h2>Questions?</h2>
+              <p>If you have any questions about your donation or want to learn more about our programs, please don't hesitate to reach out to us at <strong>admin@avisionforyou.org</strong></p>
+
+              <p style="margin-top: 30px;">With deep gratitude,<br><strong>The A Vision For You Recovery Team</strong></p>
+
+              <div class="footer">
+                <p>A Vision For You Recovery<br>
+                1675 Story Ave, Louisville, KY 40206<br>
+                <a href="https://avisionforyou.vercel.app" style="color: #7c3aed;">avisionforyou.vercel.app</a></p>
+                <p style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px;">
+                  This email was sent to ${recipientEmail} because you made a donation to A Vision For You Recovery.
+                </p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    const result = await sendEmail({
+      to: recipientEmail,
+      subject: `Thank You for Your ${amount < 100 ? 'Generous' : 'Major'} Donation - A Vision For You Recovery`,
+      html,
+      from: 'A Vision For You Recovery <noreply@avisionforyou.org>'
+    })
+
+    console.log('Donation confirmation email sent:', result)
+    return true
+  } catch (error) {
+    console.error('Failed to send donation confirmation email:', error)
+    return false
+  }
+}
+
