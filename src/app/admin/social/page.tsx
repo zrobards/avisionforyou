@@ -1,10 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Upload, Send, Facebook, Instagram, Twitter, Youtube, Loader } from 'lucide-react'
+import { Upload, Send, Facebook, Instagram, Twitter, Youtube, Loader } from 'lucide-react'
 
 interface SocialPost {
   id: string
@@ -104,10 +103,6 @@ export default function AdminSocialPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-brand-purple hover:text-brand-purple/80 mb-4 font-medium transition-colors">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Admin
-        </Link>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Social Media Management</h1>
         <p className="text-gray-600">Upload videos and manage posts across all platforms from one place</p>
       </div>
