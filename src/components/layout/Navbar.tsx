@@ -1,9 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useSession, signOut } from 'next-auth/react'
-import { Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell, Menu, X, ChevronDown } from 'lucide-react'
+import { Heart, Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell, Menu, X, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navbar() {
@@ -16,26 +15,11 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-brand-purple to-purple-900 border-b border-purple-700 backdrop-blur-sm shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white hover:opacity-80 transition-opacity">
-            <Image 
-              src="/avsf-logo.png" 
-              alt="A Vision For You Recovery" 
-              width={48}
-              height={48}
-              className="hidden sm:block"
-              priority
-            />
-            <Image 
-              src="/avsf-logo.png" 
-              alt="A Vision For You Recovery" 
-              width={40}
-              height={40}
-              className="sm:hidden"
-              priority
-            />
+          <Link href="/" className="flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:text-brand-green transition-colors">
+            <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-brand-green flex-shrink-0" />
             <span className="hidden xs:inline">A Vision For You</span>
             <span className="inline xs:hidden">AVFY</span>
           </Link>
