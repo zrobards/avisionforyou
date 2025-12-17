@@ -23,7 +23,6 @@
     "@prisma/client": "^5.22.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
-    "@stripe/react-stripe-js": "^5.4.1",
     "@types/node": "^24.10.1",
     "@types/react": "^18.3.27",
     "autoprefixer": "^10.4.22",
@@ -39,7 +38,6 @@
     "react-hook-form": "^7.50.1",
     "resend": "^6.5.2",
     "square": "^43.2.1",
-    "stripe": "^14.15.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "zod": "^3.22.4"
