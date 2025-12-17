@@ -240,7 +240,7 @@ export default function AdminMeetingsPage() {
               </div>
             )}
 
-            <form onSubmit={handleCreateMeeting} className="space-y-4">
+            <form onSubmit={handleSaveMeeting} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Title *</label>

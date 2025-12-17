@@ -64,18 +64,18 @@ export default function BlogPostPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple"></div>
       </div>
     )
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Post Not Found</h1>
-          <Link href="/blog" className="text-blue-600 hover:text-blue-700">
+          <Link href="/blog" className="text-brand-purple hover:text-brand-green">
             ← Back to Blog
           </Link>
         </div>
@@ -84,11 +84,11 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-8">
+      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-8">
         <div className="max-w-4xl mx-auto px-6">
-          <Link href="/blog" className="inline-flex items-center text-blue-200 hover:text-white mb-6">
+          <Link href="/blog" className="inline-flex items-center text-purple-200 hover:text-white mb-6">
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Blog
           </Link>
@@ -100,7 +100,7 @@ export default function BlogPostPage() {
         {/* Post Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <span className="bg-blue-100 text-blue-800 px-4 py-1 rounded-full text-sm font-medium">
+            <span className="bg-gradient-to-r from-brand-purple to-brand-green text-white px-4 py-1 rounded-full text-sm font-medium">
               {post.category}
             </span>
             <span className="text-gray-500">{post.readTimeMinutes} min read</span>
