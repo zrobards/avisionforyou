@@ -20,15 +20,22 @@ export default function Navbar() {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white hover:opacity-80 transition-opacity">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12">
-              <Image 
-                src="/avsf-logo.png" 
-                alt="A Vision For You Recovery" 
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+            <Image 
+              src="/avsf-logo.png" 
+              alt="A Vision For You Recovery" 
+              width={48}
+              height={48}
+              className="hidden sm:block"
+              priority
+            />
+            <Image 
+              src="/avsf-logo.png" 
+              alt="A Vision For You Recovery" 
+              width={40}
+              height={40}
+              className="sm:hidden"
+              priority
+            />
             <span className="hidden xs:inline">A Vision For You</span>
             <span className="inline xs:hidden">AVFY</span>
           </Link>

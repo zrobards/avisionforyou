@@ -124,7 +124,15 @@ export default function AdminMeetingsPage() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          startDate: formData.startTime,
+          endDate: formData.endTime,
+          format: formData.format,
+          location: formData.location,
+          link: formData.link
+        })
       })
 
       if (!response.ok) {

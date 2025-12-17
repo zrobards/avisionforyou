@@ -32,21 +32,8 @@ const LEADERSHIP = [
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-blue-600">Vision For You</Link>
-          <div className="hidden md:flex space-x-8">
-            <Link href="/programs" className="text-gray-700 hover:text-blue-600 font-medium">Programs</Link>
-            <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium">About</Link>
-            <Link href="/blog" className="text-gray-700 hover:text-blue-600 font-medium">Blog</Link>
-            <Link href="/donate" className="text-gray-700 hover:text-blue-600 font-medium">Donate</Link>
-            <Link href="/login" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign In</Link>
-          </div>
-        </div>
-      </nav>
-
-      <section className="bg-gradient-to-r from-blue-700 to-green-600 text-white py-16">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-5xl font-bold mb-4">About A Vision For You</h1>
           <p className="text-xl opacity-95">Our story, our mission, and the people transforming lives every day</p>
@@ -58,13 +45,13 @@ export default function About() {
           <h2 className="text-4xl font-bold mb-8 text-center">Our Story</h2>
           <div className="space-y-8">
             <div className="bg-white p-10 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold text-blue-600 mb-4">Founded with Compassion</h3>
+              <h3 className="text-2xl font-bold text-brand-purple mb-4">Founded with Compassion</h3>
               <p className="text-lg text-gray-700 leading-relaxed">A Vision For You was founded on the belief that everyone deserves a second chance. Walking the streets of Louisville, Kentucky, our founder Lucas Bennett witnessed the pain of homelessness and addiction firsthand. He realized that what was missing wasn't the desire for recovery—it was the support system to make it possible.</p>
               <p className="text-lg text-gray-700 leading-relaxed mt-4">From those beginnings, A Vision For You has grown into a comprehensive recovery and support network, serving hundreds of people each year. We're not just a treatment center; we're a community of recovery.</p>
             </div>
 
             <div className="bg-white p-10 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold text-blue-600 mb-4">Our Mission</h3>
+              <h3 className="text-2xl font-bold text-brand-purple mb-4">Our Mission</h3>
               <p className="text-2xl font-semibold text-center text-gray-900 mb-6">"To empower the homeless, addicted, maladjusted, and mentally ill to lead productive lives through housing, education, self-help, treatment, or any other available resource"</p>
               <p className="text-lg text-gray-700 leading-relaxed">This isn't just words on a page—it's what drives us every single day. We combine evidence-based treatment, peer support, housing stability, education, and vocational training to create pathways to lasting recovery.</p>
             </div>
@@ -77,7 +64,7 @@ export default function About() {
           <h2 className="text-4xl font-bold mb-16 text-center">Our Leadership</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {LEADERSHIP.map((leader, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-blue-50 to-green-50 p-8 rounded-lg shadow-lg">
+              <div key={idx} className="bg-gradient-to-br from-purple-50 to-green-50 p-8 rounded-lg shadow-lg">
                 <div className="w-24 h-24 bg-gradient-to-r from-blue-400 to-green-400 rounded-full mx-auto mb-6"></div>
                 <h3 className="text-2xl font-bold text-center mb-2">{leader.name}</h3>
                 <p className="text-center text-blue-600 font-semibold mb-4">{leader.title}</p>
