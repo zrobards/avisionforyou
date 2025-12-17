@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSession, signOut } from 'next-auth/react'
-import { Heart, Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell, Menu, X, ChevronDown } from 'lucide-react'
+import { Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell, Menu, X, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navbar() {
@@ -18,8 +19,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white hover:text-brand-green transition-colors">
-            <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-brand-green" />
+          <Link href="/" className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white hover:opacity-80 transition-opacity">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+              <Image 
+                src="/avsf-logo.png" 
+                alt="A Vision For You Recovery" 
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
             <span className="hidden xs:inline">A Vision For You</span>
             <span className="inline xs:hidden">AVFY</span>
           </Link>

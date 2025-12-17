@@ -79,12 +79,12 @@ export default function BlogPage() {
                   )}
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="bg-purple-100 text-brand-purple px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-gradient-to-r from-brand-purple to-brand-green text-white px-3 py-1 rounded-full text-sm font-medium">
                         {post.category}
                       </span>
                       <span className="text-gray-500 text-sm">{post.readTimeMinutes} min read</span>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand-purple transition">
+                    <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand-green transition">
                       {post.title}
                     </h2>
                     <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>

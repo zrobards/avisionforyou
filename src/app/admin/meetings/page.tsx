@@ -156,8 +156,8 @@ export default function AdminMeetingsPage() {
     setFormData({
       title: meeting.title,
       description: meeting.description || '',
-      startTime: meeting.startTime,
-      endTime: meeting.endTime || '',
+      startTime: meeting.startDate,
+      endTime: meeting.endDate || '',
       format: meeting.format as 'ONLINE' | 'IN_PERSON',
       location: meeting.location || '',
       link: meeting.link || ''
