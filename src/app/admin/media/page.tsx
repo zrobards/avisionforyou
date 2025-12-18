@@ -31,9 +31,20 @@ export default function MediaLibrary() {
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [uploadTags, setUploadTags] = useState<string[]>([])
   const [uploadUsage, setUploadUsage] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState<string>('all')
 
   const availableTags = ['event', 'recovery', 'donor', 'program', 'facility', 'community', 'celebration']
-  const usageOptions = ['website', 'social', 'grants', 'newsletter', 'marketing']
+  const usageOptions = ['website', 'facebook', 'instagram', 'twitter', 'grants', 'newsletter', 'marketing']
+  
+  const tabs = [
+    { id: 'all', label: 'All Media', icon: '📁' },
+    { id: 'facebook', label: 'Facebook', icon: '📘' },
+    { id: 'instagram', label: 'Instagram', icon: '📷' },
+    { id: 'twitter', label: 'Twitter', icon: '🐦' },
+    { id: 'website', label: 'Website', icon: '🌐' },
+    { id: 'grants', label: 'Grants', icon: '💰' },
+    { id: 'newsletter', label: 'Newsletter', icon: '📧' }
+  ]
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -185,7 +196,8 @@ export default function MediaLibrary() {
     const matchesSearch = item.filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     const matchesFilter = filterTag === 'all' || item.tags.includes(filterTag)
-    return matchesSearch && matchesFilter
+    const matchesTab = activeTab === 'all' || item.usage.includes(activeTab)
+    return matchesSearch && matchesFilter && matchesTab
   })
 
   if (status === 'loading' || loading) {
@@ -220,6 +232,36 @@ export default function MediaLibrary() {
                 Upload Media
               </div>
             </label>
+          </div>
+
+          {/* Tabs */}
+          <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-2">
+            {tabs.map(tab => {
+              const count = tab.id === 'all' 
+                ? mediaItems.length 
+                : mediaItems.filter(item => item.usage.includes(tab.id)).length
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? 'bg-brand-purple text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  {tab.label}
+                  <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
+                    activeTab === tab.id
+                      ? 'bg-white/20'
+                      : 'bg-gray-200'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              )
+            })}
           </div>
 
           {/* Search and Filter Bar */}
