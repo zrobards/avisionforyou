@@ -27,6 +27,10 @@ export default function MediaLibrary() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterTag, setFilterTag] = useState('all')
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null)
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
+  const [uploadTags, setUploadTags] = useState<string[]>([])
+  const [uploadUsage, setUploadUsage] = useState<string[]>([])
 
   const availableTags = ['event', 'recovery', 'donor', 'program', 'facility', 'community', 'celebration']
   const usageOptions = ['website', 'social', 'grants', 'newsletter', 'marketing']
@@ -56,17 +60,27 @@ export default function MediaLibrary() {
     }
   }
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (!files || files.length === 0) return
 
+    setPendingFiles(Array.from(files))
+    setUploadTags([])
+    setUploadUsage([])
+    setShowUploadModal(true)
+    event.target.value = '' // Reset input
+  }
+
+  const handleConfirmUpload = async () => {
+    if (pendingFiles.length === 0) return
+
     setUploading(true)
     try {
-      for (const file of Array.from(files)) {
+      for (const file of pendingFiles) {
         const formData = new FormData()
         formData.append('file', file)
-        formData.append('tags', JSON.stringify([]))
-        formData.append('usage', JSON.stringify([]))
+        formData.append('tags', JSON.stringify(uploadTags))
+        formData.append('usage', JSON.stringify(uploadUsage))
         
         const response = await fetch('/api/admin/media', {
           method: 'POST',
@@ -76,12 +90,28 @@ export default function MediaLibrary() {
         if (!response.ok) throw new Error('Upload failed')
       }
       await fetchMedia()
+      setShowUploadModal(false)
+      setPendingFiles([])
+      setUploadTags([])
+      setUploadUsage([])
     } catch (error) {
       console.error('Upload error:', error)
       alert('Failed to upload files')
     } finally {
       setUploading(false)
     }
+  }
+
+  const toggleUploadTag = (tag: string) => {
+    setUploadTags(prev => 
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    )
+  }
+
+  const toggleUploadUsage = (usage: string) => {
+    setUploadUsage(prev => 
+      prev.includes(usage) ? prev.filter(u => u !== usage) : [...prev, usage]
+    )
   }
 
   const handleAddTag = async (mediaId: string, tag: string) => {
@@ -181,13 +211,13 @@ export default function MediaLibrary() {
                 type="file"
                 multiple
                 accept="image/*,video/*"
-                onChange={handleFileUpload}
+                onChange={handleFileSelect}
                 disabled={uploading}
                 className="hidden"
               />
-              <div className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-xl transition font-semibold disabled:opacity-50">
+              <div className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-xl transition font-semibold">
                 <Upload className="w-5 h-5" />
-                {uploading ? 'Uploading...' : 'Upload Media'}
+                Upload Media
               </div>
             </label>
           </div>
@@ -440,6 +470,97 @@ export default function MediaLibrary() {
                     Delete
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Upload Media Files</h2>
+              
+              {/* Files to upload */}
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Selected Files ({pendingFiles.length})</h3>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {pendingFiles.map((file, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded">
+                      {file.type.startsWith('image/') ? <ImageIcon className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+                      <span className="flex-1 truncate">{file.name}</span>
+                      <span className="text-xs text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div className="mb-6">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <Tag className="w-4 h-4" />
+                  Tags (select all that apply)
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {availableTags.map(tag => (
+                    <button
+                      key={tag}
+                      onClick={() => toggleUploadTag(tag)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                        uploadTags.includes(tag)
+                          ? 'bg-brand-purple text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Usage */}
+              <div className="mb-6">
+                <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                  Where will this be used? (select all that apply)
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {usageOptions.map(usage => (
+                    <label key={usage} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={uploadUsage.includes(usage)}
+                        onChange={() => toggleUploadUsage(usage)}
+                        className="rounded text-brand-purple focus:ring-brand-purple"
+                      />
+                      {usage.charAt(0).toUpperCase() + usage.slice(1)}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t">
+                <button
+                  onClick={() => {
+                    setShowUploadModal(false)
+                    setPendingFiles([])
+                    setUploadTags([])
+                    setUploadUsage([])
+                  }}
+                  disabled={uploading}
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmUpload}
+                  disabled={uploading}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-xl transition font-semibold disabled:opacity-50"
+                >
+                  {uploading ? 'Uploading...' : 'Upload Files'}
+                </button>
               </div>
             </div>
           </div>
