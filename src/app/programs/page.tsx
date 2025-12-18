@@ -31,18 +31,18 @@ const PROGRAMS = [
   {
     title: "MindBodySoul IOP",
     slug: "mindbodysoul-iop",
-    category: "Intensive Outpatient",
+    category: "Intensive Outpatient Program (IOP)",
     description: "Clinical intensive outpatient program",
     icon: Users,
-    fullDescription: "Our comprehensive intensive outpatient program combining evidence-based therapy, psychiatric care, and holistic wellness approaches.",
+    fullDescription: "Our comprehensive intensive outpatient program combining evidence-based therapy, peer support, and holistic wellness approaches. The MindBodySoul IOP provides structured daily sessions to support recovery while allowing you to maintain your daily responsibilities.",
     details: [
-      "Group and individual therapy sessions",
-      "Psychiatric evaluations and medication management",
-      "Intensive skill-building workshops",
-      "Peer support and community building",
-      "Evening and weekend options available",
+      "Daily Sessions: Group counseling and educational workshops on addiction, mental health, and wellness",
+      "Individual Therapy: Weekly one-on-one sessions with a licensed CADC (Certified Alcohol and Drug Counselor)",
+      "Peer Support: Facilitated group sessions to build a supportive network",
+      "Home-based and community integrated sessions",
       "Evidence-based treatment modalities",
-      "Mental health and addiction support"
+      "Flexible scheduling to accommodate work and family",
+      "Comprehensive approach addressing mind, body, and soul"
     ]
   },
   {
