@@ -21,7 +21,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:opacity-80 transition-opacity">
             <Image 
-              src="/avsf-logo.jpg" 
+              src="/avsf-logo.png" 
               alt="A Vision For You Recovery" 
               width={48}
               height={48}

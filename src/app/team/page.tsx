@@ -23,7 +23,7 @@ export default function Team() {
       credentials: '',
       bio: 'Lucas founded A Vision For You Recovery and leads the organization with passion and dedication to helping individuals find recovery and transformation.',
       email: 'lucas@avisionforyourecovery.org',
-      image: '/team/lucas-bennett.jpg'
+      image: '/team/lucas-bennett.png'
     },
     {
       name: 'Dr. Evan Massey',
@@ -32,7 +32,7 @@ export default function Team() {
       credentials: '',
       bio: 'Dr. Massey provides strategic leadership and oversight, ensuring the organization maintains its mission and vision while expanding services to meet community needs.',
       email: 'evan.massey@avisionforyourecovery.org',
-      image: '/team/evan-massey.jpg'
+      image: '/team/evan-massey.png'
     },
     {
       name: 'Charles Moore',
@@ -41,7 +41,7 @@ export default function Team() {
       credentials: '',
       bio: 'Charles oversees the financial operations and ensures fiscal responsibility and transparency across all programs and services.',
       email: 'charles.moore@avisionforyourecovery.org',
-      image: '/team/charles-moore.jpg'
+      image: '/team/charles-moore.png'
     }
   ]
 
@@ -53,7 +53,7 @@ export default function Team() {
       credentials: 'APRN-FNP',
       bio: 'As Medical Director, Zach provides comprehensive medical oversight and ensures quality healthcare services are integrated into all recovery programming.',
       email: 'zach.wilbert@avisionforyourecovery.org',
-      image: '/team/zach-wilbert.jpg'
+      image: '/team/zach-wilbert.png'
     },
     {
       name: 'Henry Fuqua',
@@ -62,7 +62,7 @@ export default function Team() {
       credentials: 'CADC',
       bio: 'Henry leads the MindBodySoul IOP program with expertise in addiction counseling and evidence-based treatment approaches.',
       email: 'henry.fuqua@avisionforyourecovery.org',
-      image: '/team/henry-fuqua.jpg'
+      image: '/team/henry-fuqua.png'
     },
     {
       name: 'Gregory Haynes',
@@ -71,7 +71,7 @@ export default function Team() {
       credentials: 'CADCA-1 PSS',
       bio: 'Gregory builds meaningful connections with clients and ensures each individual receives personalized support throughout their recovery journey.',
       email: 'gregory.haynes@avisionforyourecovery.org',
-      image: '/team/gregory-haynes.jpg'
+      image: '/team/gregory-haynes.png'
     },
     {
       name: 'Steven Furlow',
@@ -80,7 +80,7 @@ export default function Team() {
       credentials: '',
       bio: 'Steven directs the flagship Surrender Program, guiding participants through peer-driven recovery and 12-step principles.',
       email: 'steven.furlow@avisionforyourecovery.org',
-      image: '/team/steven-furlow.jpg'
+      image: '/team/steven-furlow.png'
     }
   ]
 
