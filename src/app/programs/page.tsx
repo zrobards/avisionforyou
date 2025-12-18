@@ -140,7 +140,7 @@ export default function Programs() {
             </ul>
           </div>
 
-          {/* Community Photos Gallery - Only for Surrender Program */}
+          {/* Community Photos Gallery - Surrender Program */}
           {selectedProgram === 0 && (
             <div className="mt-8 bg-gradient-to-br from-purple-50 to-white rounded-lg p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Our Community in Action</h3>
@@ -176,6 +176,60 @@ export default function Programs() {
                   <Image
                     src="/programs/surrender-group.jpg"
                     alt="Group activity"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MindBodySoul IOP Photos Gallery */}
+          {selectedProgram === 1 && (
+            <div className="mt-8 bg-gradient-to-br from-purple-50 to-white rounded-lg p-6">
+              <div className="flex items-center justify-center mb-6">
+                <Image
+                  src="/programs/mindbodysoul-logo.png"
+                  alt="MindBodySoul Logo"
+                  width={200}
+                  height={200}
+                  className="object-contain"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Our Program in Action</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                  <Image
+                    src="/programs/mindbodysoul-group-1.jpg"
+                    alt="Group therapy session"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                  <Image
+                    src="/programs/mindbodysoul-teaching.jpg"
+                    alt="Educational session"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                  <Image
+                    src="/programs/mindbodysoul-education.jpg"
+                    alt="Clinical education"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                  <Image
+                    src="/programs/mindbodysoul-group-2.jpg"
+                    alt="Support circle"
                     width={300}
                     height={200}
                     className="w-full h-48 object-cover"
