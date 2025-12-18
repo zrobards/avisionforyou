@@ -11,7 +11,9 @@ export default function Navbar() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showAboutDropdown, setShowAboutDropdown] = useState(false)
+  const [showBlogDropdown, setShowBlogDropdown] = useState(false)
   const [showMobileAboutMenu, setShowMobileAboutMenu] = useState(false)
+  const [showMobileBlogMenu, setShowMobileBlogMenu] = useState(false)
   const isAdmin = (session?.user as any)?.role === 'ADMIN' || (session?.user as any)?.role === 'STAFF'
 
   return (
@@ -95,10 +97,40 @@ export default function Navbar() {
               <Users className="w-4 h-4" />
               Meetings
             </Link>
-            <Link href="/blog" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
-              <BookOpen className="w-4 h-4" />
-              Blog
-            </Link>
+            
+            {/* Blog Dropdown */}
+            <div 
+              className="relative group"
+              onMouseEnter={() => setShowBlogDropdown(true)}
+              onMouseLeave={() => setShowBlogDropdown(false)}
+            >
+              <button className="flex items-center gap-1 text-white hover:text-brand-green transition-colors py-2">
+                <BookOpen className="w-4 h-4" />
+                Blog
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              
+              {showBlogDropdown && (
+                <div className="absolute top-full left-0 pt-2 z-50">
+                  <div className="bg-white rounded-lg shadow-xl border border-gray-200 py-2 w-48">
+                    <Link
+                      href="/blog"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      onClick={() => setShowBlogDropdown(false)}
+                    >
+                      Blog Posts
+                    </Link>
+                    <Link
+                      href="/newsletter"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      onClick={() => setShowBlogDropdown(false)}
+                    >
+                      Newsletters
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
             <Link href="/contact" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               Contact
             </Link>
@@ -286,14 +318,46 @@ export default function Navbar() {
                 <Users className="w-5 h-5" />
                 <span className="font-medium">Meetings</span>
               </Link>
-              <Link
-                href="/blog"
-                className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <BookOpen className="w-5 h-5" />
-                <span className="font-medium">Blog</span>
-              </Link>
+              
+              {/* Blog Dropdown for Mobile */}
+              <div>
+                <button
+                  onClick={() => setShowMobileBlogMenu(!showMobileBlogMenu)}
+                  className="flex items-center justify-between w-full text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <BookOpen className="w-5 h-5" />
+                    <span className="font-medium">Blog</span>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 transition-transform ${showMobileBlogMenu ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {showMobileBlogMenu && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    <Link
+                      href="/blog"
+                      className="flex items-center gap-3 text-purple-100 hover:bg-purple-800 px-4 py-2 rounded-lg transition-colors"
+                      onClick={() => {
+                        setShowMobileMenu(false)
+                        setShowMobileBlogMenu(false)
+                      }}
+                    >
+                      <span className="text-sm">Blog Posts</span>
+                    </Link>
+                    <Link
+                      href="/newsletter"
+                      className="flex items-center gap-3 text-purple-100 hover:bg-purple-800 px-4 py-2 rounded-lg transition-colors"
+                      onClick={() => {
+                        setShowMobileMenu(false)
+                        setShowMobileBlogMenu(false)
+                      }}
+                    >
+                      <span className="text-sm">Newsletters</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
+              
               <Link
                 href="/contact"
                 className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"

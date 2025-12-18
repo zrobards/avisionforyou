@@ -33,7 +33,11 @@ export async function GET(request: NextRequest) {
       orderBy: { publishedAt: 'desc' }
     })
 
-    return NextResponse.json(posts)
+    return NextResponse.json(posts, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0'
+      }
+    })
   } catch (error) {
     console.error('Error fetching blog posts:', error)
     return NextResponse.json(

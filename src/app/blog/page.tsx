@@ -23,11 +23,14 @@ export default function BlogPage() {
 
   useEffect(() => {
     fetchPosts()
+    // Poll for updates every 5 seconds
+    const interval = setInterval(fetchPosts, 5000)
+    return () => clearInterval(interval)
   }, [])
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('/api/blog')
+      const response = await fetch('/api/blog', { cache: 'no-store' })
       if (response.ok) {
         const data = await response.json()
         setPosts(data)
