@@ -23,9 +23,9 @@ export default function Navbar() {
             <Image 
               src="/avsf-logo.png" 
               alt="A Vision For You Recovery" 
-              width={48}
-              height={48}
-              className="w-10 h-10 sm:w-12 sm:h-12 object-contain mix-blend-screen"
+              width={80}
+              height={80}
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain mix-blend-screen"
               style={{ filter: 'brightness(1.2) contrast(1.1)' }}
               priority
             />

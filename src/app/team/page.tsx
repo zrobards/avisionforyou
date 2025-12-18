@@ -118,18 +118,18 @@ export default function Team() {
               <div key={idx} className="bg-gradient-to-br from-purple-50 to-white rounded-xl shadow-lg p-6 hover:shadow-xl transition border-t-4 border-brand-purple">
                 <div className="flex items-center gap-4 mb-4">
                   {member.image ? (
-                    <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-brand-purple">
+                    <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-brand-purple">
                       <Image
                         src={member.image}
                         alt={member.name}
-                        width={64}
-                        height={64}
+                        width={96}
+                        height={96}
                         className="w-full h-full object-cover"
                       />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-2xl">{member.name[0]}</span>
+                    <div className="w-24 h-24 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-3xl">{member.name[0]}</span>
                     </div>
                   )}
                   <div>
@@ -172,18 +172,18 @@ export default function Team() {
               <div key={idx} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition border-l-4 border-brand-green">
                 <div className="flex items-center gap-4 mb-4">
                   {member.image ? (
-                    <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-brand-green">
+                    <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-brand-green">
                       <Image
                         src={member.image}
                         alt={member.name}
-                        width={64}
-                        height={64}
+                        width={96}
+                        height={96}
                         className="w-full h-full object-cover"
                       />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 bg-gradient-to-br from-brand-green to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-2xl">{member.name[0]}</span>
+                    <div className="w-24 h-24 bg-gradient-to-br from-brand-green to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-3xl">{member.name[0]}</span>
                     </div>
                   )}
                   <div>
