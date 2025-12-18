@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, Users, Calendar, FileText, Heart, Share2, BarChart3, Mail, LogOut, Home, Image } from 'lucide-react'
+import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 
@@ -15,7 +15,6 @@ const adminMenuItems = [
   { href: '/admin/team', label: 'Team', icon: Users },
   { href: '/admin/contact', label: 'Contact', icon: Mail },
   { href: '/admin/donations', label: 'Donations', icon: Heart },
-  { href: '/admin/social', label: 'Social Media', icon: Share2 },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 

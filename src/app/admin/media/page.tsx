@@ -44,11 +44,13 @@ export default function MediaLibrary() {
   const fetchMedia = async () => {
     try {
       setLoading(true)
-      // Placeholder - replace with actual API call
-      const mockData: MediaItem[] = []
-      setMediaItems(mockData)
+      const response = await fetch('/api/admin/media')
+      if (!response.ok) throw new Error('Failed to fetch media')
+      const data = await response.json()
+      setMediaItems(data)
     } catch (error) {
       console.error('Error fetching media:', error)
+      alert('Failed to load media')
     } finally {
       setLoading(false)
     }
@@ -63,16 +65,15 @@ export default function MediaLibrary() {
       for (const file of Array.from(files)) {
         const formData = new FormData()
         formData.append('file', file)
+        formData.append('tags', JSON.stringify([]))
+        formData.append('usage', JSON.stringify([]))
         
-        // Placeholder - replace with actual API endpoint
-        // const response = await fetch('/api/admin/media/upload', {
-        //   method: 'POST',
-        //   body: formData
-        // })
-        // const data = await response.json()
+        const response = await fetch('/api/admin/media', {
+          method: 'POST',
+          body: formData
+        })
         
-        // Mock success
-        console.log('Uploading:', file.name)
+        if (!response.ok) throw new Error('Upload failed')
       }
       await fetchMedia()
     } catch (error) {
@@ -83,24 +84,40 @@ export default function MediaLibrary() {
     }
   }
 
-  const handleAddTag = (mediaId: string, tag: string) => {
-    setMediaItems(items =>
-      items.map(item =>
-        item.id === mediaId && !item.tags.includes(tag)
-          ? { ...item, tags: [...item.tags, tag] }
-          : item
-      )
-    )
+  const handleAddTag = async (mediaId: string, tag: string) => {
+    try {
+      const item = mediaItems.find(i => i.id === mediaId)
+      if (!item || item.tags.includes(tag)) return
+
+      const response = await fetch(`/api/admin/media/${mediaId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tags: [...item.tags, tag] })
+      })
+
+      if (!response.ok) throw new Error('Failed to update tags')
+      await fetchMedia()
+    } catch (error) {
+      console.error('Error adding tag:', error)
+    }
   }
 
-  const handleRemoveTag = (mediaId: string, tag: string) => {
-    setMediaItems(items =>
-      items.map(item =>
-        item.id === mediaId
-          ? { ...item, tags: item.tags.filter(t => t !== tag) }
-          : item
-      )
-    )
+  const handleRemoveTag = async (mediaId: string, tag: string) => {
+    try {
+      const item = mediaItems.find(i => i.id === mediaId)
+      if (!item) return
+
+      const response = await fetch(`/api/admin/media/${mediaId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tags: item.tags.filter(t => t !== tag) })
+      })
+
+      if (!response.ok) throw new Error('Failed to update tags')
+      await fetchMedia()
+    } catch (error) {
+      console.error('Error removing tag:', error)
+    }
   }
 
   const handleDownload = async (media: MediaItem) => {
@@ -109,9 +126,9 @@ export default function MediaLibrary() {
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
-      a.href = url
-      a.download = media.filename
-      document.body.appendChild(a)
+      const response = await fetch(`/api/admin/media/${mediaId}`, { method: 'DELETE' })
+      if (!response.ok) throw new Error('Delete failed')
+      await fetchMedia(
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)

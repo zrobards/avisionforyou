@@ -30,6 +30,7 @@ model User {
   donations     Donation[]
   profile       UserProfile?
   assessment    Assessment?
+  mediaUploads  MediaItem[] @relation("MediaUploads")
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -513,4 +514,28 @@ model SocialMediaPost {
   @@index([scheduledFor])
   @@index([createdAt])
   @@map("social_media_posts")
+}
+
+// Media Library Model for storing photos/videos
+model MediaItem {
+  id            String    @id @default(cuid())
+  filename      String
+  type          String    // image, video
+  url           String    @db.Text // URL or data URL
+  size          Int       // File size in bytes
+  mimeType      String    // e.g., image/jpeg, video/mp4
+  tags          String[]  // event, recovery, donor, program, etc.
+  usage         String[]  // website, social, grants, newsletter, marketing
+  
+  uploadedById  String
+  uploadedBy    User      @relation("MediaUploads", fields: [uploadedById], references: [id], onDelete: Cascade)
+  
+  uploadedAt    DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([type])
+  @@index([tags])
+  @@index([uploadedById])
+  @@index([uploadedAt])
+  @@map("media_items")
 }
