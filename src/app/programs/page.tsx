@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Heart, Users, Home, BookOpen, Briefcase } from 'lucide-react'
 import { useState } from 'react'
 
@@ -138,6 +139,51 @@ export default function Programs() {
               ))}
             </ul>
           </div>
+
+          {/* Community Photos Gallery - Only for Surrender Program */}
+          {selectedProgram === 0 && (
+            <div className="mt-8 bg-gradient-to-br from-purple-50 to-white rounded-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Our Community in Action</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                  <Image
+                    src="/programs/surrender-gathering-1.jpg"
+                    alt="Community gathering"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                  <Image
+                    src="/programs/surrender-gathering-2.jpg"
+                    alt="Meal time community"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                  <Image
+                    src="/programs/surrender-facility.jpg"
+                    alt="Program facility"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                  <Image
+                    src="/programs/surrender-group.jpg"
+                    alt="Group activity"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mt-8 flex gap-4 flex-wrap">
             <Link href="/login?callbackUrl=/assessment" className="bg-brand-purple text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-800 transition">

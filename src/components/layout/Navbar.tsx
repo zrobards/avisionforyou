@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSession, signOut } from 'next-auth/react'
 import { Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Bell, Menu, X, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
@@ -19,10 +20,14 @@ export default function Navbar() {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:opacity-80 transition-opacity">
-            <img 
+            <Image 
               src="/avsf-logo.png" 
               alt="A Vision For You Recovery" 
-              className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+              width={48}
+              height={48}
+              className="w-10 h-10 sm:w-12 sm:h-12 object-contain mix-blend-screen"
+              style={{ filter: 'brightness(1.2) contrast(1.1)' }}
+              priority
             />
             <span className="hidden xs:inline">A Vision For You</span>
             <span className="inline xs:hidden">AVFY</span>

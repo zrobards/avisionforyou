@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Mail, Linkedin, Heart, Award, Users, Shield } from 'lucide-react'
 
 interface TeamMember {
@@ -21,7 +22,8 @@ export default function Team() {
       role: 'board',
       credentials: 'MBA, CADC',
       bio: 'Lucas founded A Vision For You Recovery in 2018 after his own journey through recovery. With over 15 years of nonprofit leadership experience and board certification in addiction counseling, he brings both personal understanding and professional expertise to the organization.',
-      email: 'lucas@avisionforyourecovery.org'
+      email: 'lucas@avisionforyourecovery.org',
+      image: '/team/lucas-bennett.jpg'
     },
     {
       name: 'Dr. Evan Massey',
@@ -29,7 +31,8 @@ export default function Team() {
       role: 'board',
       credentials: 'MD, Addiction Medicine',
       bio: 'Board-certified addiction medicine physician with 12 years of experience in integrated care. Dr. Massey oversees clinical protocols and ensures medical best practices across all programs.',
-      email: 'evan.massey@avisionforyourecovery.org'
+      email: 'evan.massey@avisionforyourecovery.org',
+      image: '/team/evan-massey.jpg'
     },
     {
       name: 'Sarah Thompson',
@@ -37,7 +40,8 @@ export default function Team() {
       role: 'board',
       credentials: 'CPA, MBA',
       bio: 'Certified Public Accountant with 20+ years in nonprofit financial management. Sarah ensures fiscal responsibility and transparent financial reporting as required for our 501(c)(3) status.',
-      email: 'sarah.t@avisionforyourecovery.org'
+      email: 'sarah.t@avisionforyourecovery.org',
+      image: '/team/sarah-thompson.jpg'
     },
     {
       name: 'Rev. Michael Carter',
@@ -45,7 +49,8 @@ export default function Team() {
       role: 'board',
       credentials: 'M.Div, LCSW',
       bio: 'Licensed clinical social worker and ordained minister with 18 years serving communities affected by addiction. Michael leads our faith-based programming and spiritual care initiatives.',
-      email: 'michael.c@avisionforyourecovery.org'
+      email: 'michael.c@avisionforyourecovery.org',
+      image: '/team/michael-carter.jpg'
     },
     {
       name: 'Dr. Jennifer Martinez',
@@ -53,7 +58,8 @@ export default function Team() {
       role: 'board',
       credentials: 'PhD, Clinical Psychology',
       bio: 'Clinical psychologist specializing in dual diagnosis treatment. Dr. Martinez brings expertise in mental health integration and trauma-informed care to program development.',
-      email: 'jennifer.m@avisionforyourecovery.org'
+      email: 'jennifer.m@avisionforyourecovery.org',
+      image: '/team/jennifer-martinez.jpg'
     },
     {
       name: 'David Chen',
@@ -61,7 +67,8 @@ export default function Team() {
       role: 'board',
       credentials: 'JD, Community Advocate',
       bio: 'Attorney with focus on nonprofit law and community development. David ensures organizational compliance and advocates for policy changes supporting recovery resources.',
-      email: 'david.c@avisionforyourecovery.org'
+      email: 'david.c@avisionforyourecovery.org',
+      image: '/team/david-chen.jpg'
     }
   ]
 
@@ -72,7 +79,8 @@ export default function Team() {
       role: 'leadership',
       credentials: 'MSW, LCSW',
       bio: 'Oversees all recovery programs with 10+ years of direct service experience. Amanda ensures quality standards and continuous program improvement based on outcome data.',
-      email: 'amanda.w@avisionforyourecovery.org'
+      email: 'amanda.w@avisionforyourecovery.org',
+      image: '/team/amanda-williams.jpg'
     },
     {
       name: 'Marcus Johnson',
@@ -80,7 +88,8 @@ export default function Team() {
       role: 'leadership',
       credentials: 'CFRE',
       bio: 'Certified Fund Raising Executive managing donor relations, grant applications, and fundraising strategy. Marcus has secured over $2M in funding for recovery programs.',
-      email: 'marcus.j@avisionforyourecovery.org'
+      email: 'marcus.j@avisionforyourecovery.org',
+      image: '/team/marcus-johnson.jpg'
     },
     {
       name: 'Dr. Lisa Patel',
@@ -88,7 +97,8 @@ export default function Team() {
       role: 'clinical',
       credentials: 'PhD, LCADC',
       bio: 'Licensed clinical alcohol and drug counselor leading our clinical team. Dr. Patel develops evidence-based treatment protocols and supervises all clinical staff.',
-      email: 'lisa.p@avisionforyourecovery.org'
+      email: 'lisa.p@avisionforyourecovery.org',
+      image: '/team/lisa-patel.jpg'
     },
     {
       name: 'James Robinson',
@@ -96,7 +106,8 @@ export default function Team() {
       role: 'leadership',
       credentials: 'MBA',
       bio: 'Manages day-to-day operations, facility management, and staff coordination across all program sites. James ensures smooth operations and maintains our high standards of care.',
-      email: 'james.r@avisionforyourecovery.org'
+      email: 'james.r@avisionforyourecovery.org',
+      image: '/team/james-robinson.jpg'
     }
   ]
 
@@ -133,9 +144,21 @@ export default function Team() {
             {boardMembers.map((member, idx) => (
               <div key={idx} className="bg-gradient-to-br from-purple-50 to-white rounded-xl shadow-lg p-6 hover:shadow-xl transition border-t-4 border-brand-purple">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-2xl">{member.name[0]}</span>
-                  </div>
+                  {member.image ? (
+                    <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-brand-purple">
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-2xl">{member.name[0]}</span>
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
                     {member.credentials && (
@@ -175,9 +198,21 @@ export default function Team() {
             {leadershipTeam.map((member, idx) => (
               <div key={idx} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition border-l-4 border-brand-green">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-brand-green to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-2xl">{member.name[0]}</span>
-                  </div>
+                  {member.image ? (
+                    <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-brand-green">
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-gradient-to-br from-brand-green to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-2xl">{member.name[0]}</span>
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
                     {member.credentials && (
