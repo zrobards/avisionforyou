@@ -23,7 +23,9 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json({ inquiries })
+    return NextResponse.json({ inquiries }, {
+      headers: { 'Cache-Control': 'no-store, max-age=0' }
+    })
   } catch (error) {
     console.error('Failed to fetch contact inquiries:', error)
     return NextResponse.json(

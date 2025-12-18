@@ -25,11 +25,14 @@ export default function AdminContactPage() {
 
   useEffect(() => {
     fetchInquiries()
+    // Poll for updates every 3 seconds
+    const interval = setInterval(fetchInquiries, 3000)
+    return () => clearInterval(interval)
   }, [])
 
   async function fetchInquiries() {
     try {
-      const res = await fetch('/api/admin/contact')
+      const res = await fetch('/api/admin/contact', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setInquiries(data.inquiries)
