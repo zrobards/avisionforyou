@@ -126,9 +126,9 @@ export default function MediaLibrary() {
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
-      const response = await fetch(`/api/admin/media/${mediaId}`, { method: 'DELETE' })
-      if (!response.ok) throw new Error('Delete failed')
-      await fetchMedia(
+      a.href = url
+      a.download = media.filename
+      document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
@@ -142,9 +142,9 @@ export default function MediaLibrary() {
     if (!confirm('Are you sure you want to delete this media?')) return
     
     try {
-      // Placeholder - replace with actual API call
-      // await fetch(`/api/admin/media/${mediaId}`, { method: 'DELETE' })
-      setMediaItems(items => items.filter(item => item.id !== mediaId))
+      const response = await fetch(`/api/admin/media/${mediaId}`, { method: 'DELETE' })
+      if (!response.ok) throw new Error('Delete failed')
+      await fetchMedia()
     } catch (error) {
       console.error('Delete error:', error)
       alert('Failed to delete media')
