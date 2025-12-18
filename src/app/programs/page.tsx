@@ -14,18 +14,17 @@ const PROGRAMS = [
     icon: Home,
     fullDescription: "Based on our original flagship model, the Surrender Program is a 6-9 month voluntary self-help social model recovery program. Participants of this program are immersed in a community of peers who together learn life skills and guide one another through the twelve steps. This program is 100% free and does not accept insurance of any kind.",
     details: [
-      "100% free - no insurance required",
-      "Donations support food, shelter, and literature",
-      "Residential living with no cost to client",
-      "Daily recovery-oriented classes",
+      "Onsite IOP Services",
+      "Residential living (no cost to client)",
+      "Daily recovery oriented classes",
       "Weekly behavioral modification programming",
       "Weekly career education programming",
       "Peer and staff accountability",
-      "Daily on-property and off-property 12-step meeting attendance",
+      "Daily on property and off property 12 step meeting attendance",
       "Three daily meals provided",
       "Weekly random substance screening",
-      "Onsite primary care through partner physicians",
-      "Cell phones, vehicles, and employment prohibited in initial phase to focus on recovery"
+      "Onsite Primary Care offered through partner house call and telehealth physicians",
+      "Cell Phones, vehicles, and employment are prohibited in this phase, so that clients can focus on recovery"
     ]
   },
   {
@@ -148,7 +147,7 @@ export default function Programs() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                   <Image
-                    src="/programs/surrender-gathering-1.jpg"
+                    src="/programs/surrender-gathering-1.png"
                     alt="Community gathering"
                     width={300}
                     height={200}
@@ -157,7 +156,7 @@ export default function Programs() {
                 </div>
                 <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                   <Image
-                    src="/programs/surrender-gathering-2.jpg"
+                    src="/programs/surrender-gathering-2.png"
                     alt="Meal time community"
                     width={300}
                     height={200}
@@ -166,7 +165,7 @@ export default function Programs() {
                 </div>
                 <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                   <Image
-                    src="/programs/surrender-facility.jpg"
+                    src="/programs/surrender-facility.png"
                     alt="Program facility"
                     width={300}
                     height={200}
@@ -175,7 +174,7 @@ export default function Programs() {
                 </div>
                 <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                   <Image
-                    src="/programs/surrender-group.jpg"
+                    src="/programs/surrender-group.png"
                     alt="Group activity"
                     width={300}
                     height={200}
