@@ -112,6 +112,7 @@ export default function AdminLayout({
           onClick={() => setSidebarOpen(false)}
         />
       )}
+    </div>
     </ToastProvider>
   )
 }
