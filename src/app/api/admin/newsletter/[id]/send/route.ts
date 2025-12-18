@@ -35,14 +35,22 @@ export async function POST(
 
     // TODO: Implement actual email sending using Resend
     // For now, just update the newsletter as sent
+    const now = new Date()
     const updatedNewsletter = await prisma.newsletter.update({
       where: { id: params.id },
       data: {
-        sentAt: new Date(),
+        sentAt: now,
         sentCount: subscribers.length,
         status: 'PUBLISHED',
-        publishedAt: newsletter.publishedAt || new Date()
+        publishedAt: now // Always update publishedAt when sending
       }
+    })
+
+    console.log('Newsletter sent and published:', {
+      id: updatedNewsletter.id,
+      title: updatedNewsletter.title,
+      status: updatedNewsletter.status,
+      publishedAt: updatedNewsletter.publishedAt
     })
 
     return NextResponse.json({ 

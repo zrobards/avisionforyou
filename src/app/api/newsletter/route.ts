@@ -22,6 +22,16 @@ export async function GET(req: NextRequest) {
       }
     })
 
+    console.log(`Public newsletter API: Found ${newsletters.length} published newsletters`)
+    if (newsletters.length > 0) {
+      console.log('Latest newsletter:', {
+        id: newsletters[0].id,
+        title: newsletters[0].title,
+        status: newsletters[0].status,
+        publishedAt: newsletters[0].publishedAt
+      })
+    }
+
     return NextResponse.json(newsletters, {
       headers: {
         'Cache-Control': 'no-store, max-age=0'
