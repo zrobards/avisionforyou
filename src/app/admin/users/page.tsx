@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@/components/shared/ToastProvider'
+import { useToast } from '@/components/ui/toast'
 import { Shield, ShieldOff, Trash2, User, Search } from 'lucide-react'
 
 interface UserData {

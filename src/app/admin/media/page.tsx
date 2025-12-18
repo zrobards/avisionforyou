@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Upload, Image as ImageIcon, Video, Download, Tag, Search, Filter, Trash2, Eye } from 'lucide-react'
 import Image from 'next/image'
+import { useToast } from '@/components/ui/toast'
 
 interface MediaItem {
   id: string
@@ -21,6 +22,7 @@ interface MediaItem {
 export default function MediaLibrary() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { showToast } = useToast()
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -60,12 +62,15 @@ export default function MediaLibrary() {
     try {
       setLoading(true)
       const response = await fetch('/api/admin/media')
-      if (!response.ok) throw new Error('Failed to fetch media')
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to fetch media')
+      }
       const data = await response.json()
       setMediaItems(data)
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to load media', 'error')
       console.error('Error fetching media:', error)
-      alert('Failed to load media')
     } finally {
       setLoading(false)
     }
@@ -98,16 +103,20 @@ export default function MediaLibrary() {
           body: formData
         })
         
-        if (!response.ok) throw new Error('Upload failed')
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Upload failed')
+        }
       }
+      showToast(`Successfully uploaded ${pendingFiles.length} file(s)`, 'success')
       await fetchMedia()
       setShowUploadModal(false)
       setPendingFiles([])
       setUploadTags([])
       setUploadUsage([])
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to upload files', 'error')
       console.error('Upload error:', error)
-      alert('Failed to upload files')
     } finally {
       setUploading(false)
     }
@@ -136,9 +145,14 @@ export default function MediaLibrary() {
         body: JSON.stringify({ tags: [...item.tags, tag] })
       })
 
-      if (!response.ok) throw new Error('Failed to update tags')
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to update tags')
+      }
+      showToast('Tag added successfully', 'success')
       await fetchMedia()
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to add tag', 'error')
       console.error('Error adding tag:', error)
     }
   }
@@ -154,9 +168,14 @@ export default function MediaLibrary() {
         body: JSON.stringify({ tags: item.tags.filter(t => t !== tag) })
       })
 
-      if (!response.ok) throw new Error('Failed to update tags')
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to update tags')
+      }
+      showToast('Tag removed successfully', 'success')
       await fetchMedia()
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to remove tag', 'error')
       console.error('Error removing tag:', error)
     }
   }
@@ -173,9 +192,10 @@ export default function MediaLibrary() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (error) {
+      showToast('Download started', 'success')
+    } catch (error: any) {
+      showToast(error.message || 'Failed to download file', 'error')
       console.error('Download error:', error)
-      alert('Failed to download file')
     }
   }
 
@@ -184,11 +204,15 @@ export default function MediaLibrary() {
     
     try {
       const response = await fetch(`/api/admin/media/${mediaId}`, { method: 'DELETE' })
-      if (!response.ok) throw new Error('Delete failed')
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Delete failed')
+      }
+      showToast('Media deleted successfully', 'success')
       await fetchMedia()
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to delete media', 'error')
       console.error('Delete error:', error)
-      alert('Failed to delete media')
     }
   }
 

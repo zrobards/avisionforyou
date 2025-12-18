@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import { ToastProvider } from '@/components/ui/toast'
 
 const adminMenuItems = [
   { href: '/admin', label: 'Overview', icon: Home },
@@ -12,6 +13,7 @@ const adminMenuItems = [
   { href: '/admin/meetings', label: 'Meetings', icon: Calendar },
   { href: '/admin/media', label: 'Media Library', icon: Image },
   { href: '/admin/blog', label: 'Blog', icon: FileText },
+  { href: '/admin/newsletter', label: 'Newsletter', icon: Mail },
   { href: '/admin/team', label: 'Team', icon: Users },
   { href: '/admin/contact', label: 'Contact', icon: Mail },
   { href: '/admin/donations', label: 'Donations', icon: Heart },
@@ -32,6 +34,7 @@ export default function AdminLayout({
   }
 
   return (
+    <ToastProvider>
     <div className="min-h-screen bg-gray-50 flex overflow-hidden">
       {/* Sidebar */}
       <aside
@@ -109,7 +112,7 @@ export default function AdminLayout({
           onClick={() => setSidebarOpen(false)}
         />
       )}
-    </div>
+    </ToastProvider>
   )
 }
 

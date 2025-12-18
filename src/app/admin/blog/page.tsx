@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, Eye, EyeOff, Save } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
 
 interface BlogPost {
   id: string
@@ -28,9 +29,11 @@ interface BlogPost {
 export default function AdminBlog() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { showToast } = useToast()
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<string | null>(null)
+  const [currentSlug, setCurrentSlug] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
@@ -74,19 +77,29 @@ export default function AdminBlog() {
     
     try {
       if (editing) {
-        const post = posts.find(p => p.id === editing)
-        if (!post) return
+        // Use currentSlug instead of looking up the post
+        if (!currentSlug) {
+          showToast('Error: Post slug not found', 'error')
+          return
+        }
         
-        const response = await fetch(`/api/blog/${post.slug}`, {
+        const response = await fetch(`/api/blog/${currentSlug}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...formData, tags })
         })
 
         if (response.ok) {
+          const updated = await response.json()
+          // Update currentSlug in case title changed
+          setCurrentSlug(updated.slug)
+          showToast('Blog post updated successfully', 'success')
           setEditing(null)
           resetForm()
           fetchPosts()
+        } else {
+          const error = await response.json()
+          showToast(error.error || 'Failed to update post', 'error')
         }
       } else {
         const response = await fetch('/api/blog', {
@@ -96,18 +109,24 @@ export default function AdminBlog() {
         })
 
         if (response.ok) {
+          showToast('Blog post created successfully', 'success')
           setCreating(false)
           resetForm()
           fetchPosts()
+        } else {
+          const error = await response.json()
+          showToast(error.error || 'Failed to create post', 'error')
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to save post', 'error')
       console.error('Failed to save post:', error)
     }
   }
 
   const handleEdit = (post: BlogPost) => {
     setEditing(post.id)
+    setCurrentSlug(post.slug)
     setCreating(true)
     setFormData({
       title: post.title,
@@ -129,9 +148,14 @@ export default function AdminBlog() {
       })
 
       if (response.ok) {
+        showToast('Blog post deleted successfully', 'success')
         fetchPosts()
+      } else {
+        const error = await response.json()
+        showToast(error.error || 'Failed to delete post', 'error')
       }
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to delete post', 'error')
       console.error('Failed to delete post:', error)
     }
   }
@@ -147,6 +171,7 @@ export default function AdminBlog() {
       status: 'DRAFT'
     })
     setEditing(null)
+    setCurrentSlug(null)
     setCreating(false)
   }
 

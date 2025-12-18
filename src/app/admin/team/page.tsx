@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, Save, User } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
 
 interface TeamMember {
   id: string
@@ -20,6 +21,7 @@ interface TeamMember {
 export default function AdminTeam() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { showToast } = useToast()
   const [members, setMembers] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<string | null>(null)
@@ -51,8 +53,12 @@ export default function AdminTeam() {
       if (response.ok) {
         const data = await response.json()
         setMembers(data)
+      } else {
+        const error = await response.json()
+        showToast(error.error || 'Failed to fetch team members', 'error')
       }
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to fetch team members', 'error')
       console.error('Failed to fetch team members:', error)
     } finally {
       setLoading(false)
@@ -71,9 +77,13 @@ export default function AdminTeam() {
         })
 
         if (response.ok) {
+          showToast('Team member updated successfully', 'success')
           setEditing(null)
           resetForm()
           fetchMembers()
+        } else {
+          const error = await response.json()
+          showToast(error.error || 'Failed to update team member', 'error')
         }
       } else {
         const response = await fetch('/api/team', {
@@ -83,12 +93,17 @@ export default function AdminTeam() {
         })
 
         if (response.ok) {
+          showToast('Team member added successfully', 'success')
           setCreating(false)
           resetForm()
           fetchMembers()
+        } else {
+          const error = await response.json()
+          showToast(error.error || 'Failed to add team member', 'error')
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to save team member', 'error')
       console.error('Failed to save team member:', error)
     }
   }
@@ -116,9 +131,14 @@ export default function AdminTeam() {
       })
 
       if (response.ok) {
+        showToast('Team member deleted successfully', 'success')
         fetchMembers()
+      } else {
+        const error = await response.json()
+        showToast(error.error || 'Failed to delete team member', 'error')
       }
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || 'Failed to delete team member', 'error')
       console.error('Failed to delete team member:', error)
     }
   }

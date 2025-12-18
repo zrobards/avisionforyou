@@ -26,6 +26,7 @@ model User {
   
   // App relations
   blogPosts     BlogPost[]
+  newsletters   Newsletter[]
   rsvps         RSVP[]
   donations     Donation[]
   profile       UserProfile?
@@ -383,6 +384,32 @@ model AdmissionInquiry {
   @@index([status])
   @@index([email])
   @@map("admission_inquiries")
+}
+
+// Newsletter Content Model
+model Newsletter {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         String   @db.Text
+  excerpt         String?  @db.Text
+  status          String   @default("DRAFT") // DRAFT, PUBLISHED
+  imageUrl        String?
+  
+  author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId        String
+  
+  sentAt          DateTime?
+  sentCount       Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  publishedAt     DateTime?
+  
+  @@index([status])
+  @@index([authorId])
+  @@index([publishedAt])
+  @@map("newsletters")
 }
 
 // Newsletter Subscriber Model
