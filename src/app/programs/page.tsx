@@ -32,35 +32,36 @@ const PROGRAMS = [
     title: "MindBodySoul IOP",
     slug: "mindbodysoul-iop",
     category: "Intensive Outpatient Program (IOP)",
-    description: "Clinical intensive outpatient program",
+    description: "90-day clinical outpatient treatment program",
     icon: Users,
-    fullDescription: "Our comprehensive intensive outpatient program combining evidence-based therapy, peer support, and holistic wellness approaches. The MindBodySoul IOP provides structured daily sessions to support recovery while allowing you to maintain your daily responsibilities.",
+    fullDescription: "A 90-day program with daily sessions, individual therapy, and peer support. Ideal for maintaining daily responsibilities while seeking recovery. This is a clinical outpatient treatment program for people suffering from substance use disorder and is an insurance accepting program. MindBodySoul accepts all forms of KY Medicaid and some private insurances.",
     details: [
+      "90-day structured treatment program",
       "Daily Sessions: Group counseling and educational workshops on addiction, mental health, and wellness",
       "Individual Therapy: Weekly one-on-one sessions with a licensed CADC (Certified Alcohol and Drug Counselor)",
       "Peer Support: Facilitated group sessions to build a supportive network",
       "Home-based and community integrated sessions",
-      "Evidence-based treatment modalities",
-      "Flexible scheduling to accommodate work and family",
-      "Comprehensive approach addressing mind, body, and soul"
+      "Insurance accepting program - All forms of KY Medicaid and some private insurances accepted",
+      "Maintain daily responsibilities while in treatment"
     ]
   },
   {
     title: "Moving Mountains Ministry",
     slug: "moving-mountains-ministry",
     category: "Faith-Based Recovery",
-    description: "Spiritual recovery and discipleship ministry",
+    description: "Spiritual recovery and discipleship ministry - The MOOOOVEEEE-ment",
     icon: BookOpen,
-    fullDescription: "Moving Mountains Ministry represents the spiritual arm of A Vision For You, birthed from the conviction that true recovery involves spiritual renewal. Our mission is to lead the homeless, addicted, mentally ill, and maladjusted to a relationship with Christ and equip them to serve others.",
+    fullDescription: "Moving Mountains Ministry represents the spiritual arm of A Vision For You Inc., honoring Gary Morris's early vision and leadership. Born during the COVID-19 pandemic when traditional recovery meetings had shuttered, this ministry emerged from a warehouse in South Louisville where Gary Morris found both sobriety and a renewed relationship with God. Our mission: To lead the homeless, addicted, mentally ill, and maladjusted to a relationship with Christ and equip them to serve others.",
     details: [
-      "Faith-based 12-step classes",
-      "Life Recovery Bible distribution",
-      "Minister training program",
-      "Spiritual mentorship and leadership development",
-      "Christian discipleship in recovery",
-      "Prison and reentry programs (launching 2026)",
-      "Church partnerships for extended reach",
-      "Holistic spiritual transformation"
+      "Faith-based 12-step classes on our residential recovery campus",
+      "Life Recovery Bible distribution to those we serve",
+      "Minister training program - equipping men and women in recovery to become spiritual leaders",
+      "Biblical foundation: Faith, even as small as a mustard seed, can move mountains",
+      "Holistic approach bridging clinical addiction treatment and spiritual transformation",
+      "Prison ministry and reentry programs launching in 2026",
+      "Church partnerships and treatment center collaborations",
+      "Weekly faith-based classes taught by Executive Director Lucas Bennett",
+      "The MOOOOVEEEE-ment - a passionate community affirming spiritual breakthroughs together"
     ]
   },
   {
@@ -201,7 +202,7 @@ export default function Programs() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                   <Image
-                    src="/programs/mindbodysoul-group-1.jpg"
+                    src="/programs/mindbodysoul-group-1.png"
                     alt="Group therapy session"
                     width={300}
                     height={200}
@@ -210,7 +211,7 @@ export default function Programs() {
                 </div>
                 <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                   <Image
-                    src="/programs/mindbodysoul-teaching.jpg"
+                    src="/programs/mindbodysoul-teaching.png"
                     alt="Educational session"
                     width={300}
                     height={200}
@@ -219,7 +220,7 @@ export default function Programs() {
                 </div>
                 <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                   <Image
-                    src="/programs/mindbodysoul-education.jpg"
+                    src="/programs/mindbodysoul-education.png"
                     alt="Clinical education"
                     width={300}
                     height={200}
@@ -228,12 +229,56 @@ export default function Programs() {
                 </div>
                 <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                   <Image
-                    src="/programs/mindbodysoul-group-2.jpg"
+                    src="/programs/mindbodysoul-group-2.png"
                     alt="Support circle"
                     width={300}
                     height={200}
                     className="w-full h-48 object-cover"
                   />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Moving Mountains Ministry Section */}
+          {selectedProgram === 2 && (
+            <div className="mt-8 bg-gradient-to-br from-green-50 to-white rounded-lg p-6">
+              <div className="flex items-center justify-center mb-6">
+                <Image
+                  src="/programs/movingmountains-logo.png"
+                  alt="Moving Mountains Ministry Logo"
+                  width={250}
+                  height={250}
+                  className="object-contain"
+                />
+              </div>
+              <div className="bg-white rounded-lg p-6 shadow-md">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">The MOOOOVEEEE-ment: Our Story</h3>
+                <div className="space-y-4 text-gray-700">
+                  <p>
+                    In the darkest days of the COVID-19 pandemic, when traditional recovery meetings had shuttered and isolation was rampant, a glimmer of hope emerged in an unlikely place—a warehouse in South Louisville. It was there, in 2020, that Gary Morris, a man in early recovery and one of the founding board members of A Vision For You Inc., found both sobriety and a renewed relationship with God.
+                  </p>
+                  <p>
+                    Gary had been gathering and volunteering with men for worship services and 12-step meetings in the only place open and large enough to allow for safe, socially-distanced gatherings. It was during this season of adversity that Gary felt called to name a new A.A. meeting inspired by his growing faith—"Moving Mountains."
+                  </p>
+                  <p className="font-semibold text-brand-green">
+                    The name drew from the biblical promise that faith, even as small as a mustard seed, can move mountains.
+                  </p>
+                  <p>
+                    The meeting quickly developed a strong sense of community and identity. Participants would often shout "MOOOOVE!" in unison, a playful yet passionate affirmation of the spiritual breakthroughs they were experiencing together.
+                  </p>
+                  <p>
+                    That small weekly class has since evolved into a full-fledged ministry—Moving Mountains Ministry—representing the spiritual arm of A Vision For You Inc., honoring Gary Morris's early vision and leadership.
+                  </p>
+                  <p className="text-lg font-bold text-brand-purple mt-6">
+                    Transforming Lives Through Faith and Recovery
+                  </p>
+                  <p>
+                    At its core, Moving Mountains Ministry bridges the gap between clinical addiction treatment and spiritual transformation. It stands as a testament to how faith-based initiatives can complement traditional models of recovery, bringing holistic healing to individuals who have been marginalized, criminalized, and cast aside.
+                  </p>
+                  <p className="italic text-gray-600">
+                    And it all began with one man's surrender to God in a warehouse during a global crisis.
+                  </p>
                 </div>
               </div>
             </div>
