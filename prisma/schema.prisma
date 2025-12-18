@@ -1,0 +1,568 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model with role-based access
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?   // Optional for Google OAuth users
+  role          UserRole  @default(USER)
+  emailVerified DateTime?
+  image         String?   // For Google OAuth profile picture
+  
+  // NextAuth relations
+  accounts      Account[]
+  sessions      Session[]
+  
+  // App relations
+  blogPosts     BlogPost[]
+  newsletters   Newsletter[]
+  rsvps         RSVP[]
+  donations     Donation[]
+  profile       UserProfile?
+  assessment    Assessment?
+  mediaUploads  MediaItem[] @relation("MediaUploads")
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("users")
+}
+
+// NextAuth Account model
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// NextAuth Session model
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+enum UserRole {
+  USER
+  STAFF
+  ADMIN
+}
+
+model UserProfile {
+  id            String    @id @default(cuid())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String    @unique
+  bio           String?
+  phone         String?
+  preferences   Json?
+  avatarUrl     String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("user_profiles")
+}
+
+// Assessment model for recovery program matching
+model Assessment {
+  id                String   @id @default(cuid())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String   @unique
+  answers           Json
+  recommendedProgram String
+  completed         Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("assessments")
+}
+
+// Programs/Meetings
+model Program {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  slug              String   @unique
+  description       String   @db.Text
+  longDescription   String?  @db.Text
+  programType       String   // "IOP", "SHELTER", "SELF_HELP", "FOOD", "HOUSING"
+  schedule          String?
+  location          String?
+  phone             String?
+  email             String?
+  capacity          Int?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  sessions          ProgramSession[]
+  
+  @@index([programType])
+  @@map("programs")
+}
+
+model ProgramSession {
+  id                String   @id @default(cuid())
+  program           Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  programId         String
+  title             String
+  description       String   @db.Text
+  startDate         DateTime
+  endDate           DateTime
+  location          String?
+  format            String   @default("IN_PERSON") // "IN_PERSON" or "ONLINE"
+  link              String?  // For ONLINE meetings
+  capacity          Int?
+  
+  createdAt         DateTime @default(now())
+  
+  rsvps             RSVP[]
+  
+  @@index([programId])
+  @@index([startDate])
+  @@map("program_sessions")
+}
+
+// RSVP model
+model RSVP {
+  id                String   @id @default(cuid())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  session           ProgramSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId         String
+  status            RSVPStatus @default(CONFIRMED)
+  reminderSent      Boolean  @default(false)
+  reminder24hSent   Boolean  @default(false)
+  reminder1hSent    Boolean  @default(false)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([userId, sessionId])
+  @@index([userId])
+  @@index([sessionId])
+  @@map("rsvps")
+}
+
+enum RSVPStatus {
+  CONFIRMED
+  CANCELLED
+  NO_SHOW
+}
+
+// Blog Posts
+model BlogPost {
+  id                String           @id @default(cuid())
+  title             String
+  slug              String           @unique
+  content           String           @db.Text
+  excerpt           String?
+  author            User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId          String
+  status            BlogPostStatus   @default(DRAFT)
+  
+  publishedAt       DateTime?
+  readTimeMinutes   Int?
+  views             Int              @default(0)
+  likes             Int              @default(0)
+  imageUrl          String?
+  category          String?
+  tags              String?          // JSON array
+  
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  @@index([authorId])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("blog_posts")
+}
+
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// Donations
+model Donation {
+  id                String   @id @default(cuid())
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId            String?
+  
+  amount            Float
+  currency          String   @default("USD")
+  frequency         DonationFrequency @default(ONE_TIME)
+  status            DonationStatus @default(COMPLETED)
+  
+  email             String?
+  name              String?
+  comment           String?  @db.Text
+  impactMessage     String?
+  
+  stripeId          String?
+  stripeSubscriptionId String?
+  squarePaymentId   String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("donations")
+}
+
+enum DonationFrequency {
+  ONE_TIME
+  MONTHLY
+  YEARLY
+}
+
+enum DonationStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Testimonials
+model Testimonial {
+  id                String   @id @default(cuid())
+  name              String
+  role              String
+  story             String   @db.Text
+  quote             String?  @db.Text
+  imageUrl          String?
+  displayOnHome     Boolean  @default(false)
+  order             Int?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("testimonials")
+}
+
+// Site Content (editable text/rich content)
+model SiteContent {
+  id                String   @id @default(cuid())
+  key               String   @unique
+  value             String   @db.Text
+  type              String   // "text", "richtext", "json"
+  
+  updatedAt         DateTime @updatedAt
+  
+  @@map("site_content")
+}
+
+// Founders/Leadership
+model Founder {
+  id                String   @id @default(cuid())
+  name              String
+  title             String
+  bio               String   @db.Text
+  story             String   @db.Text
+  imageUrl          String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("founders")
+}
+
+model Leadership {
+  id                String   @id @default(cuid())
+  name              String
+  title             String
+  bio               String   @db.Text
+  
+  role              String?
+  imageUrl          String?
+  email             String?
+  phone             String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("leadership")
+}
+
+// Core Values
+model CoreValue {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  description       String   @db.Text
+  order             Int?
+  
+  createdAt         DateTime @default(now())
+  
+  @@map("core_values")
+}
+
+// Subscription management
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String
+  
+  stripeId          String   @unique
+  plan              String
+  status            String
+  currentPeriodEnd  DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("subscriptions")
+}
+
+// Audit log for admin actions
+model AuditLog {
+  id                String   @id @default(cuid())
+  action            String
+  entity            String
+  entityId          String
+  userId            String
+  details           Json?
+  
+  createdAt         DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+// NextAuth Verification Token
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Admission Inquiry Model
+model AdmissionInquiry {
+  id                String   @id @default(cuid())
+  name              String
+  email             String   @unique
+  phone             String
+  program           String
+  message           String?  @db.Text
+  status            String   @default("pending") // "pending", "reviewed", "contacted", "enrolled"
+  notes             String?  @db.Text
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status])
+  @@index([email])
+  @@map("admission_inquiries")
+}
+
+// Newsletter Content Model
+model Newsletter {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         String   @db.Text
+  excerpt         String?  @db.Text
+  status          String   @default("DRAFT") // DRAFT, PUBLISHED
+  imageUrl        String?
+  
+  author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId        String
+  
+  sentAt          DateTime?
+  sentCount       Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  publishedAt     DateTime?
+  
+  @@index([status])
+  @@index([authorId])
+  @@index([publishedAt])
+  @@map("newsletters")
+}
+
+// Newsletter Subscriber Model
+model NewsletterSubscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  subscribed    Boolean  @default(true)
+  subscribedAt  DateTime @default(now())
+  unsubscribedAt DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+  @@index([subscribed])
+  @@map("newsletter_subscribers")
+}
+
+// Contact Inquiry Model
+model ContactInquiry {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  department    String   // "general", "programs", "donate", "volunteer", "press", "careers"
+  subject       String
+  message       String   @db.Text
+  status        ContactStatus @default(NEW)
+  assignedTo    String?
+  notes         String?  @db.Text
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([department])
+  @@index([createdAt])
+  @@map("contact_inquiries")
+}
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  RESPONDED
+  RESOLVED
+  ARCHIVED
+}
+
+// Team Member Model (for leadership page)
+model TeamMember {
+  id            String   @id @default(cuid())
+  name          String
+  title         String
+  role          TeamRole @default(STAFF)
+  bio           String   @db.Text
+  credentials   String?  // e.g., "MBA, CPA", "MD, PhD"
+  email         String?
+  phone         String?
+  linkedin      String?
+  imageUrl      String?
+  order         Int?
+  isActive      Boolean  @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([role])
+  @@index([order])
+  @@index([isActive])
+  @@map("team_members")
+}
+
+enum TeamRole {
+  BOARD_PRESIDENT
+  BOARD_VP
+  BOARD_TREASURER
+  BOARD_SECRETARY
+  BOARD_MEMBER
+  EXECUTIVE_DIRECTOR
+  STAFF
+}
+
+// Program Outcome Model (for impact tracking)
+model ProgramOutcome {
+  id            String   @id @default(cuid())
+  programName   String   // "Surrender House", "MindBodySoul IOP", "Moving Mountains", "Overall"
+  metric        String   // "completion_rate", "retention_90day", "housing_stability", "employment"
+  value         Float    // The percentage or numeric value
+  unit          String   @default("percent") // "percent", "count", "dollars"
+  period        String   // "2024", "Q1 2024", "Last 12 months"
+  description   String?  @db.Text
+  isPublic      Boolean  @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([programName])
+  @@index([metric])
+  @@index([isPublic])
+  @@map("program_outcomes")
+}
+
+// Social Media Post Model for multi-platform management
+model SocialMediaPost {
+  id            String    @id @default(cuid())
+  description   String    @db.Text
+  videoUrl      String?   // URL to uploaded video
+  platforms     String[]  // Array of platform IDs: facebook, instagram, twitter, youtube
+  status        String    @default("draft") // draft, scheduled, posted, failed
+  scheduledFor  DateTime? // When to post (if scheduled)
+  postedAt      DateTime? // When it was actually posted
+  
+  // Platform-specific IDs (for tracking posts on each platform)
+  facebookPostId   String?
+  instagramPostId  String?
+  twitterPostId    String?
+  youtubeVideoId   String?
+  
+  // Engagement metrics
+  likes         Int       @default(0)
+  comments      Int       @default(0)
+  shares        Int       @default(0)
+  views         Int       @default(0)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([createdAt])
+  @@map("social_media_posts")
+}
+
+// Media Library Model for storing photos/videos
+model MediaItem {
+  id            String    @id @default(cuid())
+  filename      String
+  type          String    // image, video
+  url           String    @db.Text // URL or data URL
+  size          Int       // File size in bytes
+  mimeType      String    // e.g., image/jpeg, video/mp4
+  tags          String[]  // event, recovery, donor, program, etc.
+  usage         String[]  // website, social, grants, newsletter, marketing
+  
+  uploadedById  String
+  uploadedBy    User      @relation("MediaUploads", fields: [uploadedById], references: [id], onDelete: Cascade)
+  
+  uploadedAt    DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([type])
+  @@index([tags])
+  @@index([uploadedById])
+  @@index([uploadedAt])
+  @@map("media_items")
+}
