@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import prisma from '@/lib/db'
+import { db as prisma } from '@/lib/db'
 
 // GET - Fetch all media
 export async function GET(req: NextRequest) {
