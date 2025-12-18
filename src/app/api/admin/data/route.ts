@@ -92,6 +92,8 @@ export async function GET(request: NextRequest) {
       users,
       meetings,
       stats
+    }, {
+      headers: { 'Cache-Control': 'no-store, max-age=0' }
     })
   } catch (error) {
     console.error("Admin data error:", error)

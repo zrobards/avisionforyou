@@ -55,11 +55,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { title, content, excerpt, imageUrl, status } = body
 
-    // Generate slug from title
-    const slug = title
+    // Generate slug from title with timestamp for uniqueness
+    const baseSlug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
+    const slug = `${baseSlug}-${Date.now()}`
 
     const newsletter = await prisma.newsletter.create({
       data: {

@@ -47,7 +47,7 @@ export default function AdminPanel() {
       } else {
         setRefreshing(true)
       }
-      const response = await fetch('/api/admin/data')
+      const response = await fetch('/api/admin/data', { cache: 'no-store' })
       if (!response.ok) {
         if (response.status === 403) {
           setError('You do not have admin access.')
