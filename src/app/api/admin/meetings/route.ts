@@ -68,7 +68,9 @@ export async function GET(request: NextRequest) {
       }
     }))
 
-    return NextResponse.json({ meetings: formattedMeetings })
+    return NextResponse.json({ meetings: formattedMeetings }, {
+      headers: { 'Cache-Control': 'no-store, max-age=0' }
+    })
   } catch (error) {
     console.error("Get admin meetings error:", error)
     return NextResponse.json(

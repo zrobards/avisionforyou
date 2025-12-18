@@ -67,6 +67,9 @@ export default function AdminMeetingsPage() {
         return
       }
       fetchMeetings()
+      // Poll for updates every 3 seconds
+      const interval = setInterval(fetchMeetings, 3000)
+      return () => clearInterval(interval)
     }
   }, [status, router, showToast])
 
@@ -94,14 +97,18 @@ export default function AdminMeetingsPage() {
 
   const fetchMeetings = async () => {
     try {
-      setLoading(true)
-      const response = await fetch('/api/admin/meetings')
+      if (loading) {
+        setLoading(true)
+      }
+      const response = await fetch('/api/admin/meetings', { cache: 'no-store' })
       if (!response.ok) throw new Error('Failed to fetch meetings')
       const data = await response.json()
       setMeetings(data.meetings || data)
     } catch (err) {
       console.error(err)
-      showToast('Failed to load meetings', 'error')
+      if (loading) {
+        showToast('Failed to load meetings', 'error')
+      }
     } finally {
       setLoading(false)
     }
