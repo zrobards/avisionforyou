@@ -185,13 +185,10 @@ export default function MediaLibrary() {
                 disabled={uploading}
                 className="hidden"
               />
-              <button
-                disabled={uploading}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-xl transition font-semibold disabled:opacity-50"
-              >
+              <div className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-purple to-purple-700 text-white rounded-lg hover:shadow-xl transition font-semibold disabled:opacity-50">
                 <Upload className="w-5 h-5" />
                 {uploading ? 'Uploading...' : 'Upload Media'}
-              </button>
+              </div>
             </label>
           </div>
 
