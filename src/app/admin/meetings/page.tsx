@@ -97,9 +97,6 @@ export default function AdminMeetingsPage() {
 
   const fetchMeetings = async () => {
     try {
-      if (loading) {
-        setLoading(true)
-      }
       const response = await fetch('/api/admin/meetings', { cache: 'no-store' })
       if (!response.ok) throw new Error('Failed to fetch meetings')
       const data = await response.json()
@@ -134,8 +131,8 @@ export default function AdminMeetingsPage() {
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
-          startDate: formData.startTime,
-          endDate: formData.endTime,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
           format: formData.format,
           location: formData.location,
           link: formData.link
