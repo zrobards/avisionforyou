@@ -15,99 +15,72 @@ interface TeamMember {
 }
 
 export default function Team() {
-  const boardMembers: TeamMember[] = [
+  const executiveLeadership: TeamMember[] = [
     {
       name: 'Lucas Bennett',
-      title: 'President & Founder',
+      title: 'President & Executive Director',
       role: 'board',
-      credentials: 'MBA, CADC',
-      bio: 'Lucas founded A Vision For You Recovery in 2018 after his own journey through recovery. With over 15 years of nonprofit leadership experience and board certification in addiction counseling, he brings both personal understanding and professional expertise to the organization.',
+      credentials: '',
+      bio: 'Lucas founded A Vision For You Recovery and leads the organization with passion and dedication to helping individuals find recovery and transformation.',
       email: 'lucas@avisionforyourecovery.org',
       image: '/team/lucas-bennett.jpg'
     },
     {
       name: 'Dr. Evan Massey',
-      title: 'Vice President & Medical Director',
+      title: 'Vice President',
       role: 'board',
-      credentials: 'MD, Addiction Medicine',
-      bio: 'Board-certified addiction medicine physician with 12 years of experience in integrated care. Dr. Massey oversees clinical protocols and ensures medical best practices across all programs.',
+      credentials: '',
+      bio: 'Dr. Massey provides strategic leadership and oversight, ensuring the organization maintains its mission and vision while expanding services to meet community needs.',
       email: 'evan.massey@avisionforyourecovery.org',
       image: '/team/evan-massey.jpg'
     },
     {
-      name: 'Sarah Thompson',
-      title: 'Board Treasurer',
+      name: 'Charles Moore',
+      title: 'Treasurer',
       role: 'board',
-      credentials: 'CPA, MBA',
-      bio: 'Certified Public Accountant with 20+ years in nonprofit financial management. Sarah ensures fiscal responsibility and transparent financial reporting as required for our 501(c)(3) status.',
-      email: 'sarah.t@avisionforyourecovery.org',
-      image: '/team/sarah-thompson.jpg'
-    },
-    {
-      name: 'Rev. Michael Carter',
-      title: 'Board Secretary',
-      role: 'board',
-      credentials: 'M.Div, LCSW',
-      bio: 'Licensed clinical social worker and ordained minister with 18 years serving communities affected by addiction. Michael leads our faith-based programming and spiritual care initiatives.',
-      email: 'michael.c@avisionforyourecovery.org',
-      image: '/team/michael-carter.jpg'
-    },
-    {
-      name: 'Dr. Jennifer Martinez',
-      title: 'Board Member',
-      role: 'board',
-      credentials: 'PhD, Clinical Psychology',
-      bio: 'Clinical psychologist specializing in dual diagnosis treatment. Dr. Martinez brings expertise in mental health integration and trauma-informed care to program development.',
-      email: 'jennifer.m@avisionforyourecovery.org',
-      image: '/team/jennifer-martinez.jpg'
-    },
-    {
-      name: 'David Chen',
-      title: 'Board Member',
-      role: 'board',
-      credentials: 'JD, Community Advocate',
-      bio: 'Attorney with focus on nonprofit law and community development. David ensures organizational compliance and advocates for policy changes supporting recovery resources.',
-      email: 'david.c@avisionforyourecovery.org',
-      image: '/team/david-chen.jpg'
+      credentials: '',
+      bio: 'Charles oversees the financial operations and ensures fiscal responsibility and transparency across all programs and services.',
+      email: 'charles.moore@avisionforyourecovery.org',
+      image: '/team/charles-moore.jpg'
     }
   ]
 
-  const leadershipTeam: TeamMember[] = [
+  const staffMembers: TeamMember[] = [
     {
-      name: 'Amanda Williams',
-      title: 'Director of Programs',
+      name: 'Zach Wilbert',
+      title: 'Medical Director',
       role: 'leadership',
-      credentials: 'MSW, LCSW',
-      bio: 'Oversees all recovery programs with 10+ years of direct service experience. Amanda ensures quality standards and continuous program improvement based on outcome data.',
-      email: 'amanda.w@avisionforyourecovery.org',
-      image: '/team/amanda-williams.jpg'
+      credentials: 'APRN-FNP',
+      bio: 'As Medical Director, Zach provides comprehensive medical oversight and ensures quality healthcare services are integrated into all recovery programming.',
+      email: 'zach.wilbert@avisionforyourecovery.org',
+      image: '/team/zach-wilbert.jpg'
     },
     {
-      name: 'Marcus Johnson',
-      title: 'Director of Development',
+      name: 'Henry Fuqua',
+      title: 'MindBodySoul IOP Program Director',
       role: 'leadership',
-      credentials: 'CFRE',
-      bio: 'Certified Fund Raising Executive managing donor relations, grant applications, and fundraising strategy. Marcus has secured over $2M in funding for recovery programs.',
-      email: 'marcus.j@avisionforyourecovery.org',
-      image: '/team/marcus-johnson.jpg'
+      credentials: 'CADC',
+      bio: 'Henry leads the MindBodySoul IOP program with expertise in addiction counseling and evidence-based treatment approaches.',
+      email: 'henry.fuqua@avisionforyourecovery.org',
+      image: '/team/henry-fuqua.jpg'
     },
     {
-      name: 'Dr. Lisa Patel',
-      title: 'Clinical Director',
-      role: 'clinical',
-      credentials: 'PhD, LCADC',
-      bio: 'Licensed clinical alcohol and drug counselor leading our clinical team. Dr. Patel develops evidence-based treatment protocols and supervises all clinical staff.',
-      email: 'lisa.p@avisionforyourecovery.org',
-      image: '/team/lisa-patel.jpg'
+      name: 'Gregory Haynes',
+      title: 'Director of Client Engagement',
+      role: 'leadership',
+      credentials: 'CADCA-1 PSS',
+      bio: 'Gregory builds meaningful connections with clients and ensures each individual receives personalized support throughout their recovery journey.',
+      email: 'gregory.haynes@avisionforyourecovery.org',
+      image: '/team/gregory-haynes.jpg'
     },
     {
-      name: 'James Robinson',
-      title: 'Director of Operations',
+      name: 'Steven Furlow',
+      title: 'Surrender Program Director',
       role: 'leadership',
-      credentials: 'MBA',
-      bio: 'Manages day-to-day operations, facility management, and staff coordination across all program sites. James ensures smooth operations and maintains our high standards of care.',
-      email: 'james.r@avisionforyourecovery.org',
-      image: '/team/james-robinson.jpg'
+      credentials: '',
+      bio: 'Steven directs the flagship Surrender Program, guiding participants through peer-driven recovery and 12-step principles.',
+      email: 'steven.furlow@avisionforyourecovery.org',
+      image: '/team/steven-furlow.jpg'
     }
   ]
 
@@ -128,20 +101,20 @@ export default function Team() {
         </div>
       </header>
 
-      {/* Board of Directors */}
+      {/* Executive Leadership */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-purple rounded-full mb-4">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Board of Directors</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Executive Leadership</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Our volunteer board provides governance oversight, strategic direction, and ensures fiscal responsibility as required for 501(c)(3) organizations
+              Our leadership team provides strategic direction, governance oversight, and ensures we fulfill our mission to serve those in recovery
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {boardMembers.map((member, idx) => (
+            {executiveLeadership.map((member, idx) => (
               <div key={idx} className="bg-gradient-to-br from-purple-50 to-white rounded-xl shadow-lg p-6 hover:shadow-xl transition border-t-4 border-brand-purple">
                 <div className="flex items-center gap-4 mb-4">
                   {member.image ? (
@@ -182,20 +155,20 @@ export default function Team() {
         </div>
       </section>
 
-      {/* Leadership Team */}
+      {/* Staff Team */}
       <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-green rounded-full mb-4">
               <Award className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Executive Leadership</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Staff</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Our professional staff brings decades of combined experience in addiction treatment, nonprofit management, and community service
+              Dedicated professionals committed to providing exceptional care and support for individuals in recovery
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {leadershipTeam.map((member, idx) => (
+            {staffMembers.map((member, idx) => (
               <div key={idx} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition border-l-4 border-brand-green">
                 <div className="flex items-center gap-4 mb-4">
                   {member.image ? (
