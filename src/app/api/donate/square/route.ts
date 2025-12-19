@@ -12,6 +12,8 @@ function isValidEmail(email: string): boolean {
 export async function POST(request: NextRequest) {
   try {
     console.log("Square: Donation request received")
+    console.log("Square: ENV check - TOKEN exists:", !!process.env.SQUARE_ACCESS_TOKEN)
+    console.log("Square: ENV check - ENVIRONMENT:", process.env.SQUARE_ENVIRONMENT)
 
     const { amount, frequency, email, name } = await request.json()
     console.log("Square: Request params:", { amount, frequency, email, name })
@@ -96,6 +98,9 @@ export async function POST(request: NextRequest) {
         const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN
         const squareEnvironment = process.env.SQUARE_ENVIRONMENT || 'sandbox'
 
+        console.log("Square: DEBUG - Token:", squareAccessToken ? `***${squareAccessToken.slice(-10)}` : 'MISSING')
+        console.log("Square: DEBUG - Environment:", squareEnvironment)
+
         if (!squareAccessToken) {
           console.error("Square: Access token not configured")
           return NextResponse.json(
@@ -133,6 +138,9 @@ export async function POST(request: NextRequest) {
 
         const paymentLinkData = await paymentLinkResponse.json()
 
+        console.log("Square: Payment link response status:", paymentLinkResponse.status)
+        console.log("Square: Payment link response:", JSON.stringify(paymentLinkData).substring(0, 200))
+
         if (!paymentLinkResponse.ok) {
           console.error("Square: Payment link creation error:", paymentLinkData)
           return NextResponse.json(
@@ -168,7 +176,6 @@ export async function POST(request: NextRequest) {
           }
         } catch (emailError) {
           console.error("Square: ❌ Failed to send email, but donation saved:", emailError)
-          // Don't fail the donation if email fails
         }
 
         // Return the Square payment link
