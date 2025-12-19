@@ -1,6 +1,6 @@
 'use client'
 
-import { Facebook, Instagram, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, ExternalLink } from 'lucide-react'
+import { Facebook, Instagram, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, ExternalLink, Music } from 'lucide-react'
 
 export default function SocialMediaPage() {
   const socialChannels = [
@@ -25,6 +25,17 @@ export default function SocialMediaPage() {
       color: 'from-pink-600 to-purple-600',
       bgColor: 'bg-pink-50',
       borderColor: 'border-pink-200'
+    },
+    {
+      name: 'TikTok',
+      icon: Music,
+      handle: '@AVFYRecovery',
+      url: 'https://tiktok.com/@avfyrecovery',
+      description: 'Short-form recovery content, day-in-the-life videos, and community moments',
+      followers: '450',
+      color: 'from-gray-900 to-black',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-200'
     },
     {
       name: 'Twitter / X',
@@ -65,22 +76,22 @@ export default function SocialMediaPage() {
     {
       title: 'Recovery Stories',
       description: 'Real testimonials from graduates sharing their journey to sobriety',
-      platforms: ['Instagram', 'Facebook', 'YouTube']
+      platforms: ['Instagram', 'Facebook', 'YouTube', 'TikTok']
     },
     {
       title: 'Event Updates',
       description: 'Stay informed about community meetings, workshops, and fundraisers',
-      platforms: ['Facebook', 'Twitter', 'Instagram']
+      platforms: ['Facebook', 'Twitter', 'Instagram', 'TikTok']
     },
     {
       title: 'Educational Content',
       description: 'Tips, resources, and evidence-based recovery information',
-      platforms: ['YouTube', 'LinkedIn', 'Twitter']
+      platforms: ['YouTube', 'LinkedIn', 'Twitter', 'TikTok']
     },
     {
       title: 'Program Highlights',
       description: 'Behind-the-scenes looks at our programs and facilities',
-      platforms: ['Instagram', 'YouTube', 'Facebook']
+      platforms: ['Instagram', 'YouTube', 'Facebook', 'TikTok']
     }
   ]
 
@@ -101,41 +112,38 @@ export default function SocialMediaPage() {
         </div>
       </section>
 
-      {/* Social Media Channels */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Follow Us</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Stay connected across all your favorite platforms
-            </p>
-          </div>
+      {/* Social Channels Grid */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">Our Social Channels</h2>
+          <p className="text-center text-gray-600 text-lg mb-16 max-w-3xl mx-auto">
+            Follow us on your favorite platforms to stay connected with the A Vision For You Recovery community
+          </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {socialChannels.map((channel, idx) => {
+            {socialChannels.map((channel) => {
               const Icon = channel.icon
               return (
                 <a
-                  key={idx}
+                  key={channel.name}
                   href={channel.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`${channel.bgColor} border-2 ${channel.borderColor} rounded-xl p-6 hover:shadow-xl transition-all duration-300 group`}
+                  className="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-200 overflow-hidden hover:border-brand-purple"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-14 h-14 bg-gradient-to-br ${channel.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                      <Icon className="w-7 h-7 text-white" />
-                    </div>
-                    <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-brand-purple transition-colors" />
+                  <div className={`bg-gradient-to-br ${channel.color} p-8 text-white`}>
+                    <Icon className="w-12 h-12 mb-4" />
+                    <h3 className="text-2xl font-bold mb-2">{channel.name}</h3>
+                    <p className="text-sm opacity-90">{channel.handle}</p>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{channel.name}</h3>
-                  <p className="text-sm text-gray-600 font-medium mb-3">{channel.handle}</p>
-                  <p className="text-gray-700 mb-4">{channel.description}</p>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <span className="text-sm text-gray-500">Followers</span>
-                    <span className="text-lg font-bold text-brand-purple">{channel.followers}</span>
+                  <div className="p-6">
+                    <p className="text-gray-700 mb-4">{channel.description}</p>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-brand-purple">{channel.followers} followers</span>
+                      <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-brand-purple transition-colors" />
+                    </div>
                   </div>
                 </a>
               )
@@ -145,23 +153,25 @@ export default function SocialMediaPage() {
       </section>
 
       {/* Content Highlights */}
-      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What We Share</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover the type of content you'll find on our social channels
-            </p>
-          </div>
+      <section className="py-20 bg-gray-50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">What We Share</h2>
+          <p className="text-center text-gray-600 text-lg mb-16 max-w-3xl mx-auto">
+            Discover the diverse content we create across our social channels
+          </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {contentHighlights.map((content, idx) => (
-              <div key={idx} className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-brand-purple">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{content.title}</h3>
-                <p className="text-gray-600 mb-4">{content.description}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {contentHighlights.map((highlight, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-md p-8 border-l-4 border-brand-purple">
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">{highlight.title}</h3>
+                <p className="text-gray-600 mb-6">{highlight.description}</p>
+                
                 <div className="flex flex-wrap gap-2">
-                  {content.platforms.map((platform, pIdx) => (
-                    <span key={pIdx} className="px-3 py-1 bg-purple-100 text-brand-purple rounded-full text-sm font-medium">
+                  {highlight.platforms.map((platform) => (
+                    <span
+                      key={platform}
+                      className="px-3 py-1 bg-purple-100 text-brand-purple rounded-full text-sm font-semibold"
+                    >
                       {platform}
                     </span>
                   ))}
@@ -172,68 +182,60 @@ export default function SocialMediaPage() {
         </div>
       </section>
 
-      {/* Hashtags Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Join the Conversation</h2>
-          <p className="text-lg text-gray-600 mb-8">
-            Use these hashtags to share your recovery journey and connect with our community
+      {/* Call to Action */}
+      <section className="py-20 bg-gradient-to-r from-brand-purple to-purple-900 text-white px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6">Ready to Join Our Community?</h2>
+          <p className="text-xl text-purple-100 mb-8">
+            Pick your favorite platform and start following us today. Let's build a stronger, more connected recovery community together.
           </p>
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {['#AVisionForYou', '#RecoveryIsPossible', '#SurrenderToRecover', '#MindBodySoul', '#MovingMountains', '#LouisvilleRecovery'].map((tag, idx) => (
-              <span key={idx} className="px-4 py-2 bg-gradient-to-r from-brand-purple to-purple-700 text-white rounded-full font-semibold text-sm hover:shadow-lg transition-shadow cursor-pointer">
-                {tag}
-              </span>
+          
+          <div className="flex flex-wrap justify-center gap-4">
+            {socialChannels.slice(0, 3).map((channel) => (
+              <a
+                key={channel.name}
+                href={channel.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-white text-brand-purple rounded-lg font-semibold hover:bg-brand-green hover:text-white transition-all duration-300 inline-flex items-center gap-2"
+              >
+                <channel.icon className="w-5 h-5" />
+                Follow on {channel.name}
+              </a>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Newsletter Signup */}
-      <section className="py-16 bg-gradient-to-r from-brand-purple to-purple-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Mail className="w-12 h-12 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
-          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-            Subscribe to our newsletter for monthly recovery resources, success stories, and event announcements
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-green"
-            />
-            <button className="px-8 py-3 bg-brand-green text-brand-purple font-bold rounded-lg hover:bg-green-400 transition-colors">
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </section>
-
       {/* Contact Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-purple-50 to-green-50 rounded-2xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Prefer Direct Contact?</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <a href="tel:(502)749-6344" className="flex flex-col items-center gap-2 text-brand-purple hover:text-purple-700 transition-colors">
-                <div className="w-12 h-12 bg-brand-purple rounded-full flex items-center justify-center">
-                  <Phone className="w-6 h-6 text-white" />
-                </div>
-                <span className="font-semibold">(502) 749-6344</span>
+      <section className="py-20 bg-white px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16 text-gray-900">Other Ways to Connect</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-8 text-center border border-blue-200">
+              <Mail className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Email</h3>
+              <a href="mailto:info@avisionforyou.org" className="text-blue-600 hover:text-blue-800 font-semibold">
+                info@avisionforyou.org
               </a>
-              <a href="mailto:info@avisionforyourecovery.org" className="flex flex-col items-center gap-2 text-brand-purple hover:text-purple-700 transition-colors">
-                <div className="w-12 h-12 bg-brand-purple rounded-full flex items-center justify-center">
-                  <Mail className="w-6 h-6 text-white" />
-                </div>
-                <span className="font-semibold">Email Us</span>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-8 text-center border border-green-200">
+              <Phone className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Phone</h3>
+              <a href="tel:+15027496344" className="text-green-600 hover:text-green-800 font-semibold">
+                (502) 749-6344
               </a>
-              <a href="https://maps.google.com/?q=1675+Story+Ave,+Louisville,+KY+40206" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 text-brand-purple hover:text-purple-700 transition-colors">
-                <div className="w-12 h-12 bg-brand-purple rounded-full flex items-center justify-center">
-                  <MapPin className="w-6 h-6 text-white" />
-                </div>
-                <span className="font-semibold">Visit Us</span>
-              </a>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-8 text-center border border-purple-200">
+              <MapPin className="w-12 h-12 text-brand-purple mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Visit Us</h3>
+              <p className="text-gray-700 font-semibold">
+                Louisville, KY<br/>
+                <span className="text-sm text-gray-600">Recovery facilities open daily</span>
+              </p>
             </div>
           </div>
         </div>
