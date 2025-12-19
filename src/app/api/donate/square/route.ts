@@ -112,9 +112,10 @@ export async function POST(request: NextRequest) {
           ? 'https://connect.squareup.com'
           : 'https://connect.squareupsandbox.com'
 
-        console.log("Square: Creating payment link at:", `${apiUrl}/v2/online-checkout-links`)
+        console.log("Square: Creating payment link at:", `${apiUrl}/v2/catalog/batch`)
 
-        const paymentLinkResponse = await fetch(`${apiUrl}/v2/online-checkout-links`, {
+        // First, create a catalog item for the donation
+        const catalogResponse = await fetch(`${apiUrl}/v2/catalog/batch`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${squareAccessToken}`,
@@ -122,8 +123,151 @@ export async function POST(request: NextRequest) {
             'Square-Version': '2024-01-18'
           },
           body: JSON.stringify({
-            idempotency_key: donationSessionId,
+            idempotency_key: `catalog-${donationSessionId}`,
+            batches: [
+              {
+                objects: [
+                  {
+                    type: "ITEM",
+                    id: `#${donationSessionId}`,
+                    item_data: {
+                      name: "A Vision For You Recovery - Donation",
+                      description: `Donation from ${name}`,
+                      variations: [
+                        {
+                          type: "ITEM_VARIATION",
+                          id: "#0",
+                          item_variation_data: {
+                            item_id: `#${donationSessionId}`,
+                            name: `$${amount}`,
+                            pricing_type: "FIXED_PRICING",
+                            price_money: {
+                              amount: amountInCents,
+                              currency: "USD"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          })
+        })
+
+        const catalogData = await catalogResponse.json()
+        console.log("Square: Catalog response status:", catalogResponse.status)
+
+        if (!catalogResponse.ok) {
+          console.error("Square: Catalog creation failed:", catalogData)
+          // Fall back to using payment request instead
+          console.log("Square: Falling back to payment requests endpoint")
+          
+          const paymentRequestResponse = await fetch(`${apiUrl}/v2/invoices`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${squareAccessToken}`,
+              'Content-Type': 'application/json',
+              'Square-Version': '2024-01-18'
+            },
+            body: JSON.stringify({
+              idempotency_key: donationSessionId,
+              invoice: {
+                location_id: "REQUIRED", // You'll need to set a default location
+                customer_id: "REQUIRED", // Or make it optional
+                order: {
+                  line_items: [
+                    {
+                      quantity: "1",
+                      name: "A Vision For You Recovery - Donation",
+                      base_price_money: {
+                        amount: amountInCents,
+                        currency: "USD"
+                      }
+                    }
+                  ]
+                },
+                delivery_method: "EMAIL",
+                invoice_number: `DONATION-${donation.id}`,
+                title: "Donation",
+                description: `Thank you for your donation of $${amount}`
+              }
+            })
+          })
+
+          const paymentRequestData = await paymentRequestResponse.json()
+          console.log("Square: Payment request response:", paymentRequestResponse.status)
+
+          if (!paymentRequestResponse.ok) {
+            console.error("Square: Payment request failed:", paymentRequestData)
+            return NextResponse.json(
+              { error: `Failed to create payment link: ${paymentRequestData.errors?.[0]?.detail || 'Unknown error'}` },
+              { status: 500 }
+            )
+          }
+
+          console.log("Square: Payment request created:", paymentRequestData.invoice?.public_url)
+
+          if (!paymentRequestData.invoice?.public_url) {
+            console.error("Square: No payment URL in response")
+            return NextResponse.json(
+              { error: "Failed to create payment link" },
+              { status: 500 }
+            )
+          }
+
+          // Send confirmation email
+          try {
+            await sendDonationConfirmationEmail(
+              donation.id,
+              email,
+              name,
+              amount,
+              frequency
+            )
+            console.log("Square: Confirmation email sent")
+          } catch (emailError) {
+            console.error("Square: Email failed (non-fatal):", emailError)
+          }
+
+          return NextResponse.json(
+            {
+              url: paymentRequestData.invoice.public_url,
+              donationId: donation.id,
+              success: true
+            },
+            { status: 200 }
+          )
+        }
+
+        // Successfully created catalog item, now create payment link
+        const objects = catalogData.objects || []
+        if (objects.length === 0) {
+          throw new Error("No catalog item created")
+        }
+
+        const itemId = objects[0].id
+        console.log("Square: Catalog item created:", itemId)
+
+        // Create payment link using the catalog item
+        const linkResponse = await fetch(`${apiUrl}/v2/online-checkout-links`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${squareAccessToken}`,
+            'Content-Type': 'application/json',
+            'Square-Version': '2024-01-18'
+          },
+          body: JSON.stringify({
+            idempotency_key: `link-${donationSessionId}`,
+            checkout_options: {
+              redirect_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`
+            },
+            pre_populated_data: {
+              buyer_email: email
+            },
             order: {
+              reference_id: donation.id,
               line_items: [
                 {
                   quantity: "1",
@@ -134,41 +278,32 @@ export async function POST(request: NextRequest) {
                   }
                 }
               ]
-            },
-            checkout_options: {
-              redirect_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`
             }
           })
         })
 
-        const paymentLinkData = await paymentLinkResponse.json()
+        const linkData = await linkResponse.json()
+        console.log("Square: Link response status:", linkResponse.status)
 
-        console.log("Square: Response status:", paymentLinkResponse.status)
-        console.log("Square: Response keys:", Object.keys(paymentLinkData))
-
-        if (!paymentLinkResponse.ok) {
-          console.error("Square: API Error:", JSON.stringify(paymentLinkData))
-          const errorMessage = paymentLinkData.errors?.[0]?.detail || 
-                              paymentLinkData.errors?.[0]?.message ||
-                              'Unknown error'
+        if (!linkResponse.ok) {
+          console.error("Square: Link creation failed:", linkData)
           return NextResponse.json(
-            { error: `Failed to create payment link: ${errorMessage}` },
+            { error: `Failed to create payment link: ${linkData.errors?.[0]?.detail || 'Unknown error'}` },
             { status: 500 }
           )
         }
 
-        console.log("Square: Payment link URL:", paymentLinkData.checkout_link?.checkout_url)
+        console.log("Square: Payment link created:", linkData.checkout_link?.checkout_url)
 
-        if (!paymentLinkData.checkout_link?.checkout_url) {
-          console.error("Square: No checkout URL in response")
+        if (!linkData.checkout_link?.checkout_url) {
+          console.error("Square: No checkout URL returned")
           return NextResponse.json(
-            { error: "Failed to create payment link - no checkout URL returned" },
+            { error: "Failed to create payment link" },
             { status: 500 }
           )
         }
 
         // Send confirmation email
-        console.log("Square: Sending confirmation email to:", email)
         try {
           await sendDonationConfirmationEmail(
             donation.id,
@@ -182,10 +317,9 @@ export async function POST(request: NextRequest) {
           console.error("Square: Email failed (non-fatal):", emailError)
         }
 
-        // Return the Square payment link
         return NextResponse.json(
           {
-            url: paymentLinkData.checkout_link.checkout_url,
+            url: linkData.checkout_link.checkout_url,
             donationId: donation.id,
             success: true
           },
