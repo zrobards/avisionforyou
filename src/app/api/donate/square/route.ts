@@ -112,9 +112,9 @@ export async function POST(request: NextRequest) {
           ? 'https://connect.squareup.com'
           : 'https://connect.squareupsandbox.com'
 
-        console.log("Square: Creating payment link at:", `${apiUrl}/v2/checkout-links`)
+        console.log("Square: Creating payment link at:", `${apiUrl}/v2/online-checkout-links`)
 
-        const paymentLinkResponse = await fetch(`${apiUrl}/v2/checkout-links`, {
+        const paymentLinkResponse = await fetch(`${apiUrl}/v2/online-checkout-links`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${squareAccessToken}`,
