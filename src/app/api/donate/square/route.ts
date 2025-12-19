@@ -112,10 +112,10 @@ export async function POST(request: NextRequest) {
           ? 'https://connect.squareup.com'
           : 'https://connect.squareupsandbox.com'
 
-        console.log("Square: Using checkout-links endpoint")
+        console.log("Square: Using payment-links endpoint")
 
-        // Use Payment Links API which is the simplest approach
-        const paymentLinkResponse = await fetch(`${apiUrl}/v2/checkout-links`, {
+        // Use Payment Links API v2 with orders
+        const paymentLinkResponse = await fetch(`${apiUrl}/v2/payment-links`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${squareAccessToken}`,
@@ -124,17 +124,15 @@ export async function POST(request: NextRequest) {
           },
           body: JSON.stringify({
             idempotency_key: donationSessionId,
-            quick_pay: {
-              name: "A Vision For You Recovery - Donation",
-              price_money: {
-                amount: amountInCents,
-                currency: "USD"
-              },
-              description: `Donation from ${name} (${email})`
-            },
+            description: `Donation from ${name} (${email})`,
+            order_id: donation.id,
             checkout_options: {
               ask_for_shipping_address: false,
               redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://avisionforyou.org'}/donate/success`
+            },
+            amount_money: {
+              amount: amountInCents,
+              currency: "USD"
             }
           })
         })
@@ -157,8 +155,8 @@ export async function POST(request: NextRequest) {
 
         console.log("Square: Payment link created successfully")
 
-        if (!paymentLinkData.checkout_link?.checkout_page_url) {
-          console.error("Square: No checkout URL in response")
+        if (!paymentLinkData.payment_link?.url) {
+          console.error("Square: No payment link URL in response")
           console.log("Square: Full response:", JSON.stringify(paymentLinkData))
           return NextResponse.json(
             { error: "Failed to create payment link - no checkout URL returned" },
@@ -181,11 +179,11 @@ export async function POST(request: NextRequest) {
           console.error("Square: Email failed (non-fatal):", emailError)
         }
 
-        console.log("Square: Returning checkout URL:", paymentLinkData.checkout_link.checkout_page_url)
+        console.log("Square: Returning payment URL:", paymentLinkData.payment_link.url)
 
         return NextResponse.json(
           {
-            url: paymentLinkData.checkout_link.checkout_page_url,
+            url: paymentLinkData.payment_link.url,
             donationId: donation.id,
             success: true
           },
