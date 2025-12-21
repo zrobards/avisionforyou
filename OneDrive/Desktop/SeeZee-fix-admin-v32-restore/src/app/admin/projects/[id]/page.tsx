@@ -1,6 +1,6 @@
-import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth/requireRole";
 import { AdminProjectDetailClient } from "./components/AdminProjectDetailClient";
 
 interface PageProps {
@@ -9,15 +9,15 @@ interface PageProps {
 
 export default async function AdminProjectDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const session = await auth();
+  const user = await getCurrentUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect("/login");
   }
 
   // Check if user has admin role
   const adminRoles = ["ADMIN", "CEO", "STAFF", "FRONTEND", "BACKEND", "OUTREACH", "DESIGNER", "DEV"];
-  if (!adminRoles.includes(session.user.role || "")) {
+  if (!adminRoles.includes(user.role || "")) {
     redirect("/client");
   }
 
@@ -246,6 +246,7 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
         endDate: project.endDate,
         createdAt: project.createdAt,
         githubRepo: project.githubRepo,
+        vercelUrl: project.vercelUrl,
         assignee: project.assignee,
         organization: project.organization,
         milestones: transformedMilestones,
@@ -260,6 +261,8 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
     />
   );
 }
+
+
 
 
 

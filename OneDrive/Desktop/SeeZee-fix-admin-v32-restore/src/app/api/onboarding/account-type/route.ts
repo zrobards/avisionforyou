@@ -12,10 +12,13 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { role } = body;
+    const { accountType, role } = body;
+    
+    // Accept either accountType or role field
+    const selectedRole = accountType || role;
 
     // Only allow CLIENT selection here (STAFF upgrade happens via verify-code)
-    if (role !== "CLIENT") {
+    if (selectedRole !== "CLIENT") {
       return NextResponse.json(
         { error: "Only CLIENT role can be set directly. Use verify-code endpoint for STAFF roles." },
         { status: 400 }

@@ -195,9 +195,37 @@ export async function DELETE(
       );
     }
 
-    // Delete the lead
-    await prisma.lead.delete({
-      where: { id },
+    // Use transaction to clean up related records
+    await prisma.$transaction(async (tx) => {
+      // Archive any ProjectRequests associated with this lead's email
+      // This allows users to submit new requests after lead deletion
+      if (lead.email) {
+        // Find user by email
+        const user = await tx.user.findUnique({
+          where: { email: lead.email },
+          select: { id: true },
+        });
+
+        if (user) {
+          // Archive active project requests for this user
+          await tx.projectRequest.updateMany({
+            where: {
+              userId: user.id,
+              status: {
+                in: ['DRAFT', 'SUBMITTED', 'REVIEWING', 'NEEDS_INFO'],
+              },
+            },
+            data: {
+              status: 'ARCHIVED',
+            },
+          });
+        }
+      }
+
+      // Delete the lead
+      await tx.lead.delete({
+        where: { id },
+      });
     });
 
     // Log activity

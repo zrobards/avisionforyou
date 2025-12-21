@@ -1,26 +1,13 @@
 /**
- * Test Tools Layout - Wraps test pages with AdminAppShell
+ * Test Tools Layout - Simple passthrough (AdminAppShell is provided by parent layout)
  */
 
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
-import { getCurrentUser } from "@/lib/auth/requireRole";
-
-export default async function TestLayout({
+export default function TestLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
-  
-  if (!user) {
-    return null;
-  }
-
-  return (
-    <AdminAppShell user={user}>
-      {children}
-    </AdminAppShell>
-  );
+  return <>{children}</>;
 }
 
 

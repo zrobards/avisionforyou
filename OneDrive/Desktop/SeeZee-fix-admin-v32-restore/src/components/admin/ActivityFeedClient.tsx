@@ -139,8 +139,8 @@ export function ActivityFeedClient({ initialActivities }: ActivityFeedClientProp
               px-3 py-1.5 rounded-lg text-sm font-medium transition-all
               ${
                 filter === "all"
-                  ? "bg-blue-500/20 text-blue-400"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                  ? "bg-seezee-red/20 text-seezee-red"
+                  : "text-slate-400 hover:text-white hover:bg-seezee-card-bg"
               }
             `}
           >
@@ -152,8 +152,8 @@ export function ActivityFeedClient({ initialActivities }: ActivityFeedClientProp
               px-3 py-1.5 rounded-lg text-sm font-medium transition-all
               ${
                 filter === "unread"
-                  ? "bg-blue-500/20 text-blue-400"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                  ? "bg-seezee-red/20 text-seezee-red"
+                  : "text-slate-400 hover:text-white hover:bg-seezee-card-bg"
               }
             `}
           >
@@ -206,11 +206,11 @@ export function ActivityFeedClient({ initialActivities }: ActivityFeedClientProp
               key={activity.id}
               onClick={() => !activity.read && handleMarkAsRead(activity.id)}
               className={`
-                p-4 rounded-lg border transition-all cursor-pointer
+                p-4 rounded-xl border transition-all cursor-pointer
                 ${
                   activity.read
-                    ? "bg-slate-800/20 border-white/5"
-                    : "bg-blue-500/5 border-blue-500/20 hover:bg-blue-500/10"
+                    ? "bg-seezee-card-bg border-white/5"
+                    : "bg-seezee-red/5 border-seezee-red/20 hover:bg-seezee-red/10"
                 }
               `}
             >
@@ -218,7 +218,7 @@ export function ActivityFeedClient({ initialActivities }: ActivityFeedClientProp
                 <div
                   className={`
                   w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
-                  ${activity.read ? "bg-slate-700/50" : "bg-blue-500/20"}
+                  ${activity.read ? "bg-seezee-card-bg" : "bg-seezee-red/20"}
                   ${getActivityColor(activity.type)}
                 `}
                 >
@@ -247,7 +247,7 @@ export function ActivityFeedClient({ initialActivities }: ActivityFeedClientProp
                   )}
 
                   {!activity.read && (
-                    <span className="inline-block mt-2 px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-xs">
+                    <span className="inline-block mt-2 px-2 py-0.5 rounded-full bg-seezee-red/20 text-seezee-red text-xs">
                       New
                     </span>
                   )}

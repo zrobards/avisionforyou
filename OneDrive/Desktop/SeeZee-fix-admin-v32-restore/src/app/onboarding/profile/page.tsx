@@ -5,26 +5,101 @@ export const dynamic = 'force-dynamic';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { ImageUpload } from "@/components/profile/ImageUpload";
+import { SkillsSelector } from "@/components/profile/SkillsSelector";
+import { OAuthConnectionCard } from "@/components/profile/OAuthConnectionCard";
+import { formatPhoneNumber } from "@/lib/phone-format";
 
 export default function OnboardingProfilePage() {
+  // ALL HOOKS MUST BE AT THE TOP - before any conditional returns!
+  const router = useRouter();
+  const { data: session, status, update } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState("");
+  const [oauthRefresh, setOauthRefresh] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     company: "",
+    bio: "",
+    location: "",
+    website: "",
+    skills: [] as string[],
+    jobTitle: "",
+    portfolioUrl: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const { data: session, update } = useSession();
+
+  // Now we can do conditional rendering AFTER all hooks
+  // Show loading state while session is being fetched
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, redirect to login
+  if (status === "unauthenticated" || !session?.user?.id) {
+    console.error("Profile: Not authenticated - redirecting to login", { status, session });
+    if (typeof window !== "undefined") {
+      window.location.href = "/login?returnUrl=/onboarding/profile";
+    }
+    return null;
+  }
+
+  // Check if user hasn't accepted TOS yet - send them back
+  if (!session?.user?.tosAcceptedAt) {
+    if (typeof window !== "undefined") {
+      window.location.href = "/onboarding/tos";
+    }
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-slate-400">Redirecting to terms...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if profile is already complete - redirect to dashboard
+  if (session?.user?.profileDoneAt) {
+    const dashboardUrl = session.user.role === 'CEO' || session.user.role === 'ADMIN' ? '/admin' : '/client';
+    if (typeof window !== "undefined") {
+      window.location.href = dashboardUrl;
+    }
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-slate-400">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const isClient = (session?.user as any)?.role === "CLIENT";
+  const isDesignerOrAdmin = ["DESIGNER", "ADMIN"].includes((session?.user as any)?.role);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      const profileData = {
+        ...formData,
+        profileImageUrl: profileImage || undefined,
+      };
+
       const response = await fetch("/api/onboarding/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        credentials: "include",
+        body: JSON.stringify(profileData),
       });
 
       if (response.ok) {
@@ -35,7 +110,7 @@ export default function OnboardingProfilePage() {
         });
         
         // Redirect based on account type with hard navigation
-        const targetUrl = (session?.user as any)?.role === "CLIENT" ? "/client" : "/admin";
+        const targetUrl = isClient ? "/client" : "/admin";
         window.location.href = targetUrl;
       } else {
         alert("Failed to save profile. Please try again.");
@@ -48,10 +123,13 @@ export default function OnboardingProfilePage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    // Format phone number as user types
+    const formattedValue = name === 'phone' ? formatPhoneNumber(value) : value;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: formattedValue,
     }));
   };
 
@@ -80,6 +158,16 @@ export default function OnboardingProfilePage() {
 
         <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl hover:border-white/20 transition-all duration-300">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Profile Picture Upload */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-200 mb-3">
+                Profile Picture
+              </label>
+              <ImageUpload
+                currentImage={profileImage}
+                onImageChange={setProfileImage}
+              />
+            </div>
             <div className="group">
               <label htmlFor="name" className="block text-sm font-medium text-slate-200 mb-2 flex items-center gap-2 group-hover:text-white transition-colors">
                 <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,27 +202,138 @@ export default function OnboardingProfilePage() {
                 value={formData.phone}
                 onChange={handleChange}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all hover:bg-white/10 group-hover:border-white/20"
-                placeholder="+1 (555) 000-0000"
+                placeholder="(555) 000-0000"
               />
             </div>
 
+            {/* Bio */}
             <div className="group">
-              <label htmlFor="company" className="block text-sm font-medium text-slate-200 mb-2 flex items-center gap-2 group-hover:text-white transition-colors">
-                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                Company
-                <span className="text-xs text-slate-500">(optional)</span>
+              <label htmlFor="bio" className="block text-sm font-medium text-slate-200 mb-2">
+                Bio
+                <span className="text-xs text-slate-500 ml-2">(optional)</span>
+              </label>
+              <textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                rows={3}
+                maxLength={200}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white/10 group-hover:border-white/20"
+                placeholder="Tell us about yourself..."
+              />
+              <p className="text-xs text-slate-500 mt-1">{formData.bio.length}/200 characters</p>
+            </div>
+
+            {/* Location */}
+            <div className="group">
+              <label htmlFor="location" className="block text-sm font-medium text-slate-200 mb-2">
+                Location
+                <span className="text-xs text-slate-500 ml-2">(optional)</span>
               </label>
               <input
                 type="text"
-                id="company"
-                name="company"
-                value={formData.company}
+                id="location"
+                name="location"
+                value={formData.location}
                 onChange={handleChange}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-white/10 group-hover:border-white/20"
-                placeholder="Acme Inc."
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white/10 group-hover:border-white/20"
+                placeholder="San Francisco, CA"
               />
+            </div>
+
+            {/* Role-specific fields */}
+            {isClient && (
+              <>
+                <div className="group">
+                  <label htmlFor="company" className="block text-sm font-medium text-slate-200 mb-2 flex items-center gap-2 group-hover:text-white transition-colors">
+                    <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    Company
+                  </label>
+                  <input
+                    type="text"
+                    id="company"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-white/10 group-hover:border-white/20"
+                    placeholder="Acme Inc."
+                  />
+                </div>
+
+                <div className="group">
+                  <label htmlFor="website" className="block text-sm font-medium text-slate-200 mb-2">
+                    Website
+                    <span className="text-xs text-slate-500 ml-2">(optional)</span>
+                  </label>
+                  <input
+                    type="url"
+                    id="website"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-white/10 group-hover:border-white/20"
+                    placeholder="https://example.com"
+                  />
+                </div>
+              </>
+            )}
+
+            {isDesignerOrAdmin && (
+              <>
+                <div className="group">
+                  <label htmlFor="jobTitle" className="block text-sm font-medium text-slate-200 mb-2">
+                    Job Title
+                  </label>
+                  <input
+                    type="text"
+                    id="jobTitle"
+                    name="jobTitle"
+                    value={formData.jobTitle}
+                    onChange={handleChange}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all hover:bg-white/10 group-hover:border-white/20"
+                    placeholder="Senior Designer"
+                  />
+                </div>
+
+                <SkillsSelector
+                  value={formData.skills}
+                  onChange={(skills) => setFormData({ ...formData, skills })}
+                />
+
+                <div className="group">
+                  <label htmlFor="portfolioUrl" className="block text-sm font-medium text-slate-200 mb-2">
+                    Portfolio URL
+                    <span className="text-xs text-slate-500 ml-2">(optional)</span>
+                  </label>
+                  <input
+                    type="url"
+                    id="portfolioUrl"
+                    name="portfolioUrl"
+                    value={formData.portfolioUrl}
+                    onChange={handleChange}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all hover:bg-white/10 group-hover:border-white/20"
+                    placeholder="https://portfolio.com"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* OAuth Connections */}
+            <div className="pt-4 border-t border-white/10">
+              <h3 className="text-lg font-semibold text-white mb-3">Connect Accounts</h3>
+              <p className="text-sm text-slate-400 mb-4">
+                Link your Google account for easier login (optional)
+              </p>
+              <div className="space-y-3">
+                <OAuthConnectionCard
+                  provider="google"
+                  connected={false}
+                  onConnectionChange={() => setOauthRefresh(prev => prev + 1)}
+                />
+              </div>
             </div>
 
             <div className="pt-4">

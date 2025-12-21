@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProjectFeed } from "@/components/shared/ProjectFeed";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, DollarSign, Calendar, User, Plus, Trash, ListTodo, Folder, MessageSquare, Send, CreditCard, Github, Settings, FileText, Target, Download, Eye, Upload, Check, X, ExternalLink, Link2, AlertCircle } from "lucide-react";
+import { ArrowLeft, DollarSign, Calendar, User, Plus, Trash, ListTodo, Folder, MessageSquare, Send, CreditCard, Github, Settings, FileText, Target, Download, Eye, Upload, Check, X, ExternalLink, Link2, AlertCircle, Globe } from "lucide-react";
 import { toggleMilestone, createMilestone, deleteMilestone } from "@/server/actions/milestones";
 import { markInvoiceAsPaid } from "@/server/actions/invoice";
 import { updateProjectBudget } from "@/server/actions/projects";
@@ -65,6 +65,11 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const [githubRepoUrl, setGithubRepoUrl] = useState(project.githubRepo || "");
   const [savingRepo, setSavingRepo] = useState(false);
   const [editingRepo, setEditingRepo] = useState(false);
+  
+  // Vercel linking state
+  const [vercelUrl, setVercelUrl] = useState(project.vercelUrl || "");
+  const [savingVercel, setSavingVercel] = useState(false);
+  const [editingVercel, setEditingVercel] = useState(false);
   
   // Messages state
   const [messageContent, setMessageContent] = useState("");
@@ -304,6 +309,31 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
       alert("Failed to update repository");
     } finally {
       setSavingRepo(false);
+    }
+  };
+
+  // Vercel linking handler
+  const handleSaveVercel = async () => {
+    setSavingVercel(true);
+    try {
+      const response = await fetch(`/api/admin/projects/${project.id}/vercel`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vercelUrl: vercelUrl.trim() || null }),
+      });
+
+      if (response.ok) {
+        setEditingVercel(false);
+        router.refresh();
+      } else {
+        const error = await response.json();
+        alert(error.error || "Failed to update Vercel deployment");
+      }
+    } catch (error) {
+      console.error("Failed to update Vercel deployment:", error);
+      alert("Failed to update Vercel deployment");
+    } finally {
+      setSavingVercel(false);
     }
   };
 
@@ -1126,6 +1156,71 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
               )}
               <p className="text-xs text-slate-500 mt-2">
                 Link a GitHub repository to display commits, branches, and pull requests.
+              </p>
+            </div>
+
+            {/* Admin Vercel Deployment Linking Form */}
+            <div className="glass p-4 rounded-lg">
+              <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <Link2 className="w-4 h-4" />
+                Link Vercel Deployment
+              </h4>
+              {!editingVercel && project.vercelUrl ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-5 h-5 text-white/60" />
+                    <a 
+                      href={project.vercelUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:underline flex items-center gap-1"
+                    >
+                      {project.vercelUrl}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setVercelUrl(project.vercelUrl || "");
+                      setEditingVercel(true);
+                    }}
+                    className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium rounded-lg transition-colors"
+                  >
+                    Edit
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={vercelUrl}
+                    onChange={(e) => setVercelUrl(e.target.value)}
+                    placeholder="https://project-name.vercel.app"
+                    className="flex-1 px-3 py-2 bg-slate-800 border border-white/10 rounded-lg text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none"
+                  />
+                  <button
+                    onClick={handleSaveVercel}
+                    disabled={savingVercel}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    {savingVercel ? "..." : "Save"}
+                  </button>
+                  {editingVercel && (
+                    <button
+                      onClick={() => {
+                        setVercelUrl(project.vercelUrl || "");
+                        setEditingVercel(false);
+                      }}
+                      className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              )}
+              <p className="text-xs text-slate-500 mt-2">
+                Link a Vercel deployment URL to track deployments and previews.
               </p>
             </div>
 

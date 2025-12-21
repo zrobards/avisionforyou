@@ -161,12 +161,12 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
         className="relative overflow-hidden rounded-2xl"
       >
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-600/20 via-yellow-600/20 to-orange-600/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-seezee-red/20 via-seezee-blue/10 to-seezee-navy-deep" />
+        <div className="absolute inset-0 bg-gradient-to-t from-seezee-navy-deep via-seezee-navy-deep/50 to-transparent" />
         
         {/* Animated glow orbs */}
         <motion.div 
-          className="absolute -top-24 -left-24 w-48 h-48 bg-amber-500/30 rounded-full blur-3xl"
+          className="absolute -top-24 -left-24 w-48 h-48 bg-seezee-red/30 rounded-full blur-3xl"
           animate={{ 
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3]
@@ -178,7 +178,7 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
           }}
         />
         <motion.div 
-          className="absolute -bottom-24 -right-24 w-48 h-48 bg-orange-500/30 rounded-full blur-3xl"
+          className="absolute -bottom-24 -right-24 w-48 h-48 bg-seezee-blue/30 rounded-full blur-3xl"
           animate={{ 
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3]
@@ -197,11 +197,11 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500"
+                className="p-3 rounded-xl bg-gradient-to-br from-seezee-red to-seezee-blue"
               >
                 <DollarSign className="w-6 h-6 text-white" />
               </motion.div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-amber-200 to-orange-200 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold gradient-text">
                 Finances
               </h1>
             </div>
@@ -213,9 +213,9 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleExport}
-            className="relative group px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600 text-white font-medium shadow-lg shadow-amber-500/25 overflow-hidden"
+            className="relative group px-6 py-3 rounded-xl bg-seezee-red text-white font-medium shadow-lg shadow-seezee-red/25 overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-seezee-red/90 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative flex items-center gap-2">
               <Download className="w-4 h-4" />
               Export CSV

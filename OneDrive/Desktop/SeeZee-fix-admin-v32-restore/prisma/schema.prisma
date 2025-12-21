@@ -56,6 +56,16 @@ model User {
   twofaSecret            String?
   questionnaireCompleted DateTime?
   briefQuestionnaireId   String?              @unique
+  // New fields for enhanced auth & profile
+  username               String?              @unique
+  bio                    String?
+  profileImageUrl        String?
+  location               String?
+  timezone               String?
+  lastLogin              DateTime?
+  emailVerificationToken String?              @unique
+  emailVerificationExpires DateTime?
+  // Existing relations
   accounts               Account[]
   activities             Activity[]
   assignmentsCreated     Assignment[]         @relation("AssignmentCreatedBy")
@@ -80,6 +90,15 @@ model User {
   leads                  Lead[]
   invitedBy              User?                @relation("Inviter", fields: [invitedById], references: [id])
   invitees               User[]               @relation("Inviter")
+  // New relations
+  profile                UserProfile?
+  twoFactorAuth          TwoFactorAuth?
+  userSessions           UserSession[]        @relation("UserSessions")
+  notificationPreferences NotificationPreferences?
+  userPreferences        UserPreferences?
+  tosAcceptances         TosAcceptance[]
+  loginHistory           LoginHistory[]
+  recordingsUploaded     Recording[]          @relation("RecordingsUploaded")
 
   @@map("users")
 }
@@ -114,6 +133,17 @@ model Organization {
   leads            Lead[]
   members          OrganizationMember[]
   projects         Project[]
+  
+  // Enhanced organization fields
+  industry              String?
+  annualBudget          Int?
+  leadSource            String?
+  convertedFromLeadId   String?
+  
+  // Relations
+  maintenanceSubscriptions MaintenanceSubscription[]
+  financeTransactions      FinanceTransaction[]
+  calendarEvents           CalendarEvent[]
 
   @@map("organizations")
 }
@@ -154,7 +184,37 @@ model Lead {
   organization   Organization?    @relation(fields: [organizationId], references: [id])
   user           User?            @relation(fields: [userId], references: [id])
   project        Project?
+  
+  // Prospect/Client Finder fields
+  ein               String?           // Tax ID for nonprofits
+  websiteUrl        String?
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  country           String            @default("US")
+  latitude          Float?
+  longitude         Float?
+  category          String?           // Arts, Education, Health, etc.
+  subcategory       String?
+  annualRevenue     Int?              // Estimated annual revenue
+  employeeCount     Int?
+  leadScore         Int               @default(0) // 0-100
+  hasWebsite        Boolean           @default(false)
+  websiteQuality    WebsiteQuality?
+  needsAssessment   Json?             // { responsive: false, accessible: false, etc. }
+  assignedToId      String?
+  lastContactedAt   DateTime?
+  emailsSent        Int               @default(0)
+  lastEmailSentAt   DateTime?
+  outreachCampaignId String?
+  tags              String[]
+  
+  emailCampaigns    EmailCampaign[]   @relation("LeadCampaigns")
 
+  @@index([status])
+  @@index([leadScore])
+  @@index([city, state])
   @@map("leads")
 }
 
@@ -179,6 +239,7 @@ model Project {
   maintenanceStatus    String?
   nextBillingDate      DateTime?
   githubRepo           String?
+  vercelUrl            String?
   feedEvents           FeedEvent[]
   files                File[]
   invoices             Invoice[]
@@ -197,6 +258,24 @@ model Project {
   subscriptions        Subscription[]
   changeRequests       ChangeRequest[]
   todos                Todo[]
+  
+  // Enhanced project tracking fields
+  currentStage         ProjectStage          @default(DISCOVERY)
+  progress             Int                   @default(0) // 0-100
+  designFiles          String[]              // URLs to Figma, etc.
+  designApprovedAt     DateTime?
+  launchedAt           DateTime?
+  liveUrl              String?
+  
+  // Vercel integration
+  vercelProjectId      String?
+  vercelTeamId         String?
+  // vercelUrl is defined above with githubRepo
+  
+  // Relations
+  financeTransactions  FinanceTransaction[]
+  recordings           Recording[]
+  calendarEvents       CalendarEvent[]
 
   @@map("projects")
 }
@@ -289,6 +368,15 @@ model MaintenancePlan {
   updatedAt               DateTime              @updatedAt
   cancelledAt             DateTime?
   project                 Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Enhanced subscription fields
+  hoursIncluded           Int                   @default(2)  // hours per month included
+  hoursUsed               Int                   @default(0)  // hours used this period
+  currentPeriodStart      DateTime?
+  currentPeriodEnd        DateTime?
+  
+  // Usage tracking
+  logs                    MaintenanceLog[]
 
   @@map("maintenance_plans")
 }
@@ -453,7 +541,20 @@ model Todo {
   assignedTo      User?        @relation("TodoAssignee", fields: [assignedToId], references: [id])
   createdBy       User         @relation("TodoCreator", fields: [createdById], references: [id])
   project         Project?     @relation(fields: [projectId], references: [id])
+  
+  // Kanban board fields
+  column          String       @default("todo") // "todo", "in-progress", "review", "done"
+  position        Int          @default(0)      // for ordering within column
+  estimatedHours  Float?
+  actualHours     Float?
+  dependencies    String[]                      // Task IDs this task depends on
+  attachments     String[]                      // File URLs
+  
+  // Time tracking
+  timeLogs        TimeLog[]
 
+  @@index([projectId, column])
+  @@index([status])
   @@map("todos")
 }
 
@@ -1143,4 +1244,500 @@ enum MaintenancePlanStatus {
   ACTIVE
   PAUSED
   CANCELLED
+}
+
+// ============================================
+// NEW ENUMS FOR PLATFORM FEATURES
+// ============================================
+
+enum WebsiteQuality {
+  POOR
+  FAIR
+  GOOD
+  EXCELLENT
+}
+
+enum ProjectStage {
+  DISCOVERY
+  PROPOSAL
+  DESIGN
+  DEVELOPMENT
+  REVIEW
+  LAUNCH
+  MAINTENANCE
+}
+
+enum TransactionType {
+  DEPOSIT
+  MILESTONE
+  FINAL_PAYMENT
+  MAINTENANCE_SUBSCRIPTION
+  ADDON_SERVICE
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum MaintenanceTier {
+  BASIC      // $150/mo, 2 hours
+  STANDARD   // $350/mo, 5 hours
+  PREMIUM    // $750/mo, 12 hours
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+enum EmailCategory {
+  CLIENT_OUTREACH
+  PROPOSAL
+  INVOICE
+  PROJECT_UPDATE
+  MEETING_SCHEDULING
+  FOLLOW_UP
+  WELCOME
+  MAINTENANCE
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  PAUSED
+}
+
+enum EventStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum ChatStatus {
+  ACTIVE
+  WAITING_FOR_HUMAN
+  WITH_HUMAN
+  RESOLVED
+  ABANDONED
+}
+
+enum AIMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+// ============================================
+// NEW AUTH & SETTINGS MODELS
+// ============================================
+
+model UserProfile {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Business info (for clients)
+  organizationName      String?
+  industry              String?
+  organizationSize      String?
+  websiteUrl            String?
+  taxId                 String?
+  businessAddress       String?
+  
+  // Professional info (for designers/admins)
+  jobTitle              String?
+  department            String?
+  skills                String[] // Array of skill tags
+  portfolioUrl          String?
+  githubUrl             String?
+  linkedinUrl           String?
+  yearsExperience       Int?
+  hourlyRate            Decimal? @db.Decimal(10, 2)
+  availabilityStatus    String?  @default("available")
+  
+  // Social links
+  twitterUrl            String?
+  customLink            String?
+  
+  // Privacy
+  publicProfile         Boolean  @default(false)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@map("user_profiles")
+}
+
+model TwoFactorAuth {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  secret          String    // Encrypted TOTP secret
+  backupCodes     String[]  // Encrypted backup codes
+  enabled         Boolean   @default(false)
+  verifiedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@map("two_factor_auth")
+}
+
+model UserSession {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation("UserSessions", fields: [userId], references: [id], onDelete: Cascade)
+  deviceInfo    String?
+  browser       String?
+  os            String?
+  ipAddress     String?
+  location      String?
+  lastActive    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  
+  @@index([userId])
+  @@map("user_sessions")
+}
+
+model NotificationPreferences {
+  id                      String   @id @default(cuid())
+  userId                  String   @unique
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Email notifications
+  projectUpdatesEmail     Boolean  @default(true)
+  billingEmail            Boolean  @default(true)
+  marketingEmail          Boolean  @default(false)
+  securityEmail           Boolean  @default(true)
+  
+  // In-app notifications
+  projectUpdatesApp       Boolean  @default(true)
+  billingApp              Boolean  @default(true)
+  securityApp             Boolean  @default(true)
+  
+  // Push notifications
+  browserPushEnabled      Boolean  @default(false)
+  
+  // Schedule
+  quietHoursStart         String?  // "22:00"
+  quietHoursEnd           String?  // "08:00"
+  digestFrequency         String?  @default("none") // daily, weekly, none
+  
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  
+  @@map("notification_preferences")
+}
+
+model UserPreferences {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Appearance
+  theme                 String   @default("dark") // light, dark, auto
+  accentColor           String?  @default("#dc2626") // trinity-red
+  fontSize              String   @default("medium") // small, medium, large
+  reduceAnimations      Boolean  @default(false)
+  
+  // Language & Region
+  language              String   @default("en")
+  dateFormat            String   @default("MM/DD/YYYY")
+  timeFormat            String   @default("12h") // 12h, 24h
+  
+  // Dashboard
+  defaultView           String   @default("kanban") // kanban, list, calendar
+  sidebarCollapsed      Boolean  @default(false)
+  compactMode           Boolean  @default(false)
+  
+  // Communication
+  preferredContact      String?  // email, phone, sms
+  responseTime          String?
+  meetingPreference     String?  // in-person, video, phone
+  bestTime              String?  // morning, afternoon, evening
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@map("user_preferences")
+}
+
+model TosAcceptance {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  version     String   // e.g., "1.0"
+  acceptedAt  DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+  
+  @@index([userId])
+  @@map("tos_acceptances")
+}
+
+model LoginHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  success     Boolean  @default(true)
+  ipAddress   String?
+  location    String?
+  deviceInfo  String?
+  browser     String?
+  os          String?
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, createdAt])
+  @@map("login_history")
+}
+
+// ============================================
+// SEEZEE PLATFORM FEATURES - NEW MODELS
+// ============================================
+
+// Time tracking for tasks
+model TimeLog {
+  id          String   @id @default(cuid())
+  todoId      String
+  todo        Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  hoursSpent  Float
+  description String?
+  performedBy String?  // User ID
+  startedAt   DateTime?
+  endedAt     DateTime?
+  createdAt   DateTime @default(now())
+  
+  @@index([todoId])
+  @@map("time_logs")
+}
+
+// Maintenance activity logs
+model MaintenanceLog {
+  id              String          @id @default(cuid())
+  planId          String
+  plan            MaintenancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  hoursSpent      Float
+  description     String
+  performedBy     String?         // User ID of staff member
+  performedAt     DateTime        @default(now())
+  billable        Boolean         @default(true)
+  overage         Boolean         @default(false) // true if beyond included hours
+  createdAt       DateTime        @default(now())
+  
+  @@index([planId])
+  @@index([performedAt])
+  @@map("maintenance_logs")
+}
+
+// Finance transactions
+model FinanceTransaction {
+  id                   String            @id @default(cuid())
+  projectId            String?
+  project              Project?          @relation(fields: [projectId], references: [id])
+  organizationId       String?
+  organization         Organization?     @relation(fields: [organizationId], references: [id])
+  type                 TransactionType
+  amount               Int               // in cents
+  currency             String            @default("USD")
+  status               TransactionStatus @default(PENDING)
+  stripeInvoiceId      String?           @unique
+  stripePaymentId      String?           @unique
+  stripeSubscriptionId String?
+  paymentMethod        String?           // card, ach, manual
+  description          String
+  dueDate              DateTime?
+  paidAt               DateTime?
+  metadata             Json?
+  notes                String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  
+  @@index([projectId])
+  @@index([organizationId])
+  @@index([status])
+  @@map("finance_transactions")
+}
+
+// Maintenance subscriptions (separate from project-based MaintenancePlan)
+model MaintenanceSubscription {
+  id                   String             @id @default(cuid())
+  organizationId       String
+  organization         Organization       @relation(fields: [organizationId], references: [id])
+  tier                 MaintenanceTier
+  monthlyRate          Int                // in cents
+  hoursIncluded        Int                // hours per month
+  hoursUsed            Int                @default(0)
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeSubscriptionId String?            @unique
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  cancelledAt          DateTime?
+  
+  @@index([organizationId])
+  @@index([status])
+  @@map("maintenance_subscriptions")
+}
+
+// Email templates
+model EmailTemplate {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  category    EmailCategory
+  subject     String
+  htmlContent String        @db.Text
+  textContent String?       @db.Text
+  variables   String[]      // e.g., ["clientName", "projectName", "amount"]
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  campaigns   EmailCampaign[]
+  
+  @@index([category])
+  @@map("email_templates")
+}
+
+// Email campaigns for outreach
+model EmailCampaign {
+  id           String         @id @default(cuid())
+  name         String
+  templateId   String
+  template     EmailTemplate  @relation(fields: [templateId], references: [id])
+  targetStatus LeadStatus[]
+  targetTags   String[]
+  minLeadScore Int?
+  status       CampaignStatus @default(DRAFT)
+  scheduledFor DateTime?
+  sentAt       DateTime?
+  totalSent    Int            @default(0)
+  opened       Int            @default(0)
+  clicked      Int            @default(0)
+  replied      Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  
+  // Track which leads were targeted
+  leads        Lead[]         @relation("LeadCampaigns")
+  
+  @@index([status])
+  @@map("email_campaigns")
+}
+
+// Calendar events
+model CalendarEvent {
+  id             String       @id @default(cuid())
+  title          String
+  description    String?      @db.Text
+  location       String?
+  startTime      DateTime
+  endTime        DateTime
+  allDay         Boolean      @default(false)
+  timezone       String       @default("America/New_York")
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  projectId      String?
+  project        Project?     @relation(fields: [projectId], references: [id])
+  createdBy      String       // User ID
+  attendees      String[]     // User IDs or email addresses
+  meetingUrl     String?      // Zoom, Google Meet, etc.
+  recurring      Boolean      @default(false)
+  recurrenceRule String?      // iCal RRULE format
+  status         EventStatus  @default(SCHEDULED)
+  remindersSent  Boolean      @default(false)
+  color          String?      // For calendar display
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  
+  @@index([startTime])
+  @@index([organizationId])
+  @@index([projectId])
+  @@map("calendar_events")
+}
+
+// AI Chatbot conversations (separate from team ChatMessage)
+model AIConversation {
+  id           String      @id @default(cuid())
+  sessionId    String      @unique
+  userId       String?     // If logged in user
+  visitorName  String?
+  visitorEmail String?
+  visitorPhone String?
+  messages     AIMessage[]
+  status       ChatStatus  @default(ACTIVE)
+  handedOff    Boolean     @default(false)
+  handedOffTo  String?     // Admin user ID
+  intent       String?     // "pricing", "portfolio", "support", etc.
+  leadQuality  String?     // "hot", "warm", "cold"
+  source       String?     // URL where chat started
+  device       String?
+  browser      String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  closedAt     DateTime?
+  
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_conversations")
+}
+
+// AI chat messages
+model AIMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           AIMessageRole
+  content        String         @db.Text
+  modelUsed      String?
+  tokens         Int?
+  confidence     Float?
+  createdAt      DateTime       @default(now())
+  
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+// Session recordings for AI transcription
+model Recording {
+  id           String           @id @default(cuid())
+  title        String
+  filename     String
+  filePath     String
+  fileSize     Int
+  mimeType     String
+  duration     Int?             // Duration in seconds
+  status       RecordingStatus  @default(PENDING)
+  transcript   String?          @db.Text
+  summary      String?          @db.Text
+  actionItems  Json?            // Array of action items extracted
+  projectBrief Json?            // Auto-generated project brief
+  uploadedById String
+  uploadedBy   User             @relation("RecordingsUploaded", fields: [uploadedById], references: [id])
+  projectId    String?
+  project      Project?         @relation(fields: [projectId], references: [id])
+  transcribedAt DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([status])
+  @@index([uploadedById])
+  @@index([projectId])
+  @@map("recordings")
+}
+
+enum RecordingStatus {
+  PENDING
+  PROCESSING
+  TRANSCRIBED
+  ERROR
 }

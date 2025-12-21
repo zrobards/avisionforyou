@@ -30,10 +30,10 @@ interface LinksClientProps {
 }
 
 const typeColors: Record<string, string> = {
-  GITHUB: "bg-purple-500/20 text-purple-400",
+  GITHUB: "bg-seezee-purple/20 text-seezee-purple",
   FIGMA: "bg-pink-500/20 text-pink-400",
   NOTION: "bg-slate-500/20 text-slate-400",
-  CLIENT: "bg-blue-500/20 text-blue-400",
+  CLIENT: "bg-seezee-blue/20 text-seezee-blue",
   OTHER: "bg-slate-500/20 text-slate-400",
 };
 
@@ -187,49 +187,49 @@ export function LinksClient({ links }: LinksClientProps) {
 
       {/* Create Link Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowCreateModal(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowCreateModal(false)}>
+          <div className="bg-seezee-navy-medium border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-xl font-bold text-white mb-4">Add New Link</h3>
             <form onSubmit={handleCreateLink} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white mb-2">Title</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Title</label>
                 <input
                   type="text"
                   value={newLink.title}
                   onChange={(e) => setNewLink({ ...newLink, title: e.target.value })}
                   required
-                  className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white"
+                  className="w-full bg-seezee-card-bg border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                   placeholder="GitHub Repository"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">URL</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">URL</label>
                 <input
                   type="url"
                   value={newLink.url}
                   onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
                   required
-                  className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white"
+                  className="w-full bg-seezee-card-bg border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                   placeholder="https://github.com/..."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">Description (Optional)</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Description (Optional)</label>
                 <input
                   type="text"
                   value={newLink.description}
                   onChange={(e) => setNewLink({ ...newLink, description: e.target.value })}
-                  className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white"
+                  className="w-full bg-seezee-card-bg border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                   placeholder="Main project repository"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Category</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Category</label>
                   <select
                     value={newLink.category}
                     onChange={(e) => setNewLink({ ...newLink, category: e.target.value })}
-                    className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white"
+                    className="w-full bg-seezee-card-bg border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                   >
                     <option value="GITHUB">GitHub</option>
                     <option value="FIGMA">Figma</option>
@@ -239,12 +239,12 @@ export function LinksClient({ links }: LinksClientProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Icon (Emoji)</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Icon (Emoji)</label>
                   <input
                     type="text"
                     value={newLink.icon}
                     onChange={(e) => setNewLink({ ...newLink, icon: e.target.value })}
-                    className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white text-center text-xl"
+                    className="w-full bg-seezee-card-bg border border-white/10 rounded-lg px-4 py-2 text-white text-center text-xl focus:outline-none focus:ring-2 focus:ring-seezee-red"
                     placeholder="📦"
                     maxLength={2}
                   />
@@ -254,14 +254,14 @@ export function LinksClient({ links }: LinksClientProps) {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white transition-colors"
+                  className="flex-1 px-4 py-2 bg-seezee-card-bg hover:bg-white/10 rounded-lg text-white transition-colors border border-white/10"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-seezee-red hover:bg-seezee-red/90 rounded-lg text-white transition-colors disabled:opacity-50 shadow-lg shadow-seezee-red/25"
                 >
                   {creating ? "Adding..." : "Add Link"}
                 </button>

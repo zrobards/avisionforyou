@@ -202,13 +202,16 @@ export function CalendarClient({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="admin-page-header flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="admin-page-title flex items-center gap-2 sm:gap-3 text-xl sm:text-3xl">
-            <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400" />
+          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-seezee-red glow-on-hover inline-block mb-2">
+            Schedule
+          </span>
+          <h1 className="text-3xl font-heading font-bold gradient-text flex items-center gap-3">
+            <Calendar className="w-8 h-8 text-seezee-blue" />
             SeeZee Calendar
           </h1>
-          <p className="admin-page-subtitle text-sm">
+          <p className="text-sm text-slate-400 mt-1">
             {viewMode === "organization" ? "Organization-wide schedule" : "Your personal schedule"}
           </p>
         </div>
@@ -219,8 +222,8 @@ export function CalendarClient({
             onClick={() => setEventFilter("all")}
             className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
               eventFilter === "all"
-                ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                ? "bg-seezee-red/20 text-seezee-red border border-seezee-red/30"
+                : "text-slate-400 hover:text-white hover:bg-seezee-card-bg"
             }`}
           >
             <span className="hidden sm:inline">All </span>({allEvents.length})
@@ -229,8 +232,8 @@ export function CalendarClient({
             onClick={() => setEventFilter("task")}
             className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${
               eventFilter === "task"
-                ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                ? "bg-seezee-blue/20 text-seezee-blue border border-seezee-blue/30"
+                : "text-slate-400 hover:text-white hover:bg-seezee-card-bg"
             }`}
           >
             <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -240,8 +243,8 @@ export function CalendarClient({
             onClick={() => setEventFilter("maintenance")}
             className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${
               eventFilter === "maintenance"
-                ? "bg-orange-500/20 text-orange-400 border border-orange-500/30"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                ? "bg-seezee-orange/20 text-seezee-orange border border-seezee-orange/30"
+                : "text-slate-400 hover:text-white hover:bg-seezee-card-bg"
             }`}
           >
             <Wrench className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -251,8 +254,8 @@ export function CalendarClient({
             onClick={() => setEventFilter("milestone")}
             className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${
               eventFilter === "milestone"
-                ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                ? "bg-seezee-purple/20 text-seezee-purple border border-seezee-purple/30"
+                : "text-slate-400 hover:text-white hover:bg-seezee-card-bg"
             }`}
           >
             <Briefcase className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -317,17 +320,17 @@ export function CalendarClient({
                     className={`
                       min-h-[100px] p-2 rounded-xl border transition-all
                       ${isSelected
-                        ? "bg-blue-500/20 border-blue-500/50 shadow-lg shadow-blue-500/20"
+                        ? "bg-seezee-red/20 border-seezee-red/50 shadow-lg shadow-seezee-red/20"
                         : isCurrentDay
-                        ? "bg-cyan-500/10 border-cyan-500/30"
-                        : "bg-slate-900/40 border-white/5 hover:border-white/10 hover:bg-slate-900/60"
+                        ? "bg-seezee-blue/10 border-seezee-blue/30"
+                        : "bg-seezee-card-bg border-white/5 hover:border-white/10 hover:bg-white/5"
                       }
                       ${!isSameMonth(day, currentMonth) ? "opacity-40" : ""}
                     `}
                   >
                     <div
                       className={`text-sm font-medium mb-1 ${
-                        isCurrentDay ? "text-cyan-400" : "text-white"
+                        isCurrentDay ? "text-seezee-blue" : "text-white"
                       }`}
                     >
                       {format(day, "d")}

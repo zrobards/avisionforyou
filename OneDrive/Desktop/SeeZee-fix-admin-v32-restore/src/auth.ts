@@ -1,8 +1,10 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma, retryDatabaseOperation, checkDatabaseHealth } from "@/lib/prisma";
 import type { NextAuthConfig } from "next-auth";
+import bcrypt from "bcryptjs";
 
 // Validate environment variables with better error messages
 // SAFE: Don't throw at import time - only validate when actually used
@@ -38,25 +40,21 @@ function validateAuthConfig() {
   }
 
   // Validate Google Secret format - only if it exists
-  if (GOOGLE_SECRET) {
+  // Only warn once on startup, not on every request
+  if (GOOGLE_SECRET && process.env.NODE_ENV === 'development') {
     if (!GOOGLE_SECRET.startsWith('GOCSPX-') || GOOGLE_SECRET.length < 40) {
-      console.warn("⚠️ WARNING: Google Client Secret may be incorrect!");
-      console.warn(`   Secret length: ${GOOGLE_SECRET.length} characters (expected 40-50)`);
-      console.warn(`   Secret prefix: ${GOOGLE_SECRET.substring(0, 10)}...`);
-      console.warn(`   Google Client Secrets should start with 'GOCSPX-' and be 40-50 characters long`);
-      console.warn(`   Check your .env.local file - make sure the secret is not truncated`);
-      console.warn(`   Remove any quotes, spaces, or line breaks around the secret`);
+      // Only log this once by checking if we've already warned
+      if (!(global as any).__googleSecretWarned) {
+        console.warn("⚠️ WARNING: Google Client Secret may be incorrect!");
+        console.warn(`   Secret length: ${GOOGLE_SECRET.length} characters (expected 40-50)`);
+        console.warn(`   If OAuth fails, check your .env.local file`);
+        (global as any).__googleSecretWarned = true;
+      }
     }
   }
 }
 
-console.log("✅ Auth configuration loaded:", {
-  hasSecret: !!(process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET),
-  hasGoogleId: !!GOOGLE_ID,
-  hasGoogleSecret: !!GOOGLE_SECRET,
-  googleId: GOOGLE_ID ? `${GOOGLE_ID.substring(0, 20)}...` : 'MISSING',
-  googleSecret: GOOGLE_SECRET ? `${GOOGLE_SECRET.substring(0, 10)}...` : 'MISSING',
-});
+// Auth configuration validated (logs removed to prevent console spam)
 
 // Log URL configuration for debugging
 const AUTH_URL = process.env.AUTH_URL;
@@ -77,55 +75,20 @@ if (!AUTH_URL && !NEXTAUTH_URL) {
   }
 }
 
-if (AUTH_URL) {
-  console.log("🌐 AUTH_URL configured:", AUTH_URL);
-} else if (NEXTAUTH_URL) {
-  console.log("🌐 NEXTAUTH_URL configured:", NEXTAUTH_URL);
-} else {
-  console.warn("⚠️ No AUTH_URL or NEXTAUTH_URL configured - NextAuth will try to auto-detect");
-  console.warn("⚠️ This may cause 'Configuration' errors in production");
-  console.warn("⚠️ Set AUTH_URL=http://localhost:3000 for local development (matching your dev server port)");
-}
+// URL configuration validated (logs removed to prevent console spam)
 
 // Determine the base URL for OAuth callbacks and fix port mismatches
 const getBaseUrl = () => {
   // In development, always use port 3000 (matching package.json dev script)
-  // This prevents redirect_uri_mismatch errors from port mismatches
   if (process.env.NODE_ENV === "development") {
-    const devUrl = "http://localhost:3000";
-    
-    // Warn if env vars have wrong port
-    if (process.env.AUTH_URL && !process.env.AUTH_URL.includes(":3000")) {
-      console.warn(`⚠️ AUTH_URL has wrong port: ${process.env.AUTH_URL}. Using ${devUrl} instead.`);
-    }
-    if (process.env.NEXTAUTH_URL && !process.env.NEXTAUTH_URL.includes(":3000")) {
-      console.warn(`⚠️ NEXTAUTH_URL has wrong port: ${process.env.NEXTAUTH_URL}. Using ${devUrl} instead.`);
-    }
-    
-    console.log(`🌐 Development mode: Using ${devUrl} for OAuth redirect URIs`);
-    return devUrl;
+    return "http://localhost:3000";
   }
   
   // In production, use AUTH_URL or NEXTAUTH_URL
-  if (process.env.AUTH_URL) {
-    return process.env.AUTH_URL;
-  }
-  if (process.env.NEXTAUTH_URL) {
-    return process.env.NEXTAUTH_URL;
-  }
-  
-  // Fallback - NextAuth will try to auto-detect
-  return undefined;
+  return process.env.AUTH_URL || process.env.NEXTAUTH_URL || undefined;
 };
 
 const baseUrl = getBaseUrl();
-if (baseUrl) {
-  console.log("🌐 Using base URL for OAuth:", baseUrl);
-  console.log("🔗 Expected redirect URI in Google Cloud Console:", `${baseUrl}/api/auth/callback/google`);
-  console.log("🔗 Expected JavaScript origin in Google Cloud Console:", baseUrl);
-} else {
-  console.warn("⚠️ No base URL configured - NextAuth will try to auto-detect (may use wrong port)");
-}
 
 // Validate config before creating NextAuth instance
 // In production, this will warn but not throw to prevent middleware crashes
@@ -137,7 +100,13 @@ const hasMinConfig = (process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET) &&
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma) as any,
   trustHost: true,
-  session: { strategy: "jwt" },
+  session: { 
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   pages: { 
     signIn: "/login", 
     error: "/login",
@@ -148,7 +117,123 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   experimental: {
     enableWebAuthn: false,
   },
+  // Optimize cookies to prevent chunking issues
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
   providers: [
+    // Credentials provider for email/password login
+    Credentials({
+      id: "credentials",
+      name: "Email and Password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+        recaptchaToken: { label: "ReCAPTCHA Token", type: "text" },
+      },
+      async authorize(credentials) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
+
+          // Verify reCAPTCHA if token provided
+          if (credentials.recaptchaToken && process.env.RECAPTCHA_SECRET_KEY) {
+            try {
+              const recaptchaResponse = await fetch(
+                `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${credentials.recaptchaToken}`,
+                { method: "POST" }
+              );
+              const recaptchaData = await recaptchaResponse.json();
+              
+              if (!recaptchaData.success || recaptchaData.score < 0.5) {
+                throw new Error("reCAPTCHA verification failed");
+              }
+            } catch (error) {
+              throw new Error("reCAPTCHA verification failed");
+            }
+          }
+
+          // Find user by email
+          const user = await retryDatabaseOperation(async () => {
+            return await prisma.user.findUnique({
+              where: { email: (credentials.email as string).toLowerCase() },
+              select: {
+                id: true,
+                email: true,
+                password: true,
+                name: true,
+                role: true,
+                emailVerified: true,
+                image: true,
+                tosAcceptedAt: true,
+                profileDoneAt: true,
+                questionnaireCompleted: true,
+              },
+            });
+          });
+
+          if (!user || !user.password) {
+            return null;
+          }
+
+          // CEO whitelist - skip email verification for CEO users
+          const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com"];
+          const isCEO = CEO_EMAILS.includes((credentials.email as string).toLowerCase());
+
+          // Check if email is verified (skip for CEO users)
+          if (!user.emailVerified && !isCEO) {
+            throw new Error("EMAIL_NOT_VERIFIED");
+          }
+
+          // Auto-verify CEO email if not already verified
+          if (isCEO && !user.emailVerified) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { 
+                emailVerified: new Date(),
+                role: "CEO",
+                tosAcceptedAt: new Date(),
+                profileDoneAt: new Date(),
+              },
+            });
+          }
+
+          // Verify password
+          const isValidPassword = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
+
+          if (!isValidPassword) {
+            return null;
+          }
+
+          // Return user object (password excluded)
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            image: user.image,
+            tosAcceptedAt: user.tosAcceptedAt?.toISOString() || null,
+            profileDoneAt: user.profileDoneAt?.toISOString() || null,
+            questionnaireCompleted: user.questionnaireCompleted?.toISOString() || null,
+          };
+        } catch (error) {
+          throw error;
+        }
+      },
+    }),
+    
     // Only add Google provider if credentials are available
     ...(GOOGLE_ID && GOOGLE_SECRET ? [
       Google({
@@ -162,23 +247,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             response_type: "code" 
           } 
         },
-        // Add explicit token endpoint configuration
-        token: {
-          async request(context: any) {
-            console.log("🔐 [OAuth] Token exchange request:", {
-              provider: "google",
-              clientId: `${GOOGLE_ID?.substring(0, 20)}...`,
-              hasClientSecret: !!GOOGLE_SECRET,
-              clientSecretLength: GOOGLE_SECRET?.length,
-              redirectUri: context.params.redirect_uri,
-              code: context.params.code ? `${context.params.code.substring(0, 20)}...` : 'missing',
-            });
-            
-            // Let NextAuth handle the token request normally
-            // This is just for logging
-            return context;
-          },
-        },
+        // Token endpoint handled by NextAuth (logging removed to prevent spam)
       }),
     ] : []),
   ],
@@ -187,13 +256,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // Fires after PrismaAdapter creates user on first sign-in
     async createUser({ user }) {
       try {
-        console.log(`👤 [OAuth] Creating user account for ${user.email}`);
-        
-        // Check database health before operations
+        // Check database health before operations (silent check)
         const dbHealth = await checkDatabaseHealth();
         if (!dbHealth.healthy) {
-          console.error(`❌ [OAuth] Database unhealthy during user creation: ${dbHealth.error}`);
-          console.error(`   [OAuth] Retrying with exponential backoff...`);
+          console.error(`❌ [OAuth] Database unhealthy: ${dbHealth.error}`);
         }
         
         // CEO whitelist - auto-upgrade to CEO with completed onboarding
@@ -206,10 +272,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 role: "CEO",
                 tosAcceptedAt: new Date(),
                 profileDoneAt: new Date(),
+                emailVerified: new Date(),
               },
             });
           });
-          console.log(`✅ [OAuth] CEO account created for ${user.email}`);
           return;
         }
 
@@ -221,10 +287,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             data: {
               role: "CLIENT",
               questionnaireCompleted: null, // Initialize field to prevent undefined errors
+              emailVerified: new Date(), // Mark OAuth emails as verified
             },
           });
         });
-        console.log(`✅ [OAuth] CLIENT account created for ${user.email}`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`❌ [OAuth] Error creating user account for ${user.email}:`, errorMessage);
@@ -254,12 +320,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        console.log("🔐 Sign in attempt:", {
-          email: user.email,
-          provider: account?.provider,
-          accountType: account?.type,
-        });
-
+        // Sign in attempt (logging removed to prevent spam)
+        
         // Log OAuth errors if present
         if (account && 'error' in account) {
           console.error("❌ OAuth account error:", {
@@ -275,9 +337,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return false;
         }
 
+        // Check if OAuth user needs to set a password (for account migrations)
+        if (account?.provider === "google" && user.email) {
+          const userEmail = user.email; // Capture in local variable for type narrowing
+          const dbUser = await retryDatabaseOperation(async () => {
+            return await prisma.user.findUnique({
+              where: { email: userEmail },
+              select: { id: true, password: true },
+            });
+          });
+
+          // If OAuth user has no password, continue sign-in but flag for password setup
+        }
+
         // With allowDangerousEmailAccountLinking: true, the adapter will automatically
         // link accounts with the same email. We just need to allow the sign-in.
-        console.log(`✅ Allowing sign-in for ${user.email} via ${account?.provider}`);
         return true;
       } catch (error) {
         console.error("❌ Sign in callback error:", error);
@@ -286,80 +360,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
 
     async session({ session, token }) {
-      // IMPORTANT: Always fetch fresh role from database
-      // This ensures manual role changes in DB are immediately reflected
-      try {
-        // Only query database if we have an email
-        if (!session.user.email) {
-          console.warn("Session callback: No email in session, using token values");
-          session.user.id = token.sub!;
-          session.user.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-          session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? token.tosAcceptedAt : null);
-          session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? token.profileDoneAt : null);
-          session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null);
-          return session;
-        }
-
-        // Query database with retry logic - errors will be caught by try-catch below
-        const dbUser = await retryDatabaseOperation(async () => {
-          return await prisma.user.findUnique({
-            where: { email: session.user.email },
-            select: {
-              id: true,
-              role: true,
-              tosAcceptedAt: true,
-              profileDoneAt: true,
-              questionnaireCompleted: true,
-            },
-          });
-        });
-
-        if (dbUser) {
-          session.user.id = dbUser.id;
-          // Ensure role is never null - default to CLIENT if null
-          session.user.role = dbUser.role || "CLIENT";
-          session.user.tosAcceptedAt = dbUser.tosAcceptedAt?.toISOString() ?? null;
-          session.user.profileDoneAt = dbUser.profileDoneAt?.toISOString() ?? null;
-          session.user.questionnaireCompleted = dbUser.questionnaireCompleted?.toISOString() ?? null;
-          console.log(`✅ Session callback: User ${session.user.email} - role: ${session.user.role}, questionnaireCompleted: ${dbUser.questionnaireCompleted ? 'Yes' : 'No'}`);
-        } else {
-          // User not found in database - use token values
-          console.warn(`Session callback: User ${session.user.email} not found in database, using token values`);
-          session.user.id = token.sub!;
-          session.user.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-          session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? token.tosAcceptedAt : null);
-          session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? token.profileDoneAt : null);
-          session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null);
-        }
-      } catch (error) {
-        // Handle database connection errors gracefully
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        const isConnectionError = 
-          errorMessage.includes("Can't reach database server") ||
-          errorMessage.includes("P1001") ||
-          errorMessage.includes("P1000") ||
-          errorMessage.includes("connection") ||
-          errorMessage.includes("ECONNREFUSED") ||
-          errorMessage.includes("timeout") ||
-          errorMessage.includes("PrismaClient") ||
-          errorMessage.includes("prisma") ||
-          errorMessage.includes("Database query timeout");
-        
-        if (isConnectionError) {
-          console.error("Database connection error in session callback:", errorMessage);
-          console.error("Falling back to token values - check DATABASE_URL and ensure database is running");
-        } else {
-          console.error("Failed to fetch user in session callback:", error);
-        }
-        
-        // Always fallback to token values to prevent session from failing
-        session.user.id = token.sub!;
-        session.user.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-        session.user.tosAcceptedAt = (typeof token.tosAcceptedAt === 'string' ? token.tosAcceptedAt : null);
-        session.user.profileDoneAt = (typeof token.profileDoneAt === 'string' ? token.profileDoneAt : null);
-        session.user.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null);
-        console.warn(`⚠️ Session callback error fallback: questionnaireCompleted set to ${session.user.questionnaireCompleted ? 'Yes' : 'No'}`);
+      // Optimized: Store minimal data from token only
+      // No database queries here to keep session lightweight and fast
+      if (!token.sub) {
+        console.warn("Session callback: No user ID in token");
+        return session;
       }
+
+      // Populate session from JWT token (no DB query)
+      session.user.id = token.sub;
+      session.user.role = (token.role as any) || "CLIENT";
+      session.user.tosAcceptedAt = token.tosAccepted ? "1" : null; // Use "1" instead of date string to save space
+      session.user.profileDoneAt = token.profileDone ? "1" : null;
+      session.user.questionnaireCompleted = token.questionnaireCompleted ? "1" : null;
+      (session.user as any).needsPassword = token.needsPassword === true;
 
       return session;
     },
@@ -375,9 +389,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (!email) {
             console.warn("JWT callback: No email available, using default values");
             token.role = token.role || "CLIENT";
-            token.questionnaireCompleted = token.questionnaireCompleted ?? null;
+            token.questionnaireCompleted = false;
+            token.needsPassword = false;
+            token.emailVerified = false;
             return token;
           }
+          
+          // CEO whitelist - auto-upgrade to CEO with completed onboarding
+          const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com"];
+          const isCEO = CEO_EMAILS.includes(email as string);
           
           // Use retry logic for database operations during OAuth flow
           const dbUser = await retryDatabaseOperation(async () => {
@@ -386,25 +406,55 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               select: {
                 id: true,
                 role: true,
+                password: true,
                 tosAcceptedAt: true,
                 profileDoneAt: true,
                 questionnaireCompleted: true,
+                emailVerified: true,
               },
             });
           });
           
           if (dbUser) {
-            // Ensure role is never null - default to CLIENT if null
-            token.role = dbUser.role || "CLIENT";
-            token.tosAcceptedAt = dbUser.tosAcceptedAt?.toISOString() ?? null;
-            token.profileDoneAt = dbUser.profileDoneAt?.toISOString() ?? null;
-            token.questionnaireCompleted = dbUser.questionnaireCompleted?.toISOString() ?? null;
-            console.log(`🔄 JWT refreshed for ${email}: role=${token.role}, questionnaireCompleted: ${dbUser.questionnaireCompleted ? 'Yes' : 'No'}`);
+            // Auto-complete onboarding for CEO users if not already done
+            if (isCEO && (!dbUser.tosAcceptedAt || !dbUser.profileDoneAt || dbUser.role !== "CEO")) {
+              await retryDatabaseOperation(async () => {
+                return await prisma.user.update({
+                  where: { id: dbUser.id },
+                  data: {
+                    role: "CEO",
+                    tosAcceptedAt: dbUser.tosAcceptedAt || new Date(),
+                    profileDoneAt: dbUser.profileDoneAt || new Date(),
+                    emailVerified: dbUser.emailVerified || new Date(),
+                  },
+                });
+              });
+              
+              // Update token with CEO values
+              token.role = "CEO" as any;
+              token.tosAccepted = true;
+              token.profileDone = true;
+              token.emailVerified = true;
+              token.questionnaireCompleted = !!dbUser.questionnaireCompleted;
+              token.needsPassword = !dbUser.password;
+            } else {
+              // Normal user - use database values
+              // Ensure role is never null - default to CLIENT if null
+              token.role = dbUser.role || "CLIENT";
+              // Store boolean flags instead of ISO strings to reduce token size
+              token.tosAccepted = !!dbUser.tosAcceptedAt;
+              token.profileDone = !!dbUser.profileDoneAt;
+              token.questionnaireCompleted = !!dbUser.questionnaireCompleted;
+              token.emailVerified = !!dbUser.emailVerified;
+              // Check if user needs to set a password (OAuth-only users)
+              token.needsPassword = !dbUser.password;
+            }
           } else {
-            // User might not exist yet during OAuth flow - don't fail
-            console.log(`JWT callback: User ${email} not found in DB yet (may be during OAuth creation)`);
+            // User might not exist yet during OAuth flow - use defaults
             token.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-            token.questionnaireCompleted = (typeof token.questionnaireCompleted === 'string' ? token.questionnaireCompleted : null) as any;
+            token.questionnaireCompleted = false;
+            token.needsPassword = false;
+            token.emailVerified = false;
           }
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
@@ -415,21 +465,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (!token.role || typeof token.role !== 'string') {
             token.role = "CLIENT" as any;
           }
-          if (token.questionnaireCompleted === undefined || (typeof token.questionnaireCompleted !== 'string' && token.questionnaireCompleted !== null)) {
-            token.questionnaireCompleted = null;
+          if (typeof token.questionnaireCompleted !== 'boolean') {
+            token.questionnaireCompleted = false;
           }
+          token.needsPassword = token.needsPassword ?? false;
+          token.emailVerified = token.emailVerified ?? false;
         }
       }
 
       // Handle explicit session updates from onboarding pages
       if (trigger === "update" && updateSession) {
         token.role = updateSession.role || token.role;
-        token.tosAcceptedAt = updateSession.tosAcceptedAt ? (typeof updateSession.tosAcceptedAt === 'string' ? updateSession.tosAcceptedAt : updateSession.tosAcceptedAt.toISOString()) : token.tosAcceptedAt;
-        token.profileDoneAt = updateSession.profileDoneAt ? (typeof updateSession.profileDoneAt === 'string' ? updateSession.profileDoneAt : updateSession.profileDoneAt.toISOString()) : token.profileDoneAt;
-        token.questionnaireCompleted = updateSession.questionnaireCompleted ? (typeof updateSession.questionnaireCompleted === 'string' ? updateSession.questionnaireCompleted : updateSession.questionnaireCompleted.toISOString()) : token.questionnaireCompleted;
+        token.tosAccepted = updateSession.tosAcceptedAt ? true : token.tosAccepted;
+        token.profileDone = updateSession.profileDoneAt ? true : token.profileDone;
+        token.questionnaireCompleted = updateSession.questionnaireCompleted ? true : token.questionnaireCompleted;
         token.name = updateSession.name || token.name;
-        if (updateSession.questionnaireCompleted) {
-          console.log(`✅ JWT updated: questionnaireCompleted set for ${token.email || 'user'}`);
+        // Allow clearing needsPassword flag when password is set
+        if ('needsPassword' in updateSession) {
+          token.needsPassword = updateSession.needsPassword;
+        }
+        // Allow setting emailVerified
+        if ('emailVerified' in updateSession) {
+          token.emailVerified = !!updateSession.emailVerified;
         }
       }
 
@@ -437,13 +494,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
 
     async redirect({ url, baseUrl }) {
-      console.log("🔀 Redirect callback:", { url, baseUrl });
-      
       // For relative URLs (like /client, /admin), prepend baseUrl
       if (url.startsWith("/")) {
-        const redirectUrl = `${baseUrl}${url}`;
-        console.log("✅ Relative URL redirect:", redirectUrl);
-        return redirectUrl;
+        return `${baseUrl}${url}`;
       }
       
       // For absolute URLs, check if they're on the same origin
@@ -453,22 +506,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         
         // If same origin, allow it
         if (urlObj.origin === baseUrlObj.origin) {
-          console.log("✅ Same origin redirect:", url);
           return url;
         }
         
         // Different origin - default to base URL for security
-        console.warn("⚠️ Different origin redirect blocked, using baseUrl:", baseUrl);
         return baseUrl;
       } catch (err) {
         // Invalid URL - default to base URL
-        console.error("❌ Invalid redirect URL, using baseUrl:", url, err);
         return baseUrl;
       }
     },
   },
   
-  debug: true,
+  debug: false, // Disable debug mode to prevent console spam
 });
 
 // Also export GET and POST directly for convenience

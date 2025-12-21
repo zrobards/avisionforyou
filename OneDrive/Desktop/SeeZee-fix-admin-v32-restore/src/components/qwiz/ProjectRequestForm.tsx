@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2 } from 'lucide-react';
 import type { PackageTier } from '@/lib/qwiz/packages';
 import { getPackage, calculateTotals } from '@/lib/qwiz/pricing';
+import { formatPhoneNumber } from '@/lib/phone-format';
 
 interface ProjectRequestFormProps {
   selectedPackage: PackageTier;
@@ -203,7 +204,9 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
   const updateField = (field: keyof ProjectRequestData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Format phone number as user types
+    const formattedValue = field === 'phone' ? formatPhoneNumber(value) : value;
+    setFormData((prev) => ({ ...prev, [field]: formattedValue }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }));
     }
@@ -575,3 +578,4 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
     </div>
   );
 }
+

@@ -15,7 +15,7 @@ import { ActivityType } from "@prisma/client";
  * @param limit - Maximum number of activities to return
  */
 export async function listActivity(limit = 50) {
-  await requireRole(["FRONTEND", "BACKEND", "OUTREACH"]);
+  await requireRole(["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"]);
   
   try {
     const activities = await db.activity.findMany({
@@ -50,7 +50,7 @@ export async function logActivity(data: {
   userId?: string;
   metadata?: any;
 }) {
-  await requireRole(["FRONTEND", "BACKEND", "OUTREACH"]);
+  await requireRole(["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"]);
   
   try {
     const activity = await db.activity.create({
@@ -80,7 +80,7 @@ export async function logActivity(data: {
  * @param activityId - ID of the activity to mark as read
  */
 export async function markActivityAsRead(activityId: string) {
-  await requireRole(["FRONTEND", "BACKEND", "OUTREACH"]);
+  await requireRole(["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"]);
   
   try {
     const activity = await db.activity.update({
@@ -103,7 +103,7 @@ export async function markActivityAsRead(activityId: string) {
  * Mark all activities as read for the current user
  */
 export async function markAllActivitiesAsRead() {
-  await requireRole(["FRONTEND", "BACKEND", "OUTREACH"]);
+  await requireRole(["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"]);
   
   try {
     await db.activity.updateMany({
@@ -126,7 +126,7 @@ export async function markAllActivitiesAsRead() {
  * Get count of unread activities
  */
 export async function getUnreadActivityCount() {
-  await requireRole(["FRONTEND", "BACKEND", "OUTREACH"]);
+  await requireRole(["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"]);
   
   try {
     const count = await db.activity.count({

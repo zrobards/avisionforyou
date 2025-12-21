@@ -1,23 +1,37 @@
-import { listTeam } from '@/server/actions/team';
-import { TeamClient } from '@/components/admin/TeamClient';
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/requireRole";
+import { ROLE } from "@/lib/role";
+import { prisma } from "@/lib/prisma";
+import { TeamClient } from "@/components/admin/TeamClient";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function TeamPage() {
-  const user = await getCurrentUser();
-  
-  if (!user) {
-    return null;
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/login");
   }
 
-  const result = await listTeam();
-  const users = result.success ? result.users : [];
-  
-  return (
-    <AdminAppShell user={user}>
-      <TeamClient users={users} />
-    </AdminAppShell>
-  );
+  // Only CEO/CFO can manage team
+  const allowedRoles = [ROLE.CEO, ROLE.CFO];
+  if (!allowedRoles.includes(currentUser.role as any)) {
+    redirect("/admin");
+  }
+
+  // Fetch all users (team members and clients) for the filter functionality
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return <TeamClient users={users} />;
 }

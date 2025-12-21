@@ -197,7 +197,7 @@ export function AdminTrainingClient({ trainings, showHeader = true }: AdminTrain
       <div className="glass p-4 rounded-lg border border-slate-700">
         <p className="text-sm text-slate-400 text-center">
           This is a read-only view. To create or manage trainings, visit the{" "}
-          <a href="/ceo/training" className="text-purple-400 hover:underline">
+          <a href="/admin/ceo/training" className="text-purple-400 hover:underline">
             CEO Training Dashboard
           </a>
           .

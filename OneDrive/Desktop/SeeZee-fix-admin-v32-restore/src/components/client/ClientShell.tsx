@@ -74,7 +74,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   const navItems: NavItem[] = useMemo(
     () => [
       { href: "/client", label: "Dashboard", icon: FiHome },
-      { href: "/client/settings", label: "Settings", icon: FiSettings },
+      { href: "/settings", label: "Settings", icon: FiSettings },
       { href: "/client/support", label: "Support", icon: FiHelpCircle },
     ],
     []

@@ -1,5 +1,3 @@
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
-import { getCurrentUser } from "@/lib/auth/requireRole";
 import { ClientTasksClient } from "@/components/admin/ClientTasksClient";
 import { prisma } from "@/lib/prisma";
 
@@ -20,11 +18,7 @@ interface TaskRow {
 export const dynamic = "force-dynamic";
 
 export default async function ClientTasksPage() {
-  const user = await getCurrentUser();
-  
-  if (!user) {
-    return null;
-  }
+  // Auth check is handled in layout.tsx to prevent flash
 
   // Fetch ALL client tasks across all projects
   const clientTasks = await prisma.clientTask.findMany({
@@ -75,21 +69,19 @@ export default async function ClientTasksPage() {
   const openTasks = rows.filter((task) => task.status !== "completed").length;
 
   return (
-    <AdminAppShell user={user}>
-      <div className="space-y-8">
-        <header className="space-y-3 relative">
-          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
-            Client Delivery
-          </span>
-          <h1 className="text-4xl font-heading font-bold gradient-text">Client Tasks</h1>
-          <p className="max-w-2xl text-base text-gray-300 leading-relaxed">
-            Monitor all client tasks and assignments across every project. Create new assignments with file attachments, track progress, and ensure everyone completes their deliverables.
-          </p>
-        </header>
+    <div className="space-y-8">
+      <header className="space-y-3 relative">
+        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
+          Client Delivery
+        </span>
+        <h1 className="text-4xl font-heading font-bold gradient-text">Client Tasks</h1>
+        <p className="max-w-2xl text-base text-gray-300 leading-relaxed">
+          Monitor all client tasks and assignments across every project. Create new assignments with file attachments, track progress, and ensure everyone completes their deliverables.
+        </p>
+      </header>
 
-        <ClientTasksClient rows={rows} overdue={overdue} openTasks={openTasks} />
-      </div>
-    </AdminAppShell>
+      <ClientTasksClient rows={rows} overdue={overdue} openTasks={openTasks} />
+    </div>
   );
 }
 

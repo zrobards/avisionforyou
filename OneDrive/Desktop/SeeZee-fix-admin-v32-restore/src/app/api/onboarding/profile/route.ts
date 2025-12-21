@@ -5,15 +5,28 @@ import { NextResponse } from "next/server";
 // Force Node.js runtime for Prisma support
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
     const session = await auth();
     
     if (!session?.user?.id) {
+      console.error("Profile API: No session or user ID");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, phone, company } = await request.json();
+    const body = await req.json();
+    const { 
+      name, 
+      phone, 
+      company,
+      bio,
+      location,
+      website,
+      skills,
+      jobTitle,
+      portfolioUrl,
+      profileImageUrl
+    } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -26,9 +39,32 @@ export async function POST(request: Request) {
         name,
         phone: phone || null,
         company: company || null,
+        bio: bio || null,
+        location: location || null,
+        profileImageUrl: profileImageUrl || null,
         profileDoneAt: new Date(),
       },
     });
+
+    // Create or update UserProfile with additional fields
+    if (skills || jobTitle || portfolioUrl || website) {
+      await prisma.userProfile.upsert({
+        where: { userId: session.user.id },
+        create: {
+          userId: session.user.id,
+          websiteUrl: website || null,
+          skills: skills || [],
+          jobTitle: jobTitle || null,
+          portfolioUrl: portfolioUrl || null,
+        },
+        update: {
+          websiteUrl: website || null,
+          skills: skills || [],
+          jobTitle: jobTitle || null,
+          portfolioUrl: portfolioUrl || null,
+        },
+      });
+    }
 
     // If this is a CLIENT user, create a Lead record
     if (updatedUser.role === "CLIENT") {

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Data Table with filters and actions
+ * Data Table with filters and actions - Navy Theme
  */
 
 import { useState } from "react";
@@ -80,11 +80,11 @@ export function DataTable<T extends { id: string }>({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="
-                  w-full pl-10 pr-4 py-2 rounded-lg
-                  bg-slate-900/40 border border-white/10
+                  w-full pl-10 pr-4 py-2.5 rounded-xl
+                  bg-[#0f172a]/60 border border-white/10
                   text-sm text-white placeholder:text-slate-500
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/50
-                  transition-all
+                  focus:outline-none focus:ring-2 focus:ring-[#22d3ee]/30 focus:border-[#22d3ee]/50
+                  transition-all duration-200
                 "
               />
             </div>
@@ -93,11 +93,11 @@ export function DataTable<T extends { id: string }>({
           {filters && (
             <button
               className="
-                flex items-center gap-2 px-4 py-2 rounded-lg
-                bg-slate-900/40 border border-white/10
+                flex items-center gap-2 px-4 py-2.5 rounded-xl
+                bg-[#0f172a]/60 border border-white/10
                 text-sm text-slate-300
-                hover:bg-slate-900/60 hover:border-white/20
-                transition-all
+                hover:bg-white/5 hover:border-white/20
+                transition-all duration-200
               "
             >
               <Filter className="w-4 h-4" />
@@ -110,16 +110,16 @@ export function DataTable<T extends { id: string }>({
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-white/5 max-w-full">
+      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#1e293b]/40 backdrop-blur-xl max-w-full">
         <table className="w-full min-w-0">
-          <thead className="bg-slate-900/60 border-b border-white/5">
+          <thead className="bg-[#0f172a]/60 border-b border-white/5">
             <tr>
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
                   className={`
-                    px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider
-                    ${col.sortable ? "cursor-pointer hover:text-slate-300 select-none" : ""}
+                    px-5 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider
+                    ${col.sortable ? "cursor-pointer hover:text-white select-none transition-colors" : ""}
                   `}
                   onClick={() => col.sortable && handleSort(String(col.key))}
                 >
@@ -146,15 +146,15 @@ export function DataTable<T extends { id: string }>({
                 transition={{ delay: idx * 0.02, duration: 0.2 }}
                 onClick={() => onRowClick?.(item)}
                 className={`
-                  bg-slate-900/20 hover:bg-slate-900/40
-                  transition-colors
+                  bg-transparent hover:bg-white/5
+                  transition-all duration-200
                   ${onRowClick ? "cursor-pointer" : ""}
                 `}
               >
                 {columns.map((col) => (
                   <td
                     key={String(col.key)}
-                    className="px-4 py-3 text-sm text-slate-300"
+                    className="px-5 py-4 text-sm text-slate-300"
                   >
                     {col.render
                       ? col.render(item)
@@ -167,15 +167,17 @@ export function DataTable<T extends { id: string }>({
         </table>
 
         {sortedData.length === 0 && (
-          <div className="text-center py-12 text-slate-500 bg-slate-900/20">
-            No data to display
+          <div className="text-center py-16 text-slate-500 bg-[#0f172a]/40">
+            <div className="text-4xl mb-3">📋</div>
+            <p className="text-sm">No data to display</p>
           </div>
         )}
       </div>
 
       {/* Footer with count */}
-      <div className="text-sm text-slate-400">
-        Showing {sortedData.length} of {data.length} items
+      <div className="text-sm text-slate-400 px-1">
+        Showing <span className="text-white font-medium">{sortedData.length}</span> of{" "}
+        <span className="text-white font-medium">{data.length}</span> items
       </div>
     </div>
   );

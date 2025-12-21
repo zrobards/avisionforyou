@@ -34,6 +34,12 @@ export default function DebugHUD() {
   const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [loadTime, setLoadTime] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Only show in development
   useEffect(() => {
@@ -101,8 +107,8 @@ export default function DebugHUD() {
     updateDebugInfo();
   }, [session, pathname, loadTime, errors]);
 
-  // Don't render in production
-  if (process.env.NODE_ENV !== "development" || !debugInfo) {
+  // Don't render in production or during SSR
+  if (process.env.NODE_ENV !== "development" || !debugInfo || !isMounted) {
     return null;
   }
 

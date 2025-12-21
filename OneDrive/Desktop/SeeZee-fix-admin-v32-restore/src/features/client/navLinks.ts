@@ -12,6 +12,6 @@ export const CLIENT_LINKS = [
   { href: "/client/invoices", label: "Invoices", icon: Receipt },
   { href: "/client/files", label: "Files & Assets", icon: FileText },
   { href: "/client/requests", label: "Requests", icon: ListChecks },
-  { href: "/client/settings", label: "Settings", icon: Settings },
+  { href: "/settings", label: "Settings", icon: Settings },
   { href: "/client/support", label: "Support", icon: HelpCircle },
 ] as const;

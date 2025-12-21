@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { getInvoices } from "@/server/actions";
 import { InvoicesTable } from "@/components/admin/InvoicesTable";
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
 import { EnhancedStatCard } from "@/components/admin/shared/EnhancedStatCard";
 import { FiDollarSign, FiFileText, FiCheckCircle, FiAlertCircle, FiPlus } from "react-icons/fi";
 import Link from "next/link";
-import type { CurrentUser } from "@/lib/auth/requireRole";
 
 interface InvoiceRow {
   id: string;
@@ -75,24 +73,21 @@ export default function AdminInvoicesPage() {
 
   if (loading) {
     return (
-      <AdminAppShell user={session.user as CurrentUser}>
-        <div className="space-y-8">
-          <header className="space-y-3 relative">
-            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block mb-2">
-              Revenue Operations
-            </span>
-            <h1 className="text-4xl font-heading font-bold gradient-text">Invoices</h1>
-          </header>
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-400">Loading invoices...</div>
-          </div>
+      <div className="space-y-8">
+        <header className="space-y-3 relative">
+          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block mb-2">
+            Revenue Operations
+          </span>
+          <h1 className="text-4xl font-heading font-bold gradient-text">Invoices</h1>
+        </header>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-400">Loading invoices...</div>
         </div>
-      </AdminAppShell>
+      </div>
     );
   }
 
   return (
-    <AdminAppShell user={session.user as CurrentUser}>
       <div className="space-y-8">
         <header className="space-y-3 relative">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -154,7 +149,6 @@ export default function AdminInvoicesPage() {
           <InvoicesTable rows={rows} />
         </div>
       </div>
-    </AdminAppShell>
   );
 }
 

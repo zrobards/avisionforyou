@@ -54,6 +54,18 @@ module.exports = {
         'bus-amber': '#FFA500',
         'bus-amber-light': '#FFB732',
         'bus-amber-dark': '#FF8C00',
+        // Admin Dashboard Navy Theme
+        admin: {
+          'bg-primary': '#0a1128',
+          'bg-secondary': '#0f172a',
+          'bg-card': '#1e293b',
+          'red': '#ef4444',
+          'cyan': '#22d3ee',
+          'blue': '#3b82f6',
+          'green': '#10b981',
+          'yellow': '#f59e0b',
+          'purple': '#a855f7',
+        },
         // Legacy Trinity colors (kept for backwards compatibility)
         trinity: {
           maroon: '#8B0000',

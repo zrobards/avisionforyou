@@ -218,6 +218,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         invoices: transformedInvoices,
         questionnaire: (project as any).questionnaire || null,
         githubRepo: project.githubRepo || null,
+        vercelUrl: project.vercelUrl || null,
       }}
     />
   );

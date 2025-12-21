@@ -71,3 +71,5 @@ To complete the AVFY project showcase, add these 4 screenshots to the `public/` 
 - [ ] Deploy to Vercel
 
 **Once images are added, the site is 100% deploy-ready!** 🚀
+
+

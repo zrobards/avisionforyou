@@ -31,10 +31,14 @@ export function SectionCard({
       transition={{ delay, duration: 0.3 }}
       className={cn(
         `
-        seezee-glass
         relative overflow-hidden
-        hover:border-[rgba(110,231,255,0.15)]
+        rounded-2xl
+        border border-white/10
+        bg-gradient-to-br from-[#1e293b]/60 to-[#0f172a]/60
+        backdrop-blur-xl
+        hover:border-white/20
         transition-all duration-300
+        hover:shadow-xl
       `,
         className
       )}
@@ -44,10 +48,10 @@ export function SectionCard({
 
       <div className="relative z-10">
         {(title || description || action) && (
-          <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-white/5">
+          <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-white/5">
             <div className="flex-1">
               {title && (
-                <h3 className="text-lg font-semibold text-white">{title}</h3>
+                <h3 className="text-lg font-heading font-semibold text-white">{title}</h3>
               )}
               {description && (
                 <p className="text-sm text-slate-400 mt-1">{description}</p>

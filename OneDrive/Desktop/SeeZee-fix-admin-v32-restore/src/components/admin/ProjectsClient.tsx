@@ -33,14 +33,14 @@ interface ProjectsClientProps {
 }
 
 const statusColors: Record<string, string> = {
-  LEAD: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  QUOTED: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  DEPOSIT_PAID: "bg-green-500/20 text-green-400 border-green-500/30",
-  ACTIVE: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  REVIEW: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-  COMPLETED: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  MAINTENANCE: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-  CANCELLED: "bg-red-500/20 text-red-400 border-red-500/30",
+  LEAD: "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30",
+  QUOTED: "bg-[#a855f7]/20 text-[#a855f7] border-[#a855f7]/30",
+  DEPOSIT_PAID: "bg-[#10b981]/20 text-[#10b981] border-[#10b981]/30",
+  ACTIVE: "bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/30",
+  REVIEW: "bg-[#f97316]/20 text-[#f97316] border-[#f97316]/30",
+  COMPLETED: "bg-[#10b981]/20 text-[#10b981] border-[#10b981]/30",
+  MAINTENANCE: "bg-[#22d3ee]/20 text-[#22d3ee] border-[#22d3ee]/30",
+  CANCELLED: "bg-[#ef4444]/20 text-[#ef4444] border-[#ef4444]/30",
 };
 
 const statusLabels: Record<string, string> = {
@@ -116,7 +116,7 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
         actions={
           <button
             onClick={() => router.push("/admin/pipeline/leads")}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#ef4444] hover:bg-[#dc2626] text-white text-sm font-semibold transition-all shadow-lg shadow-[#ef4444]/25 hover:shadow-xl hover:-translate-y-0.5"
           >
             <Plus className="w-4 h-4" />
             Convert Lead

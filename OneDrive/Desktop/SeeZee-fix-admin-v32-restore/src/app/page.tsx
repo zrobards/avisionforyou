@@ -2,10 +2,10 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import ScrollAnimation from '@/components/shared/ScrollAnimation'
 import StickyCTA from '@/components/shared/StickyCTA'
 import ImageLightbox from '@/components/shared/ImageLightbox'
@@ -23,16 +23,7 @@ import {
 } from 'react-icons/fi'
 
 export default function HomePage() {
-  const [photoSrc, setPhotoSrc] = useState('/sean-zach-photo.png')
-  
-  const handleMuscleClick = () => {
-    // Play the sound effect
-    const audio = new Audio('/grrr-sound.mp3')
-    audio.play().catch(err => console.log('Audio play failed:', err))
-    
-    // Swap to fortnitr1 photo
-    setPhotoSrc('/fortnitr1.png')
-  }
+  const [isBuffMode, setIsBuffMode] = useState(false)
   return (
     <div className="w-full">
       <StickyCTA />
@@ -74,9 +65,10 @@ export default function HomePage() {
             src="/logos/Stylized Red Bus Logo with Integrated Text.png"
             alt=""
             width={300}
-            height={200}
+            height={225}
             className="select-none"
-            style={{ imageRendering: 'crisp-edges' }}
+            style={{ imageRendering: 'crisp-edges', width: 'auto', height: 'auto' }}
+            priority
           />
         </motion.div>
 
@@ -527,18 +519,26 @@ export default function HomePage() {
               {/* Photo */}
               <div className="flex justify-center lg:justify-start">
                 <div className="relative w-full max-w-2xl">
-                  <div className="rounded-2xl overflow-hidden border-2 border-[#ef4444]/30 shadow-2xl hover:shadow-[#ef4444]/40 transition-all duration-300">
+                  <motion.div 
+                    className="rounded-2xl overflow-hidden border-2 border-[#ef4444]/30 shadow-2xl hover:shadow-[#ef4444]/40 transition-all duration-300"
+                    animate={{
+                      scale: isBuffMode ? [1, 1.02, 1] : 1,
+                    }}
+                    transition={{
+                      duration: 0.3,
+                    }}
+                  >
                     <ImageLightbox
-                      src={photoSrc}
+                      src={isBuffMode ? "/sean-zach-gabe-buff.png" : "/sean-zach-photo.png"}
                       alt="Sean, Zach & Gabe"
                       width={700}
                       height={500}
                       className="w-full h-auto object-cover"
-                      caption="Zach (left), Sean (middle), Gabe (right)"
+                      caption={isBuffMode ? "Zach (left), Sean (middle), BUFF Gabe (right) 💪" : "Zach (left), Sean (middle), Gabe (right)"}
                     />
-                  </div>
+                  </motion.div>
                   <p className="text-center text-gray-400 text-sm mt-3 italic">
-                    Zach (left), Sean (middle), Gabe (right)
+                    Zach (left), Sean (middle), {isBuffMode ? "BUFF Gabe 💪" : "Gabe (right)"}
                   </p>
                 </div>
               </div>
@@ -559,12 +559,15 @@ export default function HomePage() {
                 </p>
                 <p className="text-sm text-gray-400 italic">
                   Gabe (the guy on the right) brings the{' '}
-                  <span 
-                    onClick={handleMuscleClick}
-                    className="cursor-pointer hover:text-[#ef4444] transition-colors duration-200 font-bold"
+                  <motion.span
+                    onClick={() => setIsBuffMode(!isBuffMode)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="text-[#ef4444] font-bold cursor-pointer hover:text-[#dc2626] transition-colors underline decoration-dotted"
+                    title="Click me! 💪"
                   >
                     muscle
-                  </span>
+                  </motion.span>
                   {' '}to the fight — handling the heavy lifting when projects need extra hands.
                 </p>
                 <p className="text-white font-semibold">
@@ -767,7 +770,7 @@ export default function HomePage() {
                       src="/logos/Stylized Red Bus Logo with Integrated Text.png"
                       alt="Big Red Bus Platform"
                       width={600}
-                      height={400}
+                      height={450}
                       className="w-full h-auto"
                       priority
                       caption="Big Red Bus — Mental Health Community Platform"

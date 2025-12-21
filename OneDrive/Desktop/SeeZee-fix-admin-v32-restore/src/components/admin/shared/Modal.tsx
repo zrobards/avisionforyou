@@ -66,7 +66,7 @@ export function Modal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#0a1128]/80 backdrop-blur-sm"
           />
 
           {/* Modal */}
@@ -75,16 +75,16 @@ export function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             onClick={(e) => e.stopPropagation()}
-            className={`relative w-full ${sizeClasses[size]} rounded-2xl border-2 border-gray-700 glass-effect shadow-large max-h-[90vh] flex flex-col z-[9999]`}
+            className={`relative w-full ${sizeClasses[size]} rounded-2xl border border-white/10 bg-gradient-to-br from-[#1e293b] to-[#0f172a] backdrop-blur-xl shadow-2xl max-h-[90vh] flex flex-col z-[9999]`}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-700 p-6">
+            <div className="flex items-center justify-between border-b border-white/10 p-6">
               <h2 className="text-2xl font-heading font-bold text-white">
                 {title}
               </h2>
               <button
                 onClick={onClose}
-                className="rounded-lg border border-gray-700 bg-gray-800/50 p-2 text-gray-400 transition-all hover:border-trinity-red/50 hover:bg-gray-700 hover:text-white"
+                className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-slate-400 transition-all duration-200 hover:border-white/20 hover:bg-white/10 hover:text-white"
               >
                 <FiX className="h-5 w-5" />
               </button>
@@ -95,7 +95,7 @@ export function Modal({
 
             {/* Footer */}
             {footer && (
-              <div className="border-t border-gray-700 p-6">{footer}</div>
+              <div className="border-t border-white/10 p-6">{footer}</div>
             )}
           </motion.div>
         </div>
@@ -106,9 +106,3 @@ export function Modal({
   // Render modal using portal to document.body to avoid stacking context issues
   return createPortal(modalContent, document.body);
 }
-
-
-
-
-
-

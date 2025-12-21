@@ -1,26 +1,35 @@
 /**
  * Admin Layout - SeeZee Studio Branded Admin Layout
- * Provides consistent layout for all admin pages
+ * Provides consistent layout for all admin pages with AdminAppShell
  */
 
-import { requireRole } from "@/lib/auth/requireRole";
+import { getCurrentUser } from "@/lib/auth/requireRole";
 import { ROLE } from "@/lib/role";
+import { redirect } from "next/navigation";
+import { AdminAppShell } from "@/components/admin/AdminAppShell";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
+  
   // Check auth at layout level to prevent any rendering before redirect
-  // Allow CEO, CFO, and all staff roles (FRONTEND, BACKEND, OUTREACH)
-  await requireRole([
-    ROLE.CEO,
-    ROLE.CFO,
-    ROLE.FRONTEND,
-    ROLE.BACKEND,
-    ROLE.OUTREACH,
-  ]);
+  if (!user) {
+    redirect("/login");
+  }
+  
+  // Allow anyone who isn't a CLIENT (CEO, CFO, FRONTEND, BACKEND, OUTREACH)
+  const allowedRoles = [ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH];
+  if (!allowedRoles.includes(user.role as any)) {
+    redirect("/no-access");
+  }
 
-  // Render children - each page will handle its own layout (AdminAppShell, etc.)
-  return <>{children}</>;
+  // Wrap all admin pages with AdminAppShell for consistent layout
+  return (
+    <AdminAppShell user={user}>
+      {children}
+    </AdminAppShell>
+  );
 }

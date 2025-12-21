@@ -390,62 +390,62 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
 
       {/* Edit Modal */}
       {editing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-lg p-6 max-w-md w-full mx-4 border border-white/10">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-seezee-navy-medium rounded-2xl p-6 max-w-md w-full mx-4 border border-white/10 shadow-2xl">
             <h2 className="text-xl font-semibold mb-4 text-white">Edit Lead</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   Name
                 </label>
                 <input
                   type="text"
                   value={editForm.name || ""}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg bg-seezee-card-bg border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   Email
                 </label>
                 <input
                   type="email"
                   value={editForm.email || ""}
                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg bg-seezee-card-bg border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   Phone
                 </label>
                 <input
                   type="tel"
                   value={editForm.phone || ""}
                   onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg bg-seezee-card-bg border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   Company
                 </label>
                 <input
                   type="text"
                   value={editForm.company || ""}
                   onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg bg-seezee-card-bg border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   Status
                 </label>
                 <select
                   value={editForm.status || "NEW"}
                   onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg bg-seezee-card-bg border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-seezee-red"
                 >
                   {statusOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -458,7 +458,7 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
             <div className="flex gap-2 mt-6">
               <button
                 onClick={handleSaveEdit}
-                className="flex-1 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-all"
+                className="flex-1 px-4 py-2 rounded-lg bg-seezee-red hover:bg-seezee-red/90 text-white font-medium transition-all shadow-lg shadow-seezee-red/25"
               >
                 Save
               </button>
@@ -467,7 +467,7 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
                   setEditing(null);
                   setEditForm({});
                 }}
-                className="flex-1 px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-medium transition-all"
+                className="flex-1 px-4 py-2 rounded-lg bg-seezee-card-bg hover:bg-white/10 text-white font-medium transition-all border border-white/10"
               >
                 Cancel
               </button>

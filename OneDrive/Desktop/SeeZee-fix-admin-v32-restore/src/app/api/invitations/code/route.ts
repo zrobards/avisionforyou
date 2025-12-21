@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 import { sendInviteEmail } from "@/lib/mailer";
 import { UserRole } from "@prisma/client";
 
-const CEO_EMAIL = "seanspm1007@gmail.com";
+const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "seezee.enterprises@gmail.com"];
 
 function generateSixDigit(): string {
   // Generate a random 6-digit number (000000–999999) with leading zeros
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const session = await auth();
     
     // Only CEO can create invitations
-    if (!session?.user || session.user.email !== CEO_EMAIL) {
+    if (!session?.user || !CEO_EMAILS.includes(session.user.email || "")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -146,7 +146,7 @@ export async function GET() {
     const session = await auth();
     
     // Only CEO can view invitations
-    if (!session?.user || session.user.email !== CEO_EMAIL) {
+    if (!session?.user || !CEO_EMAILS.includes(session.user.email || "")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 

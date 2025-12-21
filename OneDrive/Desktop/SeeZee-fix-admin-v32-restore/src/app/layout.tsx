@@ -7,6 +7,8 @@ import DebugHUD from '../components/ui/debug-hud'
 import { ClientAnimations } from '../components/ui/client-animations'
 import SidebarWrapper from '../components/shared/SidebarWrapper'
 import { Toaster } from '../components/ui/toaster'
+import { PasswordSetupPrompt } from '../components/PasswordSetupPrompt'
+import { CookieConsent } from '../components/shared/CookieConsent'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -192,15 +194,18 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <Providers>
+          {/* Check if user needs to set password (OAuth-only users) */}
+          <PasswordSetupPrompt />
+          
           {/* Sidebar and content wrapper */}
           <SidebarWrapper>
             {children}
@@ -209,6 +214,7 @@ export default function RootLayout({
           <ClientAnimations />
           <DebugHUD />
           <Toaster />
+          <CookieConsent />
         </Providers>
       </body>
     </html>

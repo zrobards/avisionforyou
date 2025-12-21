@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
 import { ArrowLeft, Building, Mail, Phone, DollarSign, Folder, FileText, Users, Calendar, MapPin, Globe, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import type { CurrentUser } from "@/lib/auth/requireRole";
@@ -72,8 +71,7 @@ export function ClientDetailClient({ clientData, user }: ClientDetailClientProps
   ).length;
 
   return (
-    <AdminAppShell user={user}>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -452,7 +450,6 @@ export function ClientDetailClient({ clientData, user }: ClientDetailClientProps
           </TabsContent>
         </Tabs>
       </div>
-    </AdminAppShell>
   );
 }
 

@@ -66,9 +66,9 @@
 }
 
 .stat-card:hover {
-  border-color: rgba(59, 130, 246, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .stat-value {
@@ -132,7 +132,7 @@
 }
 
 .admin-table tbody tr:hover {
-  background: rgba(59, 130, 246, 0.05);
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
 }
 
@@ -266,20 +266,21 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 12px;
+  background: #ef4444;
   color: #fff;
   font-size: 14px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .admin-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.9);
 }
 
 .admin-btn-secondary {
@@ -287,19 +288,19 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  border-radius: 10px;
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
   font-size: 14px;
   font-weight: 600;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .admin-btn-secondary:hover {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
 }
 
 .admin-btn-ghost {
@@ -337,9 +338,9 @@
 
 .admin-search-input:focus {
   outline: none;
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: rgba(239, 68, 68, 0.5);
   background: rgba(15, 23, 42, 0.6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 .admin-search-input::placeholder {
@@ -372,8 +373,8 @@
 }
 
 .admin-tab.active {
-  color: #60a5fa;
-  border-bottom-color: #3b82f6;
+  color: #ef4444;
+  border-bottom-color: #ef4444;
 }
 
 /* Empty States */
@@ -448,7 +449,7 @@
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, #ef4444, #22d3ee);
   border-radius: 4px;
   transition: width 0.3s ease;
 }

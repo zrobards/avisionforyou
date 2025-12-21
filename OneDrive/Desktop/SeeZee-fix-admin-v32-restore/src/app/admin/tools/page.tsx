@@ -3,7 +3,6 @@
  */
 
 import { ToolsClient } from "@/components/admin/ToolsClient";
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
 import { getCurrentUser } from "@/lib/auth/requireRole";
 import { prisma } from "@/lib/prisma";
 
@@ -38,10 +37,6 @@ export default async function ToolsPage() {
     updatedAt: tool.updatedAt.toISOString(),
   }));
 
-  return (
-    <AdminAppShell user={user}>
-      <ToolsClient tools={serializedTools} />
-    </AdminAppShell>
-  );
+  return <ToolsClient tools={serializedTools} />;
 }
 

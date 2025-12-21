@@ -82,7 +82,7 @@ export default function PipelineOverview() {
     return (
       <div className="space-y-8">
         <header className="space-y-3 relative">
-          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block mb-2">
+          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-seezee-red glow-on-hover inline-block mb-2">
             Growth Engine
           </span>
           <h1 className="text-4xl font-heading font-bold gradient-text">
@@ -90,7 +90,7 @@ export default function PipelineOverview() {
           </h1>
         </header>
         <div className="flex items-center justify-center py-12">
-          <div className="text-gray-400">Loading pipeline...</div>
+          <div className="text-slate-400">Loading pipeline...</div>
         </div>
       </div>
     );
@@ -101,7 +101,7 @@ export default function PipelineOverview() {
       <header className="space-y-3 relative">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block mb-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-seezee-red glow-on-hover inline-block mb-2">
               Growth Engine
             </span>
             <h1 className="text-4xl font-heading font-bold gradient-text">
@@ -110,12 +110,12 @@ export default function PipelineOverview() {
           </div>
           <Link
             href="/admin/pipeline/leads"
-            className="inline-flex items-center gap-2 rounded-lg border-2 border-trinity-red/40 bg-trinity-red/10 px-5 py-2.5 text-sm font-medium text-trinity-red transition-all hover:bg-trinity-red hover:text-white hover:shadow-large hover:border-trinity-red"
+            className="inline-flex items-center gap-2 rounded-xl border border-seezee-red/40 bg-seezee-red/10 px-5 py-2.5 text-sm font-medium text-seezee-red transition-all hover:bg-seezee-red hover:text-white hover:shadow-lg hover:shadow-seezee-red/25"
           >
             View All Leads →
           </Link>
         </div>
-        <p className="max-w-2xl text-base text-gray-300 leading-relaxed">
+        <p className="max-w-2xl text-base text-slate-400 leading-relaxed">
           Visualize deal flow at every stage—from discovery to signature. Stay ahead of follow-ups, velocity, and revenue forecasting.
         </p>
       </header>
@@ -125,32 +125,32 @@ export default function PipelineOverview() {
           label="Total Leads"
           value={totalLeads}
           icon={FiTrendingUp}
-          iconColor="text-trinity-red"
-          iconBgColor="bg-trinity-red/20"
+          iconColor="text-seezee-red"
+          iconBgColor="bg-seezee-red/20"
           subtitle="In pipeline"
         />
         <EnhancedStatCard
           label="Contacted"
           value={contacted}
           icon={FiUsers}
-          iconColor="text-purple-400"
-          iconBgColor="bg-purple-500/20"
+          iconColor="text-seezee-purple"
+          iconBgColor="bg-seezee-purple/20"
           subtitle="Active conversations"
         />
         <EnhancedStatCard
           label="Qualified"
           value={qualified}
           icon={FiCheckCircle}
-          iconColor="text-green-400"
-          iconBgColor="bg-green-500/20"
+          iconColor="text-seezee-green"
+          iconBgColor="bg-seezee-green/20"
           subtitle="Ready to propose"
         />
         <EnhancedStatCard
           label="Conversion Rate"
           value={`${conversionRate}%`}
           icon={FiPercent}
-          iconColor="text-blue-400"
-          iconBgColor="bg-blue-500/20"
+          iconColor="text-seezee-blue"
+          iconBgColor="bg-seezee-blue/20"
           subtitle={`${converted} converted`}
         />
       </section>

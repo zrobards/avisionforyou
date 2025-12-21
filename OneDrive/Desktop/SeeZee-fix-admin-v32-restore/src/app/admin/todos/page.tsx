@@ -1,5 +1,3 @@
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
-import { getCurrentUser } from "@/lib/auth/requireRole";
 import { TodosClient } from "@/components/admin/TodosClient";
 
 interface TodoRow {
@@ -13,11 +11,7 @@ interface TodoRow {
 export const dynamic = "force-dynamic";
 
 export default async function AdminTodosPage() {
-  const user = await getCurrentUser();
-  
-  if (!user) {
-    return null;
-  }
+  // Auth check is handled in layout.tsx to prevent flash
 
   const { getTasks } = await import("@/server/actions/tasks");
   const tasksResult = await getTasks({ status: "TODO" as any });
@@ -32,21 +26,19 @@ export default async function AdminTodosPage() {
   }));
 
   return (
-    <AdminAppShell user={user}>
-      <div className="space-y-8">
-        <header className="space-y-2">
-          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red">
-            Execution Queue
-          </span>
-          <h1 className="text-3xl font-heading font-bold text-white">Todos</h1>
-          <p className="max-w-2xl text-sm text-gray-400">
-            Focus mode for tasks that need action. Knock out deliverables, clear blockers, and keep velocity high.
-          </p>
-        </header>
+    <div className="space-y-8">
+      <header className="space-y-2">
+        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red">
+          Execution Queue
+        </span>
+        <h1 className="text-3xl font-heading font-bold text-white">Todos</h1>
+        <p className="max-w-2xl text-sm text-gray-400">
+          Focus mode for tasks that need action. Knock out deliverables, clear blockers, and keep velocity high.
+        </p>
+      </header>
 
-        <TodosClient rows={rows} />
-      </div>
-    </AdminAppShell>
+      <TodosClient rows={rows} />
+    </div>
   );
 }
 

@@ -89,35 +89,35 @@ export function ClientTasksClient({ rows, overdue, openTasks }: ClientTasksClien
   return (
     <>
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-2xl border-2 border-gray-700 glass-effect p-6 text-white hover:border-trinity-red/50 transition-all duration-300 group hover:shadow-large hover:-translate-y-1">
+        <div className="seezee-glass seezee-border-glow rounded-2xl p-6 text-white transition-all duration-300 group hover:-translate-y-1">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-semibold">Open Tasks</p>
-            <div className="w-10 h-10 bg-trinity-red/20 rounded-lg flex items-center justify-center border border-trinity-red/30">
-              <FiCheckSquare className="w-5 h-5 text-trinity-red" />
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-400 font-semibold">Open Tasks</p>
+            <div className="w-10 h-10 bg-seezee-red/20 rounded-lg flex items-center justify-center border border-seezee-red/30">
+              <FiCheckSquare className="w-5 h-5 text-seezee-red" />
             </div>
           </div>
           <p className="text-4xl font-heading font-bold text-white mb-1">{openTasks}</p>
-          <p className="text-xs text-gray-500">Active deliverables</p>
+          <p className="text-xs text-slate-500">Active deliverables</p>
         </div>
-        <div className="rounded-2xl border-2 border-gray-700 glass-effect p-6 text-white hover:border-trinity-red/50 transition-all duration-300 group hover:shadow-large hover:-translate-y-1">
+        <div className="seezee-glass seezee-border-glow rounded-2xl p-6 text-white transition-all duration-300 group hover:-translate-y-1">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-semibold">Overdue</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-400 font-semibold">Overdue</p>
             <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center border border-red-500/30">
               <FiFlag className="w-5 h-5 text-red-400" />
             </div>
           </div>
           <p className="text-4xl font-heading font-bold text-white mb-1">{overdue}</p>
-          <p className="text-xs text-gray-500">Needs attention</p>
+          <p className="text-xs text-slate-500">Needs attention</p>
         </div>
-        <div className="rounded-2xl border-2 border-gray-700 glass-effect p-6 text-white hover:border-trinity-red/50 transition-all duration-300 group hover:shadow-large hover:-translate-y-1">
+        <div className="seezee-glass seezee-border-glow rounded-2xl p-6 text-white transition-all duration-300 group hover:-translate-y-1">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-semibold">Total Tasks</p>
-            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-500/30">
-              <FiCalendar className="w-5 h-5 text-blue-400" />
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-400 font-semibold">Total Tasks</p>
+            <div className="w-10 h-10 bg-seezee-blue/20 rounded-lg flex items-center justify-center border border-seezee-blue/30">
+              <FiCalendar className="w-5 h-5 text-seezee-blue" />
             </div>
           </div>
           <p className="text-4xl font-heading font-bold text-white mb-1">{rows.length}</p>
-          <p className="text-xs text-gray-500">All time</p>
+          <p className="text-xs text-slate-500">All time</p>
         </div>
       </section>
 
@@ -125,14 +125,14 @@ export function ClientTasksClient({ rows, overdue, openTasks }: ClientTasksClien
         <h2 className="text-xl font-semibold text-white">All Client Tasks</h2>
         <button
           onClick={() => setShowAssignmentForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-trinity-red/20 hover:bg-trinity-red/30 text-trinity-red border border-trinity-red/40 rounded-lg transition-all text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-seezee-red hover:bg-seezee-red/90 text-white rounded-xl transition-all text-sm font-medium shadow-lg shadow-seezee-red/25"
         >
           <FiPlus className="w-4 h-4" />
           Create Assignment
         </button>
       </div>
 
-      <div className="glass-effect rounded-2xl border-2 border-gray-700 p-6 hover:border-trinity-red/30 transition-all duration-300">
+      <div className="seezee-glass rounded-2xl p-6 transition-all duration-300">
         <DataTable columns={columns} data={rows} emptyMessage="No tasks found" />
       </div>
 

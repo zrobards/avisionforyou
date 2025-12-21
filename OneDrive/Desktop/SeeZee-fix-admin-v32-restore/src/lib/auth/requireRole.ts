@@ -111,16 +111,23 @@ export async function requireRole(
 
   // Debug logging
   console.log(`[requireRole] User: ${user.email}, Role: ${user.role}, Allowed: ${allowedRoles.join(", ")}`);
+  console.log(`[requireRole] Role type: ${typeof user.role}, Allowed[0] type: ${typeof allowedRoles[0]}`);
+  console.log(`[requireRole] Strict equality check: ${user.role} === ${allowedRoles[0]} = ${user.role === allowedRoles[0]}`);
+  console.log(`[requireRole] Includes check: allowedRoles.includes(user.role) = ${allowedRoles.includes(user.role)}`);
 
   // CEO email always has access - bypass role check for admin routes
-  const CEO_EMAIL = "seanspm1007@gmail.com";
-  if (user.email === CEO_EMAIL || user.email === "seanpm1007@gmail.com") {
+  const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "seezee.enterprises@gmail.com"];
+  const isCEOEmail = CEO_EMAILS.includes(user.email || "");
+  console.log(`[requireRole] CEO email check: ${user.email} in [${CEO_EMAILS.join(", ")}] = ${isCEOEmail}`);
+  
+  if (isCEOEmail) {
     // If accessing admin routes, allow access
     if (allowedRoles.includes("CEO") || 
         allowedRoles.includes("CFO") || 
         allowedRoles.includes("FRONTEND") || 
         allowedRoles.includes("BACKEND") || 
         allowedRoles.includes("OUTREACH")) {
+      console.log(`[requireRole] ✅ CEO email bypass - granting access`);
       // Return user with CEO role for admin access
       return {
         ...user,

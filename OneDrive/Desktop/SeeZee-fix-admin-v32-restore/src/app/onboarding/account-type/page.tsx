@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Building2, Briefcase, CheckCircle2, Loader2, Lock } from "lucide-react";
 
 export default function AccountTypePage() {
-  const { data: session, update } = useSession();
+  const { data: session, update, status } = useSession();
   const router = useRouter();
 
   const [selectedType, setSelectedType] = useState<"CLIENT" | "WORKER" | null>(null);
@@ -15,6 +15,35 @@ export default function AccountTypePage() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState<string | null>(null);
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
+  const [isChecking, setIsChecking] = useState(true);
+
+  // Skip this page if user already has a role set
+  useEffect(() => {
+    if (status === "loading") {
+      setIsChecking(true);
+      return;
+    }
+
+    // If user has a role that's not CLIENT (the default), they've already selected
+    if (session?.user?.role && session.user.role !== "CLIENT") {
+      // User already has a staff role, redirect to next onboarding step
+      router.push("/onboarding/tos");
+    } else {
+      setIsChecking(false);
+    }
+  }, [session, status, router]);
+
+  // Show loading state while checking session
+  if (isChecking || status === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-400 animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSelectClient = async () => {
     setIsLoading(true);

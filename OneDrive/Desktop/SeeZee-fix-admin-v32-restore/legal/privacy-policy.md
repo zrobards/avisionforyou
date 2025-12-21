@@ -69,3 +69,5 @@ To make a request, contact us using the information below.
 
 *This Privacy Policy is written in plain English to ensure accessibility for all users. If you need any clarification or have questions, please don't hesitate to reach out.*
 
+
+

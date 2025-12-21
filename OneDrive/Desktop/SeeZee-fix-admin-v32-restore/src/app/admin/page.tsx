@@ -3,8 +3,6 @@
  * Main admin command center with stats, activities, tasks, and leads
  */
 
-import { getCurrentUser } from "@/lib/auth/requireRole";
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
 import { DashboardClient } from "@/components/admin/DashboardClient";
 import { getPipeline, getProjects, getInvoices } from "@/server/actions/pipeline";
 import { getTasks, getTaskStats } from "@/server/actions/tasks";
@@ -14,13 +12,6 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   // Auth check is handled in layout.tsx to prevent flash
-  // Just get the user for display purposes
-  const user = await getCurrentUser();
-  
-  if (!user) {
-    // This shouldn't happen since layout checks auth, but just in case
-    return null;
-  }
 
   // Fetch all data in parallel
   const [
@@ -128,14 +119,12 @@ export default async function AdminDashboardPage() {
   };
 
   return (
-    <AdminAppShell user={user}>
-      <DashboardClient
-        stats={stats}
-        activities={transformedActivities}
-        topTasks={topTasks}
-        recentLeads={recentLeads}
-        metrics={metrics}
-      />
-    </AdminAppShell>
+    <DashboardClient
+      stats={stats}
+      activities={transformedActivities}
+      topTasks={topTasks}
+      recentLeads={recentLeads}
+      metrics={metrics}
+    />
   );
 }

@@ -70,15 +70,10 @@ export async function middleware(req: NextRequest) {
     }
 
     // Read NextAuth JWT (edge-safe, no Prisma)
-    // Let getToken use NextAuth's internal secret resolution
-    // and match the secureCookie behavior for production HTTPS
     const token = await getToken({
       req,
       secureCookie: process.env.NODE_ENV === 'production',
     });
-
-    // TEMP DEBUG: log what we see in prod
-    console.log('🔐 Middleware token:', token ? 'present' : 'null', 'for path:', pathname);
 
     const isLoggedIn = !!token;
 
@@ -88,8 +83,60 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // User is authenticated
-    console.log(`✅ Middleware: User ${token?.email} authenticated, allowing access to ${pathname}`);
+    // Define special route types
+    const isVerificationRoute = pathname.startsWith('/verify-email') || pathname.startsWith('/auth/verify-email');
+    const isSetPasswordRoute = pathname.startsWith('/set-password');
+    
+    // Check onboarding completion flags (optimized format: "1" = completed, null = not completed)
+    const tosAccepted = token.tosAccepted === true;
+    const profileDone = token.profileDone === true;
+    
+    // Onboarding flow: ToS → Profile → Dashboard
+    if (!tosAccepted && !pathname.startsWith('/onboarding/tos')) {
+      return NextResponse.redirect(new URL('/onboarding/tos', req.url));
+    }
+    
+    if (tosAccepted && !profileDone && !pathname.startsWith('/onboarding/profile')) {
+      return NextResponse.redirect(new URL('/onboarding/profile', req.url));
+    }
+    
+    // If onboarding complete, redirect away from onboarding pages
+    if (tosAccepted && profileDone && isOnboardingRoute) {
+      const role = token.role as string;
+      const dashboardUrl = role === 'CEO' || role === 'ADMIN' ? '/admin' : '/client';
+      return NextResponse.redirect(new URL(dashboardUrl, req.url));
+    }
+    
+    // Check email verification (except for verification and onboarding routes)
+    // Onboarding is allowed because OAuth users are auto-verified
+    if (!isVerificationRoute && !isOnboardingRoute && !token.emailVerified) {
+      const verifyUrl = new URL('/verify-email', req.url);
+      verifyUrl.searchParams.set('returnUrl', pathname);
+      verifyUrl.searchParams.set('email', token.email as string);
+      return NextResponse.redirect(verifyUrl);
+    }
+
+    // Check if user needs to set a password (OAuth-only users)
+    // Skip this check for set-password route and onboarding (password is optional for OAuth)
+    if (!isSetPasswordRoute && !isOnboardingRoute && token.needsPassword === true) {
+      const setPasswordUrl = new URL('/set-password', req.url);
+      return NextResponse.redirect(setPasswordUrl);
+    }
+    
+    // Role-based route protection
+    if (isAdminRoute) {
+      const role = token.role as string;
+      if (role !== 'CEO' && role !== 'ADMIN') {
+        return NextResponse.redirect(new URL('/client', req.url));
+      }
+    }
+    
+    if (isClientRoute) {
+      const role = token.role as string;
+      if (role !== 'CLIENT') {
+        return NextResponse.redirect(new URL('/admin', req.url));
+      }
+    }
 
     return NextResponse.next();
   } catch (err) {
@@ -107,6 +154,8 @@ export const config = {
     '/ceo/:path*',
     '/portal/:path*',
     '/onboarding/:path*',
+    '/verify-email',  // Allow access to verification page
+    '/set-password',  // Allow access to set password page
     '/api/((?!auth).*)',  // All API routes except auth
   ],
 };

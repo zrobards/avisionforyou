@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { formatPhoneNumber, getPhoneDigits, isValidPhoneNumber } from '@/lib/phone-format'
 
 interface ContactData {
   name: string
@@ -39,9 +40,9 @@ export function ContactStep({ data, onUpdate, onNext, onPrev }: ContactStepProps
     }
 
     if (formData.phone && formData.phone.trim()) {
-      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
-      if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
-        newErrors.phone = 'Please enter a valid phone number'
+      const digits = getPhoneDigits(formData.phone);
+      if (digits.length > 0 && digits.length !== 10) {
+        newErrors.phone = 'Please enter a valid 10-digit phone number'
       }
     }
 
@@ -50,7 +51,13 @@ export function ContactStep({ data, onUpdate, onNext, onPrev }: ContactStepProps
   }
 
   const handleInputChange = (field: keyof ContactData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    // Format phone number as user types
+    if (field === 'phone') {
+      const formatted = formatPhoneNumber(value);
+      setFormData(prev => ({ ...prev, [field]: formatted }))
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }))
+    }
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }))

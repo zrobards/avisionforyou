@@ -5,6 +5,12 @@
   "framework": "nextjs",
   "regions": ["iad1"],
   "outputDirectory": ".next",
+  "crons": [
+    {
+      "path": "/api/cron/event-reminders",
+      "schedule": "0 9 * * *"
+    }
+  ],
   "redirects": [
     {
       "source": "/:path*",

@@ -5,8 +5,6 @@ import { useSession } from "next-auth/react";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { FiTrash2, FiMail, FiUser, FiCalendar, FiDollarSign } from "react-icons/fi";
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
-import type { CurrentUser } from "@/lib/auth/requireRole";
 
 interface ProjectRequestRow {
   id: string;
@@ -156,24 +154,21 @@ export default function AdminProjectRequestsPage() {
 
   if (loading) {
     return (
-      <AdminAppShell user={session.user as CurrentUser}>
-        <div className="space-y-8">
-          <header className="space-y-3 relative">
-            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
-              Client Management
-            </span>
-            <h1 className="text-4xl font-heading font-bold gradient-text">Project Requests</h1>
-          </header>
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-400">Loading project requests...</div>
-          </div>
+      <div className="space-y-8">
+        <header className="space-y-3 relative">
+          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
+            Client Management
+          </span>
+          <h1 className="text-4xl font-heading font-bold gradient-text">Project Requests</h1>
+        </header>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-400">Loading project requests...</div>
         </div>
-      </AdminAppShell>
+      </div>
     );
   }
 
   return (
-    <AdminAppShell user={session.user as CurrentUser}>
       <div className="space-y-8">
         <header className="space-y-3 relative">
           <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
@@ -212,7 +207,6 @@ export default function AdminProjectRequestsPage() {
           <DataTable columns={columns} data={rows} emptyMessage="No project requests found" />
         </div>
       </div>
-    </AdminAppShell>
   );
 }
 

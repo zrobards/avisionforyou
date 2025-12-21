@@ -13,8 +13,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Only CEO and CFO can view team
-    if (session.user.role !== "CEO" && session.user.role !== "CFO") {
+    // Only non-client roles can view team (CEO, CFO, FRONTEND, BACKEND, OUTREACH)
+    const allowedRoles = ["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"];
+    if (!session.user.role || !allowedRoles.includes(session.user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

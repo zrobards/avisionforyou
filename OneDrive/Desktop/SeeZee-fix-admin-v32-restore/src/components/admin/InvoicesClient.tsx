@@ -39,10 +39,10 @@ interface InvoicesClientProps {
 
 const statusColors: Record<string, string> = {
   DRAFT: "bg-slate-500/20 text-slate-400 border-slate-500/30",
-  SENT: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  PAID: "bg-green-500/20 text-green-400 border-green-500/30",
-  OVERDUE: "bg-red-500/20 text-red-400 border-red-500/30",
-  CANCELLED: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+  SENT: "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30",
+  PAID: "bg-[#10b981]/20 text-[#10b981] border-[#10b981]/30",
+  OVERDUE: "bg-[#ef4444]/20 text-[#ef4444] border-[#ef4444]/30",
+  CANCELLED: "bg-slate-500/20 text-slate-400 border-slate-500/30",
 };
 
 const statusLabels: Record<string, string> = {
@@ -288,17 +288,17 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
         columns={columns}
         searchPlaceholder="Search invoices..."
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={handleExport}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white text-sm font-medium transition-all"
             >
               <Download className="w-4 h-4" />
               Export
             </button>
             <button
               onClick={handleCreateInvoice}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#ef4444] hover:bg-[#dc2626] text-white text-sm font-semibold transition-all shadow-lg shadow-[#ef4444]/25 hover:shadow-xl hover:-translate-y-0.5"
             >
               <Plus className="w-4 h-4" />
               Create Invoice
@@ -310,23 +310,23 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
 
       {/* Edit Modal */}
       {editing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-lg p-6 max-w-md w-full mx-4 border border-white/10">
-            <h2 className="text-xl font-semibold mb-4 text-white">Edit Invoice</h2>
+        <div className="fixed inset-0 bg-[#0a1128]/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] rounded-2xl p-6 max-w-md w-full mx-4 border border-white/10 shadow-2xl">
+            <h2 className="text-xl font-heading font-bold mb-6 text-white">Edit Invoice</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-white mb-2">
                   Title
                 </label>
                 <input
                   type="text"
                   value={editForm.title || ""}
                   onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a]/60 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[#22d3ee]/30 focus:border-[#22d3ee]/50 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-white mb-2">
                   Amount
                 </label>
                 <input
@@ -337,17 +337,17 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
                     const val = parseFloat(e.target.value) || 0;
                     setEditForm({ ...editForm, amount: val, total: val });
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a]/60 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[#22d3ee]/30 focus:border-[#22d3ee]/50 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-white mb-2">
                   Status
                 </label>
                 <select
                   value={editForm.status || "DRAFT"}
                   onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a]/60 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[#22d3ee]/30 focus:border-[#22d3ee]/50 transition-all"
                 >
                   {Object.entries(statusLabels).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -357,7 +357,7 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">
+                <label className="block text-sm font-medium text-white mb-2">
                   Due Date
                 </label>
                 <input
@@ -370,25 +370,25 @@ export function InvoicesClient({ invoices: initialInvoices }: InvoicesClientProp
                   onChange={(e) =>
                     setEditForm({ ...editForm, dueDate: new Date(e.target.value) })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a]/60 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[#22d3ee]/30 focus:border-[#22d3ee]/50 transition-all"
                 />
               </div>
             </div>
-            <div className="flex gap-2 mt-6">
-              <button
-                onClick={handleSaveEdit}
-                className="flex-1 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-all"
-              >
-                Save
-              </button>
+            <div className="flex gap-3 mt-6">
               <button
                 onClick={() => {
                   setEditing(null);
                   setEditForm({});
                 }}
-                className="flex-1 px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-medium transition-all"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium transition-all"
               >
                 Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-[#ef4444] hover:bg-[#dc2626] text-white font-semibold transition-all shadow-lg shadow-[#ef4444]/25"
+              >
+                Save Changes
               </button>
             </div>
           </div>

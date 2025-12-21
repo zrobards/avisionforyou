@@ -14,7 +14,7 @@ import { logActivity } from "./activity";
  * Get all clients/organizations with their projects and invoices
  */
 export async function getClients() {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const organizations = await db.organization.findMany({
@@ -69,7 +69,7 @@ export async function createClient(data: {
   zip?: string;
   country?: string;
 }) {
-  const user = await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     // Generate unique slug
@@ -127,7 +127,7 @@ export async function updateClient(
     country?: string;
   }
 ) {
-  const user = await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const client = await db.organization.findUnique({

@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { FiUpload, FiX, FiAlertCircle } from 'react-icons/fi';
 import { ServiceCategory } from '@prisma/client';
 import { getServiceCategoryDisplayName } from '@/lib/service-mapping';
+import { formatPhoneNumber } from '@/lib/phone-format';
 
 interface ContactIntakeFormProps {
   serviceType: ServiceCategory;
@@ -171,9 +172,11 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    // Format phone number as user types
+    const formattedValue = name === 'phone' ? formatPhoneNumber(value) : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: formattedValue,
     }));
   };
 

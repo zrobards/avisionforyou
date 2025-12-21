@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { getProjects } from "@/server/actions";
-import { FiCalendar, FiUsers } from "react-icons/fi";
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
-import type { CurrentUser } from "@/lib/auth/requireRole";
+import { FiCalendar, FiUsers, FiTrash2, FiEdit } from "react-icons/fi";
 
 interface ProjectRow {
   id: string;
@@ -27,8 +26,10 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 export default function AdminProjectsPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProjects() {
@@ -38,6 +39,32 @@ export default function AdminProjectsPage() {
     }
     loadProjects();
   }, []);
+
+  const handleDelete = async (projectId: string, projectName: string) => {
+    if (!confirm(`Are you sure you want to delete "${projectName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setDeleting(projectId);
+    try {
+      const response = await fetch(`/api/admin/projects/${projectId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to delete project");
+      }
+
+      // Remove from local state
+      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+    } catch (error: any) {
+      console.error("Failed to delete project:", error);
+      alert(`Failed to delete project: ${error.message}`);
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const rows: ProjectRow[] = projects.map((project: any) => ({
     id: project.id,
@@ -95,6 +122,36 @@ export default function AdminProjectsPage() {
         </div>
       ),
     },
+    {
+      header: "Actions",
+      key: "actions",
+      className: "w-32",
+      render: (project) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/admin/projects/${project.id}`);
+            }}
+            className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
+            title="View/Edit Project"
+          >
+            <FiEdit className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(project.id, project.name);
+            }}
+            disabled={deleting === project.id}
+            className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Delete Project"
+          >
+            <FiTrash2 className="w-4 h-4" />
+          </button>
+        </div>
+      ),
+    },
   ];
 
   const totalBudget = rows.reduce((sum, project) => sum + (project.budget ?? 0), 0);
@@ -106,24 +163,21 @@ export default function AdminProjectsPage() {
 
   if (loading) {
     return (
-      <AdminAppShell user={session.user as CurrentUser}>
-        <div className="space-y-8">
-          <header className="space-y-3 relative">
-            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
-              Delivery Operations
-            </span>
-            <h1 className="text-4xl font-heading font-bold gradient-text">Projects</h1>
-          </header>
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-400">Loading projects...</div>
-          </div>
+      <div className="space-y-8">
+        <header className="space-y-3 relative">
+          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
+            Delivery Operations
+          </span>
+          <h1 className="text-4xl font-heading font-bold gradient-text">Projects</h1>
+        </header>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-400">Loading projects...</div>
         </div>
-      </AdminAppShell>
+      </div>
     );
   }
 
   return (
-    <AdminAppShell user={session.user as CurrentUser}>
       <div className="space-y-8">
         <header className="space-y-3 relative">
           <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
@@ -169,10 +223,15 @@ export default function AdminProjectsPage() {
         </section>
 
         <div className="glass-effect rounded-2xl border-2 border-gray-700 p-6 hover:border-trinity-red/30 transition-all duration-300">
-          <DataTable columns={columns} data={rows} emptyMessage="No projects found" />
+          <div className="overflow-x-auto">
+            <DataTable 
+              columns={columns} 
+              data={rows} 
+              emptyMessage="No projects found"
+            />
+          </div>
         </div>
       </div>
-    </AdminAppShell>
   );
 }
 

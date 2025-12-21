@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth/requireRole";
 import { ROLE } from "@/lib/role";
 import { db } from "@/server/db";
 import { CalendarClient } from "@/components/admin/CalendarClient";
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
+import { startOfMonth, endOfMonth, addMonths } from "date-fns";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +21,25 @@ export default async function CalendarPage() {
   // Fetch all tasks across the organization (for CEO/CFO)
   // or just user's tasks (for staff)
   const isCEOorAdmin = user.role === ROLE.CEO || user.role === ROLE.CFO;
+
+  // Fetch calendar events (new model)
+  const now = new Date();
+  const calendarRangeStart = startOfMonth(now);
+  const calendarRangeEnd = endOfMonth(addMonths(now, 3));
+
+  const calendarEvents = await db.calendarEvent.findMany({
+    where: {
+      startTime: {
+        gte: calendarRangeStart,
+        lte: calendarRangeEnd,
+      },
+    },
+    include: {
+      organization: { select: { id: true, name: true } },
+      project: { select: { id: true, name: true } },
+    },
+    orderBy: { startTime: "asc" },
+  });
 
   const tasks = await db.todo.findMany({
     where: isCEOorAdmin ? {} : { assignedToId: user.id },
@@ -123,19 +142,17 @@ export default async function CalendarPage() {
   }));
 
   return (
-    <AdminAppShell user={user}>
-      <CalendarClient
-        tasks={tasks}
-        maintenanceSchedules={maintenanceSchedules}
-        projects={serializedProjects}
-        currentUser={{
-          id: user.id,
-          name: user.name,
-          email: user.email || "",
-          role: user.role,
-        }}
-        viewMode={isCEOorAdmin ? "organization" : "personal"}
-      />
-    </AdminAppShell>
+    <CalendarClient
+      tasks={tasks}
+      maintenanceSchedules={maintenanceSchedules}
+      projects={serializedProjects}
+      currentUser={{
+        id: user.id,
+        name: user.name,
+        email: user.email || "",
+        role: user.role,
+      }}
+      viewMode={isCEOorAdmin ? "organization" : "personal"}
+    />
   );
 }

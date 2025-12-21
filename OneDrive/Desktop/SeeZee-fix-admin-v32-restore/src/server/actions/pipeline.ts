@@ -55,7 +55,7 @@ function normalizeInvoiceStatus(status: string): InvoiceStatus {
  * Get all leads organized by pipeline stage
  */
 export async function getPipeline() {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const [leads, projectRequests] = await Promise.all([
@@ -136,7 +136,7 @@ export async function getPipeline() {
  * Update lead status (move in pipeline)
  */
 export async function updateLeadStatus(leadId: string, newStatus: LeadStatus) {
-  const user = await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const lead = await db.lead.findUnique({
@@ -184,7 +184,7 @@ export async function updateLeadStatus(leadId: string, newStatus: LeadStatus) {
  * Get single lead details
  */
 export async function getLeadDetails(leadId: string) {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const lead = await db.lead.findUnique({
@@ -210,7 +210,7 @@ export async function getLeadDetails(leadId: string) {
  * Add notes to a lead
  */
 export async function updateLeadNotes(leadId: string, notes: string) {
-  const user = await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const lead = await db.lead.update({
@@ -232,7 +232,7 @@ export async function updateLeadNotes(leadId: string, notes: string) {
  * Get all projects
  */
 export async function getProjects() {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const projects = await db.project.findMany({
@@ -297,7 +297,7 @@ export async function createInvoiceFromProject(projectId: string, data: {
   amount: number;
   dueDate: Date;
 }) {
-  const user = await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const project = await db.project.findUnique({
@@ -453,7 +453,7 @@ export async function createInvoiceWithLineItems(data: {
  * Get all invoices
  */
 export async function getInvoices() {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const invoices = await db.invoice.findMany({

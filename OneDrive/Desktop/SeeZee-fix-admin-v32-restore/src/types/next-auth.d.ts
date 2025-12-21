@@ -9,6 +9,7 @@ declare module "next-auth" {
       tosAcceptedAt: string | null;
       profileDoneAt: string | null;
       questionnaireCompleted: string | null;
+      needsPassword?: boolean;
     } & DefaultSession["user"];
   }
 
@@ -22,10 +23,12 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id: string;
-    role: UserRole;
-    tosAcceptedAt: string | null;
-    profileDoneAt: string | null;
-    questionnaireCompleted: string | null;
+    id?: string;
+    role?: UserRole | string;
+    tosAccepted?: boolean;
+    profileDone?: boolean;
+    questionnaireCompleted?: boolean;
+    emailVerified?: boolean;
+    needsPassword?: boolean;
   }
 }

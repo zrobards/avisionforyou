@@ -30,11 +30,7 @@ export async function listTeam() {
     };
     
     const users = await db.user.findMany({
-      where: {
-        role: {
-          not: "CLIENT" // Exclude CLIENT users from team management
-        }
-      },
+      // Include all users (team members AND clients) - filtering done in UI
       orderBy: { name: "asc" },
       select: {
         id: true,
@@ -70,7 +66,7 @@ export async function listTeam() {
  * @param role - New role to assign
  */
 export async function updateRole(userId: string, role: UserRole) {
-  await requireRole([ROLE.CFO]);
+  await requireRole([ROLE.CEO, ROLE.CFO]);
   
   try {
     const user = await db.user.update({

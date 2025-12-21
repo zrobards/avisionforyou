@@ -80,15 +80,15 @@ export function CEODashboardClient({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red">
-                CEO Command Center
+              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-seezee-red">
+                CEO Dashboard
               </span>
               <h1 className="text-3xl font-heading font-bold text-white">Team Management</h1>
             </div>
           </div>
           
           {/* Tabs */}
-          <div className="flex gap-2 border-b border-gray-800">
+          <div className="flex gap-2 border-b border-white/10">
             {[
               { id: "overview" as DashboardTab, label: "Overview", icon: BarChart3 },
               { id: "team" as DashboardTab, label: "Team Management", icon: Users },
@@ -99,8 +99,8 @@ export function CEODashboardClient({
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? "border-trinity-red text-trinity-red"
-                    : "border-transparent text-gray-400 hover:text-white"
+                    ? "border-seezee-red text-seezee-red"
+                    : "border-transparent text-slate-400 hover:text-white"
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -128,15 +128,15 @@ export function CEODashboardClient({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red">
-                CEO Command Center
+              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-seezee-red">
+                CEO Dashboard
               </span>
               <h1 className="text-3xl font-heading font-bold text-white">Learning Hub Management</h1>
             </div>
           </div>
           
           {/* Tabs */}
-          <div className="flex gap-2 border-b border-gray-800">
+          <div className="flex gap-2 border-b border-white/10">
             {[
               { id: "overview" as DashboardTab, label: "Overview", icon: BarChart3 },
               { id: "team" as DashboardTab, label: "Team Management", icon: Users },
@@ -147,8 +147,8 @@ export function CEODashboardClient({
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? "border-trinity-red text-trinity-red"
-                    : "border-transparent text-gray-400 hover:text-white"
+                    ? "border-seezee-red text-seezee-red"
+                    : "border-transparent text-slate-400 hover:text-white"
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -258,7 +258,7 @@ export function CEODashboardClient({
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-gray-800">
+        <div className="flex gap-2 border-b border-white/10">
           {[
             { id: "overview" as DashboardTab, label: "Overview", icon: BarChart3 },
             { id: "team" as DashboardTab, label: "Team Management", icon: Users },
@@ -269,8 +269,8 @@ export function CEODashboardClient({
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
                 activeTab === tab.id
-                  ? "border-trinity-red text-trinity-red"
-                  : "border-transparent text-gray-400 hover:text-white"
+                  ? "border-seezee-red text-seezee-red"
+                  : "border-transparent text-slate-400 hover:text-white"
               }`}
             >
               <tab.icon className="h-4 w-4" />

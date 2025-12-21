@@ -19,6 +19,7 @@ interface AdminProjectDetailClientProps {
     endDate: Date | null;
     createdAt: Date;
     githubRepo: string | null;
+    vercelUrl: string | null;
     assignee: {
       id: string;
       name: string | null;
@@ -384,6 +385,7 @@ export function AdminProjectDetailClient({ project }: AdminProjectDetailClientPr
               description: project.description,
               status: project.status,
               githubRepo: project.githubRepo,
+              vercelUrl: project.vercelUrl,
               questionnaire: project.questionnaire,
             }}
             assignee={project.assignee}
@@ -463,6 +465,8 @@ export function AdminProjectDetailClient({ project }: AdminProjectDetailClientPr
     </div>
   );
 }
+
+
 
 
 

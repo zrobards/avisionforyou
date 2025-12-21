@@ -4,7 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { feedHelpers } from "@/lib/feed/emit";
-import { ProjectStatus, InvoiceStatus, PaymentStatus, LeadStatus } from "@prisma/client";
+import { ProjectStatus, InvoiceStatus, PaymentStatus, LeadStatus, ServiceCategory } from "@prisma/client";
+
+// Map package types to ServiceCategory
+const packageToServiceType: Record<string, ServiceCategory> = {
+  starter: ServiceCategory.PERSONAL_WEBSITE,
+  pro: ServiceCategory.BUSINESS_WEBSITE,
+  elite: ServiceCategory.NONPROFIT_WEBSITE,
+};
 
 interface CreateTestProjectParams {
   name: string;
@@ -100,7 +107,7 @@ export async function createTestProject(params: CreateTestProjectParams) {
         company: company || null,
         phone: phone || null,
         message: `Test ${packageType} package project - Created for practice/testing purposes`,
-        serviceType: packageType,
+        serviceType: packageToServiceType[packageType],
         status: LeadStatus.CONVERTED,
         convertedAt: new Date(),
         organizationId: organization.id,
@@ -118,7 +125,7 @@ export async function createTestProject(params: CreateTestProjectParams) {
         organizationId: organization.id,
         leadId: lead.id,
         budget: finalTotalAmount.toString(),
-        status: ProjectStatus.PAID,
+        status: ProjectStatus.ACTIVE,
         milestones: {
           create: [
             {
@@ -215,7 +222,7 @@ export async function createTestProject(params: CreateTestProjectParams) {
       data: {
         title: "Welcome to SeeZee Studio! (Test Project)",
         message: `Your test project has been successfully created. This is a practice/test project for testing purposes.`,
-        type: "SYSTEM_ALERT",
+        type: "INFO",
         userId: user.id,
       },
     });

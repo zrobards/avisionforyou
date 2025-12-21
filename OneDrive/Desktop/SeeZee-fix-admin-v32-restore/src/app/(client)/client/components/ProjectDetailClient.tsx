@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Calendar, CheckCircle2, Clock, DollarSign, User, FileText, ListTodo, History as TimelineIcon, Folder, Download, Eye, Upload, MessageSquare, Send, CreditCard, Plus, Target, Settings, Github } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -112,6 +112,7 @@ interface ProjectDetailClientProps {
       createdAt: Date;
     }>;
     githubRepo?: string | null;
+    vercelUrl?: string | null;
     files?: Array<{
       id: string;
       name: string;
@@ -166,7 +167,18 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const [messageFilter, setMessageFilter] = useState<'all' | 'messages' | 'files' | 'milestones'>('all');
   const [newMessage, setNewMessage] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [messages, setMessages] = useState(project.messageThreads?.[0]?.messages || []);
+  const [currentThreadId, setCurrentThreadId] = useState(project.messageThreads?.[0]?.id);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update messages when thread changes
+  useEffect(() => {
+    const thread = project.messageThreads?.[0];
+    if (thread) {
+      setMessages(thread.messages || []);
+      setCurrentThreadId(thread.id);
+    }
+  }, [project.messageThreads?.[0]?.id]);
 
   const getStatusBadge = (status: string) => {
     const config = {
@@ -557,7 +569,9 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
         const requests = project.requests || [];
         
         const getRequestStatusBadge = (status: string) => {
+          const statusUpper = status.toUpperCase();
           const config: Record<string, { bg: string; text: string; border: string; label: string }> = {
+            NEW: { bg: "bg-slate-500/20", text: "text-slate-300", border: "border-slate-500/30", label: "New" },
             DRAFT: { bg: "bg-slate-500/20", text: "text-slate-300", border: "border-slate-500/30", label: "Draft" },
             SUBMITTED: { bg: "bg-blue-500/20", text: "text-blue-300", border: "border-blue-500/30", label: "Submitted" },
             REVIEWING: { bg: "bg-amber-500/20", text: "text-amber-300", border: "border-amber-500/30", label: "Under Review" },
@@ -565,7 +579,7 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
             APPROVED: { bg: "bg-emerald-500/20", text: "text-emerald-300", border: "border-emerald-500/30", label: "Approved" },
             REJECTED: { bg: "bg-red-500/20", text: "text-red-300", border: "border-red-500/30", label: "Rejected" },
           };
-          return config[status] || { bg: "bg-gray-500/20", text: "text-gray-300", border: "border-gray-500/30", label: status };
+          return config[statusUpper] || { bg: "bg-gray-500/20", text: "text-gray-300", border: "border-gray-500/30", label: status };
         };
         
         return (
@@ -621,9 +635,6 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
         );
 
       case "messages":
-        const thread = project.messageThreads?.[0];
-        const messages = thread?.messages || [];
-        
         const handleSendMessage = async () => {
           if (!newMessage.trim() || sendingMessage) return;
           
@@ -633,15 +644,35 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                threadId: thread?.id,
+                threadId: currentThreadId,
                 projectId: project.id,
                 content: newMessage.trim(),
               }),
             });
             
             if (response.ok) {
+              const data = await response.json();
               setNewMessage("");
-              window.location.reload(); // Refresh to show new message
+              
+              // If a new thread was created, update the thread ID
+              if (!currentThreadId && data.threadId) {
+                setCurrentThreadId(data.threadId);
+              }
+              
+              // Refresh messages
+              const threadId = currentThreadId || data.threadId;
+              if (threadId) {
+                const messagesResponse = await fetch(`/api/messages/${threadId}`);
+                if (messagesResponse.ok) {
+                  const messagesData = await messagesResponse.json();
+                  setMessages(messagesData);
+                } else {
+                  // Fallback: reload page if fetch fails
+                  window.location.reload();
+                }
+              } else {
+                window.location.reload();
+              }
             } else {
               const error = await response.json();
               alert(error.error || "Failed to send message");
@@ -816,9 +847,10 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
               name: project.name,
               description: project.description,
               status: project.status,
-              githubRepo: project.githubRepo || null,
-              questionnaire: project.questionnaire,
-            }}
+            githubRepo: project.githubRepo || null,
+            vercelUrl: project.vercelUrl || null,
+            questionnaire: project.questionnaire,
+          }}
             assignee={project.assignee}
             isAdmin={false}
           />

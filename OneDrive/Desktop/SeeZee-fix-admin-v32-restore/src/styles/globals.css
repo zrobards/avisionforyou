@@ -697,6 +697,63 @@ html.light body {
 :root{
   --sidebar-w: 16rem;   /* sidebar width (256px) */
   --sidebar-w-collapsed: 5rem;   /* collapsed sidebar width (80px) */
+  
+  /* Admin Dashboard Navy Theme */
+  --admin-bg-primary: #0a1128;
+  --admin-bg-secondary: #0f172a;
+  --admin-bg-card: #1e293b;
+  --admin-border: rgba(255, 255, 255, 0.1);
+  --admin-border-hover: rgba(255, 255, 255, 0.2);
+  
+  /* Admin Accent Colors */
+  --admin-red: #ef4444;
+  --admin-cyan: #22d3ee;
+  --admin-blue: #3b82f6;
+  --admin-green: #10b981;
+  --admin-yellow: #f59e0b;
+  --admin-purple: #a855f7;
+}
+
+/* Admin Dashboard Glass Effect */
+.admin-glass {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+.admin-glass:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Admin Card with subtle gradient */
+.admin-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.admin-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-4px);
+}
+
+/* Admin subtle glow effects */
+.admin-glow-cyan {
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.1), 0 0 60px rgba(34, 211, 238, 0.05);
+}
+
+.admin-glow-red {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.1), 0 0 60px rgba(239, 68, 68, 0.05);
+}
+
+.admin-glow-green {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.1), 0 0 60px rgba(16, 185, 129, 0.05);
 }
 
 /* Bus Red color aliases */
@@ -981,4 +1038,141 @@ html.light body {
   background-position: center;
 }
 
+/* ===== SETTINGS PAGE GLASSMORPHISM UTILITIES ===== */
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Settings glass accent colors */
+.settings-glow-violet {
+  box-shadow: 
+    0 0 40px rgba(139, 92, 246, 0.15),
+    0 0 80px rgba(139, 92, 246, 0.08);
+}
+
+.settings-glow-fuchsia {
+  box-shadow: 
+    0 0 40px rgba(217, 70, 239, 0.15),
+    0 0 80px rgba(217, 70, 239, 0.08);
+}
+
+/* Animated gradient border for profile */
+@keyframes gradient-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animated-border {
+  position: relative;
+  border-radius: 50%;
+}
+
+.animated-border::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #8B5CF6, #D946EF, #8B5CF6);
+  animation: gradient-rotate 4s linear infinite;
+  z-index: -1;
+}
+
+/* Settings tab animation */
+@keyframes tab-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-tab-content {
+  animation: tab-appear 0.3s ease-out;
+}
+
+/* Save button success animation */
+@keyframes save-success {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.save-success {
+  animation: save-success 0.4s ease-out;
+}
+
+/* Profile completion ring animation */
+@keyframes ring-fill {
+  from {
+    stroke-dashoffset: var(--ring-circumference);
+  }
+}
+
+.completion-ring {
+  animation: ring-fill 1s ease-out forwards;
+}
+
+/* Glass card entrance animation */
+@keyframes glass-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.glass-enter {
+  animation: glass-enter 0.5s ease-out forwards;
+}
+
+.glass-enter-delay-1 { animation-delay: 0.1s; }
+.glass-enter-delay-2 { animation-delay: 0.2s; }
+.glass-enter-delay-3 { animation-delay: 0.3s; }
+
+/* Switch/toggle enhanced styles */
+.glass-switch-track {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-switch-thumb {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ripple effect for buttons */
+@keyframes ripple {
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+  transform: scale(0);
+  opacity: 1;
+}
+
+.btn-ripple:active::after {
+  animation: ripple 0.5s ease-out;
+}
 

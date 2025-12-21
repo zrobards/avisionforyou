@@ -27,7 +27,7 @@ export function DataTable<T>({ columns, data, emptyMessage = "No data available"
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-gray-800 bg-gray-900/70" style={{ position: 'relative' }}>
-      <table className="w-full">
+      <table className="w-full" style={{ minWidth: '800px' }}>
         <thead>
           <tr className="border-b border-gray-800/80">
             {columns.map((column, index) => (
@@ -44,23 +44,30 @@ export function DataTable<T>({ columns, data, emptyMessage = "No data available"
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-800/60">
-          {data.map((row, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-gray-800/40 transition-colors">
-              {columns.map((column, colIndex) => (
-                <td key={colIndex} className={clsx("px-4 py-4 text-sm text-gray-200", column.className)}>
-                  {column.render
-                    ? column.render(row)
-                    : (() => {
-                        const key = column.key;
-                        if (typeof key === "string" && key in (row as Record<string, unknown>)) {
-                          return (row as Record<string, unknown>)[key] as ReactNode;
-                        }
-                        return null;
-                      })()}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {data.map((row, rowIndex) => {
+            // Use row id if available, otherwise use index
+            const rowKey = (row as any)?.id ?? rowIndex;
+            return (
+              <tr key={rowKey} className="hover:bg-gray-800/40 transition-colors">
+                {columns.map((column, colIndex) => {
+                  const cellKey = `${rowKey}-${colIndex}-${String(column.key)}`;
+                  return (
+                    <td key={cellKey} className={clsx("px-4 py-4 text-sm text-gray-200", column.className)}>
+                      {column.render
+                        ? column.render(row)
+                        : (() => {
+                            const key = column.key;
+                            if (typeof key === "string" && key in (row as Record<string, unknown>)) {
+                              return (row as Record<string, unknown>)[key] as ReactNode;
+                            }
+                            return null;
+                          })()}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

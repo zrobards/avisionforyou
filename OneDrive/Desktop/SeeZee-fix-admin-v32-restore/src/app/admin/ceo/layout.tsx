@@ -1,10 +1,9 @@
 /**
- * CEO Section Layout - CEO Only
+ * CEO Section Layout - CEO Only (AdminAppShell is provided by parent layout)
  */
 
 import { getCurrentUser } from "@/lib/auth/requireRole";
 import { ROLE } from "@/lib/role";
-import { AdminAppShell } from "@/components/admin/AdminAppShell";
 import { redirect } from "next/navigation";
 
 export default async function CEOLayout({
@@ -19,10 +18,6 @@ export default async function CEOLayout({
     redirect("/no-access");
   }
 
-  return (
-    <AdminAppShell user={user}>
-      {children}
-    </AdminAppShell>
-  );
+  return <>{children}</>;
 }
 

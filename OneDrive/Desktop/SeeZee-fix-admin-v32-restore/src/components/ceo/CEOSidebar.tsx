@@ -62,7 +62,7 @@ export function CEOSidebar({ userRole }: CEOSidebarProps) {
       items: [
         {
           label: "Dashboard",
-          href: "/ceo",
+          href: "/admin/ceo",
           icon: <Crown className="w-5 h-5" />,
         },
       ],
@@ -72,22 +72,22 @@ export function CEOSidebar({ userRole }: CEOSidebarProps) {
       items: [
         {
           label: "Team Management",
-          href: "/ceo/team",
+          href: "/admin/ceo/team",
           icon: <Users className="w-4 h-4" />,
         },
         {
           label: "Training",
-          href: "/ceo/training",
+          href: "/admin/ceo/training",
           icon: <GraduationCap className="w-4 h-4" />,
         },
         {
           label: "Resources",
-          href: "/ceo/resources",
+          href: "/admin/ceo/resources",
           icon: <BookOpen className="w-4 h-4" />,
         },
         {
           label: "Tools",
-          href: "/ceo/tools",
+          href: "/admin/ceo/tools",
           icon: <Wrench className="w-4 h-4" />,
         },
       ],
@@ -98,17 +98,17 @@ export function CEOSidebar({ userRole }: CEOSidebarProps) {
       items: [
         {
           label: "Analytics",
-          href: "/ceo/analytics",
+          href: "/admin/ceo/analytics",
           icon: <BarChart3 className="w-4 h-4" />,
         },
         {
           label: "Finances",
-          href: "/ceo/finances",
+          href: "/admin/ceo/finances",
           icon: <DollarSign className="w-4 h-4" />,
         },
         {
           label: "Kanban",
-          href: "/ceo/kanban",
+          href: "/admin/ceo/kanban",
           icon: <Trello className="w-4 h-4" />,
         },
       ],
@@ -119,22 +119,22 @@ export function CEOSidebar({ userRole }: CEOSidebarProps) {
       items: [
         {
           label: "Database",
-          href: "/ceo/database",
+          href: "/admin/ceo/database",
           icon: <Database className="w-4 h-4" />,
         },
         {
           label: "Systems",
-          href: "/ceo/systems",
+          href: "/admin/ceo/systems",
           icon: <Settings className="w-4 h-4" />,
         },
         {
           label: "Logs",
-          href: "/ceo/logs",
+          href: "/admin/ceo/systems/logs",
           icon: <FileText className="w-4 h-4" />,
         },
         {
           label: "Automations",
-          href: "/ceo/automations",
+          href: "/admin/ceo/systems/automations",
           icon: <Zap className="w-4 h-4" />,
         },
       ],
@@ -143,7 +143,7 @@ export function CEOSidebar({ userRole }: CEOSidebarProps) {
   ];
 
   const isActive = (href: string) => {
-    if (href === "/ceo") return pathname === href;
+    if (href === "/admin/ceo") return pathname === href;
     return pathname.startsWith(href);
   };
 

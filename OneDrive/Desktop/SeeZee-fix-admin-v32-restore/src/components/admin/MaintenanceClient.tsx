@@ -194,12 +194,12 @@ export function MaintenanceClient({ initialSchedules, clients, stats }: Maintena
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-white/5">
+      <div className="flex items-center gap-2 border-b border-white/10">
         <button
           onClick={() => setTab("requests")}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-all ${
             tab === "requests"
-              ? "border-blue-500 text-white"
+              ? "border-seezee-red text-seezee-red"
               : "border-transparent text-slate-400 hover:text-white"
           }`}
         >
@@ -209,7 +209,7 @@ export function MaintenanceClient({ initialSchedules, clients, stats }: Maintena
           onClick={() => setTab("plans")}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-all ${
             tab === "plans"
-              ? "border-blue-500 text-white"
+              ? "border-seezee-red text-seezee-red"
               : "border-transparent text-slate-400 hover:text-white"
           }`}
         >
@@ -227,7 +227,7 @@ export function MaintenanceClient({ initialSchedules, clients, stats }: Maintena
         />
       ) : (
         <div className="space-y-4">
-          <div className="glass-container-static p-6">
+          <div className="seezee-glass rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Client Plans</h3>
             <p className="text-slate-400 mb-6">
               {clients.length} clients with maintenance plans
@@ -236,7 +236,7 @@ export function MaintenanceClient({ initialSchedules, clients, stats }: Maintena
               {clients.map((client) => (
                 <div
                   key={client.id}
-                  className="glass-container-static p-4 text-left cursor-pointer hover:border-blue-500/50 transition-all"
+                  className="bg-seezee-card-bg border border-white/10 rounded-xl p-4 text-left cursor-pointer hover:border-white/20 transition-all"
                   onClick={() => router.push(`/admin/pipeline/projects/${client.id}`)}
                 >
                   <h4 className="font-semibold text-white mb-2">{client.name || client.organization.name}</h4>
@@ -246,7 +246,7 @@ export function MaintenanceClient({ initialSchedules, clients, stats }: Maintena
                     </p>
                     {client.subscriptions && client.subscriptions.length > 0 && (
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 rounded text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-seezee-green/20 text-seezee-green border border-seezee-green/30">
                           Active Subscription
                         </span>
                         {client.subscriptions[0].currentPeriodEnd && (

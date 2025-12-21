@@ -12,6 +12,7 @@ export default function RegisterClientPage() {
 
   const handleGoogleSignUp = async () => {
     setIsLoading(true);
+    // Redirect to onboarding/tos - middleware will handle if already complete
     await signIn("google", { callbackUrl: "/onboarding/tos" });
   };
 

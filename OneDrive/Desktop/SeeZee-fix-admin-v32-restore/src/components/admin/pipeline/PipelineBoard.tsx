@@ -34,11 +34,11 @@ interface PipelineBoardProps {
 }
 
 const stageColors: Record<string, string> = {
-  NEW: "border-blue-500/30 bg-blue-500/5",
-  CONTACTED: "border-purple-500/30 bg-purple-500/5",
-  QUALIFIED: "border-green-500/30 bg-green-500/5",
-  PROPOSAL_SENT: "border-yellow-500/30 bg-yellow-500/5",
-  CONVERTED: "border-emerald-500/30 bg-emerald-500/5",
+  NEW: "border-seezee-blue/30 bg-seezee-blue/5",
+  CONTACTED: "border-seezee-purple/30 bg-seezee-purple/5",
+  QUALIFIED: "border-seezee-green/30 bg-seezee-green/5",
+  PROPOSAL_SENT: "border-seezee-yellow/30 bg-seezee-yellow/5",
+  CONVERTED: "border-seezee-green/40 bg-seezee-green/10",
 };
 
 export function PipelineBoard({ stages }: PipelineBoardProps) {
@@ -102,21 +102,21 @@ export function PipelineBoard({ stages }: PipelineBoardProps) {
             key={stage.id}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, stage.id)}
-            className={`rounded-2xl border-2 glass-effect p-4 transition-all ${
-              stageColors[stage.id] || "border-gray-700"
-            } ${draggingLead ? "ring-2 ring-trinity-red/30" : ""}`}
+            className={`rounded-2xl seezee-glass p-4 transition-all ${
+              stageColors[stage.id] || "border-white/10"
+            } ${draggingLead ? "ring-2 ring-seezee-red/30" : ""}`}
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-heading font-semibold text-white">
                 {stage.label}
               </h3>
-              <span className="rounded-full bg-gray-800/70 border border-gray-700 px-2.5 py-1 text-xs font-semibold text-gray-300">
+              <span className="rounded-full bg-seezee-card-bg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-300">
                 {stage.leads.length}
               </span>
             </div>
             <div className="space-y-3 min-h-[200px]">
               {stage.leads.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-gray-700 bg-gray-800/30 p-6 text-center text-xs text-gray-500">
+                <div className="rounded-xl border border-dashed border-white/10 bg-seezee-card-bg p-6 text-center text-xs text-slate-500">
                   No leads yet
                 </div>
               ) : (
@@ -129,7 +129,7 @@ export function PipelineBoard({ stages }: PipelineBoardProps) {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ scale: 1.02, y: -2 }}
-                    className={`group relative rounded-xl border-2 border-gray-700 glass-effect p-4 text-sm text-gray-200 cursor-move transition-all hover:border-trinity-red/50 hover:shadow-medium ${
+                    className={`group relative rounded-xl bg-seezee-card-bg border border-white/10 p-4 text-sm text-slate-200 cursor-move transition-all hover:border-white/20 ${
                       draggingLead === lead.id ? "opacity-50" : ""
                     }`}
                   >
@@ -159,13 +159,13 @@ export function PipelineBoard({ stages }: PipelineBoardProps) {
                       </div>
                       <button
                         onClick={() => handleLeadClick(lead)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 p-1.5 rounded-lg border border-gray-700 bg-gray-800/50 text-gray-400 hover:border-trinity-red/50 hover:text-trinity-red"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 p-1.5 rounded-lg border border-white/10 bg-seezee-card-bg text-slate-400 hover:border-seezee-red/50 hover:text-seezee-red"
                       >
                         <FiEdit2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                     {(lead.message || lead.notes) && (
-                      <p className="mt-2 line-clamp-2 text-xs text-gray-500 border-t border-gray-700/50 pt-2">
+                      <p className="mt-2 line-clamp-2 text-xs text-slate-500 border-t border-white/5 pt-2">
                         {lead.message ?? lead.notes}
                       </p>
                     )}

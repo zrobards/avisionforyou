@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings, Package, Calendar, User, Link as LinkIcon, Github, Trash2, AlertTriangle } from "lucide-react";
+import { Settings, Package, Calendar, User, Link as LinkIcon, Github, Trash2, AlertTriangle, Globe } from "lucide-react";
 
 interface SettingsTabProps {
   project: {
@@ -11,6 +11,7 @@ interface SettingsTabProps {
     description: string | null;
     status: string;
     githubRepo: string | null;
+    vercelUrl: string | null;
     questionnaire?: any;
   };
   assignee?: {
@@ -200,6 +201,25 @@ export function SettingsTab({ project, assignee, isAdmin = false }: SettingsTabP
             >
               <LinkIcon className="w-4 h-4" />
               {project.githubRepo}
+            </a>
+          </div>
+        )}
+
+        {/* Vercel Deployment Link */}
+        {project.vercelUrl && (
+          <div className="p-4 bg-gray-900 rounded-xl border border-gray-800">
+            <div className="flex items-center gap-2 mb-4">
+              <Globe className="w-4 h-4 text-cyan-400" />
+              <h4 className="text-sm font-semibold text-white/60">Vercel Deployment</h4>
+            </div>
+            <a
+              href={project.vercelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors break-all"
+            >
+              <LinkIcon className="w-4 h-4" />
+              {project.vercelUrl}
             </a>
           </div>
         )}

@@ -37,7 +37,7 @@ export async function getMaintenanceSchedules(filter?: {
   status?: MaintenanceStatus;
   projectId?: string;
 }) {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const where: any = {};
@@ -81,7 +81,7 @@ export async function getMaintenanceSchedules(filter?: {
  * Create a maintenance schedule
  */
 export async function createMaintenanceSchedule(params: CreateMaintenanceParams) {
-  const user = await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const schedule = await db.maintenanceSchedule.create({
@@ -123,7 +123,7 @@ export async function createMaintenanceSchedule(params: CreateMaintenanceParams)
  * Update maintenance status
  */
 export async function updateMaintenanceStatus(scheduleId: string, status: MaintenanceStatus) {
-  const user = await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const schedule = await db.maintenanceSchedule.update({
@@ -146,7 +146,7 @@ export async function updateMaintenanceStatus(scheduleId: string, status: Mainte
  * Get maintenance statistics
  */
 export async function getMaintenanceStats() {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const [total, upcoming, overdue, completed, active] = await Promise.all([
@@ -209,7 +209,7 @@ export async function getMaintenanceStats() {
  * Get clients with active maintenance subscriptions
  */
 export async function getMaintenanceClients() {
-  await requireRole([ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const clients = await db.project.findMany({

@@ -31,6 +31,16 @@ import {
   FiBookOpen,
   FiChevronLeft,
   FiChevronRight,
+  FiMail,
+  FiMapPin,
+  FiMic,
+  FiPieChart,
+  FiSettings,
+  FiTarget,
+  FiSend,
+  FiGlobe,
+  FiMessageSquare,
+  FiClock,
 } from "react-icons/fi";
 import { signOut } from "next-auth/react";
 import Avatar from "@/components/ui/Avatar";
@@ -63,19 +73,32 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
     () => [
       { href: "/admin", label: "Dashboard", icon: FiHome },
       { href: "/admin/feed", label: "Activity Feed", icon: FiActivity },
+      { href: "/admin/analytics", label: "Analytics", icon: FiPieChart },
     ],
     []
   );
 
-  // Operations group
+  // Operations group - Core project management
   const operationsItems = useMemo<NavItem[]>(
     () => [
       { href: "/admin/pipeline", label: "Pipeline", icon: FiTrendingUp },
       { href: "/admin/projects", label: "Projects", icon: FiFolder },
       { href: "/admin/clients", label: "Clients", icon: FiUsers },
       { href: "/admin/tasks", label: "Tasks", icon: FiCheckSquare },
-      { href: "/admin/client-tasks", label: "Client Tasks", icon: FiCheckSquare },
+      { href: "/admin/client-tasks", label: "Client Tasks", icon: FiTarget },
       { href: "/admin/calendar", label: "Calendar", icon: FiCalendar },
+    ],
+    []
+  );
+
+  // Marketing & Outreach group - Lead generation and email
+  const marketingItems = useMemo<NavItem[]>(
+    () => [
+      { href: "/admin/leads", label: "All Leads", icon: FiUsers },
+      { href: "/admin/leads/finder", label: "Lead Finder", icon: FiMapPin },
+      { href: "/admin/marketing", label: "Email Hub", icon: FiMail },
+      { href: "/admin/marketing/campaigns", label: "Campaigns", icon: FiSend },
+      { href: "/admin/marketing/templates", label: "Templates", icon: FiFileText },
     ],
     []
   );
@@ -85,21 +108,21 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
     () => [
       { href: "/admin/invoices", label: "Invoices", icon: FiFileText },
       { href: "/admin/finances", label: "Finances", icon: FiDollarSign },
+      { href: "/admin/maintenance", label: "Maintenance", icon: FiClock },
     ],
     []
   );
 
-  // Team & Learning group
-  const teamLearningItems = useMemo<NavItem[]>(
+  // Team & Collaboration group
+  const teamItems = useMemo<NavItem[]>(
     () => [
-      { href: "/admin/team", label: "Team", icon: FiTeamUsers },
+      { href: "/admin/team", label: "Team Members", icon: FiTeamUsers },
+      { href: "/admin/recordings", label: "Recordings", icon: FiMic },
+      { href: "/admin/chat", label: "Team Chat", icon: FiMessageSquare },
       { href: "/admin/learning", label: "Learning Hub", icon: FiBookOpen },
     ],
     []
   );
-
-  // Tasks & Todos group (consolidated into Operations)
-  // This group is now empty and can be removed
 
   // CEO Command Center group (CEO only)
   const ceoItems = useMemo<NavItem[]>(
@@ -118,9 +141,9 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
   // Tools & Settings group
   const toolsItems = useMemo<NavItem[]>(
     () => [
+      { href: "/settings", label: "Settings", icon: FiSettings },
       { href: "/admin/links", label: "Links & Resources", icon: FiLink },
       { href: "/admin/database", label: "Database", icon: FiDatabase },
-      { href: "/admin/maintenance", label: "Maintenance", icon: FiTool },
       { href: "/admin/test/create-project", label: "Test Tools", icon: FiTool },
     ],
     []
@@ -150,23 +173,23 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0a1128] text-white">
       <div className="relative flex min-h-screen">
         {/* Sidebar */}
         <aside
-          className={`fixed inset-y-0 left-0 z-40 transform border-r border-gray-800 bg-gray-950/95 backdrop-blur transition-all duration-300 ease-in-out lg:translate-x-0 ${
+          className={`fixed inset-y-0 left-0 z-40 transform border-r border-white/10 bg-[#0f172a]/95 backdrop-blur-xl transition-all duration-300 ease-in-out lg:translate-x-0 ${
             isCollapsed ? "w-20 lg:w-20" : "w-64 lg:w-64"
           } ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <div className="flex h-full flex-col">
-            <div className={`border-b border-gray-800 px-6 py-6 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div className={`border-b border-white/10 px-6 py-6 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
               {!isCollapsed && <LogoHeader href="/admin" />}
               {/* Desktop Collapse Toggle */}
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="hidden lg:flex p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-[color,background-color] duration-150 ease-in-out"
+                className="hidden lg:flex p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200"
                 aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               >
                 {isCollapsed ? (
@@ -183,12 +206,12 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                   key={href}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => handleNavigate(href)}
-                  className={`group relative flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-all duration-200 ${
+                  className={`group relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all duration-200 ${
                     isCollapsed ? 'justify-center' : ''
                   } ${
                     isActive(href)
-                      ? "bg-trinity-red/20 text-white shadow-lg"
-                      : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                      ? "bg-gradient-to-r from-[#ef4444]/20 to-[#ef4444]/10 text-white shadow-lg border border-[#ef4444]/30"
+                      : "text-slate-400 hover:bg-white/5 hover:text-white"
                   }`}
                   title={isCollapsed ? label : undefined}
                 >
@@ -197,7 +220,7 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                   {isActive(href) && !isCollapsed && (
                     <motion.span
                       layoutId={`admin-nav-active-${href}`}
-                      className="absolute inset-0 rounded-lg border border-trinity-red/30"
+                      className="absolute inset-0 rounded-xl border border-[#ef4444]/40"
                       transition={{ type: "spring", stiffness: 250, damping: 30 }}
                     />
                   )}
@@ -215,6 +238,17 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                 collapsed={isCollapsed}
               />
 
+              {/* Marketing & Outreach Group */}
+              <CollapsibleNavGroup
+                title="Marketing & Outreach"
+                icon={FiMail}
+                items={marketingItems}
+                isActive={isActive}
+                onNavigate={handleNavigate}
+                defaultOpen={pathname.startsWith("/admin/marketing") || pathname.startsWith("/admin/leads")}
+                collapsed={isCollapsed}
+              />
+
               {/* Financial Group */}
               <CollapsibleNavGroup
                 title="Financial"
@@ -222,18 +256,18 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                 items={financialItems}
                 isActive={isActive}
                 onNavigate={handleNavigate}
-                defaultOpen={pathname.startsWith("/admin/invoices") || pathname.startsWith("/admin/finances")}
+                defaultOpen={pathname.startsWith("/admin/invoices") || pathname.startsWith("/admin/finances") || pathname.startsWith("/admin/maintenance")}
                 collapsed={isCollapsed}
               />
 
-              {/* Team & Learning Group */}
+              {/* Team & Collaboration Group */}
               <CollapsibleNavGroup
-                title="Team & Learning"
+                title="Team & Collaboration"
                 icon={FiTeamUsers}
-                items={teamLearningItems}
+                items={teamItems}
                 isActive={isActive}
                 onNavigate={handleNavigate}
-                defaultOpen={pathname.startsWith("/admin/team") || pathname.startsWith("/admin/learning")}
+                defaultOpen={pathname.startsWith("/admin/team") || pathname.startsWith("/admin/recordings") || pathname.startsWith("/admin/chat") || pathname.startsWith("/admin/learning")}
                 collapsed={isCollapsed}
               />
 
@@ -254,41 +288,41 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
               {/* Tools & Settings Group */}
               <CollapsibleNavGroup
                 title="Tools & Settings"
-                icon={FiTool}
+                icon={FiSettings}
                 items={toolsItems}
                 isActive={isActive}
                 onNavigate={handleNavigate}
-                defaultOpen={pathname.startsWith("/admin/links") || pathname.startsWith("/admin/database")}
+                defaultOpen={pathname.startsWith("/admin/links") || pathname.startsWith("/admin/database") || pathname.startsWith("/settings")}
                 collapsed={isCollapsed}
               />
             </nav>
-            <div className="border-t border-gray-800 px-4 py-4">
+            <div className="border-t border-white/10 px-4 py-4">
               {!isCollapsed ? (
                 <>
-                  <div className="flex items-center gap-3 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-3">
                     <Avatar
                       src={user.image ?? undefined}
                       alt={user.name ?? "Admin"}
                       size={40}
                       fallbackText={user.name ?? undefined}
-                      className="h-10 w-10 flex-shrink-0"
+                      className="h-10 w-10 flex-shrink-0 ring-2 ring-white/10"
                     />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-white">{user.name ?? "Admin"}</p>
-                      <p className="truncate text-xs text-gray-400">{user.email ?? ""}</p>
+                      <p className="truncate text-xs text-slate-400">{user.email ?? ""}</p>
                     </div>
                   </div>
                   <div className="mt-3 space-y-2">
                     <button
                       onClick={() => handleNavigate("/")}
-                      className="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
+                      className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white"
                     >
                       <FiArrowLeft className="h-5 w-5" />
                       Back to Site
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
+                      className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white"
                     >
                       <FiLogOut className="h-5 w-5" />
                       Logout
@@ -303,20 +337,20 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                       alt={user.name ?? "Admin"}
                       size={40}
                       fallbackText={user.name ?? undefined}
-                      className="h-10 w-10 flex-shrink-0"
+                      className="h-10 w-10 flex-shrink-0 ring-2 ring-white/10"
                     />
                   </div>
                   <div className="flex flex-col gap-2 w-full">
                     <button
                       onClick={() => handleNavigate("/")}
-                      className="flex items-center justify-center rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
+                      className="flex items-center justify-center rounded-xl p-2 text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white"
                       title="Back to Site"
                     >
                       <FiArrowLeft className="h-5 w-5" />
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center justify-center rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
+                      className="flex items-center justify-center rounded-xl p-2 text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white"
                       title="Logout"
                     >
                       <FiLogOut className="h-5 w-5" />
@@ -331,17 +365,17 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
         {/* Mobile overlay */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-30 bg-[#0a1128]/80 backdrop-blur-sm lg:hidden"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
 
         <div className={`flex min-h-screen flex-1 flex-col transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
-          <header className="border-b border-gray-800 bg-gray-950/80 px-4 py-4 lg:px-8">
+          <header className="border-b border-white/10 bg-[#0f172a]/80 backdrop-blur-xl px-4 py-4 lg:px-8">
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setIsSidebarOpen((prev) => !prev)}
-                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white lg:hidden"
+                className="rounded-xl p-2 text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white lg:hidden"
                 aria-label="Toggle sidebar"
               >
                 {isSidebarOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
@@ -349,8 +383,16 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-black via-slate-950 to-black px-4 py-6 lg:px-10 lg:py-10">
-            <div className="mx-auto w-full max-w-[1200px] space-y-8">{children}</div>
+          <main className="flex-1 overflow-y-auto bg-[#0a1128] px-4 py-8 lg:px-10 lg:py-12">
+            {/* Subtle dot pattern background */}
+            <div 
+              className="fixed inset-0 pointer-events-none opacity-[0.03]"
+              style={{
+                backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+                backgroundSize: '32px 32px'
+              }}
+            />
+            <div className="relative mx-auto w-full max-w-[1200px] space-y-10">{children}</div>
           </main>
         </div>
       </div>
