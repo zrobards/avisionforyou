@@ -1,7 +1,19 @@
 import { Resend } from "resend";
 import { rateLimitByEmail, RateLimits, RateLimitResult } from "@/lib/rate-limit";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to avoid build-time errors when RESEND_API_KEY is not set
+let resendInstance: Resend | null = null;
+
+function getResend(): Resend {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error("RESEND_API_KEY environment variable is not set");
+    }
+    resendInstance = new Resend(apiKey);
+  }
+  return resendInstance;
+}
 
 export interface EmailOptions {
   to: string | string[];
@@ -19,6 +31,9 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   try {
     // Default from address
     const from = options.from || "SeeZee Studio <noreply@see-zee.com>";
+    
+    // Get Resend instance (lazy initialization)
+    const resend = getResend();
     
     // Send email
     const response = await resend.emails.send({
@@ -172,6 +187,7 @@ export function renderEmailLayout(content: string): string {
 </html>
   `.trim();
 }
+
 
 
 
