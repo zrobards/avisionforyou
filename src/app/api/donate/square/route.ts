@@ -132,6 +132,7 @@ export async function POST(request: NextRequest) {
 
         // Get location ID
         const locationId = getSquareLocationId()
+        console.log("Square: Location ID retrieved:", locationId)
 
         // First create an order
         const orderBody = {
@@ -163,6 +164,8 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        console.log("Square: Order body being sent:", JSON.stringify(orderBody, null, 2))
+
         const orderResponse = await fetch(`${getSquareBaseUrl()}/v2/orders`, {
           method: "POST",
           headers: {
@@ -173,8 +176,11 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify(orderBody)
         })
 
+        console.log("Square: Order API response status:", orderResponse.status)
+
         if (!orderResponse.ok) {
           const errorData = await orderResponse.json()
+          console.log("Square: Order API error details:", JSON.stringify(errorData, null, 2))
           throw new Error(`Failed to create order: ${orderResponse.status} - ${JSON.stringify(errorData)}`)
         }
 
