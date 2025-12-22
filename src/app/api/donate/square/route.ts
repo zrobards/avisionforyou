@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { sendDonationConfirmationEmail } from "@/lib/email"
 import { v4 as uuidv4 } from "uuid"
-import { Client, Environment } from "square"
 
 // Simple email validation
 function isValidEmail(email: string): boolean {
@@ -10,14 +9,11 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email)
 }
 
-// Initialize Square client
-function getSquareClient() {
-  return new Client({
-    accessToken: process.env.SQUARE_ACCESS_TOKEN,
-    environment: process.env.SQUARE_ENVIRONMENT === "production" 
-      ? Environment.Production 
-      : Environment.Sandbox,
-  })
+// Get Square API base URL
+function getSquareBaseUrl() {
+  return process.env.SQUARE_ENVIRONMENT === "production"
+    ? "https://connect.squareup.com"
+    : "https://connect.squareupsandbox.com"
 }
 
 // Calculate next renewal date based on start date and frequency
@@ -120,14 +116,11 @@ export async function POST(request: NextRequest) {
 
       console.log("Square: Saved donation record:", donation.id)
 
-      // Create Square Payment Link
+      // Create Square Payment Link via HTTP API
       try {
-        const client = getSquareClient()
-        const checkoutApi = client.checkoutApi
-
         console.log("Square: Creating payment link for", { frequency, amount: amountInCents })
 
-        const paymentLink = await checkoutApi.createPaymentLink({
+        const requestBody = {
           idempotencyKey: donationSessionId,
           description: `${frequency === "ONE_TIME" ? "One-time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} donation to A Vision For You Recovery`,
           quickPay: {
@@ -151,11 +144,28 @@ export async function POST(request: NextRequest) {
               value: donation.id
             }
           ]
+        }
+
+        const response = await fetch(`${getSquareBaseUrl()}/v2/checkout/payment-links`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+            "Square-Version": "2024-12-18"
+          },
+          body: JSON.stringify(requestBody)
         })
 
-        console.log("Square: Payment link created successfully:", paymentLink.paymentLink?.url)
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(`Square API error: ${response.status} - ${JSON.stringify(errorData)}`)
+        }
 
-        if (!paymentLink.paymentLink?.url) {
+        const paymentLink = await response.json()
+
+        console.log("Square: Payment link created successfully:", paymentLink.payment_link?.url)
+
+        if (!paymentLink.payment_link?.url) {
           throw new Error("Payment link URL not returned from Square")
         }
 
@@ -182,7 +192,7 @@ export async function POST(request: NextRequest) {
         // Return the Square payment link
         return NextResponse.json(
           {
-            url: paymentLink.paymentLink.url,
+            url: paymentLink.payment_link.url,
             donationId: donation.id,
             success: true,
             isRecurring: frequency !== "ONE_TIME",
