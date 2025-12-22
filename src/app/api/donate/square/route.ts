@@ -16,46 +16,14 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email)
 }
 
-// Get Square Location ID
-async function getSquareLocationId() {
-  if (process.env.SQUARE_LOCATION_ID) {
-    console.log("Square: Using location from env:", process.env.SQUARE_LOCATION_ID)
-    return process.env.SQUARE_LOCATION_ID
+// Get Square Location ID from environment
+function getSquareLocationId() {
+  const locationId = process.env.SQUARE_LOCATION_ID
+  if (!locationId) {
+    throw new Error("SQUARE_LOCATION_ID environment variable is required. Please set it in Vercel.")
   }
-  
-  // Fetch locations from Square
-  try {
-    console.log("Square: Fetching locations from API...")
-    const response = await fetch(`${getSquareBaseUrl()}/v2/locations`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
-        "Square-Version": "2024-12-18"
-      }
-    })
-    
-    console.log("Square: Locations API response status:", response.status)
-    
-    if (response.ok) {
-      const data = await response.json()
-      console.log("Square: Locations data:", JSON.stringify(data, null, 2))
-      
-      if (data.locations && data.locations.length > 0) {
-        const locationId = data.locations[0].id
-        console.log("Square: Using location:", locationId)
-        return locationId
-      } else {
-        console.error("Square: No locations found in response")
-      }
-    } else {
-      const errorText = await response.text()
-      console.error("Square: Locations API error:", response.status, errorText)
-    }
-  } catch (error) {
-    console.error("Square: Failed to fetch locations:", error)
-  }
-  
-  throw new Error("Square location ID not found. Please set SQUARE_LOCATION_ID environment variable or ensure your Square account has at least one location configured.")
+  console.log("Square: Using location ID:", locationId)
+  return locationId
 }
 
 // Calculate next renewal date based on start date and frequency
@@ -163,7 +131,7 @@ export async function POST(request: NextRequest) {
         console.log("Square: Creating payment link for", { frequency, amount: amountInCents })
 
         // Get location ID
-        const locationId = await getSquareLocationId()
+        const locationId = getSquareLocationId()
 
         // First create an order
         const orderBody = {
