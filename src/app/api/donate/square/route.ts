@@ -19,30 +19,42 @@ function isValidEmail(email: string): boolean {
 // Get Square Location ID
 async function getSquareLocationId() {
   if (process.env.SQUARE_LOCATION_ID) {
+    console.log("Square: Using location from env:", process.env.SQUARE_LOCATION_ID)
     return process.env.SQUARE_LOCATION_ID
   }
   
   // Fetch locations from Square
   try {
+    console.log("Square: Fetching locations from API...")
     const response = await fetch(`${getSquareBaseUrl()}/v2/locations`, {
+      method: "GET",
       headers: {
         "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
         "Square-Version": "2024-12-18"
       }
     })
     
+    console.log("Square: Locations API response status:", response.status)
+    
     if (response.ok) {
       const data = await response.json()
+      console.log("Square: Locations data:", JSON.stringify(data, null, 2))
+      
       if (data.locations && data.locations.length > 0) {
-        console.log("Square: Using location:", data.locations[0].id)
-        return data.locations[0].id
+        const locationId = data.locations[0].id
+        console.log("Square: Using location:", locationId)
+        return locationId
+      } else {
+        console.error("Square: No locations found in response")
       }
+    } else {
+      const errorText = await response.text()
+      console.error("Square: Locations API error:", response.status, errorText)
     }
   } catch (error) {
-    console.error("Failed to fetch Square locations:", error)
+    console.error("Square: Failed to fetch locations:", error)
   }
   
-  // Fallback: If no location found, this will error but at least we tried
   throw new Error("Square location ID not found. Please set SQUARE_LOCATION_ID environment variable or ensure your Square account has at least one location configured.")
 }
 
