@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 
+export const dynamic = "force-dynamic"
+
 /**
  * GET /api/donations/my-donations
  * Fetch all donations for the authenticated user
