@@ -9,11 +9,32 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email)
 }
 
-// Get Square API base URL
-function getSquareBaseUrl() {
-  return process.env.SQUARE_ENVIRONMENT === "production"
-    ? "https://connect.squareup.com"
-    : "https://connect.squareupsandbox.com"
+// Get Square Location ID
+async function getSquareLocationId() {
+  if (process.env.SQUARE_LOCATION_ID) {
+    return process.env.SQUARE_LOCATION_ID
+  }
+  
+  // Fetch locations from Square
+  try {
+    const response = await fetch(`${getSquareBaseUrl()}/v2/locations`, {
+      headers: {
+        "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
+        "Square-Version": "2024-12-18"
+      }
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      if (data.locations && data.locations.length > 0) {
+        return data.locations[0].id
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch Square locations:", error)
+  }
+  
+  throw new Error("Square location ID not found. Please set SQUARE_LOCATION_ID environment variable.")
 }
 
 // Calculate next renewal date based on start date and frequency
@@ -120,10 +141,14 @@ export async function POST(request: NextRequest) {
       try {
         console.log("Square: Creating payment link for", { frequency, amount: amountInCents })
 
+        // Get location ID
+        const locationId = await getSquareLocationId()
+
         // First create an order
         const orderBody = {
           idempotencyKey: donationSessionId,
           order: {
+            locationId: locationId,
             lineItems: [
               {
                 name: `A Vision For You Recovery - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
