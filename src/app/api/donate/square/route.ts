@@ -143,22 +143,27 @@ export async function POST(request: NextRequest) {
               {
                 name: `A Vision For You Recovery - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
                 quantity: "1",
+                catalogObjectId: undefined,
                 basePriceMoney: {
                   amount: amountInCents,
                   currency: "USD"
+                },
+                grossSalesMoney: {
+                  amount: amountInCents,
+                  currency: "USD"
+                },
+                totalTaxMoney: {
+                  amount: 0,
+                  currency: "USD"
+                },
+                totalDiscountMoney: {
+                  amount: 0,
+                  currency: "USD"
+                },
+                totalMoney: {
+                  amount: amountInCents,
+                  currency: "USD"
                 }
-              }
-            ],
-            referenceId: donation.id,
-            note: `Donation from ${name} (${email}) - ${frequency}`,
-            customFields: [
-              {
-                key: "donor_email",
-                value: email
-              },
-              {
-                key: "donation_type",
-                value: frequency
               }
             ]
           }
