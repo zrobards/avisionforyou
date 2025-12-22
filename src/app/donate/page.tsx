@@ -55,11 +55,7 @@ export default function Donate() {
       return
     }
 
-    // Check if recurring donation is supported
-    if (frequency !== 'ONE_TIME' && paymentMethod === 'square') {
-      setError('Recurring donations not yet supported with Square. Please use one-time donation.')
-      return
-    }
+    // Recurring donations now supported with Square Subscriptions
 
     setLoading(true)
 
@@ -192,10 +188,28 @@ export default function Donate() {
                     2x Impact
                   </span>
                 </button>
+                <button
+                  onClick={() => setFrequency('YEARLY')}
+                  className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition relative ${
+                    frequency === 'YEARLY'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-600'
+                  }`}
+                >
+                  Yearly
+                  <span className="absolute -top-2 -right-1 sm:-right-2 bg-yellow-500 text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
+                    Best
+                  </span>
+                </button>
               </div>
               {frequency === 'MONTHLY' && (
                 <p className="text-xs sm:text-sm text-brand-purple mt-2">
                   💚 Monthly giving provides sustainable support and helps us plan long-term programs
+                </p>
+              )}
+              {frequency === 'YEARLY' && (
+                <p className="text-xs sm:text-sm text-blue-700 mt-2">
+                  ⭐ Annual giving ensures we can plan and execute our best programs year-round
                 </p>
               )}
             </div>

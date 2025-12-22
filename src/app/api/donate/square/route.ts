@@ -2,11 +2,35 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { sendDonationConfirmationEmail } from "@/lib/email"
 import { v4 as uuidv4 } from "uuid"
+import { Client, Environment } from "square"
 
 // Simple email validation
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(email)
+}
+
+// Initialize Square client
+function getSquareClient() {
+  return new Client({
+    accessToken: process.env.SQUARE_ACCESS_TOKEN,
+    environment: process.env.SQUARE_ENVIRONMENT === "production" 
+      ? Environment.Production 
+      : Environment.Sandbox,
+  })
+}
+
+// Calculate next renewal date based on start date and frequency
+function getNextRenewalDate(startDate: Date, frequency: string): Date {
+  const next = new Date(startDate)
+  
+  if (frequency === "MONTHLY") {
+    next.setMonth(next.getMonth() + 1)
+  } else if (frequency === "YEARLY") {
+    next.setFullYear(next.getFullYear() + 1)
+  }
+  
+  return next
 }
 
 export async function POST(request: NextRequest) {
@@ -59,11 +83,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if recurring donation is supported
-    if (frequency !== "ONE_TIME") {
-      console.error("Square: Recurring donations not supported yet")
+    // Validate frequency
+    if (!["ONE_TIME", "MONTHLY", "YEARLY"].includes(frequency)) {
+      console.error("Square: Invalid frequency:", frequency)
       return NextResponse.json(
-        { error: "Recurring donations not yet supported. Please use one-time donation." },
+        { error: "Frequency must be ONE_TIME, MONTHLY, or YEARLY" },
         { status: 400 }
       )
     }
@@ -73,125 +97,110 @@ export async function POST(request: NextRequest) {
     
     // Generate a unique donation ID
     const donationSessionId = uuidv4()
+    const now = new Date()
+    const nextRenewalDate = frequency !== "ONE_TIME" ? getNextRenewalDate(now, frequency) : null
     
     try {
-      console.log("Square: Creating donation record for", { amount, email, name })
+      console.log("Square: Creating donation record for", { amount, frequency, email, name })
       
       // Save donation record to database first
       const donation = await db.donation.create({
         data: {
           amount,
-          frequency,
+          frequency: frequency as "ONE_TIME" | "MONTHLY" | "YEARLY",
           email,
           name,
           status: "PENDING",
-          squarePaymentId: donationSessionId
+          squarePaymentId: donationSessionId,
+          nextRenewalDate: nextRenewalDate,
+          recurringStartDate: frequency !== "ONE_TIME" ? now : null,
+          renewalSchedule: "anniversary"
         }
       })
 
       console.log("Square: Saved donation record:", donation.id)
 
-      // Create Square Payment Link via API
+      // Create Square Payment Link
       try {
-        const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN
-        const squareEnvironment = process.env.SQUARE_ENVIRONMENT || 'sandbox'
+        const client = getSquareClient()
+        const checkoutApi = client.checkoutApi
 
-        console.log("Square: Token configured:", !!squareAccessToken)
-        console.log("Square: Environment:", squareEnvironment)
+        console.log("Square: Creating payment link for", { frequency, amount: amountInCents })
 
-        if (!squareAccessToken) {
-          console.error("Square: Access token not configured")
-          return NextResponse.json(
-            { error: "Square is not properly configured. Please contact support." },
-            { status: 500 }
-          )
-        }
-
-        // Use correct API endpoint for payment links
-        const apiUrl = squareEnvironment === 'production'
-          ? 'https://connect.squareup.com'
-          : 'https://connect.squareupsandbox.com'
-
-        console.log("Square: Using payment-links endpoint")
-
-        // Use Payment Links API v2 with orders
-        const paymentLinkResponse = await fetch(`${apiUrl}/v2/payment-links`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${squareAccessToken}`,
-            'Content-Type': 'application/json',
-            'Square-Version': '2024-01-18'
+        const paymentLink = await checkoutApi.createPaymentLink({
+          idempotencyKey: donationSessionId,
+          description: `${frequency === "ONE_TIME" ? "One-time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} donation to A Vision For You Recovery`,
+          quickPay: {
+            name: `A Vision For You Recovery - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
+            priceAmount: amountInCents,
+            currencyCode: "USD"
           },
-          body: JSON.stringify({
-            idempotency_key: donationSessionId,
-            description: `Donation from ${name} (${email})`,
-            order_id: donation.id,
-            checkout_options: {
-              ask_for_shipping_address: false,
-              redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://avisionforyou.org'}/donate/success`
+          redirectUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`,
+          note: `Donation from ${name} (${email}) - ${frequency}`,
+          customFields: [
+            {
+              title: "Donor Email",
+              value: email
             },
-            amount_money: {
-              amount: amountInCents,
-              currency: "USD"
+            {
+              title: "Donation Type",
+              value: frequency
+            },
+            {
+              title: "Donation ID",
+              value: donation.id
             }
-          })
+          ]
         })
 
-        const paymentLinkData = await paymentLinkResponse.json()
+        console.log("Square: Payment link created successfully:", paymentLink.paymentLink?.url)
 
-        console.log("Square: Payment link response status:", paymentLinkResponse.status)
-        console.log("Square: Payment link response keys:", Object.keys(paymentLinkData))
-
-        if (!paymentLinkResponse.ok) {
-          console.error("Square: Payment link creation error:", JSON.stringify(paymentLinkData))
-          const errorMessage = paymentLinkData.errors?.[0]?.detail || 
-                              paymentLinkData.errors?.[0]?.message ||
-                              'Unknown error'
-          return NextResponse.json(
-            { error: `Failed to create payment link: ${errorMessage}` },
-            { status: 500 }
-          )
-        }
-
-        console.log("Square: Payment link created successfully")
-
-        if (!paymentLinkData.payment_link?.url) {
-          console.error("Square: No payment link URL in response")
-          console.log("Square: Full response:", JSON.stringify(paymentLinkData))
-          return NextResponse.json(
-            { error: "Failed to create payment link - no checkout URL returned" },
-            { status: 500 }
-          )
+        if (!paymentLink.paymentLink?.url) {
+          throw new Error("Payment link URL not returned from Square")
         }
 
         // Send confirmation email
-        console.log("Square: Sending confirmation email to:", email)
+        console.log("Square: Attempting to send confirmation email to:", email)
         try {
-          await sendDonationConfirmationEmail(
+          const emailSent = await sendDonationConfirmationEmail(
             donation.id,
             email,
             name,
             amount,
-            frequency
+            frequency as "ONE_TIME" | "MONTHLY" | "YEARLY"
           )
-          console.log("Square: Confirmation email sent")
+          if (emailSent) {
+            console.log("Square: ✅ Confirmation email sent successfully to", email)
+          } else {
+            console.log("Square: ⚠️ Email function returned false for", email)
+          }
         } catch (emailError) {
-          console.error("Square: Email failed (non-fatal):", emailError)
+          console.error("Square: ❌ Failed to send email, but donation saved:", emailError)
+          // Don't fail the donation if email fails
         }
 
-        console.log("Square: Returning payment URL:", paymentLinkData.payment_link.url)
-
+        // Return the Square payment link
         return NextResponse.json(
           {
-            url: paymentLinkData.payment_link.url,
+            url: paymentLink.paymentLink.url,
             donationId: donation.id,
-            success: true
+            success: true,
+            isRecurring: frequency !== "ONE_TIME",
+            nextRenewalDate: nextRenewalDate
           },
           { status: 200 }
         )
       } catch (squareError: any) {
-        console.error("Square: Payment link creation failed:", squareError.message)
+        console.error("Square: Payment link creation failed:", squareError)
         
+        // Check if it's a credentials issue
+        if (squareError.message?.includes('401') || squareError.message?.includes('Unauthorized')) {
+          return NextResponse.json(
+            { error: "Square credentials invalid. Please check your Square setup." },
+            { status: 500 }
+          )
+        }
+
         return NextResponse.json(
           { error: `Failed to create payment link: ${squareError.message}` },
           { status: 500 }

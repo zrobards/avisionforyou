@@ -229,15 +229,26 @@ model Donation {
   comment           String?  @db.Text
   impactMessage     String?
   
+  // Square payment tracking
   stripeId          String?
   stripeSubscriptionId String?
   squarePaymentId   String?
+  squareSubscriptionId String? // For recurring donations
+  
+  // Recurring donation tracking
+  nextRenewalDate   DateTime? // When the next payment will be processed
+  renewalSchedule   String    @default("anniversary") // "anniversary" (same day each month/year) or "calendar" (1st/15th)
+  recurringStartDate DateTime? // When the recurring donation started
+  cancelledAt       DateTime? // When the recurring donation was cancelled
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   @@index([userId])
   @@index([status])
+  @@index([frequency])
+  @@index([squareSubscriptionId])
+  @@index([nextRenewalDate])
   @@map("donations")
 }
 
@@ -565,4 +576,27 @@ model MediaItem {
   @@index([uploadedById])
   @@index([uploadedAt])
   @@map("media_items")
+}
+
+// Webhook event logging for audit trail and debugging
+model WebhookLog {
+  id            String    @id @default(cuid())
+  provider      String    // "square", "stripe", etc.
+  eventType     String    // payment.completed, invoice.payment_pending, etc.
+  eventId       String    // Unique event ID from provider
+  donationId    String?   // Related donation if applicable
+  data          Json      // Full webhook payload
+  status        String    @default("processed") // processed, failed, pending
+  errorMessage  String?   // If processing failed
+  
+  createdAt     DateTime  @default(now())
+  processedAt   DateTime?
+
+  @@index([provider])
+  @@index([eventType])
+  @@index([donationId])
+  @@index([eventId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("webhook_logs")
 }
