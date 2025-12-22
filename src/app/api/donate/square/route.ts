@@ -120,40 +120,71 @@ export async function POST(request: NextRequest) {
       try {
         console.log("Square: Creating payment link for", { frequency, amount: amountInCents })
 
-        const requestBody = {
+        // First create an order
+        const orderBody = {
           idempotencyKey: donationSessionId,
-          description: `${frequency === "ONE_TIME" ? "One-time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} donation to A Vision For You Recovery`,
-          quickPay: {
-            name: `A Vision For You Recovery - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
-            priceAmount: amountInCents,
-            currencyCode: "USD"
-          },
-          redirectUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`,
-          note: `Donation from ${name} (${email}) - ${frequency}`,
-          customFields: [
-            {
-              title: "Donor Email",
-              value: email
-            },
-            {
-              title: "Donation Type",
-              value: frequency
-            },
-            {
-              title: "Donation ID",
-              value: donation.id
-            }
-          ]
+          order: {
+            lineItems: [
+              {
+                name: `A Vision For You Recovery - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
+                quantity: "1",
+                basePriceMoney: {
+                  amount: amountInCents,
+                  currency: "USD"
+                }
+              }
+            ],
+            referenceId: donation.id,
+            note: `Donation from ${name} (${email}) - ${frequency}`,
+            customFields: [
+              {
+                key: "donor_email",
+                value: email
+              },
+              {
+                key: "donation_type",
+                value: frequency
+              }
+            ]
+          }
         }
 
-        const response = await fetch(`${getSquareBaseUrl()}/v2/checkout/payment-links`, {
+        const orderResponse = await fetch(`${getSquareBaseUrl()}/v2/orders`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
             "Content-Type": "application/json",
             "Square-Version": "2024-12-18"
           },
-          body: JSON.stringify(requestBody)
+          body: JSON.stringify(orderBody)
+        })
+
+        if (!orderResponse.ok) {
+          const errorData = await orderResponse.json()
+          throw new Error(`Failed to create order: ${orderResponse.status} - ${JSON.stringify(errorData)}`)
+        }
+
+        const orderData = await orderResponse.json()
+        const orderId = orderData.order.id
+
+        // Now create a checkout link from the order
+        const checkoutBody = {
+          idempotencyKey: `${donationSessionId}-checkout`,
+          order: {
+            id: orderId
+          },
+          redirectUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`,
+          askForShippingAddress: false
+        }
+
+        const response = await fetch(`${getSquareBaseUrl()}/v2/checkouts`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+            "Square-Version": "2024-12-18"
+          },
+          body: JSON.stringify(checkoutBody)
         })
 
         if (!response.ok) {
@@ -161,12 +192,12 @@ export async function POST(request: NextRequest) {
           throw new Error(`Square API error: ${response.status} - ${JSON.stringify(errorData)}`)
         }
 
-        const paymentLink = await response.json()
+        const checkout = await response.json()
 
-        console.log("Square: Payment link created successfully:", paymentLink.payment_link?.url)
+        console.log("Square: Checkout created successfully:", checkout.checkout?.checkout_page_url)
 
-        if (!paymentLink.payment_link?.url) {
-          throw new Error("Payment link URL not returned from Square")
+        if (!checkout.checkout?.checkout_page_url) {
+          throw new Error("Checkout URL not returned from Square")
         }
 
         // Send confirmation email
@@ -189,10 +220,10 @@ export async function POST(request: NextRequest) {
           // Don't fail the donation if email fails
         }
 
-        // Return the Square payment link
+        // Return the checkout URL
         return NextResponse.json(
           {
-            url: paymentLink.payment_link.url,
+            url: checkout.checkout.checkout_page_url,
             donationId: donation.id,
             success: true,
             isRecurring: frequency !== "ONE_TIME",
