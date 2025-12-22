@@ -3,6 +3,13 @@ import { db } from "@/lib/db"
 import { sendDonationConfirmationEmail } from "@/lib/email"
 import { v4 as uuidv4 } from "uuid"
 
+// Get Square API base URL
+function getSquareBaseUrl() {
+  return process.env.SQUARE_ENVIRONMENT === "production"
+    ? "https://connect.squareup.com"
+    : "https://connect.squareupsandbox.com"
+}
+
 // Simple email validation
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -27,6 +34,7 @@ async function getSquareLocationId() {
     if (response.ok) {
       const data = await response.json()
       if (data.locations && data.locations.length > 0) {
+        console.log("Square: Using location:", data.locations[0].id)
         return data.locations[0].id
       }
     }
@@ -34,7 +42,8 @@ async function getSquareLocationId() {
     console.error("Failed to fetch Square locations:", error)
   }
   
-  throw new Error("Square location ID not found. Please set SQUARE_LOCATION_ID environment variable.")
+  // Fallback: If no location found, this will error but at least we tried
+  throw new Error("Square location ID not found. Please set SQUARE_LOCATION_ID environment variable or ensure your Square account has at least one location configured.")
 }
 
 // Calculate next renewal date based on start date and frequency
