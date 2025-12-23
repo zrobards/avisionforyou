@@ -80,11 +80,19 @@ export async function middleware(req: NextRequest) {
         console.error('Middleware: AUTH_SECRET or NEXTAUTH_SECRET is missing');
       }
       
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:83',message:'BEFORE getToken call',data:{pathname:pathname,hasSecret:!!secret,isProtectedRoute,env:process.env.NODE_ENV},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      
       token = await getToken({
         req,
         secret: secret,
         secureCookie: process.env.NODE_ENV === 'production',
       });
+
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:94',message:'AFTER getToken call',data:{pathname:pathname,hasToken:!!token,isLoggedIn:!!token,tokenEmail:token?.email||null,tokenRole:token?.role||null,tokenTosAccepted:token?.tosAccepted||null,tokenProfileDone:token?.profileDone||null},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
 
       isLoggedIn = !!token;
     } catch (error) {
@@ -99,13 +107,15 @@ export async function middleware(req: NextRequest) {
     }
 
     if (!isLoggedIn || !token) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:104',message:'REDIRECTING TO LOGIN - not authenticated',data:{pathname:pathname,isLoggedIn,hasToken:!!token,returnUrl:pathname + searchParams.toString()},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       const loginUrl = new URL('/login', req.url);
       loginUrl.searchParams.set('returnUrl', pathname + searchParams.toString());
       return NextResponse.redirect(loginUrl);
     }
 
     // Define special route types
-    const isVerificationRoute = pathname.startsWith('/verify-email') || pathname.startsWith('/auth/verify-email');
     const isSetPasswordRoute = pathname.startsWith('/set-password');
     
     // Check onboarding completion flags (optimized format: "1" = completed, null = not completed)
@@ -113,54 +123,52 @@ export async function middleware(req: NextRequest) {
     const profileDone = token.profileDone === true;
     
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:97',message:'Middleware verification checks',data:{pathname:pathname,tokenTosAccepted:token.tosAccepted,tokenTosAcceptedType:typeof token.tosAccepted,tosAccepted:tosAccepted,tokenProfileDone:token.profileDone,tokenProfileDoneType:typeof token.profileDone,profileDone:profileDone,tokenEmailVerified:token.emailVerified,tokenEmailVerifiedType:typeof token.emailVerified,tokenNeedsPassword:token.needsPassword,tokenNeedsPasswordType:typeof token.needsPassword,isOnboardingRoute:isOnboardingRoute,isVerificationRoute:isVerificationRoute,isSetPasswordRoute:isSetPasswordRoute},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:97',message:'Middleware verification checks',data:{pathname:pathname,tokenTosAccepted:token.tosAccepted,tokenTosAcceptedType:typeof token.tosAccepted,tosAccepted:tosAccepted,tokenProfileDone:token.profileDone,tokenProfileDoneType:typeof token.profileDone,profileDone:profileDone,tokenNeedsPassword:token.needsPassword,tokenNeedsPasswordType:typeof token.needsPassword,isOnboardingRoute:isOnboardingRoute,isSetPasswordRoute:isSetPasswordRoute},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
     // #endregion
     
     // Onboarding flow: ToS → Profile → Dashboard
-    // IMPORTANT: Only enforce onboarding redirects for onboarding routes themselves
-    // For dashboard routes (/client, /admin), let the pages handle redirects
-    // This prevents redirect loops when token hasn't refreshed yet after completing onboarding
-    if (!tosAccepted && isOnboardingRoute && !pathname.startsWith('/onboarding/tos')) {
+    // IMPORTANT: Allow authenticated users to access onboarding routes
+    // Only redirect within onboarding flow, don't block access to onboarding pages
+    if (isOnboardingRoute) {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:105',message:'Middleware redirecting to TOS',data:{tosAccepted:tosAccepted,pathname:pathname},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:124',message:'Onboarding route check',data:{pathname:pathname,tosAccepted,profileDone,tokenTosAccepted:token.tosAccepted,tokenProfileDone:token.profileDone,isTosRoute:pathname.startsWith('/onboarding/tos')},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
       // #endregion
-      return NextResponse.redirect(new URL('/onboarding/tos', req.url));
-    }
-    
-    if (tosAccepted && !profileDone && isOnboardingRoute && !pathname.startsWith('/onboarding/profile')) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:109',message:'Middleware redirecting to profile',data:{tosAccepted:tosAccepted,profileDone:profileDone,pathname:pathname},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
-      return NextResponse.redirect(new URL('/onboarding/profile', req.url));
-    }
-    
-    // If onboarding complete, redirect away from onboarding pages
-    // BUT: Only redirect if we're actually on an onboarding page to prevent loops
-    if (tosAccepted && profileDone && isOnboardingRoute) {
-      const role = token.role as string;
-      const dashboardUrl = role === 'CEO' || role === 'ADMIN' ? '/admin' : '/client';
-      // Prevent redirect loop: only redirect if not already going to dashboard
-      if (!pathname.startsWith(dashboardUrl)) {
+      // If user is on /onboarding/tos and has already accepted TOS, redirect to next step
+      if (pathname.startsWith('/onboarding/tos') && tosAccepted) {
+        if (profileDone) {
+          // Onboarding complete - redirect to dashboard
+          const role = token.role as string;
+          const dashboardUrl = role === 'CEO' || role === 'ADMIN' ? '/admin' : '/client';
+          // #region agent log
+          fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:130',message:'Redirecting from TOS to dashboard',data:{pathname:pathname,role,dashboardUrl},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+          // #endregion
+          return NextResponse.redirect(new URL(dashboardUrl, req.url));
+        } else {
+          // TOS done but profile not done - redirect to profile
+          // #region agent log
+          fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:135',message:'Redirecting from TOS to profile',data:{pathname:pathname},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+          // #endregion
+          return NextResponse.redirect(new URL('/onboarding/profile', req.url));
+        }
+      }
+      
+      // If user is on /onboarding/profile and hasn't accepted TOS, redirect to TOS
+      if (pathname.startsWith('/onboarding/profile') && !tosAccepted) {
+        return NextResponse.redirect(new URL('/onboarding/tos', req.url));
+      }
+      
+      // If user is on /onboarding/profile and has completed profile, redirect to dashboard
+      if (pathname.startsWith('/onboarding/profile') && tosAccepted && profileDone) {
+        const role = token.role as string;
+        const dashboardUrl = role === 'CEO' || role === 'ADMIN' ? '/admin' : '/client';
         return NextResponse.redirect(new URL(dashboardUrl, req.url));
       }
+      
+      // Otherwise, allow access to onboarding routes
+      return NextResponse.next();
     }
     
-    // Check email verification (except for verification, onboarding, and set-password routes)
-    // Users can complete onboarding and set password without verification
-    // But they cannot access the main app (dashboard, etc.) until verified
-    const isPublicRoute = isVerificationRoute || isOnboardingRoute || isSetPasswordRoute || pathname === '/login' || pathname === '/register';
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:151',message:'Email verification check',data:{email:token.email,pathname:pathname,isPublicRoute:isPublicRoute,tokenEmailVerified:token.emailVerified,tokenEmailVerifiedType:typeof token.emailVerified},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    if (!isPublicRoute && !token.emailVerified) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:158',message:'BLOCKED - redirecting to verify email',data:{email:token.email,pathname:pathname,redirectingTo:'/verify-email'},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      const verifyUrl = new URL('/verify-email', req.url);
-      verifyUrl.searchParams.set('returnUrl', pathname);
-      verifyUrl.searchParams.set('email', token.email as string);
-      return NextResponse.redirect(verifyUrl);
-    }
+    // Email verification has been removed - all users are auto-verified on signup
 
     // Check if user needs to set a password (OAuth-only users)
     // Skip this check for set-password route and onboarding (password is optional for OAuth)
@@ -203,7 +211,6 @@ export const config = {
     '/ceo/:path*',
     '/portal/:path*',
     '/onboarding/:path*',
-    '/verify-email',  // Allow access to verification page
     '/set-password',  // Allow access to set password page
     '/api/((?!auth).*)',  // All API routes except auth
     // NOTE: /clear-cookies is explicitly excluded in the middleware code above

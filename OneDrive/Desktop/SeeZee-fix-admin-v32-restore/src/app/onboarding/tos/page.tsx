@@ -14,21 +14,30 @@ export default function OnboardingTosPage() {
 
   // If not authenticated, redirect to login
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:16',message:'Auth check useEffect',data:{status:status,sessionExists:!!session,sessionUserExists:!!session?.user,sessionUserId:session?.user?.id||null},sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-    // #endregion
-    
     // Don't redirect while session is still loading
     if (status === "loading") {
       return;
     }
     
-    // Only redirect if explicitly unauthenticated (not just missing session during load)
-    if (status === "unauthenticated" || (status === "authenticated" && !session?.user?.id)) {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:18',message:'TOS page auth check',data:{status,hasSession:!!session,hasUser:!!session?.user,userId:session?.user?.id||null,email:session?.user?.email||null},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
+    
+    // Only redirect if explicitly unauthenticated
+    // IMPORTANT: Don't redirect if status is "authenticated" - even if session.user is temporarily undefined
+    // The middleware handles authentication, so if we get here, the user is authenticated
+    if (status === "unauthenticated") {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:25',message:'Redirecting to login',data:{status:status,session:session},sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:26',message:'TOS page redirecting to login - unauthenticated',data:{status},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
       // #endregion
       router.push("/login?returnUrl=/onboarding/tos");
+      return;
+    }
+    
+    // If authenticated but session data is still loading, wait
+    if (status === "authenticated" && !session?.user?.id) {
+      // Session is authenticated but user data not loaded yet - wait a bit
+      return;
     }
   }, [status, session, router]);
 
@@ -157,21 +166,23 @@ export default function OnboardingTosPage() {
       });
 
       if (response.ok) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:168',message:'TOS accepted - updating session',data:{userId:session?.user?.id,email:session?.user?.email},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        
         // Update session with new data - this triggers JWT callback refresh
         await update({
           tosAcceptedAt: new Date().toISOString(),
         });
         
-        // Wait a moment for the session to refresh and token to update
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:175',message:'TOS accepted - session updated, redirecting',data:{redirectingTo:'/onboarding/profile'},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
         
-        // Force session refresh by fetching it again
-        const refreshedSession = await fetch('/api/auth/session', {
-          credentials: 'include',
-        }).then(res => res.json());
-        
-        // Use router.push to prevent full page reload and redirect loops
-        router.push("/onboarding/profile");
+        // CRITICAL: Use hard redirect to force full page reload and fresh token
+        // This ensures middleware sees the updated token with tosAccepted=true
+        // Client-side navigation (router.push) can cause stale token issues
+        window.location.href = "/onboarding/profile";
       } else {
         alert("Failed to accept terms. Please try again.");
       }

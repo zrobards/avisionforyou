@@ -187,14 +187,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          // CEO whitelist - skip email verification for CEO users
-          const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com"];
+          // CEO whitelist - auto-setup CEO users
+          const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "sean.mcculloch23@gmail.com"];
           const isCEO = CEO_EMAILS.includes((credentials.email as string).toLowerCase());
-
-          // Check if email is verified (skip for CEO users)
-          if (!user.emailVerified && !isCEO) {
-            throw new Error("EMAIL_NOT_VERIFIED");
-          }
 
           // Auto-verify CEO email if not already verified
           if (isCEO && !user.emailVerified) {
@@ -265,7 +260,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
         
         // CEO whitelist - auto-upgrade to CEO with completed onboarding
-        const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com"];
+        const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "spmcculloch1007@gmail.com", "sean.mcculloch23@gmail.com"];
         if (CEO_EMAILS.includes(user.email!)) {
           await retryDatabaseOperation(async () => {
             return await prisma.user.update({
@@ -479,7 +474,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
         
         // CEO whitelist - auto-upgrade to CEO with completed onboarding
-        const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com"];
+        const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "sean.mcculloch23@gmail.com"];
         const isCEO = CEO_EMAILS.includes(email as string);
         
         // Always fetch latest user data from database to catch onboarding completion and role changes
@@ -498,6 +493,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
           });
         });
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth.ts:495',message:'JWT callback - fetched DB user',data:{email,hasDbUser:!!dbUser,dbUserId:dbUser?.id||null,dbUserRole:dbUser?.role||null,dbTosAcceptedAt:dbUser?.tosAcceptedAt||null,dbProfileDoneAt:dbUser?.profileDoneAt||null,trigger:trigger||null},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
         
         if (dbUser) {
           // Auto-verify OAuth users if not already verified (Google already verified their email)
@@ -585,6 +584,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.emailVerified = !!currentDbUser.emailVerified;
             // Check if user needs to set a password (OAuth-only users)
             token.needsPassword = !currentDbUser.password;
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth.ts:583',message:'JWT callback - token values set',data:{email,userId:currentDbUser.id,role:token.role,tosAccepted:token.tosAccepted,profileDone:token.profileDone,dbTosAcceptedAt:currentDbUser.tosAcceptedAt||null,dbProfileDoneAt:currentDbUser.profileDoneAt||null},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
           }
         } else {
           // User might not exist yet during OAuth flow - use safe defaults
@@ -606,7 +609,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         // Handle explicit session updates from onboarding pages
+        // NOTE: Even with update trigger, we still fetch fresh from DB above
+        // This ensures DB is always the source of truth
         if (trigger === "update" && updateSession) {
+          console.log('[JWT] Update trigger:', { email, trigger, updateTosAcceptedAt: updateSession.tosAcceptedAt, updateProfileDoneAt: updateSession.profileDoneAt });
+          
           token.role = updateSession.role || token.role;
           token.tosAccepted = updateSession.tosAcceptedAt ? true : token.tosAccepted;
           token.profileDone = updateSession.profileDoneAt ? true : token.profileDone;
@@ -620,6 +627,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if ('emailVerified' in updateSession) {
             token.emailVerified = !!updateSession.emailVerified;
           }
+        }
+        
+        // CRITICAL: After handling update trigger, ALWAYS force token values to match DB
+        // This ensures DB is always the source of truth, even if update trigger had stale data
+        // This prevents redirect loops when DB is updated but token still has old values
+        if (dbUser) {
+          console.log('[JWT] Final token values (DB source of truth):', { 
+            email, 
+            userId: dbUser.id, 
+            role: token.role, 
+            tokenTosAccepted: token.tosAccepted, 
+            tokenProfileDone: token.profileDone,
+            dbTosAcceptedAt: dbUser.tosAcceptedAt, 
+            dbProfileDoneAt: dbUser.profileDoneAt 
+          });
+          
+          // Force token values to match DB (DB is source of truth)
+          // This overrides any values set by update trigger to ensure consistency
+          token.tosAccepted = !!dbUser.tosAcceptedAt;
+          token.profileDone = !!dbUser.profileDoneAt;
+          token.questionnaireCompleted = !!dbUser.questionnaireCompleted;
+          token.role = dbUser.role || "CLIENT";
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);

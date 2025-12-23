@@ -166,23 +166,25 @@ export default function OnboardingProfilePage() {
       });
 
       if (response.ok) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/profile/page.tsx:168',message:'Profile completed - updating session',data:{userId:session?.user?.id,email:session?.user?.email,isClient},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        
         // Update session with new data - this triggers JWT callback refresh
         await update({
           profileDoneAt: new Date().toISOString(),
           name: formData.name,
         });
         
-        // Wait a moment for the session to refresh and token to update
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/profile/page.tsx:178',message:'Profile completed - session updated, redirecting',data:{targetUrl:isClient ? "/client" : "/admin"},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
         
-        // Force session refresh by fetching it again
-        await fetch('/api/auth/session', {
-          credentials: 'include',
-        }).then(res => res.json());
-        
-        // Redirect based on account type - use router.push to prevent loops
+        // CRITICAL: Use hard redirect to force full page reload and fresh token
+        // This ensures middleware sees the updated token with profileDone=true
+        // Client-side navigation (router.push) can cause stale token issues
         const targetUrl = isClient ? "/client" : "/admin";
-        router.push(targetUrl);
+        window.location.href = targetUrl;
       } else {
         alert("Failed to save profile. Please try again.");
       }

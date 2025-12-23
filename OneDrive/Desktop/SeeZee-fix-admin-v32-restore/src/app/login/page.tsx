@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ import LogoHeader from "@/components/brand/LogoHeader";
 
 function LoginContent() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
@@ -23,10 +24,45 @@ function LoginContent() {
   const { executeRecaptcha } = useGoogleReCaptcha();
   // Support both returnUrl (from middleware) and callbackUrl (from NextAuth)
   const callbackUrl = searchParams.get("returnUrl") || searchParams.get("callbackUrl") || "/";
-  const errorParam = searchParams.get("error");
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === "loading") return; // Wait for session to load
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:32',message:'Login page session check',data:{status,hasSession:!!session,hasUser:!!session?.user,userId:session?.user?.id||null,email:session?.user?.email||null,tosAcceptedAt:session?.user?.tosAcceptedAt||null,profileDoneAt:session?.user?.profileDoneAt||null,role:session?.user?.role||null,callbackUrl},sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    
+    if (session?.user) {
+      // User is already signed in, redirect them away from login page
+      // Check onboarding status to redirect appropriately
+      if (!session.user.tosAcceptedAt) {
+        // Need to accept ToS - redirect to onboarding
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:37',message:'Login redirecting to TOS',data:{userId:session.user.id,email:session.user.email,redirectingTo:'/onboarding/tos'},sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        router.push("/onboarding/tos");
+      } else if (!session.user.profileDoneAt) {
+        // Need to complete profile
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:40',message:'Login redirecting to profile',data:{userId:session.user.id,email:session.user.email,redirectingTo:'/onboarding/profile'},sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        router.push("/onboarding/profile");
+      } else {
+        // Onboarding complete - redirect to appropriate dashboard or callbackUrl
+        const defaultUrl = session.user.role === 'CEO' || session.user.role === 'ADMIN' ? '/admin' : '/client';
+        const redirectUrl = callbackUrl === '/' ? defaultUrl : callbackUrl;
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:45',message:'Login redirecting to dashboard',data:{userId:session.user.id,email:session.user.email,role:session.user.role,defaultUrl,callbackUrl,redirectUrl},sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        router.push(redirectUrl);
+      }
+    }
+  }, [session, status, router, callbackUrl]);
 
   // Set error from URL parameter
   useEffect(() => {
+    const errorParam = searchParams.get("error");
     if (errorParam) {
       console.log("🔴 Login error detected:", errorParam);
       setError(
@@ -41,15 +77,7 @@ function LoginContent() {
           : `Error: ${errorParam}. Please try again or contact support.`
       );
     }
-    
-    // Handle success message from email verification
-    const verified = searchParams.get("verified");
-    if (verified === "true") {
-      setError(""); // Clear any errors
-      // Show success message (you might want to use a toast here instead)
-      console.log("✅ Email verified successfully!");
-    }
-  }, [errorParam, searchParams]);
+  }, [searchParams]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,14 +98,12 @@ function LoginContent() {
         redirect: false,
       });
 
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:88',message:'Login result',data:{hasError:!!result?.error,error:result?.error||null,email},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      
       if (result?.error) {
-        if (result.error === "EMAIL_NOT_VERIFIED") {
-          setError("Please verify your email before logging in. Check your inbox for the verification link.");
-          // Optionally redirect to verification page
-          setTimeout(() => {
-            router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-          }, 2000);
-        } else if (result.error === "CredentialsSignin") {
+        if (result.error === "CredentialsSignin") {
           setError("Invalid email or password. Please try again.");
         } else {
           setError(result.error);
@@ -105,8 +131,16 @@ function LoginContent() {
             cache: 'no-store',
           });
           
+          // #region agent log
+          fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:116',message:'After login - fetched user data',data:{userResponseOk:userResponse.ok,userResponseStatus:userResponse.status,callbackUrl},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
+          
           if (userResponse.ok) {
             const userData = await userResponse.json();
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:122',message:'User data from DB',data:{userId:userData.id,email:userData.email,role:userData.role,tosAcceptedAt:userData.tosAcceptedAt||null,profileDoneAt:userData.profileDoneAt||null,callbackUrl},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
             
             // Determine redirect based on onboarding status from DB
             let redirectUrl = callbackUrl;
@@ -125,14 +159,24 @@ function LoginContent() {
               }
             }
             
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:138',message:'Login redirecting after success',data:{redirectUrl,callbackUrl,userId:userData.id},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
+            
             // Use window.location.href for full page reload to ensure fresh session
             window.location.href = redirectUrl;
           } else {
             // Fallback if user data fetch fails
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:142',message:'Login fallback redirect',data:{callbackUrl,fallbackUrl:callbackUrl === '/' ? '/onboarding/tos' : callbackUrl},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
             window.location.href = callbackUrl === '/' ? '/onboarding/tos' : callbackUrl;
           }
         } catch (fetchError) {
           console.error("Error fetching user data:", fetchError);
+          // #region agent log
+          fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:147',message:'Login error fetching user data',data:{error:fetchError instanceof Error ? fetchError.message : String(fetchError),callbackUrl},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
           // Fallback redirect
           window.location.href = callbackUrl === '/' ? '/onboarding/tos' : callbackUrl;
         }
