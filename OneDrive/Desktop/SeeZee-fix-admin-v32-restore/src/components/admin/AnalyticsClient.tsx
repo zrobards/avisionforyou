@@ -232,11 +232,12 @@ export function AnalyticsClient({ metrics }: AnalyticsClientProps) {
           transition={{ delay: 0.5 }}
         >
           <SectionCard title="Revenue Over Time">
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart
-              data={metrics.revenue.overTime}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-            >
+          <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={metrics.revenue.overTime}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#6EE7FF" stopOpacity={0.8} />
@@ -269,8 +270,9 @@ export function AnalyticsClient({ metrics }: AnalyticsClientProps) {
                 fillOpacity={1}
                 fill="url(#colorRevenue)"
               />
-            </AreaChart>
-          </ResponsiveContainer>
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </SectionCard>
         </motion.div>
       )}
@@ -284,8 +286,9 @@ export function AnalyticsClient({ metrics }: AnalyticsClientProps) {
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
           <SectionCard title="Project Status Breakdown">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
+            <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
                 <Pie
                   data={[
                     {
@@ -340,13 +343,15 @@ export function AnalyticsClient({ metrics }: AnalyticsClientProps) {
                 />
               </PieChart>
             </ResponsiveContainer>
+            </div>
           </SectionCard>
 
           {/* Monthly Comparison Chart */}
           {metrics.revenue?.monthlyComparison && (
             <SectionCard title="Monthly Revenue Comparison">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
+              <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
                   data={[
                     {
                       name: metrics.revenue.monthlyComparison.previousMonth,
@@ -379,8 +384,9 @@ export function AnalyticsClient({ metrics }: AnalyticsClientProps) {
                     formatter={(value: number) => formatCurrency(value)}
                   />
                   <Bar dataKey="revenue" fill="#6EE7FF" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </SectionCard>
           )}
         </motion.div>
@@ -395,8 +401,9 @@ export function AnalyticsClient({ metrics }: AnalyticsClientProps) {
         >
           <SectionCard title="Lead Funnel">
           <div className="space-y-4">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
+            <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
                 data={[
                   {
                     stage: "New",
@@ -444,6 +451,7 @@ export function AnalyticsClient({ metrics }: AnalyticsClientProps) {
                 <Bar dataKey="count" fill="#6EE7FF" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
             <div className="flex justify-between items-center pt-4 border-t border-white/5">
               <span className="text-sm text-slate-400">Total Leads</span>
               <span className="text-white font-medium">{metrics.leads.total}</span>

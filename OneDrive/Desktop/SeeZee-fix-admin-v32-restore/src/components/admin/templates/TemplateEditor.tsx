@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -52,6 +52,7 @@ const COMMON_VARIABLES = [
 
 export function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [formData, setFormData] = useState({
     name: template?.name || "",
     category: template?.category || "CLIENT_OUTREACH",
@@ -61,6 +62,11 @@ export function TemplateEditor({ template, onClose, onSave }: TemplateEditorProp
   const [customVariables, setCustomVariables] = useState<string[]>(
     template?.variables.filter((v) => !COMMON_VARIABLES.includes(v)) || []
   );
+
+  // Ensure editor only initializes on client after mount to prevent hpm error
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -75,7 +81,15 @@ export function TemplateEditor({ template, onClose, onSave }: TemplateEditorProp
         class: "prose prose-invert max-w-none focus:outline-none min-h-[300px] p-4",
       },
     },
+    enableCoreExtensions: true,
   });
+
+  // Update editor content when template changes
+  useEffect(() => {
+    if (editor && template?.htmlContent && isMounted) {
+      editor.commands.setContent(template.htmlContent);
+    }
+  }, [editor, template?.htmlContent, isMounted]);
 
   const insertVariable = (variable: string) => {
     if (editor) {
@@ -303,7 +317,13 @@ export function TemplateEditor({ template, onClose, onSave }: TemplateEditorProp
 
         {/* Editor Content */}
         <div className="rounded-lg border-2 border-gray-700 bg-[#1a2235] overflow-hidden">
-          <EditorContent editor={editor} />
+          {isMounted && editor ? (
+            <EditorContent editor={editor} />
+          ) : (
+            <div className="min-h-[300px] p-4 text-gray-500 flex items-center justify-center">
+              Loading editor...
+            </div>
+          )}
         </div>
 
         {/* Actions */}
@@ -350,5 +370,9 @@ export function TemplateEditor({ template, onClose, onSave }: TemplateEditorProp
 }
 
 export default TemplateEditor;
+
+
+
+
 
 

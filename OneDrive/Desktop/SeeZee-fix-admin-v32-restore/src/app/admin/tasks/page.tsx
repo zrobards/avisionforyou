@@ -11,7 +11,7 @@ export default async function TasksPage() {
   // Auth check is handled in layout.tsx to prevent flash
 
   const [tasksResult, statsResult] = await Promise.all([
-    getTasks(),
+    getTasks({ showAll: true }), // Show all tasks for admin page
     getTaskStats(),
   ]);
 

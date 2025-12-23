@@ -30,8 +30,8 @@ export async function middleware(req: NextRequest) {
     const method = req.method;
     const origin = req.headers.get("origin");
 
-    // CRITICAL: Never interfere with auth routes
-    if (pathname.startsWith("/api/auth")) {
+    // CRITICAL: Never interfere with auth routes or cookie clearing
+    if (pathname.startsWith("/api/auth") || pathname === "/clear-cookies" || pathname === "/api/auth/clear-session") {
       return NextResponse.next();
     }
 
@@ -70,14 +70,35 @@ export async function middleware(req: NextRequest) {
     }
 
     // Read NextAuth JWT (edge-safe, no Prisma)
-    const token = await getToken({
-      req,
-      secureCookie: process.env.NODE_ENV === 'production',
-    });
+    // Handle case where cookies are too large (431 error)
+    let token = null;
+    let isLoggedIn = false;
+    
+    try {
+      const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+      if (!secret) {
+        console.error('Middleware: AUTH_SECRET or NEXTAUTH_SECRET is missing');
+      }
+      
+      token = await getToken({
+        req,
+        secret: secret,
+        secureCookie: process.env.NODE_ENV === 'production',
+      });
 
-    const isLoggedIn = !!token;
+      isLoggedIn = !!token;
+    } catch (error) {
+      // If we can't read the token (likely due to oversized cookies), redirect to clear cookies
+      console.error('Middleware: Failed to read token (likely oversized cookies):', error);
+      // Only redirect if we're not already on a public route
+      if (isProtectedRoute) {
+        return NextResponse.redirect(new URL('/clear-cookies', req.url));
+      }
+      // For non-protected routes, just continue without auth
+      return NextResponse.next();
+    }
 
-    if (!isLoggedIn) {
+    if (!isLoggedIn || !token) {
       const loginUrl = new URL('/login', req.url);
       loginUrl.searchParams.set('returnUrl', pathname + searchParams.toString());
       return NextResponse.redirect(loginUrl);
@@ -91,25 +112,50 @@ export async function middleware(req: NextRequest) {
     const tosAccepted = token.tosAccepted === true;
     const profileDone = token.profileDone === true;
     
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:97',message:'Middleware verification checks',data:{pathname:pathname,tokenTosAccepted:token.tosAccepted,tokenTosAcceptedType:typeof token.tosAccepted,tosAccepted:tosAccepted,tokenProfileDone:token.profileDone,tokenProfileDoneType:typeof token.profileDone,profileDone:profileDone,tokenEmailVerified:token.emailVerified,tokenEmailVerifiedType:typeof token.emailVerified,tokenNeedsPassword:token.needsPassword,tokenNeedsPasswordType:typeof token.needsPassword,isOnboardingRoute:isOnboardingRoute,isVerificationRoute:isVerificationRoute,isSetPasswordRoute:isSetPasswordRoute},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
+    
     // Onboarding flow: ToS → Profile → Dashboard
-    if (!tosAccepted && !pathname.startsWith('/onboarding/tos')) {
+    // IMPORTANT: Only enforce onboarding redirects for onboarding routes themselves
+    // For dashboard routes (/client, /admin), let the pages handle redirects
+    // This prevents redirect loops when token hasn't refreshed yet after completing onboarding
+    if (!tosAccepted && isOnboardingRoute && !pathname.startsWith('/onboarding/tos')) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:105',message:'Middleware redirecting to TOS',data:{tosAccepted:tosAccepted,pathname:pathname},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
       return NextResponse.redirect(new URL('/onboarding/tos', req.url));
     }
     
-    if (tosAccepted && !profileDone && !pathname.startsWith('/onboarding/profile')) {
+    if (tosAccepted && !profileDone && isOnboardingRoute && !pathname.startsWith('/onboarding/profile')) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:109',message:'Middleware redirecting to profile',data:{tosAccepted:tosAccepted,profileDone:profileDone,pathname:pathname},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
       return NextResponse.redirect(new URL('/onboarding/profile', req.url));
     }
     
     // If onboarding complete, redirect away from onboarding pages
+    // BUT: Only redirect if we're actually on an onboarding page to prevent loops
     if (tosAccepted && profileDone && isOnboardingRoute) {
       const role = token.role as string;
       const dashboardUrl = role === 'CEO' || role === 'ADMIN' ? '/admin' : '/client';
-      return NextResponse.redirect(new URL(dashboardUrl, req.url));
+      // Prevent redirect loop: only redirect if not already going to dashboard
+      if (!pathname.startsWith(dashboardUrl)) {
+        return NextResponse.redirect(new URL(dashboardUrl, req.url));
+      }
     }
     
-    // Check email verification (except for verification and onboarding routes)
-    // Onboarding is allowed because OAuth users are auto-verified
-    if (!isVerificationRoute && !isOnboardingRoute && !token.emailVerified) {
+    // Check email verification (except for verification, onboarding, and set-password routes)
+    // Users can complete onboarding and set password without verification
+    // But they cannot access the main app (dashboard, etc.) until verified
+    const isPublicRoute = isVerificationRoute || isOnboardingRoute || isSetPasswordRoute || pathname === '/login' || pathname === '/register';
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:151',message:'Email verification check',data:{email:token.email,pathname:pathname,isPublicRoute:isPublicRoute,tokenEmailVerified:token.emailVerified,tokenEmailVerifiedType:typeof token.emailVerified},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    if (!isPublicRoute && !token.emailVerified) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:158',message:'BLOCKED - redirecting to verify email',data:{email:token.email,pathname:pathname,redirectingTo:'/verify-email'},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       const verifyUrl = new URL('/verify-email', req.url);
       verifyUrl.searchParams.set('returnUrl', pathname);
       verifyUrl.searchParams.set('email', token.email as string);
@@ -119,6 +165,9 @@ export async function middleware(req: NextRequest) {
     // Check if user needs to set a password (OAuth-only users)
     // Skip this check for set-password route and onboarding (password is optional for OAuth)
     if (!isSetPasswordRoute && !isOnboardingRoute && token.needsPassword === true) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:134',message:'Middleware redirecting to set password',data:{tokenNeedsPassword:token.needsPassword,tokenNeedsPasswordType:typeof token.needsPassword,pathname:pathname},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
       const setPasswordUrl = new URL('/set-password', req.url);
       return NextResponse.redirect(setPasswordUrl);
     }
@@ -157,5 +206,6 @@ export const config = {
     '/verify-email',  // Allow access to verification page
     '/set-password',  // Allow access to set password page
     '/api/((?!auth).*)',  // All API routes except auth
+    // NOTE: /clear-cookies is explicitly excluded in the middleware code above
   ],
 };

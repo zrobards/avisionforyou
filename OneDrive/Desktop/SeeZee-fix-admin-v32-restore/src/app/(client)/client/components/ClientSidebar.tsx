@@ -16,6 +16,10 @@ import {
   Settings,
   Receipt,
   CheckSquare,
+  CalendarDays,
+  Calendar,
+  Video,
+  CreditCard,
 } from "lucide-react";
 import { fetchJson } from "@/lib/client-api";
 
@@ -27,7 +31,7 @@ interface ClientSidebarProps {
   };
 }
 
-const getNavItems = (pendingTaskCount: number = 0) => [
+const getNavItems = (pendingTaskCount: number = 0, meetingCount: number = 0) => [
   {
     label: "Overview",
     href: "/client",
@@ -47,15 +51,45 @@ const getNavItems = (pendingTaskCount: number = 0) => [
     badge: pendingTaskCount > 0 ? pendingTaskCount : null,
   },
   {
+    label: "Meetings",
+    href: "/client/meetings",
+    icon: <CalendarDays className="w-5 h-5" />,
+    badge: meetingCount > 0 ? meetingCount : null,
+  },
+  {
+    label: "Calendar",
+    href: "/client/calendar",
+    icon: <Calendar className="w-5 h-5" />,
+    badge: null,
+  },
+  {
     label: "Files",
     href: "/client/files",
     icon: <Upload className="w-5 h-5" />,
     badge: null,
   },
   {
+    label: "Recordings",
+    href: "/client/recordings",
+    icon: <Video className="w-5 h-5" />,
+    badge: null,
+  },
+  {
+    label: "Invoices",
+    href: "/client/invoices",
+    icon: <Receipt className="w-5 h-5" />,
+    badge: null,
+  },
+  {
     label: "Requests",
     href: "/client/requests",
     icon: <HelpCircle className="w-5 h-5" />,
+    badge: null,
+  },
+  {
+    label: "Subscriptions",
+    href: "/client/subscriptions",
+    icon: <CreditCard className="w-5 h-5" />,
     badge: null,
   },
   {
@@ -69,6 +103,7 @@ const getNavItems = (pendingTaskCount: number = 0) => [
 export default function ClientSidebar({ user }: ClientSidebarProps) {
   const pathname = usePathname();
   const [pendingTaskCount, setPendingTaskCount] = useState(0);
+  const [upcomingMeetingCount, setUpcomingMeetingCount] = useState(0);
   
   // Generate breadcrumbs from pathname
   const segments = pathname.split("/").filter(Boolean);
@@ -77,8 +112,9 @@ export default function ClientSidebar({ user }: ClientSidebarProps) {
   );
   const pageTitle = breadcrumbs.slice(-1)[0] || "Dashboard";
 
-  // Fetch pending task count
+  // Fetch pending task count and upcoming meetings
   useEffect(() => {
+    // Fetch tasks
     fetchJson<any>("/api/client/tasks")
       .then((data) => {
         const tasks = data?.tasks || [];
@@ -90,6 +126,20 @@ export default function ClientSidebar({ user }: ClientSidebarProps) {
       .catch(() => {
         // Silently fail - tasks endpoint might not exist yet
       });
+
+    // Fetch meetings
+    fetchJson<any>("/api/client/meetings")
+      .then((data) => {
+        const meetings = data?.meetings || [];
+        const upcoming = meetings.filter((m: any) => 
+          new Date(m.startTime) > new Date() && 
+          (m.status === 'SCHEDULED' || m.status === 'CONFIRMED' || m.status === 'PENDING')
+        ).length;
+        setUpcomingMeetingCount(upcoming);
+      })
+      .catch(() => {
+        // Silently fail
+      });
   }, []);
 
   const isActive = (href: string) => {
@@ -97,7 +147,7 @@ export default function ClientSidebar({ user }: ClientSidebarProps) {
     return pathname.startsWith(href);
   };
 
-  const navItems = getNavItems(pendingTaskCount);
+  const navItems = getNavItems(pendingTaskCount, upcomingMeetingCount);
 
   return (
     <aside

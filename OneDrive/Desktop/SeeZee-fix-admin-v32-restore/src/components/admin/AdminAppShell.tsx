@@ -48,6 +48,8 @@ import LogoHeader from "@/components/brand/LogoHeader";
 import { CollapsibleNavGroup } from "@/components/admin/CollapsibleNavGroup";
 import { isCEO } from "@/lib/role";
 import type { CurrentUser } from "@/lib/auth/requireRole";
+import GlobalSearch from "@/components/ui/GlobalSearch";
+import { AdminNotificationBanner } from "@/components/admin/AdminNotificationBanner";
 
 interface NavItem {
   href: string;
@@ -94,8 +96,7 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
   // Marketing & Outreach group - Lead generation and email
   const marketingItems = useMemo<NavItem[]>(
     () => [
-      { href: "/admin/leads", label: "All Leads", icon: FiUsers },
-      { href: "/admin/leads/finder", label: "Lead Finder", icon: FiMapPin },
+      { href: "/admin/leads", label: "Leads & Finder", icon: FiUsers },
       { href: "/admin/marketing", label: "Email Hub", icon: FiMail },
       { href: "/admin/marketing/campaigns", label: "Campaigns", icon: FiSend },
       { href: "/admin/marketing/templates", label: "Templates", icon: FiFileText },
@@ -106,9 +107,11 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
   // Financial group
   const financialItems = useMemo<NavItem[]>(
     () => [
-      { href: "/admin/invoices", label: "Invoices", icon: FiFileText },
-      { href: "/admin/finances", label: "Finances", icon: FiDollarSign },
-      { href: "/admin/maintenance", label: "Maintenance", icon: FiClock },
+      { href: "/admin/finance", label: "Finance Overview", icon: FiDollarSign, description: "Revenue, metrics, and financial dashboard" },
+      { href: "/admin/invoices", label: "Invoices", icon: FiFileText, description: "Manage and track invoices" },
+      { href: "/admin/subscriptions", label: "Subscriptions", icon: FiCreditCard, description: "Manage client subscriptions" },
+      { href: "/admin/purchases", label: "Purchases", icon: FiCreditCard, description: "Hour packs and subscription payments" },
+      { href: "/admin/maintenance", label: "Maintenance", icon: FiServer, description: "Maintenance schedules and change requests" },
     ],
     []
   );
@@ -256,7 +259,7 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
                 items={financialItems}
                 isActive={isActive}
                 onNavigate={handleNavigate}
-                defaultOpen={pathname.startsWith("/admin/invoices") || pathname.startsWith("/admin/finances") || pathname.startsWith("/admin/maintenance")}
+                defaultOpen={pathname.startsWith("/admin/invoices") || pathname.startsWith("/admin/finances") || pathname.startsWith("/admin/purchases") || pathname.startsWith("/admin/maintenance")}
                 collapsed={isCollapsed}
               />
 
@@ -372,7 +375,7 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
 
         <div className={`flex min-h-screen flex-1 flex-col transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
           <header className="border-b border-white/10 bg-[#0f172a]/80 backdrop-blur-xl px-4 py-4 lg:px-8">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <button
                 onClick={() => setIsSidebarOpen((prev) => !prev)}
                 className="rounded-xl p-2 text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white lg:hidden"
@@ -380,8 +383,17 @@ export function AdminAppShell({ user, children }: AdminAppShellProps) {
               >
                 {isSidebarOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
               </button>
+              <div className="flex flex-1 items-center justify-end gap-3">
+                <GlobalSearch 
+                  variant="admin" 
+                  placeholder="Search projects, clients, leads, tasks..." 
+                />
+              </div>
             </div>
           </header>
+
+          {/* Notification Banner */}
+          <AdminNotificationBanner />
 
           <main className="flex-1 overflow-y-auto bg-[#0a1128] px-4 py-8 lg:px-10 lg:py-12">
             {/* Subtle dot pattern background */}

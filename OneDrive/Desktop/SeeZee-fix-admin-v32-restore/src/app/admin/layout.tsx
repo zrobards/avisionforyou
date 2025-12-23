@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth/requireRole";
 import { ROLE } from "@/lib/role";
 import { redirect } from "next/navigation";
 import { AdminAppShell } from "@/components/admin/AdminAppShell";
+import { NotificationsProvider } from "@/providers/NotificationsProvider";
 
 export default async function AdminLayout({
   children,
@@ -26,10 +27,12 @@ export default async function AdminLayout({
     redirect("/no-access");
   }
 
-  // Wrap all admin pages with AdminAppShell for consistent layout
+  // Wrap all admin pages with AdminAppShell and NotificationsProvider for consistent layout
   return (
-    <AdminAppShell user={user}>
-      {children}
-    </AdminAppShell>
+    <NotificationsProvider>
+      <AdminAppShell user={user}>
+        {children}
+      </AdminAppShell>
+    </NotificationsProvider>
   );
 }

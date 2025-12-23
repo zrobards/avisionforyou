@@ -68,6 +68,21 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* Prevent horizontal scroll on all elements */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure images and media don't overflow */
+img, video, iframe, embed, object {
+  max-width: 100%;
+  height: auto;
 }
 
 body {
@@ -404,6 +419,47 @@ html.light body {
   gap: 18px;
 }
 
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  /* Ensure touch targets are at least 44x44px */
+  button:not(.no-touch-target), 
+  a:not(.no-touch-target), 
+  input[type="button"]:not(.no-touch-target), 
+  input[type="submit"]:not(.no-touch-target), 
+  [role="button"]:not(.no-touch-target) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent text from being too small */
+  body {
+    font-size: 16px; /* Prevents iOS zoom on input focus */
+  }
+  
+  /* Improve form inputs on mobile */
+  input:not([type="checkbox"]):not([type="radio"]), 
+  textarea, 
+  select {
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+  
+  /* Better spacing on mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Prevent horizontal scroll */
+  * {
+    max-width: 100%;
+  }
+  
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
 /* Responsive breakpoints */
 @media (max-width: 980px) {
   .grid-3,
@@ -421,6 +477,32 @@ html.light body {
   }
   .grid-auto {
     gap: 12px;
+  }
+  
+  /* Mobile-specific spacing adjustments */
+  .container-custom {
+    padding: 0 16px;
+  }
+  
+  /* Ensure tables scroll horizontally */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  
+  /* Better mobile typography */
+  .heading-display {
+    font-size: clamp(24px, 8vw, 44px);
+  }
+  
+  .heading-xl {
+    font-size: clamp(20px, 6vw, 36px);
+  }
+  
+  .heading-lg {
+    font-size: clamp(18px, 5vw, 28px);
   }
 }
 
@@ -691,6 +773,26 @@ html.light body {
 
 .scrollbar-track-transparent::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* Custom scrollbar for database page */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.3);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(147, 51, 234, 0.6), rgba(59, 130, 246, 0.6));
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.8));
 }
 
 /* ===== SeeZee Layout Vars ===== */

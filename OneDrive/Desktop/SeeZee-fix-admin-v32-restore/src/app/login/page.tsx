@@ -41,7 +41,15 @@ function LoginContent() {
           : `Error: ${errorParam}. Please try again or contact support.`
       );
     }
-  }, [errorParam]);
+    
+    // Handle success message from email verification
+    const verified = searchParams.get("verified");
+    if (verified === "true") {
+      setError(""); // Clear any errors
+      // Show success message (you might want to use a toast here instead)
+      console.log("✅ Email verified successfully!");
+    }
+  }, [errorParam, searchParams]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,17 +84,35 @@ function LoginContent() {
         }
         setIsLoading(false);
       } else {
-        // Success - fetch user data to determine redirect
+        // Success - track session creation
         try {
-          const userResponse = await fetch('/api/user/me');
+          await fetch('/api/settings/sessions/track', {
+            method: 'POST',
+          });
+        } catch (trackError) {
+          // Silently fail session tracking - not critical
+          console.error("Failed to track session:", trackError);
+        }
+
+        // CRITICAL: Force session refresh to ensure token has latest DB data
+        // This prevents redirect loops when user has completed onboarding but token is stale
+        try {
+          // Wait a moment for NextAuth to finish creating the session
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Fetch fresh user data from database (bypasses token cache)
+          const userResponse = await fetch('/api/user/me', {
+            cache: 'no-store',
+          });
+          
           if (userResponse.ok) {
             const userData = await userResponse.json();
             
-            // Determine redirect based on onboarding status
+            // Determine redirect based on onboarding status from DB
             let redirectUrl = callbackUrl;
             
             if (callbackUrl === '/') {
-              // Check if onboarding is complete
+              // Check if onboarding is complete (using DB data, not token)
               if (userData.tosAcceptedAt && userData.profileDoneAt) {
                 // Onboarding complete - go to dashboard
                 redirectUrl = userData.role === 'CEO' || userData.role === 'ADMIN' ? '/admin' : '/client';
@@ -99,6 +125,7 @@ function LoginContent() {
               }
             }
             
+            // Use window.location.href for full page reload to ensure fresh session
             window.location.href = redirectUrl;
           } else {
             // Fallback if user data fetch fails

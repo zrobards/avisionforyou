@@ -118,9 +118,9 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
         </div>
       </div>
 
-      <div className="h-[300px] mt-4">
+      <div className="h-[300px] min-h-[300px] mt-4">
         {data && data.length > 0 ? (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minHeight={300}>
             <AreaChart
               data={data}
               margin={{ top: 10, right: 10, left: 0, bottom: 0 }}

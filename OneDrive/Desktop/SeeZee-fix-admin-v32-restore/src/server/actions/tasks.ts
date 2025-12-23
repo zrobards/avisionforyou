@@ -23,9 +23,12 @@ interface CreateTaskParams {
   priority?: TodoPriority;
   assignedToId?: string;
   assignedToRole?: UserRole; // Role group assignment
+  assignedToTeamId?: string; // Team/organization assignment
   projectId?: string;
+  changeRequestId?: string; // Link to change request if auto-generated
   payoutAmount?: number;
   dueDate?: Date;
+  estimatedHours?: number;
 }
 
 /**
@@ -36,36 +39,46 @@ export async function getTasks(filter?: {
   assignedToId?: string;
   assignedToRole?: UserRole;
   projectId?: string;
+  showAll?: boolean; // If true, show all tasks (for admins)
 }) {
   const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
     const where: any = {};
 
-    // TODO: Add assignedToRole field to Todo model
     // If assignedToRole filter is provided, use it
-    // if (filter?.assignedToRole) {
-    //   where.assignedToRole = filter.assignedToRole;
-    // }
+    if (filter?.assignedToRole) {
+      where.assignedToRole = filter.assignedToRole;
+    }
 
-    // If assignedToId filter is provided, use it
-    if (filter?.assignedToId !== undefined) {
-      if (filter.assignedToId !== null) {
-        where.assignedToId = filter.assignedToId;
-      } else {
-        where.assignedToId = null;
+    // If showAll is true (for admins), don't filter by user
+    if (filter?.showAll || user.role === ROLE.CEO || user.role === ROLE.CFO) {
+      // Admins see all tasks, but still respect other filters
+      if (filter?.assignedToId !== undefined) {
+        if (filter.assignedToId !== null) {
+          where.assignedToId = filter.assignedToId;
+        } else {
+          where.assignedToId = null;
+        }
       }
     } else {
-      // Default: show tasks assigned to current user
-      where.assignedToId = user.id;
-      // TODO: Add assignedToRole and claimedById fields to Todo model
-      // where.OR = [
-      //   { assignedToId: user.id },
-      //   { 
-      //     assignedToRole: user.role as UserRole,
-      //     claimedById: null, // Available to claim
-      //   },
-      // ];
+      // If assignedToId filter is provided, use it
+      if (filter?.assignedToId !== undefined) {
+        if (filter.assignedToId !== null) {
+          where.assignedToId = filter.assignedToId;
+        } else {
+          where.assignedToId = null;
+        }
+      } else {
+        // Default: show tasks assigned to current user OR tasks assigned to their role
+        where.OR = [
+          { assignedToId: user.id },
+          { 
+            assignedToRole: user.role as UserRole,
+            assignedToId: null, // Available to claim
+          },
+        ];
+      }
     }
 
     if (filter?.status) {
@@ -87,15 +100,6 @@ export async function getTasks(filter?: {
             image: true,
           },
         },
-        // TODO: Add claimedBy field to Todo model if needed
-        // claimedBy: {
-        //   select: {
-        //     id: true,
-        //     name: true,
-        //     email: true,
-        //     image: true,
-        //   },
-        // },
         createdBy: {
           select: {
             id: true,
@@ -103,6 +107,20 @@ export async function getTasks(filter?: {
             email: true,
           },
         },
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        // changeRequest: {
+        //   select: {
+        //     id: true,
+        //     status: true,
+        //     category: true,
+        //     priority: true,
+        //   },
+        // },
       } as any,
       orderBy: [
         { status: "asc" },
@@ -125,9 +143,8 @@ export async function getTasksByRole(role: UserRole, projectId?: string) {
   const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
-    // TODO: Add assignedToRole field to Todo model
     const where: any = {
-      // assignedToRole: role,
+      assignedToRole: role,
     };
 
     if (projectId) {
@@ -143,14 +160,6 @@ export async function getTasksByRole(role: UserRole, projectId?: string) {
             name: true,
           },
         },
-        // TODO: Add claimedBy field to Todo model if needed
-        // claimedBy: {
-        //   select: {
-        //     id: true,
-        //     name: true,
-        //     email: true,
-        //   },
-        // },
         createdBy: {
           select: {
             id: true,
@@ -158,6 +167,14 @@ export async function getTasksByRole(role: UserRole, projectId?: string) {
             email: true,
           },
         },
+        // changeRequest: {
+        //   select: {
+        //     id: true,
+        //     status: true,
+        //     category: true,
+        //     priority: true,
+        //   },
+        // },
       } as any,
       orderBy: [
         { status: "asc" },
@@ -204,9 +221,11 @@ export async function createTask(params: CreateTaskParams) {
         description: params.description,
         priority: params.priority || TodoPriority.MEDIUM,
         assignedToId: params.assignedToId,
-        // assignedToRole: params.assignedToRole, // TODO: Add this field to Todo model
+        assignedToRole: params.assignedToRole,
+        assignedToTeamId: params.assignedToTeamId,
         projectId: params.projectId,
-        // payoutAmount: params.payoutAmount ? params.payoutAmount.toString() : null, // TODO: Add this field to Todo model
+        changeRequestId: params.changeRequestId,
+        estimatedHours: params.estimatedHours,
         dueDate: params.dueDate,
         createdById: user.id,
         status: TodoStatus.TODO,
@@ -595,8 +614,10 @@ export async function getTaskStats() {
   const user = await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
-    // Filter tasks assigned to the current user
-    const baseFilter = { assignedToId: user.id };
+    // For admins, show all tasks; for others, show only their tasks
+    const baseFilter = (user.role === ROLE.CEO || user.role === ROLE.CFO) 
+      ? {} 
+      : { assignedToId: user.id };
 
     const [total, todo, inProgress, done, overdue] = await Promise.all([
       db.todo.count({ where: baseFilter }),
@@ -693,5 +714,178 @@ export async function bulkDeleteTasks(taskIds: string[]) {
   } catch (error) {
     console.error("Failed to bulk delete tasks:", error);
     return { success: false, error: "Failed to bulk delete tasks", count: 0 };
+  }
+}
+
+/**
+ * Auto-generate a task from a change request
+ * This is called automatically when a change request is created
+ */
+export async function createTaskFromChangeRequest(changeRequestId: string) {
+  try {
+    // Get the change request with project info
+    const changeRequest = await db.changeRequest.findUnique({
+      where: { id: changeRequestId },
+      include: {
+        project: {
+          include: {
+            organization: true,
+          },
+        },
+      },
+    });
+
+    if (!changeRequest) {
+      console.error(`Change request ${changeRequestId} not found`);
+      return { success: false, error: "Change request not found" };
+    }
+
+    // Check if task already exists for this change request
+    // Note: This will only work after the migration adds changeRequestId field
+    let existingTask = null;
+    try {
+      // Try to find by changeRequestId if field exists
+      existingTask = await db.todo.findFirst({
+        where: { changeRequestId } as any,
+      });
+    } catch (error) {
+      // Field doesn't exist yet, try alternative method
+      // Check by matching project and similar title
+      const descriptionLines = changeRequest.description.split("\n");
+      const title = descriptionLines[0] || changeRequest.description.substring(0, 50);
+      existingTask = await db.todo.findFirst({
+        where: {
+          projectId: changeRequest.projectId,
+          title: { contains: title.substring(0, 30) },
+          createdAt: { gte: new Date(Date.now() - 60000) }, // Created in last minute
+        },
+      });
+    }
+
+    if (existingTask) {
+      console.log(`Task already exists for change request ${changeRequestId}`);
+      return { success: true, task: existingTask, alreadyExists: true };
+    }
+
+    // Get system user (CEO) for createdBy
+    const systemUser = await db.user.findFirst({
+      where: {
+        role: { in: ["CEO", "ADMIN"] },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (!systemUser) {
+      console.error("No system user found to create task");
+      return { success: false, error: "No system user found" };
+    }
+
+    // Map change request priority to task priority
+    const priorityMap: Record<string, TodoPriority> = {
+      LOW: TodoPriority.LOW,
+      NORMAL: TodoPriority.MEDIUM,
+      HIGH: TodoPriority.HIGH,
+      URGENT: TodoPriority.HIGH,
+      EMERGENCY: TodoPriority.HIGH,
+    };
+
+    // Map change request category to determine role assignment
+    const categoryToRole: Record<string, UserRole | undefined> = {
+      CONTENT: "OUTREACH",
+      BUG: "BACKEND",
+      FEATURE: "BACKEND",
+      DESIGN: "DESIGNER",
+      SEO: "OUTREACH",
+      SECURITY: "BACKEND",
+      OTHER: undefined,
+    };
+
+    // Extract title from description (first line or first 50 chars)
+    const descriptionLines = changeRequest.description.split("\n");
+    const title = descriptionLines[0] || changeRequest.description.substring(0, 50);
+    const description = descriptionLines.length > 1 
+      ? descriptionLines.slice(1).join("\n").trim()
+      : changeRequest.description;
+
+    // Create the task
+    // Note: We create without assignedToRole first, then update it separately
+    // to avoid Prisma client validation errors if the client is out of sync
+    const roleAssignment = categoryToRole[changeRequest.category];
+    
+    const task = await db.todo.create({
+      data: {
+        title: title.length > 100 ? title.substring(0, 100) : title,
+        description: description || null,
+        priority: priorityMap[changeRequest.priority] || TodoPriority.MEDIUM,
+        projectId: changeRequest.projectId,
+        changeRequestId: changeRequest.id,
+        estimatedHours: changeRequest.estimatedHours || null,
+        createdById: systemUser.id,
+        status: TodoStatus.TODO,
+        column: "todo",
+        position: 0,
+      } as any,
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        // changeRequest: {
+        //   select: {
+        //     id: true,
+        //     status: true,
+        //     category: true,
+        //     priority: true,
+        //   },
+        // },
+      } as any,
+    });
+
+    // Update assignedToRole separately using raw SQL to bypass Prisma client validation
+    // This is necessary when the Prisma client is out of sync with the schema
+    if (roleAssignment) {
+      try {
+        await db.$executeRawUnsafe(
+          `UPDATE "todos" SET "assignedToRole" = $1::"UserRole" WHERE "id" = $2`,
+          roleAssignment,
+          task.id
+        );
+        // Refresh the task object to include the updated field
+        const updatedTask = await db.todo.findUnique({
+          where: { id: task.id },
+          include: {
+            project: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+        if (updatedTask) {
+          Object.assign(task, updatedTask);
+        }
+      } catch (error) {
+        // If the field doesn't exist in the database yet, log but don't fail
+        console.warn(`Failed to set assignedToRole for task ${task.id}:`, error);
+      }
+    }
+
+    // Create activity
+    await createActivity({
+      type: "SYSTEM_ALERT",
+      title: "Task auto-generated from change request",
+      description: `Task created: ${title}`,
+      userId: systemUser.id,
+      metadata: { projectId: changeRequest.projectId },
+    });
+
+    console.log(`Task ${task.id} created from change request ${changeRequestId}`);
+    return { success: true, task };
+  } catch (error) {
+    console.error("Failed to create task from change request:", error);
+    return { success: false, error: "Failed to create task from change request" };
   }
 }

@@ -28,7 +28,7 @@ export function Notifications() {
   const unreadNotifications = notifications.filter((n) => !n.read);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-[100]" ref={dropdownRef}>
       {/* Bell Button */}
       <button
         onClick={() => setOpen(!open)}
@@ -45,7 +45,7 @@ export function Notifications() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 mt-2 w-80 rounded-xl border border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-2xl z-[60]">
+        <div className="absolute right-0 mt-2 w-80 rounded-xl border border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-2xl z-[100]">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
             <h3 className="text-sm font-semibold text-white">Notifications</h3>

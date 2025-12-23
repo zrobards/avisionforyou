@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "./shared/Modal";
 import { createClient, updateClient, deleteClient } from "@/server/actions/clients";
 import { useRouter } from "next/navigation";
@@ -42,6 +42,24 @@ export function ClientModal({ isOpen, onClose, client, mode }: ClientModalProps)
     zip: client?.zip || "",
     country: client?.country || "",
   });
+
+  // Reset form data when modal opens or client/mode changes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        name: client?.name || "",
+        email: client?.email || "",
+        phone: client?.phone || "",
+        website: client?.website || "",
+        address: client?.address || "",
+        city: client?.city || "",
+        state: client?.state || "",
+        zip: client?.zip || "",
+        country: client?.country || "",
+      });
+      setError(null);
+    }
+  }, [isOpen, client, mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

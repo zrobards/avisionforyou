@@ -68,7 +68,7 @@ export function Navbar() {
             : 'bg-white/90 backdrop-blur-xl'
         } border-b border-[#e2e8f0]`}
       >
-        <div className="max-w-7xl mx-auto h-[var(--nav-h)] flex items-center gap-3 px-4 lg:px-6">
+        <div className="max-w-7xl mx-auto h-[var(--nav-h)] flex items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6">
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(true)}
@@ -79,8 +79,8 @@ export function Navbar() {
           </button>
 
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <LogoMinimal size={45} />
+          <Link href="/" className="flex items-center gap-1 sm:gap-2 hover:opacity-80 transition-opacity">
+            <LogoMinimal size={40} className="sm:w-[45px] sm:h-[45px]" />
           </Link>
 
           {/* Primary Nav - Desktop */}
@@ -94,7 +94,7 @@ export function Navbar() {
           <div className="flex-1" />
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-2 lg:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
             {/* Context Pill - Show only if authenticated */}
             {session && (
               <ContextPill
@@ -111,7 +111,7 @@ export function Navbar() {
             {activeProjectRequest ? (
               <Link
                 href="/client"
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 lg:px-4 py-2 text-sm font-semibold text-white shadow-md hover:from-amber-600 hover:to-orange-600 transition-all"
+                className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-md hover:from-amber-600 hover:to-orange-600 transition-all min-h-[36px] sm:min-h-[44px]"
               >
                 <Clock className="h-4 w-4" />
                 <span className="hidden lg:inline">
@@ -122,7 +122,7 @@ export function Navbar() {
             ) : (
               <Link
                 href="/start"
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[#dc2626] px-3 lg:px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#b91c1c] transition-all"
+                className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-[#dc2626] px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-md hover:bg-[#b91c1c] transition-all min-h-[36px] sm:min-h-[44px]"
               >
                 <Rocket className="h-4 w-4" />
                 <span className="hidden lg:inline">Start a Project</span>

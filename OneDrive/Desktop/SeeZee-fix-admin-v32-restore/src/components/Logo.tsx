@@ -14,7 +14,6 @@ export function LogoMinimal({ className = "", size = 40 }: { className?: string;
         width={size}
         height={size}
         className="object-contain"
-        priority
       />
     </div>
   );
@@ -35,7 +34,6 @@ export function LogoFull({ className = "", width = 300 }: { className?: string; 
         width={width}
         height={height}
         className="object-contain"
-        priority
       />
     </div>
   );

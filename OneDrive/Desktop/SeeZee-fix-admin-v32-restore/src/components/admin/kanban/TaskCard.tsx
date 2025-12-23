@@ -17,6 +17,9 @@ interface Task {
   estimatedHours: number | null;
   actualHours: number | null;
   assignedTo: { id: string; name: string | null; image: string | null } | null;
+  assignedToRole?: string | null;
+  assignedToTeamId?: string | null;
+  changeRequestId?: string | null;
   dependencies: string[];
   attachments: string[];
   createdAt: string;
@@ -59,6 +62,7 @@ export function TaskCard({ task, isDragging, onClick }: TaskCardProps) {
       {...attributes}
       {...listeners}
       onClick={onClick}
+      suppressHydrationWarning
       className={`
         rounded-xl border border-white/10 bg-[#0f172a]/80 backdrop-blur-sm p-4
         cursor-grab active:cursor-grabbing
@@ -89,7 +93,7 @@ export function TaskCard({ task, isDragging, onClick }: TaskCardProps) {
       <div className="flex items-center justify-between mt-4 text-xs text-slate-500">
         <div className="flex items-center gap-3">
           {/* Assignee */}
-          {task.assignedTo && (
+          {task.assignedTo ? (
             <div className="flex items-center gap-1">
               {task.assignedTo.image ? (
                 <img
@@ -105,7 +109,17 @@ export function TaskCard({ task, isDragging, onClick }: TaskCardProps) {
                 </div>
               )}
             </div>
-          )}
+          ) : task.assignedToRole ? (
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-[10px]">
+              <User className="w-3 h-3" />
+              <span>{task.assignedToRole}</span>
+            </div>
+          ) : task.assignedToTeamId ? (
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 text-[10px]">
+              <User className="w-3 h-3" />
+              <span>Team</span>
+            </div>
+          ) : null}
 
           {/* Hours */}
           {task.estimatedHours && (

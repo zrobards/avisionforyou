@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { SidebarProvider } from "@/components/shared/SidebarContext";
 import { RecaptchaProvider } from "@/components/providers/RecaptchaProvider";
+import { DialogProvider } from "@/lib/dialog";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +12,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider>
         <SidebarProvider>
           <RecaptchaProvider>
-            {children}
+            <DialogProvider>
+              {children}
+            </DialogProvider>
           </RecaptchaProvider>
         </SidebarProvider>
       </ThemeProvider>

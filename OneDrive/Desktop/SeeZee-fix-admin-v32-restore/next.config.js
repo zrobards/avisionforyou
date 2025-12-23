@@ -1,5 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Development source map configuration to prevent parsing errors
+  productionBrowserSourceMaps: false,
+  // Webpack/Turbopack configuration for TipTap/ProseMirror
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    return config;
+  },
+  // Turbopack configuration (Next.js 16+)
+  // Empty config to silence the warning - webpack config handles fs fallback
+  turbopack: {
+    // Set root directory to silence multiple lockfiles warning
+    root: __dirname,
+  },
   images: {
     remotePatterns: [
       // Google OAuth profile images

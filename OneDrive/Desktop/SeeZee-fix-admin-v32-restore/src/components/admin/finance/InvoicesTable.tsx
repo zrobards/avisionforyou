@@ -89,8 +89,8 @@ export function InvoicesTable({ invoices }: InvoicesTableProps) {
 
   return (
     <div className="rounded-2xl border-2 border-gray-700 glass-effect overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="overflow-x-auto -mx-6 px-6">
+        <table className="w-full min-w-full">
           <thead>
             <tr className="border-b border-gray-700 bg-[#1a2235]">
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
@@ -230,5 +230,9 @@ export function InvoicesTable({ invoices }: InvoicesTableProps) {
 }
 
 export default InvoicesTable;
+
+
+
+
 
 

@@ -73,13 +73,13 @@ export async function POST(request: NextRequest) {
     // Hash new password
     const passwordHash = await bcrypt.hash(newPassword, 12);
 
-    // Update password and mark email as verified
-    // If user can reset password via email, their email is verified
+    // Update password
+    // DO NOT auto-verify email - email verification is separate from password reset
     await prisma.user.update({
       where: { id: user.id },
       data: {
         password: passwordHash,
-        emailVerified: new Date(), // Mark email as verified since they accessed their email
+        // emailVerified is NOT set here - user must verify email separately
       },
     });
 

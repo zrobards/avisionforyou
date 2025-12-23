@@ -50,12 +50,19 @@ export function getActiveProjectRequest(projectRequests: any[]): any | null {
 }
 
 /**
- * Check if user has only LEAD status projects
+ * Check if user has only LEAD status projects (excluding maintenance plan projects)
+ * Projects with maintenance plans are considered "active" via the HoursBank
  */
 export function hasOnlyLeadProjects(projects: any[]): boolean {
   if (!projects || projects.length === 0) return false;
   
-  return projects.every((project) => {
+  // Filter out maintenance plan projects first
+  const nonMaintenanceProjects = projects.filter(p => !p.hasMaintenancePlan);
+  
+  // If no non-maintenance projects, user only has maintenance plans which are active
+  if (nonMaintenanceProjects.length === 0) return false;
+  
+  return nonMaintenanceProjects.every((project) => {
     const status = String(project.status || '').toUpperCase();
     return status === 'LEAD';
   });
@@ -63,37 +70,44 @@ export function hasOnlyLeadProjects(projects: any[]): boolean {
 
 /**
  * Get projects with LEAD status
+ * Excludes projects that have a maintenance plan attached (those are shown via HoursBank instead)
  */
 export function getLeadProjects(projects: any[]): any[] {
   if (!projects || projects.length === 0) return [];
   
   return projects.filter((project) => {
     const status = String(project.status || '').toUpperCase();
-    return status === 'LEAD';
+    // Only include LEAD projects that don't have a maintenance plan
+    // Maintenance plan projects are shown via the HoursBank component instead
+    return status === 'LEAD' && !project.hasMaintenancePlan;
   });
 }
 
 /**
- * Check if user has active projects (non-LEAD status)
+ * Check if user has active projects (non-LEAD status OR has maintenance plan)
+ * Projects with maintenance plans are considered active
  */
 export function hasActiveProjects(projects: any[]): boolean {
   if (!projects || projects.length === 0) return false;
   
   return projects.some((project) => {
     const status = String(project.status || '').toUpperCase();
-    return status !== 'LEAD';
+    // Consider a project active if it's not LEAD OR if it has a maintenance plan
+    return status !== 'LEAD' || project.hasMaintenancePlan;
   });
 }
 
 /**
- * Get active projects (non-LEAD status)
+ * Get active projects (non-LEAD status OR has maintenance plan)
+ * Projects with maintenance plans are considered active
  */
 export function getActiveProjects(projects: any[]): any[] {
   if (!projects || projects.length === 0) return [];
   
   return projects.filter((project) => {
     const status = String(project.status || '').toUpperCase();
-    return status !== 'LEAD';
+    // Consider a project active if it's not LEAD OR if it has a maintenance plan
+    return status !== 'LEAD' || project.hasMaintenancePlan;
   });
 }
 

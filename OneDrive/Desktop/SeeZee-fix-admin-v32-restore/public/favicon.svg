@@ -1,32 +1,13 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" fill="#0A0E27"/>
-  <defs>
-    <linearGradient id="favicon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#DC143C;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#b91c1c;stop-opacity:1" />
-    </linearGradient>
-    <filter id="glow-favicon" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-      <feOffset in="coloredBlur" dx="0" dy="0" result="offsetBlur"/>
-      <feFlood flood-color="#DC143C" flood-opacity="0.6"/>
-      <feComposite in2="offsetBlur" operator="in"/>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-  <text 
-    x="16" 
-    y="22" 
-    font-family="Arial, sans-serif" 
-    font-size="18" 
-    font-weight="900" 
-    fill="url(#favicon-gradient)" 
-    text-anchor="middle"
-    filter="url(#glow-favicon)"
-    letter-spacing="1"
-  >
-    SZ
-  </text>
+  <!-- Dark background with rounded corners -->
+  <rect width="32" height="32" rx="5" fill="#0A0E27"/>
+  
+  <!-- Big Red Bus Image -->
+  <image 
+    href="/big-red-bus-1.png" 
+    width="32" 
+    height="32" 
+    preserveAspectRatio="xMidYMid slice"
+    style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+  />
 </svg>

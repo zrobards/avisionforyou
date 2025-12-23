@@ -28,6 +28,12 @@ interface FinancesClientProps {
     pendingPayments: number;
     refunds: number;
     growthPercent: number;
+    thisMonthRevenue?: number;
+    lastMonthRevenue?: number;
+    monthlyRecurringRevenue?: number;
+    activeSubscriptions?: number;
+    totalPaidInvoices?: number;
+    percentChange?: number;
     accountInfo: {
       accountId: string;
       payoutSchedule: string;
@@ -224,7 +230,7 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
         </div>
       </motion.div>
 
-      {/* Financial KPIs */}
+      {/* Financial KPIs - Aligned with Finance Overview */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -232,12 +238,15 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
         className="grid grid-cols-1 md:grid-cols-4 gap-4"
       >
         <StatCard
-          label="Total Income"
-          value={formatCurrency(metrics.totalIncome)}
+          label={metrics.thisMonthRevenue !== undefined ? "This Month" : "Total Income"}
+          value={formatCurrency(metrics.thisMonthRevenue ?? metrics.totalIncome)}
           icon={<DollarSign className="w-5 h-5" />}
           trend={
-            metrics.growthPercent !== 0
-              ? { value: metrics.growthPercent, label: "this quarter" }
+            (metrics.percentChange !== undefined && metrics.percentChange !== 0) || metrics.growthPercent !== 0
+              ? { 
+                  value: metrics.percentChange ?? metrics.growthPercent, 
+                  label: metrics.thisMonthRevenue !== undefined ? "vs last month" : "this quarter" 
+                }
               : undefined
           }
         />
@@ -246,14 +255,22 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
           value={formatCurrency(metrics.pendingPayments)}
           icon={<CreditCard className="w-5 h-5" />}
         />
+        {metrics.monthlyRecurringRevenue !== undefined ? (
+          <StatCard
+            label="Monthly Recurring"
+            value={formatCurrency(metrics.monthlyRecurringRevenue)}
+            icon={<CreditCard className="w-5 h-5" />}
+          />
+        ) : (
+          <StatCard
+            label="Refunds (30d)"
+            value={formatCurrency(metrics.refunds)}
+            icon={<TrendingDown className="w-5 h-5" />}
+          />
+        )}
         <StatCard
-          label="Refunds (30d)"
-          value={formatCurrency(metrics.refunds)}
-          icon={<TrendingDown className="w-5 h-5" />}
-        />
-        <StatCard
-          label="Available Balance"
-          value={formatCurrency(0)}
+          label={metrics.totalPaidInvoices !== undefined ? "Total Collected" : "Available Balance"}
+          value={formatCurrency(metrics.totalIncome)}
           icon={<DollarSign className="w-5 h-5" />}
         />
       </motion.div>
@@ -293,8 +310,9 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
       {/* Revenue vs Expenses Chart */}
       {metrics.revenueVsExpenses && metrics.revenueVsExpenses.length > 0 && (
         <SectionCard title="Revenue vs Expenses">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart
+          <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
               data={metrics.revenueVsExpenses}
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
@@ -332,16 +350,18 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
                 strokeWidth={2}
                 name="Expenses"
               />
-            </LineChart>
-          </ResponsiveContainer>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </SectionCard>
       )}
 
       {/* Cash Flow Timeline */}
       {metrics.cashFlowTimeline && metrics.cashFlowTimeline.length > 0 && (
         <SectionCard title="Cash Flow Timeline">
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart
+          <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
               data={metrics.cashFlowTimeline}
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
@@ -389,8 +409,9 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
                 fillOpacity={1}
                 fill="url(#colorCashFlow)"
               />
-            </AreaChart>
-          </ResponsiveContainer>
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </SectionCard>
       )}
 
@@ -398,8 +419,9 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {metrics.invoiceStatusBreakdown && (
           <SectionCard title="Invoice Status Breakdown">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
+            <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
                 <Pie
                   data={[
                     {
@@ -446,15 +468,17 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
                     borderRadius: "8px",
                   }}
                 />
-              </PieChart>
-            </ResponsiveContainer>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </SectionCard>
         )}
 
         {metrics.paymentMethodDistribution && (
           <SectionCard title="Payment Method Distribution">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
+            <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
                 <Pie
                   data={[
                     {
@@ -498,8 +522,9 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
                   }}
                   formatter={(value: number) => formatCurrency(value)}
                 />
-              </PieChart>
-            </ResponsiveContainer>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </SectionCard>
         )}
       </div>
@@ -507,8 +532,9 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
       {/* MRR Trend */}
       {metrics.mrrTrend && metrics.mrrTrend.length > 0 && (
         <SectionCard title="Monthly Recurring Revenue (MRR) Trend">
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart
+          <div style={{ width: '100%', height: '300px', minWidth: 0, minHeight: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
               data={metrics.mrrTrend}
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
@@ -546,6 +572,7 @@ export function FinancesClient({ metrics, payouts }: FinancesClientProps) {
               />
             </AreaChart>
           </ResponsiveContainer>
+          </div>
         </SectionCard>
       )}
 

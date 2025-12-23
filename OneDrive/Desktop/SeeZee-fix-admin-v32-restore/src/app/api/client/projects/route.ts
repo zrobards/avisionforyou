@@ -85,6 +85,13 @@ export async function GET(req: NextRequest) {
           },
           orderBy: { dueDate: "asc" },
         },
+        maintenancePlanRel: {
+          select: {
+            id: true,
+            tier: true,
+            status: true,
+          },
+        },
         _count: {
           select: {
             files: true,
@@ -128,6 +135,14 @@ export async function GET(req: NextRequest) {
           completed: m.completed,
           dueDate: m.dueDate,
         })),
+        hasMaintenancePlan: !!p.maintenancePlanRel,
+        maintenancePlan: p.maintenancePlanRel
+          ? {
+              id: p.maintenancePlanRel.id,
+              tier: p.maintenancePlanRel.tier,
+              status: p.maintenancePlanRel.status,
+            }
+          : null,
         counts: {
           files: p._count.files,
           invoices: p._count.invoices,

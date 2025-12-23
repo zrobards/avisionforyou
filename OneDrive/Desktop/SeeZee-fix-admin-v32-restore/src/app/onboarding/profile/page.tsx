@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ImageUpload } from "@/components/profile/ImageUpload";
@@ -29,6 +29,72 @@ export default function OnboardingProfilePage() {
     portfolioUrl: "",
   });
 
+  // Check if user hasn't accepted TOS yet - send them back
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/profile/page.tsx:55',message:'TOS check useEffect',data:{status:status,hasTosAccepted:!!session?.user?.tosAcceptedAt},sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+    // #endregion
+    
+    // Don't redirect while session is still loading
+    if (status === "loading") {
+      return;
+    }
+    
+    if (status === "authenticated" && !session?.user?.tosAcceptedAt) {
+      router.push("/onboarding/tos");
+    }
+  }, [status, session, router]);
+
+  // Check if profile is already complete - redirect to dashboard
+  // Also check DB directly if token seems stale to prevent crashes
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/profile/page.tsx:73',message:'Profile done check useEffect',data:{status:status,hasProfileDone:!!session?.user?.profileDoneAt},sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+    // #endregion
+    
+    // Don't redirect while session is still loading
+    if (status === "loading") {
+      return;
+    }
+    
+    if (status === "authenticated" && session?.user?.id) {
+      // Check token first
+      if (session?.user?.profileDoneAt) {
+        const dashboardUrl = session.user.role === 'CEO' || session.user.role === 'ADMIN' ? '/admin' : '/client';
+        // Only redirect if we're not already on the target page
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith(dashboardUrl)) {
+          router.push(dashboardUrl);
+        }
+      } else {
+        // Token doesn't show profile done, but check DB to be sure (handles stale token case)
+        // This prevents crashes when user completed onboarding but token is stale
+        fetch('/api/user/me', { cache: 'no-store' })
+          .then(res => res.json())
+          .then(userData => {
+            if (userData.profileDoneAt) {
+              // DB says profile is done but token doesn't - token is stale, force refresh
+              update().then(() => {
+                // After update, redirect to dashboard
+                const dashboardUrl = userData.role === 'CEO' || userData.role === 'ADMIN' ? '/admin' : '/client';
+                if (!window.location.pathname.startsWith(dashboardUrl)) {
+                  router.push(dashboardUrl);
+                }
+              }).catch(err => {
+                console.error("Failed to update session:", err);
+                // Fallback: redirect anyway based on DB data
+                const dashboardUrl = userData.role === 'CEO' || userData.role === 'ADMIN' ? '/admin' : '/client';
+                window.location.href = dashboardUrl;
+              });
+            }
+          })
+          .catch(err => {
+            console.error("Failed to check user data:", err);
+            // If check fails, continue with normal flow
+          });
+      }
+    }
+  }, [status, session, router, update]);
+
   // Now we can do conditional rendering AFTER all hooks
   // Show loading state while session is being fetched
   if (status === "loading") {
@@ -44,18 +110,16 @@ export default function OnboardingProfilePage() {
 
   // If not authenticated, redirect to login
   if (status === "unauthenticated" || !session?.user?.id) {
-    console.error("Profile: Not authenticated - redirecting to login", { status, session });
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/profile/page.tsx:46',message:'Not authenticated in profile',data:{status:status,session:session},sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+    // #endregion
     if (typeof window !== "undefined") {
       window.location.href = "/login?returnUrl=/onboarding/profile";
     }
     return null;
   }
 
-  // Check if user hasn't accepted TOS yet - send them back
-  if (!session?.user?.tosAcceptedAt) {
-    if (typeof window !== "undefined") {
-      window.location.href = "/onboarding/tos";
-    }
+  if (status === "authenticated" && !session?.user?.tosAcceptedAt) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
         <div className="text-center">
@@ -66,20 +130,19 @@ export default function OnboardingProfilePage() {
     );
   }
 
-  // Check if profile is already complete - redirect to dashboard
-  if (session?.user?.profileDoneAt) {
+  if (status === "authenticated" && session?.user?.profileDoneAt) {
     const dashboardUrl = session.user.role === 'CEO' || session.user.role === 'ADMIN' ? '/admin' : '/client';
-    if (typeof window !== "undefined") {
-      window.location.href = dashboardUrl;
-    }
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-slate-400">Redirecting to dashboard...</p>
+    // Only show loading if we're not already on the target page
+    if (typeof window !== "undefined" && !window.location.pathname.startsWith(dashboardUrl)) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+            <p className="text-slate-400">Redirecting to dashboard...</p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   const isClient = (session?.user as any)?.role === "CLIENT";
@@ -103,15 +166,23 @@ export default function OnboardingProfilePage() {
       });
 
       if (response.ok) {
-        // Update session with new data
+        // Update session with new data - this triggers JWT callback refresh
         await update({
           profileDoneAt: new Date().toISOString(),
           name: formData.name,
         });
         
-        // Redirect based on account type with hard navigation
+        // Wait a moment for the session to refresh and token to update
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Force session refresh by fetching it again
+        await fetch('/api/auth/session', {
+          credentials: 'include',
+        }).then(res => res.json());
+        
+        // Redirect based on account type - use router.push to prevent loops
         const targetUrl = isClient ? "/client" : "/admin";
-        window.location.href = targetUrl;
+        router.push(targetUrl);
       } else {
         alert("Failed to save profile. Please try again.");
       }

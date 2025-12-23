@@ -19,14 +19,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let body: { projectId?: string } = {};
+    let body: { projectId?: string; returnUrl?: string } = {};
     try {
       body = await req.json();
     } catch {
       // Body is optional, continue
     }
 
-    const { projectId } = body;
+    const { projectId, returnUrl } = body;
 
     let stripeCustomerId: string | null = null;
     let projectWithCustomerId: { id: string } | null = null;
@@ -98,11 +98,76 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // If no customer ID found, try to create one from organization or user
     if (!stripeCustomerId) {
-      return NextResponse.json(
-        { error: "No billing account found. You need to make a payment first to create a billing account." },
-        { status: 400 }
-      );
+      // Try to find organization and create customer
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        include: {
+          organizations: {
+            include: {
+              organization: {
+                include: {
+                  projects: {
+                    take: 1,
+                    orderBy: { createdAt: 'desc' },
+                  },
+                },
+              },
+            },
+            take: 1,
+          },
+        },
+      });
+
+      if (user && user.organizations.length > 0) {
+        const org = user.organizations[0].organization;
+        const project = org.projects[0];
+
+        // Create Stripe customer
+        try {
+          const customer = await stripe.customers.create({
+            email: session.user.email || undefined,
+            name: user.name || undefined,
+            metadata: {
+              userId: user.id,
+              organizationId: org.id,
+              projectId: project?.id || '',
+            },
+          });
+
+          stripeCustomerId = customer.id;
+
+          // Save to project if exists
+          if (project) {
+            await prisma.project.update({
+              where: { id: project.id },
+              data: { stripeCustomerId: customer.id },
+            });
+          }
+
+          // Also save to organization if it has that field
+          if (org.stripeCustomerId === null) {
+            await prisma.organization.update({
+              where: { id: org.id },
+              data: { stripeCustomerId: customer.id },
+            });
+          }
+
+          console.log(`Created Stripe customer ${customer.id} for user ${user.id}`);
+        } catch (error: any) {
+          console.error("Failed to create Stripe customer:", error);
+          return NextResponse.json(
+            { error: "No billing account found. You need to make a payment first to create a billing account." },
+            { status: 400 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: "No billing account found. You need to make a payment first to create a billing account." },
+          { status: 400 }
+        );
+      }
     }
 
     // Verify customer exists in Stripe
@@ -136,9 +201,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Create portal session
+    const defaultReturnUrl = `${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/client/settings?tab=billing`;
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,
-      return_url: `${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/client/settings?tab=billing`,
+      return_url: returnUrl || defaultReturnUrl,
     });
 
     return NextResponse.json({ url: portalSession.url });

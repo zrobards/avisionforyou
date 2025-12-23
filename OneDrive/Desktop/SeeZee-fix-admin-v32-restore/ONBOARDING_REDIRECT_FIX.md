@@ -170,3 +170,7 @@ console.log(`🔍 Middleware onboarding check:`, {
 ✅ Debug logging helps troubleshoot issues
 
 
+
+
+
+

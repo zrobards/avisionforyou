@@ -7,9 +7,14 @@ let resendInstance: Resend | null = null;
 function getResend(): Resend {
   if (!resendInstance) {
     const apiKey = process.env.RESEND_API_KEY;
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:9',message:'Checking RESEND_API_KEY',data:{hasApiKey:!!apiKey,apiKeyLength:apiKey?.length||0},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     if (!apiKey) {
+      console.error("[EMAIL SEND] ❌ RESEND_API_KEY environment variable is not set");
       throw new Error("RESEND_API_KEY environment variable is not set");
     }
+    console.log("[EMAIL SEND] ✅ Resend API key found, initializing Resend client");
     resendInstance = new Resend(apiKey);
   }
   return resendInstance;
@@ -28,14 +33,30 @@ export interface EmailOptions {
  * Send an email using Resend
  */
 export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string }> {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:35',message:'sendEmail entry',data:{to:Array.isArray(options.to)?options.to[0]:options.to,hasSubject:!!options.subject,hasHtml:!!options.html,hasText:!!options.text,hasResendKey:!!process.env.RESEND_API_KEY,resendKeyLength:process.env.RESEND_API_KEY?.length||0},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   try {
     // Default from address
     const from = options.from || "SeeZee Studio <noreply@see-zee.com>";
     
     // Get Resend instance (lazy initialization)
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:44',message:'Before getResend call',data:{from},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     const resend = getResend();
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:47',message:'After getResend call',data:{hasResendInstance:!!resend},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:38',message:'Before resend.emails.send',data:{from:from,to:options.to,subject:options.subject},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
     
     // Send email
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:52',message:'About to call resend.emails.send',data:{from,to:options.to,subject:options.subject},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     const response = await resend.emails.send({
       from,
       to: options.to,
@@ -45,14 +66,38 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
       replyTo: options.replyTo,
     });
     
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:63',message:'After resend.emails.send',data:{hasError:!!response.error,error:response.error?response.error.message:null,hasData:!!response.data,emailId:response.data?.id},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    
     if (response.error) {
-      console.error("Email send error:", response.error);
+      console.error("[EMAIL SEND] Resend API error:", {
+        error: response.error,
+        message: response.error.message,
+        to: options.to,
+        subject: options.subject,
+      });
       return { success: false, error: response.error.message };
     }
     
+    console.log("[EMAIL SEND] ✅ Email sent successfully:", {
+      to: options.to,
+      subject: options.subject,
+      emailId: response.data?.id,
+    });
+    
     return { success: true };
   } catch (error) {
-    console.error("Email send error:", error);
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:72',message:'sendEmail catch block',data:{error:error instanceof Error?error.message:String(error),stack:error instanceof Error?error.stack:null,errorType:error?.constructor?.name},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    console.error("[EMAIL SEND] ❌ Exception sending email:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      to: options.to,
+      subject: options.subject,
+      hasApiKey: !!process.env.RESEND_API_KEY,
+    });
     return { success: false, error: error instanceof Error ? error.message : "Failed to send email" };
   }
 }
@@ -68,6 +113,10 @@ export async function sendEmailWithRateLimit(
   
   // Check rate limit
   const rateLimit = rateLimitByEmail(emailAddress, action, RateLimits.EMAIL_VERIFY);
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:70',message:'Rate limit check',data:{allowed:rateLimit.allowed,resetIn:rateLimit.resetIn,emailAddress:emailAddress},sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
   
   if (!rateLimit.allowed) {
     return {

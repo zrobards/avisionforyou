@@ -121,14 +121,14 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">My Projects</h1>
-          <p className="text-white/60">Track and manage your active and completed projects</p>
+          <h1 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2">My Projects</h1>
+          <p className="text-gray-400">Track and manage your active and completed projects</p>
         </div>
         <Link href="/start">
           <motion.button
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(220, 20, 60, 0.3)" }}
             whileTap={{ scale: 0.98 }}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/25"
+            className="px-6 py-3 bg-gradient-to-r from-trinity-red to-trinity-maroon hover:from-trinity-maroon hover:to-trinity-red text-white font-semibold rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-trinity-red/20"
           >
             <Plus className="w-4 h-4" />
             New Project
@@ -143,53 +143,65 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4"
         >
-          <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl">
+          <motion.div 
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="group bg-gray-900/80 backdrop-blur-sm border border-gray-800 p-5 rounded-2xl hover:border-trinity-red/50 transition-all duration-300"
+          >
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <FolderKanban className="w-4 h-4 text-blue-400" />
+              <div className="p-2.5 bg-trinity-red/20 rounded-xl group-hover:bg-trinity-red/30 transition-colors">
+                <FolderKanban className="w-5 h-5 text-trinity-red" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.total}</p>
-                <p className="text-xs text-white/60">Total Projects</p>
+                <p className="text-3xl font-bold text-white">{stats.total}</p>
+                <p className="text-xs text-gray-400">Total Projects</p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl">
+          <motion.div 
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="group bg-gray-900/80 backdrop-blur-sm border border-gray-800 p-5 rounded-2xl hover:border-blue-500/50 transition-all duration-300"
+          >
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-emerald-500/20 rounded-lg">
-                <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <div className="p-2.5 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 transition-colors">
+                <TrendingUp className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.active}</p>
-                <p className="text-xs text-white/60">Active</p>
+                <p className="text-3xl font-bold text-white">{stats.active}</p>
+                <p className="text-xs text-gray-400">Active</p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl">
+          <motion.div 
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="group bg-gray-900/80 backdrop-blur-sm border border-gray-800 p-5 rounded-2xl hover:border-green-500/50 transition-all duration-300"
+          >
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
+              <div className="p-2.5 bg-green-500/20 rounded-xl group-hover:bg-green-500/30 transition-colors">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.completed}</p>
-                <p className="text-xs text-white/60">Completed</p>
+                <p className="text-3xl font-bold text-white">{stats.completed}</p>
+                <p className="text-xs text-gray-400">Completed</p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl">
+          <motion.div 
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="group bg-gray-900/80 backdrop-blur-sm border border-gray-800 p-5 rounded-2xl hover:border-purple-500/50 transition-all duration-300"
+          >
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-purple-500/20 rounded-lg">
-                <BarChart3 className="w-4 h-4 text-purple-400" />
+              <div className="p-2.5 bg-purple-500/20 rounded-xl group-hover:bg-purple-500/30 transition-colors">
+                <BarChart3 className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.avgProgress}%</p>
-                <p className="text-xs text-white/60">Avg Progress</p>
+                <p className="text-3xl font-bold text-white">{stats.avgProgress}%</p>
+                <p className="text-xs text-gray-400">Avg Progress</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       )}
 
@@ -351,19 +363,20 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -6, transition: { duration: 0.2 } }}
                   layout
                 >
                   <Link
                     href={`/client/projects/${project.id}`}
-                    className="block bg-gray-900 border border-gray-800 p-6 hover:bg-gray-800 transition-all rounded-xl group relative overflow-hidden hover:border-trinity-red"
+                    className="block bg-gray-900/80 backdrop-blur-sm border border-gray-800 p-6 rounded-2xl group relative overflow-hidden hover:border-trinity-red/50 transition-all duration-300 hover:shadow-lg hover:shadow-trinity-red/10"
                   >
                     {/* Gradient overlay on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-cyan-500/0 group-hover:from-blue-500/5 group-hover:via-purple-500/5 group-hover:to-cyan-500/5 transition-all duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-trinity-red/0 via-transparent to-trinity-maroon/0 group-hover:from-trinity-red/5 group-hover:to-trinity-maroon/5 transition-all duration-300 pointer-events-none" />
 
                     <div className="relative z-10">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors mb-2 truncate">
+                          <h3 className="text-lg font-bold text-white group-hover:text-trinity-red transition-colors mb-2 truncate">
                             {project.name}
                           </h3>
                           {project.description && (
@@ -376,7 +389,7 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                           whileHover={{ x: 4 }}
                           className="flex-shrink-0 ml-2"
                         >
-                          <ArrowRight className="w-4 h-4 text-white/40 group-hover:text-blue-400 transition-colors" />
+                          <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-trinity-red transition-colors" />
                         </motion.div>
                       </div>
 

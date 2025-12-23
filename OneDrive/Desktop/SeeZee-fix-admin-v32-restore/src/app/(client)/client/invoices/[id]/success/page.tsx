@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import Link from "next/link";
 import { CheckCircle2, CreditCard, ArrowLeft } from "lucide-react";
+import { InvoiceSuccessEmailTrigger } from "./InvoiceSuccessEmailTrigger";
 
 interface SuccessPageProps {
   params: Promise<{ id: string }>;
@@ -38,6 +39,13 @@ export default async function InvoiceSuccessPage({ params, searchParams }: Succe
             where: {
               user: {
                 email: session.user.email,
+              },
+            },
+            include: {
+              user: {
+                select: {
+                  email: true,
+                },
               },
             },
           },
@@ -92,6 +100,12 @@ export default async function InvoiceSuccessPage({ params, searchParams }: Succe
     paymentVerified = true;
     paymentDate = invoice.paidAt;
   }
+
+  // Determine if we should send email (client component will handle it)
+  const shouldSendEmail = paymentVerified || invoice.status === "PAID";
+  
+  // Get customer email for toast notification
+  const customerEmail = invoice.organization.members[0]?.user?.email || session.user.email;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
@@ -177,6 +191,14 @@ export default async function InvoiceSuccessPage({ params, searchParams }: Succe
           <p className="text-center text-sm text-slate-400 mt-8">
             A receipt has been sent to your email address. If you have any questions, please contact support.
           </p>
+
+          {/* Email trigger component - sends email on client side */}
+          {shouldSendEmail && (
+            <InvoiceSuccessEmailTrigger 
+              invoiceId={invoiceId} 
+              customerEmail={invoice.organization.members[0]?.user?.email || session.user.email}
+            />
+          )}
         </div>
       </div>
     </div>

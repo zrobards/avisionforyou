@@ -3,6 +3,8 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
 import { Prisma, ProjectStatus, InvoiceStatus, PaymentStatus } from '@prisma/client';
+import { renderReceiptEmail } from '@/lib/email/templates/receipt';
+import { sendEmail } from '@/lib/email/send';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -170,32 +172,44 @@ async function handleCheckoutSessionCompleted(
     return true;
   }
 
-  return prisma.$transaction(async (tx) => {
-    const questionnaire = await tx.questionnaire.findUnique({
-      where: { id: questionnaireId },
-    });
+  // Get questionnaire data first to prepare receipt email data
+  const questionnaire = await prisma.questionnaire.findUnique({
+    where: { id: questionnaireId },
+  });
 
-    if (!questionnaire) {
-      console.warn('Questionnaire not found for checkout session', { questionnaireId });
-      return true;
-    }
+  if (!questionnaire) {
+    console.warn('Questionnaire not found for checkout session', { questionnaireId });
+    return true;
+  }
 
-    const payload = (questionnaire.data ?? {}) as QuestionnaireData;
-    const contact = payload.contact;
+  const payload = (questionnaire.data ?? {}) as QuestionnaireData;
+  const contact = payload.contact;
 
-    if (!contact || typeof contact.email !== 'string' || contact.email.trim().length === 0) {
-      console.error('Questionnaire missing contact email', { questionnaireId });
-      return false;
-    }
+  if (!contact || typeof contact.email !== 'string' || contact.email.trim().length === 0) {
+    console.error('Questionnaire missing contact email', { questionnaireId });
+    return false;
+  }
 
   const normalizedEmail = contact.email.trim().toLowerCase();
-    const selectedService =
-      typeof payload.selectedService === 'string' && payload.selectedService.trim().length > 0
-        ? payload.selectedService.trim()
-        : 'Project';
-    const description = deriveDescription(payload.questionnaire?.goals);
-    const budgetDecimal = buildBudgetDecimal(payload.totals?.total);
-    const stripeCustomerId = typeof session.customer === 'string' ? session.customer : undefined;
+  const selectedService =
+    typeof payload.selectedService === 'string' && payload.selectedService.trim().length > 0
+      ? payload.selectedService.trim()
+      : 'Project';
+  
+  // Capture values for receipt email (outside transaction)
+  const paymentAmountCents = session.amount_total || 0;
+  const receiptEmailData = {
+    customerName: contact.name || contact.email.split('@')[0],
+    customerEmail: normalizedEmail,
+    selectedService,
+    paymentAmountCents,
+  };
+
+  const description = deriveDescription(payload.questionnaire?.goals);
+  const budgetDecimal = buildBudgetDecimal(payload.totals?.total);
+  const stripeCustomerId = typeof session.customer === 'string' ? session.customer : undefined;
+
+  return prisma.$transaction(async (tx) => {
 
     const updatedData: Prisma.InputJsonObject = {
       ...((typeof payload === 'object' && payload !== null ? (payload as Prisma.InputJsonObject) : {})),
@@ -259,7 +273,6 @@ async function handleCheckoutSessionCompleted(
     });
 
     // Get payment amount from Stripe session (amount_total is in cents)
-    const paymentAmountCents = session.amount_total || 0;
     const paymentAmount = paymentAmountCents > 0 ? new Prisma.Decimal(paymentAmountCents).dividedBy(100) : budgetDecimal || new Prisma.Decimal(0);
 
     // Create invoice for full payment (100% paid upfront)
@@ -308,6 +321,44 @@ async function handleCheckoutSessionCompleted(
       }
     }
 
+    return true;
+  }).then(async (): Promise<boolean> => {
+    // Send receipt email after transaction commits
+    // Do this outside the transaction to avoid issues
+    if (receiptEmailData.paymentAmountCents > 0) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://see-zee.com';
+      const dashboardUrl = `${baseUrl}/client`;
+      
+      try {
+        const { html, text } = renderReceiptEmail({
+          customerName: receiptEmailData.customerName,
+          customerEmail: receiptEmailData.customerEmail,
+          receiptType: 'questionnaire',
+          amount: Number(receiptEmailData.paymentAmountCents) / 100,
+          currency: 'USD',
+          transactionId: session.id,
+          description: `Full payment for ${receiptEmailData.selectedService} project`,
+          items: [{
+            name: `${receiptEmailData.selectedService} - Full Payment`,
+            quantity: 1,
+            amount: Number(receiptEmailData.paymentAmountCents) / 100,
+          }],
+          dashboardUrl,
+        });
+
+        await sendEmail({
+          to: receiptEmailData.customerEmail,
+          subject: `Payment Receipt - Project Request`,
+          html,
+          text,
+        });
+
+        console.log(`[QUESTIONNAIRE WEBHOOK] Receipt email sent to ${receiptEmailData.customerEmail} for questionnaire ${questionnaireId}`);
+      } catch (emailError) {
+        console.error('[QUESTIONNAIRE WEBHOOK] Failed to send receipt email:', emailError);
+      }
+      return true;
+    }
     return true;
   });
 }

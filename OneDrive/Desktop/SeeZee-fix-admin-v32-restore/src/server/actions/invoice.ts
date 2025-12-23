@@ -177,6 +177,159 @@ export async function sendInvoiceViaStripe(invoiceId: string) {
 }
 
 /**
+ * Send receipt email for a paid invoice (fallback if webhook didn't send it)
+ */
+export async function sendInvoiceReceiptEmail(invoiceId: string) {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/actions/invoice.ts:182',message:'sendInvoiceReceiptEmail entry',data:{invoiceId},sessionId:'debug-session',runId:'run1',hypothesisId:'A',timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+  console.log(`[INVOICE RECEIPT] Starting sendInvoiceReceiptEmail for invoiceId: ${invoiceId}`);
+  try {
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      include: {
+        items: true,
+        organization: {
+          include: {
+            members: {
+              where: { role: 'OWNER' },
+              include: { user: true },
+              take: 1,
+            },
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/actions/invoice.ts:207',message:'Invoice fetched from DB',data:{invoiceId,found:!!invoice,status:invoice?.status,hasItems:!!invoice?.items,hasOrg:!!invoice?.organization,membersCount:invoice?.organization?.members?.length||0},sessionId:'debug-session',runId:'run1',hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+
+    if (!invoice) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/actions/invoice.ts:210',message:'Invoice not found - early return',data:{invoiceId},sessionId:'debug-session',runId:'run1',hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      return { success: false, error: 'Invoice not found' };
+    }
+
+    // Only send receipt if invoice is paid
+    if (invoice.status !== 'PAID') {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/actions/invoice.ts:216',message:'Invoice not paid - early return',data:{invoiceId,status:invoice.status},sessionId:'debug-session',runId:'run1',hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      return { success: false, error: 'Invoice is not paid yet' };
+    }
+
+    const owner = invoice.organization.members[0]?.user;
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/actions/invoice.ts:221',message:'Owner check',data:{invoiceId,hasOwner:!!owner,hasEmail:!!owner?.email,email:owner?.email},sessionId:'debug-session',runId:'run1',hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    if (!owner?.email) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/actions/invoice.ts:224',message:'No owner email - early return',data:{invoiceId,hasOwner:!!owner},sessionId:'debug-session',runId:'run1',hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      return { success: false, error: 'No customer email found' };
+    }
+
+    // Import email utilities
+    const { sendEmail } = await import('@/lib/email/send');
+    const { renderReceiptEmail } = await import('@/lib/email/templates/receipt');
+
+    // Get Stripe invoice if available for additional details
+    let stripeInvoice = null;
+    if (invoice.stripeInvoiceId) {
+      try {
+        stripeInvoice = await stripe.invoices.retrieve(invoice.stripeInvoiceId);
+      } catch (err) {
+        console.warn('[INVOICE RECEIPT] Failed to retrieve Stripe invoice:', err);
+      }
+    }
+
+    // Determine receipt type - check if it's a subscription invoice
+    let receiptType: 'invoice' | 'subscription' = 'invoice';
+    let subscriptionTier: string | undefined;
+    let nextBillingDate: Date | undefined;
+
+    if (stripeInvoice?.subscription) {
+      receiptType = 'subscription';
+      try {
+        const subscription = await stripe.subscriptions.retrieve(
+          stripeInvoice.subscription as string
+        );
+        const maintenancePlan = await prisma.maintenancePlan.findFirst({
+          where: { stripeSubscriptionId: subscription.id },
+        });
+        if (maintenancePlan) {
+          subscriptionTier = maintenancePlan.tier;
+          nextBillingDate = new Date(subscription.current_period_end * 1000);
+        }
+      } catch (err) {
+        console.warn('[INVOICE RECEIPT] Failed to get subscription details:', err);
+      }
+    }
+
+    console.log(`[INVOICE RECEIPT] Preparing to send receipt email for invoice ${invoice.number} to ${owner.email}`);
+
+    // Render and send receipt email
+    const { html, text } = renderReceiptEmail({
+      customerName: owner.name || owner.email.split('@')[0],
+      customerEmail: owner.email,
+      receiptType: receiptType,
+      amount: Number(invoice.total),
+      currency: 'USD',
+      transactionId: invoice.stripeInvoiceId || invoice.id,
+      invoiceNumber: invoice.number,
+      description: invoice.description || invoice.title,
+      items: invoice.items.map(item => ({
+        name: item.description,
+        quantity: item.quantity,
+        amount: Number(item.amount),
+      })),
+      subscriptionTier,
+      nextBillingDate,
+      invoiceUrl: invoice.stripeInvoiceId
+        ? `https://invoice.stripe.com/i/${invoice.stripeInvoiceId}`
+        : `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://see-zee.com'}/client/invoices/${invoice.id}`,
+      dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://see-zee.com'}/client/invoices`,
+    });
+
+    console.log(`[INVOICE RECEIPT] Email template rendered, calling sendEmail...`);
+
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/actions/invoice.ts:287',message:'About to call sendEmail',data:{invoiceId,to:owner.email,subject:`Payment Receipt - Invoice ${invoice.number}`,hasHtml:!!html,hasText:!!text,hasResendKey:!!process.env.RESEND_API_KEY},sessionId:'debug-session',runId:'run1',hypothesisId:'D',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+
+    const result = await sendEmail({
+      to: owner.email,
+      subject: `Payment Receipt - Invoice ${invoice.number}`,
+      html,
+      text,
+    });
+
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/actions/invoice.ts:297',message:'sendEmail result received',data:{invoiceId,success:result.success,error:result.error},sessionId:'debug-session',runId:'run1',hypothesisId:'D',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+
+    if (result.success) {
+      console.log(`[INVOICE RECEIPT] ✅ Receipt email sent successfully to ${owner.email} for invoice ${invoice.number}`);
+      return { success: true, message: 'Receipt email sent' };
+    } else {
+      console.error(`[INVOICE RECEIPT] ❌ Failed to send receipt email to ${owner.email} for invoice ${invoice.number}:`, result.error);
+      return { success: false, error: result.error };
+    }
+  } catch (error: any) {
+    console.error('[INVOICE RECEIPT] Error sending receipt email:', error);
+    return { success: false, error: error.message || 'Failed to send receipt email' };
+  }
+}
+
+/**
  * Mark an invoice as paid
  */
 export async function markInvoiceAsPaid(invoiceId: string) {

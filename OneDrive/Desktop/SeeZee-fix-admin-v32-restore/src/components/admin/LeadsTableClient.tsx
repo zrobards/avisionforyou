@@ -59,6 +59,8 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
   const [isRefreshing, setIsRefreshing] = useState(false);
   const deletedLeadIdsRef = useRef<Set<string>>(new Set());
   const lastDeleteTimeRef = useRef<number>(0);
+  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   // Only sync with initialLeads if we haven't recently deleted a lead
   // This prevents stale server props from overwriting our local state after deletion
@@ -195,6 +197,12 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
       
       // Remove from local state immediately
       setLeads((prev) => prev.filter((l) => l.id !== leadId));
+      // Remove from selected leads if it was selected
+      setSelectedLeads((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(leadId);
+        return newSet;
+      });
       
       // Wait a bit to ensure server has processed the deletion, then force refresh
       setTimeout(async () => {
@@ -208,6 +216,73 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
       alert(result.error || "Failed to delete lead");
     }
     setDeleting(null);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedLeads.size === 0) return;
+
+    const count = selectedLeads.size;
+    if (!confirm(`Are you sure you want to delete ${count} lead${count > 1 ? 's' : ''}? This action cannot be undone.`)) {
+      return;
+    }
+
+    setBulkDeleting(true);
+    const leadIds = Array.from(selectedLeads);
+    let successCount = 0;
+    let failCount = 0;
+
+    // Delete leads one by one
+    for (const leadId of leadIds) {
+      const result = await deleteLead(leadId);
+      if (result.success || result.error === "Lead not found") {
+        successCount++;
+        deletedLeadIdsRef.current.add(leadId);
+        lastDeleteTimeRef.current = Date.now();
+      } else {
+        failCount++;
+      }
+    }
+
+    // Update local state
+    setLeads((prev) => prev.filter((l) => !selectedLeads.has(l.id)));
+    setSelectedLeads(new Set());
+
+    // Refresh after a delay
+    setTimeout(async () => {
+      await refreshLeads(true);
+      // Clean up deleted lead IDs
+      setTimeout(() => {
+        leadIds.forEach(id => deletedLeadIdsRef.current.delete(id));
+      }, 2000);
+    }, 1000);
+
+    if (failCount > 0) {
+      alert(`Deleted ${successCount} lead${successCount > 1 ? 's' : ''}. ${failCount} failed to delete.`);
+    } else {
+      alert(`Successfully deleted ${successCount} lead${successCount > 1 ? 's' : ''}.`);
+    }
+
+    setBulkDeleting(false);
+  };
+
+  const handleSelectLead = (leadId: string, checked: boolean) => {
+    setSelectedLeads((prev) => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(leadId);
+      } else {
+        newSet.delete(leadId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedLeads(new Set(leads.map(l => l.id)));
+    } else {
+      setSelectedLeads(new Set());
+    }
   };
 
   const handleEdit = async (lead: Lead, e: React.MouseEvent) => {
@@ -282,6 +357,31 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
   };
 
   const columns: Column<Lead>[] = [
+    {
+      key: "select",
+      label: (
+        <input
+          type="checkbox"
+          checked={selectedLeads.size > 0 && selectedLeads.size === leads.length}
+          onChange={(e) => handleSelectAll(e.target.checked)}
+          onClick={(e) => e.stopPropagation()}
+          className="w-4 h-4 rounded border-white/20 bg-transparent text-seezee-red focus:ring-seezee-red focus:ring-offset-0 cursor-pointer"
+        />
+      ),
+      render: (lead: Lead) => (
+        <input
+          type="checkbox"
+          checked={selectedLeads.has(lead.id)}
+          onChange={(e) => {
+            e.stopPropagation();
+            handleSelectLead(lead.id, e.target.checked);
+          }}
+          onClick={(e) => e.stopPropagation()}
+          className="w-4 h-4 rounded border-white/20 bg-transparent text-seezee-red focus:ring-seezee-red focus:ring-offset-0 cursor-pointer"
+        />
+      ),
+      sortable: false,
+    },
     { key: "name", label: "Name", sortable: true },
     {
       key: "company",
@@ -380,10 +480,23 @@ export function LeadsTableClient({ leads: initialLeads }: LeadsTableClientProps)
         columns={columns}
         searchPlaceholder="Search leads by name, email, or company..."
         actions={
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-all">
-            <Plus className="w-4 h-4" />
-            Add Lead
-          </button>
+          <div className="flex items-center gap-2">
+            {selectedLeads.size > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                title={`Delete ${selectedLeads.size} selected lead${selectedLeads.size > 1 ? 's' : ''}`}
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete ({selectedLeads.size})
+              </button>
+            )}
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-all">
+              <Plus className="w-4 h-4" />
+              Add Lead
+            </button>
+          </div>
         }
         onRowClick={(lead) => handleLeadClick(lead)}
       />

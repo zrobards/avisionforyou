@@ -24,6 +24,7 @@ import { Switch } from "@/components/ui/Switch";
 import { ImageUpload } from "@/components/profile/ImageUpload";
 import { OAuthConnectionCard } from "@/components/profile/OAuthConnectionCard";
 import { useToast } from "@/stores/useToast";
+import { useDialogContext } from "@/lib/dialog";
 
 type TabType = "profile" | "account" | "security" | "notifications" | "preferences" | "integrations" | "billing";
 
@@ -86,6 +87,7 @@ function SettingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
+  const dialog = useDialogContext();
   const tabParam = searchParams.get("tab") as TabType | null;
   const [activeTab, setActiveTab] = useState<TabType>(tabParam || "profile");
   const [loading, setLoading] = useState(false);
@@ -154,6 +156,16 @@ function SettingsContent() {
     compactMode: false,
   });
 
+  // Billing state
+  const [billingInvoices, setBillingInvoices] = useState<any[]>([]);
+  const [billingSubscriptions, setBillingSubscriptions] = useState<any[]>([]);
+  const [billingMaintenancePlans, setBillingMaintenancePlans] = useState<any[]>([]);
+  const [loadingBilling, setLoadingBilling] = useState(false);
+  const [billingStats, setBillingStats] = useState({
+    activeSubscriptions: 0,
+    totalMonthlyAmount: 0,
+  });
+
   // Calculate profile completion
   const calculateProfileCompletion = () => {
     let completed = 0;
@@ -178,7 +190,10 @@ function SettingsContent() {
     fetchUserPreferences();
     fetchConnectedAccounts();
     fetchActiveSessions();
-  }, [session]);
+    if (isClient) {
+      fetchBillingData();
+    }
+  }, [session, isClient]);
 
   // Sync tab with URL
   useEffect(() => {
@@ -260,10 +275,73 @@ function SettingsContent() {
       if (data.sessions) {
         setSessions(data.sessions);
       }
+      
+      // Track current session (create/update it)
+      try {
+        await fetch("/api/settings/sessions/track", {
+          method: "POST",
+        });
+      } catch (error) {
+        // Silently fail session tracking
+        console.error("Failed to track session:", error);
+      }
     } catch (error) {
       console.error("Failed to fetch sessions:", error);
     } finally {
       setSessionsLoading(false);
+    }
+  };
+
+  const fetchBillingData = async () => {
+    try {
+      // Fetch invoices
+      const invoicesRes = await fetch("/api/client/invoices");
+      if (invoicesRes.ok) {
+        const invoicesData = await invoicesRes.json();
+        if (invoicesData.invoices) {
+          setBillingInvoices(invoicesData.invoices);
+        }
+      }
+
+      // Fetch subscriptions
+      const subsRes = await fetch("/api/client/subscriptions");
+      if (subsRes.ok) {
+        const subsData = await subsRes.json();
+        if (subsData.subscriptions) {
+          setBillingSubscriptions(subsData.subscriptions);
+        }
+        if (subsData.maintenancePlans) {
+          setBillingMaintenancePlans(subsData.maintenancePlans);
+        }
+        if (subsData.stats) {
+          setBillingStats(subsData.stats);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch billing data:", error);
+    }
+  };
+
+  const handleBillingPortal = async () => {
+    setLoadingBilling(true);
+    try {
+      const response = await fetch("/api/billing/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        window.location.href = url;
+      } else {
+        const error = await response.json();
+        showToast(error.error || "Failed to open billing portal", "error");
+      }
+    } catch (error) {
+      console.error("Failed to open billing portal:", error);
+      showToast("Failed to open billing portal", "error");
+    } finally {
+      setLoadingBilling(false);
     }
   };
 
@@ -388,7 +466,11 @@ function SettingsContent() {
   };
 
   const revokeAllSessions = async () => {
-    if (!confirm("This will log you out of all other devices. Continue?")) {
+    const confirmed = await dialog.confirm("This will log you out of all other devices. Continue?", {
+      title: "Revoke All Sessions",
+      variant: "warning",
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -836,11 +918,11 @@ function SettingsContent() {
                     </div>
                   ) : (
                     <>
-                      {sessions.map((sess, index) => (
+                      {sessions.map((sess) => (
                         <SessionCard
                           key={sess.id}
                           session={sess}
-                          isCurrent={index === 0}
+                          isCurrent={sess.isCurrent === true}
                           onRevoke={revokeSession}
                         />
                       ))}
@@ -1094,26 +1176,166 @@ function SettingsContent() {
 
           {/* Billing Tab */}
           {activeTab === "billing" && isClient && (
-            <GlassCard variant="elevated" padding="lg">
-              <GlassCardHeader
-                icon={<CreditCard className="w-5 h-5" />}
-                title="Billing Information"
-                description="Manage your subscription and payment methods"
-              />
-              <GlassCardContent>
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-                    <CreditCard className="w-8 h-8 text-slate-500" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
-                    No billing information
-                  </h3>
-                  <p className="text-slate-400 max-w-sm mx-auto">
-                    You don't have any active subscriptions or billing history.
-                  </p>
+            <>
+              {/* Billing Stats Overview */}
+              {billingStats.activeSubscriptions > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  <GlassCard variant="elevated" padding="md">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                        <CreditCard className="w-6 h-6 text-green-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-400">Active Subscriptions</p>
+                        <p className="text-2xl font-bold text-white">{billingStats.activeSubscriptions}</p>
+                      </div>
+                    </div>
+                  </GlassCard>
+                  <GlassCard variant="elevated" padding="md">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-violet-500/10 border border-violet-500/20">
+                        <CreditCard className="w-6 h-6 text-violet-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-400">Monthly Total</p>
+                        <p className="text-2xl font-bold text-white">
+                          ${(billingStats.totalMonthlyAmount / 100).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </GlassCard>
                 </div>
-              </GlassCardContent>
-            </GlassCard>
+              )}
+
+              {/* Billing Portal Card */}
+              <GlassCard variant="elevated" padding="lg" glow="accent">
+                <div className="flex items-start justify-between gap-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Stripe Billing Portal</h3>
+                    <p className="text-slate-400 text-sm mb-4 max-w-md">
+                      Manage your payment methods, view invoices, and update your billing information through our secure Stripe portal.
+                    </p>
+                    <button
+                      onClick={handleBillingPortal}
+                      disabled={loadingBilling}
+                      className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                    >
+                      {loadingBilling ? (
+                        <>Loading...</>
+                      ) : (
+                        <>
+                          Open Billing Portal
+                          <CreditCard className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="hidden sm:block p-4 rounded-2xl bg-violet-500/10 border border-violet-500/20">
+                    <CreditCard className="w-12 h-12 text-violet-400" />
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* Active Subscriptions */}
+              {billingMaintenancePlans.filter(p => p.status === "ACTIVE").length > 0 && (
+                <GlassCard variant="elevated" padding="lg">
+                  <GlassCardHeader
+                    icon={<CreditCard className="w-5 h-5" />}
+                    title="Active Subscriptions"
+                    description="Your current maintenance and support plans"
+                  />
+                  <GlassCardContent>
+                    <div className="space-y-4">
+                      {billingMaintenancePlans.filter(p => p.status === "ACTIVE").map((plan: any) => (
+                        <div
+                          key={plan.id}
+                          className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-violet-500/30 transition-colors"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                                <CreditCard className="w-5 h-5 text-violet-400" />
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">{plan.tier} Maintenance</p>
+                                <p className="text-sm text-slate-400">{plan.projectName}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-white">
+                                ${(Number(plan.monthlyPrice) / 100).toFixed(0)}/mo
+                              </p>
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
+                                Active
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-sm">
+                            <div>
+                              <p className="text-slate-400">Support Hours</p>
+                              <p className="text-white">{plan.supportHoursUsed || 0}/{plan.supportHoursIncluded === -1 ? 'Unlimited' : plan.supportHoursIncluded} used</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </GlassCardContent>
+                </GlassCard>
+              )}
+
+              {/* Recent Invoices */}
+              <GlassCard variant="elevated" padding="lg">
+                <GlassCardHeader
+                  icon={<CreditCard className="w-5 h-5" />}
+                  title="Recent Invoices"
+                  description="Your billing history"
+                />
+                <GlassCardContent>
+                  {billingInvoices.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+                        <CreditCard className="w-8 h-8 text-slate-500" />
+                      </div>
+                      <p className="text-slate-400">No invoices yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {billingInvoices.slice(0, 5).map((invoice: any) => (
+                        <div
+                          key={invoice.id}
+                          className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.1] transition-colors"
+                        >
+                          <div>
+                            <p className="text-white font-medium">
+                              {invoice.description || invoice.title}
+                            </p>
+                            <p className="text-sm text-slate-400">
+                              {new Date(invoice.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-lg font-bold text-white">
+                              ${(Number(invoice.total || invoice.amount) / 100).toFixed(2)}
+                            </span>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                                invoice.status === 'PAID'
+                                  ? 'bg-green-500/20 text-green-400 border-green-500/30'
+                                  : invoice.status === 'OVERDUE'
+                                  ? 'bg-red-500/20 text-red-400 border-red-500/30'
+                                  : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                              }`}
+                            >
+                              {invoice.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </GlassCardContent>
+              </GlassCard>
+            </>
           )}
         </div>
       </div>

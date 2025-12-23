@@ -7,10 +7,10 @@
 import { useState } from "react";
 import { DataTable, type Column } from "@/components/admin/DataTable";
 import { updateTaskStatus, createTask, assignTask, bulkUpdateTaskStatus, bulkAssignTasks, bulkDeleteTasks } from "@/server/actions";
-import { Plus, CheckSquare, Clock, AlertCircle, Trash2, UserPlus } from "lucide-react";
+import { Plus, CheckSquare, Clock, AlertCircle, Trash2, UserPlus, LayoutGrid, List } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { FiTrendingUp } from "react-icons/fi";
+import { TasksKanbanBoard } from "./tasks/TasksKanbanBoard";
 
 type Task = {
   id: string;
@@ -60,6 +60,7 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
   const router = useRouter();
   const [tasks, setTasks] = useState(initialTasks);
   const [filter, setFilter] = useState<"all" | "TODO" | "IN_PROGRESS" | "DONE">("all");
+  const [view, setView] = useState<"table" | "kanban">("kanban");
   const [updating, setUpdating] = useState<string | null>(null);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
@@ -70,6 +71,29 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
     priority: "MEDIUM",
     dueDate: "",
   });
+
+  // Map tasks to kanban format
+  const kanbanTasks = tasks.map((task) => ({
+    ...task,
+    column: task.status === "TODO" ? "todo" : 
+            task.status === "IN_PROGRESS" ? "in-progress" :
+            task.status === "SUBMITTED" ? "review" : "done",
+    position: 0,
+    estimatedHours: null,
+    actualHours: null,
+    assignedToRole: null,
+    assignedToTeamId: null,
+    changeRequestId: null,
+    assignedTo: task.assignedTo ? {
+      id: task.assignedTo.id,
+      name: task.assignedTo.name,
+      image: null, // Map email to image if needed, or set to null
+    } : null,
+    dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+    createdAt: task.createdAt.toISOString(),
+    dependencies: [],
+    attachments: [],
+  }));
 
   const filteredTasks = tasks.filter((t) => {
     if (filter === "all") return true;
@@ -179,9 +203,7 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
       label: "Priority",
       render: (task) => (
         <span
-          className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-            priorityColors[task.priority] || priorityColors.MEDIUM
-          }`}
+          className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${priorityColors[task.priority] || priorityColors.MEDIUM}`}
         >
           {task.priority}
         </span>
@@ -195,12 +217,7 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
           value={task.status}
           onChange={(e) => handleStatusChange(task.id, e.target.value)}
           disabled={updating === task.id}
-          className={`
-            px-2 py-1 rounded-full text-xs font-medium border
-            bg-transparent cursor-pointer
-            ${statusColors[task.status] || statusColors.TODO}
-            ${updating === task.id ? "opacity-50 cursor-wait" : ""}
-          `}
+          className={`px-2 py-1 rounded-full text-xs font-medium border bg-transparent cursor-pointer ${statusColors[task.status] || statusColors.TODO} ${updating === task.id ? "opacity-50 cursor-wait" : ""}`}
         >
           <option value="TODO">To Do</option>
           <option value="IN_PROGRESS">In Progress</option>
@@ -211,11 +228,32 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
     {
       key: "assignedTo",
       label: "Assignee",
-      render: (task) => (
-        <div className="text-sm text-slate-300">
-          {task.assignedTo?.name || task.assignedTo?.email || "Unassigned"}
-        </div>
-      ),
+      render: (task) => {
+        const assignedTo = task.assignedTo?.name || task.assignedTo?.email;
+        const assignedToRole = (task as any).assignedToRole;
+        const assignedToTeamId = (task as any).assignedToTeamId;
+        
+        if (assignedTo) {
+          return <div className="text-sm text-slate-300">{assignedTo}</div>;
+        }
+        if (assignedToRole) {
+          return (
+            <div className="text-sm">
+              <span className="text-slate-400">Role: </span>
+              <span className="text-slate-300">{assignedToRole}</span>
+            </div>
+          );
+        }
+        if (assignedToTeamId) {
+          return (
+            <div className="text-sm">
+              <span className="text-slate-400">Team: </span>
+              <span className="text-slate-300">{assignedToTeamId}</span>
+            </div>
+          );
+        }
+        return <div className="text-sm text-slate-500">Unassigned</div>;
+      },
     },
     {
       key: "dueDate",
@@ -226,9 +264,7 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
         const isOverdue = due < new Date() && task.status !== "DONE";
         return (
           <div
-            className={`text-sm ${
-              isOverdue ? "text-[#ef4444] font-medium" : "text-slate-300"
-            }`}
+            className={`text-sm ${isOverdue ? "text-[#ef4444] font-medium" : "text-slate-300"}`}
           >
             {due.toLocaleDateString()}
           </div>
@@ -302,9 +338,29 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
         })}
       </div>
 
-      {/* Filter Buttons */}
+      {/* Filter Buttons and View Toggle */}
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex items-center gap-4">
+          {/* View Toggle */}
+          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#1e293b]/40 p-1">
+            <button
+              onClick={() => setView("kanban")}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${view === "kanban" ? "bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40" : "text-slate-400 hover:text-white"}`}
+            >
+              <LayoutGrid className="w-4 h-4 inline mr-1.5" />
+              Kanban
+            </button>
+            <button
+              onClick={() => setView("table")}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${view === "table" ? "bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40" : "text-slate-400 hover:text-white"}`}
+            >
+              <List className="w-4 h-4 inline mr-1.5" />
+              Table
+            </button>
+          </div>
+          
+          {/* Filters */}
+          <div className="flex gap-2 flex-wrap">
           {selectedTasks.length > 0 ? (
             <>
               <span className="px-3 py-2 rounded-xl bg-[#3b82f6]/20 text-[#3b82f6] text-sm font-medium border border-[#3b82f6]/30">
@@ -345,20 +401,14 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
                 <button
                   key={filterOption.key}
                   onClick={() => setFilter(filterOption.key as any)}
-                  className={`
-                    px-4 py-2 rounded-xl text-sm font-medium transition-all border
-                    ${
-                      filter === filterOption.key
-                        ? "bg-[#ef4444]/20 text-[#ef4444] border-[#ef4444]/40"
-                        : "text-slate-400 border-white/10 hover:text-white hover:border-white/20 hover:bg-white/5"
-                    }
-                  `}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${filter === filterOption.key ? "bg-[#ef4444]/20 text-[#ef4444] border-[#ef4444]/40" : "text-slate-400 border-white/10 hover:text-white hover:border-white/20 hover:bg-white/5"}`}
                 >
                   {filterOption.label}
                 </button>
               ))}
             </>
           )}
+          </div>
         </div>
 
         <button 
@@ -446,15 +496,45 @@ export function TasksClient({ initialTasks, stats }: TasksClientProps) {
         </div>
       )}
 
-      {/* Tasks Table */}
-      <div className="rounded-2xl border border-white/10 bg-[#1e293b]/40 backdrop-blur-xl p-6 transition-all duration-300 hover:border-white/20">
-        <DataTable
-          data={filteredTasks}
-          columns={columns}
-          searchPlaceholder="Search tasks..."
-          onRowClick={(task) => router.push(`/admin/tasks/${task.id}`)}
-        />
-      </div>
+      {/* Tasks View */}
+      {view === "kanban" ? (
+        <div className="rounded-2xl border border-white/10 bg-[#1e293b]/40 backdrop-blur-xl p-6 transition-all duration-300 hover:border-white/20">
+          <TasksKanbanBoard 
+            initialTasks={kanbanTasks}
+            onTaskUpdate={(taskId, updates) => {
+              setTasks((prev) =>
+                prev.map((t) => {
+                  if (t.id === taskId) {
+                    // Only update fields that exist in Task type
+                    const taskUpdates: Partial<Task> = {};
+                    if ('status' in updates && updates.status !== undefined) {
+                      taskUpdates.status = updates.status;
+                    }
+                    // Convert dueDate from string to Date if present
+                    if ('dueDate' in updates && updates.dueDate !== undefined) {
+                      taskUpdates.dueDate = updates.dueDate 
+                        ? (typeof updates.dueDate === 'string' ? new Date(updates.dueDate) : updates.dueDate)
+                        : null;
+                    }
+                    return { ...t, ...taskUpdates };
+                  }
+                  return t;
+                })
+              );
+              router.refresh();
+            }}
+          />
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-white/10 bg-[#1e293b]/40 backdrop-blur-xl p-6 transition-all duration-300 hover:border-white/20">
+          <DataTable
+            data={filteredTasks}
+            columns={columns}
+            searchPlaceholder="Search tasks..."
+            onRowClick={(task) => router.push(`/admin/tasks/${task.id}`)}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -41,12 +41,14 @@ function validateAuthConfig() {
 
   // Validate Google Secret format - only if it exists
   // Only warn once on startup, not on every request
+  // Note: GOCSPX- format secrets are 35 characters, which is valid
   if (GOOGLE_SECRET && process.env.NODE_ENV === 'development') {
-    if (!GOOGLE_SECRET.startsWith('GOCSPX-') || GOOGLE_SECRET.length < 40) {
+    const isValidFormat = GOOGLE_SECRET.startsWith('GOCSPX-') && GOOGLE_SECRET.length >= 35;
+    if (!isValidFormat && GOOGLE_SECRET.length < 30) {
       // Only log this once by checking if we've already warned
       if (!(global as any).__googleSecretWarned) {
         console.warn("⚠️ WARNING: Google Client Secret may be incorrect!");
-        console.warn(`   Secret length: ${GOOGLE_SECRET.length} characters (expected 40-50)`);
+        console.warn(`   Secret length: ${GOOGLE_SECRET.length} characters (expected 35+ for GOCSPX- format)`);
         console.warn(`   If OAuth fails, check your .env.local file`);
         (global as any).__googleSecretWarned = true;
       }
@@ -281,13 +283,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // Default new sign-ins to CLIENT
         // Note: STAFF/ADMIN users are upgraded via 6-digit invitation codes or admin panel
+        // Auto-verify OAuth emails since Google already verified them
+        // For existing OAuth users who weren't auto-verified, we'll handle in the signIn callback
+        
         await retryDatabaseOperation(async () => {
           return await prisma.user.update({
             where: { id: user.id },
             data: {
               role: "CLIENT",
               questionnaireCompleted: null, // Initialize field to prevent undefined errors
-              emailVerified: new Date(), // Mark OAuth emails as verified
+              emailVerified: new Date(), // Auto-verify OAuth users since provider already verified
+              emailVerificationToken: null,
+              emailVerificationExpires: null,
             },
           });
         });
@@ -337,24 +344,92 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return false;
         }
 
-        // Check if OAuth user needs to set a password (for account migrations)
+        // Handle OAuth account linking for existing users
+        // If a user with this email already exists (from email/password signup),
+        // we need to ensure the OAuth account gets linked to the existing user
         if (account?.provider === "google" && user.email) {
-          const userEmail = user.email; // Capture in local variable for type narrowing
-          const dbUser = await retryDatabaseOperation(async () => {
-            return await prisma.user.findUnique({
-              where: { email: userEmail },
-              select: { id: true, password: true },
+          const userEmail = user.email.toLowerCase();
+          
+          // Check if an account with this provider/providerAccountId already exists
+          const existingAccount = await retryDatabaseOperation(async () => {
+            return await prisma.account.findUnique({
+              where: {
+                provider_providerAccountId: {
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                },
+              },
+              include: { user: { select: { id: true, email: true } } },
             });
           });
 
-          // If OAuth user has no password, continue sign-in but flag for password setup
+          // Check if a user with this email already exists
+          const existingUser = await retryDatabaseOperation(async () => {
+            return await prisma.user.findUnique({
+              where: { email: userEmail },
+              select: { id: true },
+            });
+          });
+
+          // If account exists but is linked to a different user, and we have a user with matching email
+          // Link the account to the user with matching email (account linking)
+          if (existingAccount && existingUser && existingAccount.userId !== existingUser.id) {
+            // Update the account to link it to the user with matching email
+            await retryDatabaseOperation(async () => {
+              return await prisma.account.update({
+                where: { id: existingAccount.id },
+                data: { userId: existingUser.id },
+              });
+            });
+            // Set user ID so NextAuth uses the existing user
+            user.id = existingUser.id;
+          } else if (existingUser && !existingAccount) {
+            // User exists but account doesn't - set user ID so NextAuth uses existing user
+            // The adapter will create the account and link it
+            user.id = existingUser.id;
+          } else if (existingAccount && existingAccount.user.email.toLowerCase() === userEmail) {
+            // Account exists and is already linked to a user with matching email
+            // Use that user ID
+            user.id = existingAccount.userId;
+          }
+          
+          // Auto-verify existing OAuth users if not already verified
+          // Google OAuth already verified their email, so we should trust that
+          if (existingUser) {
+            const userWithVerification = await retryDatabaseOperation(async () => {
+              return await prisma.user.findUnique({
+                where: { id: existingUser.id },
+                select: { id: true, emailVerified: true },
+              });
+            });
+            
+            if (userWithVerification && !userWithVerification.emailVerified) {
+              await retryDatabaseOperation(async () => {
+                return await prisma.user.update({
+                  where: { id: existingUser.id },
+                  data: {
+                    emailVerified: new Date(),
+                    emailVerificationToken: null,
+                    emailVerificationExpires: null,
+                  },
+                });
+              });
+            }
+          }
         }
+
+        // OAuth users are allowed to sign in - Google already verified their email
+        // Auto-verification is handled above for both new and existing users
 
         // With allowDangerousEmailAccountLinking: true, the adapter will automatically
         // link accounts with the same email. We just need to allow the sign-in.
         return true;
       } catch (error) {
         console.error("❌ Sign in callback error:", error);
+        // Re-throw EMAIL_NOT_VERIFIED error so it can be handled by the login page
+        if (error instanceof Error && error.message === "EMAIL_NOT_VERIFIED") {
+          throw error;
+        }
         return false;
       }
     },
@@ -368,102 +443,160 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       // Populate session from JWT token (no DB query)
+      // Keep minimal to prevent cookie bloat (431 errors)
       session.user.id = token.sub;
       session.user.role = (token.role as any) || "CLIENT";
       session.user.tosAcceptedAt = token.tosAccepted ? "1" : null; // Use "1" instead of date string to save space
       session.user.profileDoneAt = token.profileDone ? "1" : null;
       session.user.questionnaireCompleted = token.questionnaireCompleted ? "1" : null;
       (session.user as any).needsPassword = token.needsPassword === true;
+      // Note: emailVerified is checked in middleware via token, not stored in session to save space
+      
+      // CRITICAL FIX: Remove image from session to prevent cookie bloat (431 errors)
+      // The image field from OAuth providers can be 4-20KB, causing cookies to exceed 4KB limit
+      delete (session.user as any).image;
 
       return session;
     },
 
     async jwt({ token, user, trigger, session: updateSession }) {
-      // Initial sign in OR trigger refresh - fetch fresh user data from database
-      // This ensures role changes in DB are picked up on next sign-in
-      if (user || trigger === "update") {
-        try {
-          // Always fetch latest user data from database to catch role changes
-          const email = user?.email || token.email;
-          
-          if (!email) {
-            console.warn("JWT callback: No email available, using default values");
-            token.role = token.role || "CLIENT";
-            token.questionnaireCompleted = false;
-            token.needsPassword = false;
-            token.emailVerified = false;
-            return token;
-          }
-          
-          // CEO whitelist - auto-upgrade to CEO with completed onboarding
-          const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com"];
-          const isCEO = CEO_EMAILS.includes(email as string);
-          
-          // Use retry logic for database operations during OAuth flow
-          const dbUser = await retryDatabaseOperation(async () => {
-            return await prisma.user.findUnique({
-              where: { email: email as string },
-              select: {
-                id: true,
-                role: true,
-                password: true,
-                tosAcceptedAt: true,
-                profileDoneAt: true,
-                questionnaireCompleted: true,
-                emailVerified: true,
+      // CRITICAL FIX: Always fetch fresh user data from database to prevent stale token issues
+      // This ensures onboarding completion and role changes in DB are immediately reflected
+      // Previously only fetched on initial sign-in or explicit updates, causing users to get stuck
+      try {
+        // Get email from user object (first sign-in) or existing token
+        const email = user?.email || token.email;
+        
+        if (!email) {
+          console.warn("JWT callback: No email available, using default values");
+          token.role = token.role || "CLIENT";
+          token.tosAccepted = token.tosAccepted ?? false;
+          token.profileDone = token.profileDone ?? false;
+          token.questionnaireCompleted = token.questionnaireCompleted ?? false;
+          token.needsPassword = token.needsPassword ?? false;
+          token.emailVerified = token.emailVerified ?? false;
+          return token;
+        }
+        
+        // CEO whitelist - auto-upgrade to CEO with completed onboarding
+        const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com"];
+        const isCEO = CEO_EMAILS.includes(email as string);
+        
+        // Always fetch latest user data from database to catch onboarding completion and role changes
+        // This prevents users from getting stuck with stale token values
+        const dbUser = await retryDatabaseOperation(async () => {
+          return await prisma.user.findUnique({
+            where: { email: email as string },
+            select: {
+              id: true,
+              role: true,
+              password: true,
+              tosAcceptedAt: true,
+              profileDoneAt: true,
+              questionnaireCompleted: true,
+              emailVerified: true,
+            },
+          });
+        });
+        
+        if (dbUser) {
+          // Auto-verify OAuth users if not already verified (Google already verified their email)
+          // Check if user has an OAuth account (Google provider)
+          const hasOAuthAccount = await retryDatabaseOperation(async () => {
+            return await prisma.account.findFirst({
+              where: {
+                userId: dbUser.id,
+                provider: "google",
               },
+              select: { id: true },
             });
           });
           
-          if (dbUser) {
-            // Auto-complete onboarding for CEO users if not already done
-            if (isCEO && (!dbUser.tosAcceptedAt || !dbUser.profileDoneAt || dbUser.role !== "CEO")) {
-              await retryDatabaseOperation(async () => {
-                return await prisma.user.update({
-                  where: { id: dbUser.id },
-                  data: {
-                    role: "CEO",
-                    tosAcceptedAt: dbUser.tosAcceptedAt || new Date(),
-                    profileDoneAt: dbUser.profileDoneAt || new Date(),
-                    emailVerified: dbUser.emailVerified || new Date(),
-                  },
-                });
-              });
-              
-              // Update token with CEO values
-              token.role = "CEO" as any;
-              token.tosAccepted = true;
-              token.profileDone = true;
-              token.emailVerified = true;
-              token.questionnaireCompleted = !!dbUser.questionnaireCompleted;
-              token.needsPassword = !dbUser.password;
-            } else {
-              // Normal user - use database values
-              // Ensure role is never null - default to CLIENT if null
-              token.role = dbUser.role || "CLIENT";
-              // Store boolean flags instead of ISO strings to reduce token size
-              token.tosAccepted = !!dbUser.tosAcceptedAt;
-              token.profileDone = !!dbUser.profileDoneAt;
-              token.questionnaireCompleted = !!dbUser.questionnaireCompleted;
-              token.emailVerified = !!dbUser.emailVerified;
-              // Check if user needs to set a password (OAuth-only users)
-              token.needsPassword = !dbUser.password;
-            }
-          } else {
-            // User might not exist yet during OAuth flow - use defaults
-            token.role = (typeof token.role === 'string' ? token.role : "CLIENT") as any;
-            token.questionnaireCompleted = false;
-            token.needsPassword = false;
-            token.emailVerified = false;
-          }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          console.error("Failed to fetch user in JWT callback:", errorMessage);
+          // Track if we updated emailVerified
+          let currentDbUser = dbUser;
           
-          // During OAuth flow, database might not be ready - use safe defaults
-          // Don't override existing token values if they exist
+          if (hasOAuthAccount && !dbUser.emailVerified) {
+            await retryDatabaseOperation(async () => {
+              return await prisma.user.update({
+                where: { id: dbUser.id },
+                data: {
+                  emailVerified: new Date(),
+                  emailVerificationToken: null,
+                  emailVerificationExpires: null,
+                },
+              });
+            });
+            
+            // Refresh dbUser to get updated emailVerified
+            const updatedDbUser = await retryDatabaseOperation(async () => {
+              return await prisma.user.findUnique({
+                where: { id: dbUser.id },
+                select: {
+                  id: true,
+                  role: true,
+                  password: true,
+                  tosAcceptedAt: true,
+                  profileDoneAt: true,
+                  questionnaireCompleted: true,
+                  emailVerified: true,
+                },
+              });
+            });
+            
+            // Use updated user data if available
+            if (updatedDbUser) {
+              currentDbUser = updatedDbUser;
+            }
+          }
+          
+          // Auto-complete onboarding for CEO users if not already done
+          if (isCEO && (!currentDbUser.tosAcceptedAt || !currentDbUser.profileDoneAt || currentDbUser.role !== "CEO")) {
+            await retryDatabaseOperation(async () => {
+              return await prisma.user.update({
+                where: { id: currentDbUser.id },
+                data: {
+                  role: "CEO",
+                  tosAcceptedAt: currentDbUser.tosAcceptedAt || new Date(),
+                  profileDoneAt: currentDbUser.profileDoneAt || new Date(),
+                  // Only auto-verify CEO email if it's not already verified
+                  emailVerified: currentDbUser.emailVerified ?? new Date(),
+                },
+              });
+            });
+            
+            // Update token with CEO values
+            token.role = "CEO" as any;
+            token.tosAccepted = true;
+            token.profileDone = true;
+            token.emailVerified = true;
+            token.questionnaireCompleted = !!currentDbUser.questionnaireCompleted;
+            token.needsPassword = !currentDbUser.password;
+          } else {
+            // Normal user - always use fresh database values
+            // DO NOT auto-verify - users must verify through email verification link
+            // Ensure role is never null - default to CLIENT if null
+            token.role = currentDbUser.role || "CLIENT";
+            // Store boolean flags instead of ISO strings to reduce token size
+            token.tosAccepted = !!currentDbUser.tosAcceptedAt;
+            token.profileDone = !!currentDbUser.profileDoneAt;
+            token.questionnaireCompleted = !!currentDbUser.questionnaireCompleted;
+            // CRITICAL: Only mark as verified if actually verified in database
+            // Do NOT auto-verify non-CEO users
+            token.emailVerified = !!currentDbUser.emailVerified;
+            // Check if user needs to set a password (OAuth-only users)
+            token.needsPassword = !currentDbUser.password;
+          }
+        } else {
+          // User might not exist yet during OAuth flow - use safe defaults
+          // Preserve existing token values if they exist to prevent overwriting during OAuth
           if (!token.role || typeof token.role !== 'string') {
             token.role = "CLIENT" as any;
+          }
+          if (typeof token.tosAccepted !== 'boolean') {
+            token.tosAccepted = false;
+          }
+          if (typeof token.profileDone !== 'boolean') {
+            token.profileDone = false;
           }
           if (typeof token.questionnaireCompleted !== 'boolean') {
             token.questionnaireCompleted = false;
@@ -471,24 +604,49 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.needsPassword = token.needsPassword ?? false;
           token.emailVerified = token.emailVerified ?? false;
         }
+
+        // Handle explicit session updates from onboarding pages
+        if (trigger === "update" && updateSession) {
+          token.role = updateSession.role || token.role;
+          token.tosAccepted = updateSession.tosAcceptedAt ? true : token.tosAccepted;
+          token.profileDone = updateSession.profileDoneAt ? true : token.profileDone;
+          token.questionnaireCompleted = updateSession.questionnaireCompleted ? true : token.questionnaireCompleted;
+          token.name = updateSession.name || token.name;
+          // Allow clearing needsPassword flag when password is set
+          if ('needsPassword' in updateSession) {
+            token.needsPassword = updateSession.needsPassword;
+          }
+          // Allow setting emailVerified
+          if ('emailVerified' in updateSession) {
+            token.emailVerified = !!updateSession.emailVerified;
+          }
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("Failed to fetch user in JWT callback:", errorMessage);
+        
+        // On error, preserve existing token values to prevent breaking active sessions
+        // Only set defaults if values are missing
+        if (!token.role || typeof token.role !== 'string') {
+          token.role = "CLIENT" as any;
+        }
+        if (typeof token.tosAccepted !== 'boolean') {
+          token.tosAccepted = false;
+        }
+        if (typeof token.profileDone !== 'boolean') {
+          token.profileDone = false;
+        }
+        if (typeof token.questionnaireCompleted !== 'boolean') {
+          token.questionnaireCompleted = false;
+        }
+        token.needsPassword = token.needsPassword ?? false;
+        token.emailVerified = token.emailVerified ?? false;
       }
 
-      // Handle explicit session updates from onboarding pages
-      if (trigger === "update" && updateSession) {
-        token.role = updateSession.role || token.role;
-        token.tosAccepted = updateSession.tosAcceptedAt ? true : token.tosAccepted;
-        token.profileDone = updateSession.profileDoneAt ? true : token.profileDone;
-        token.questionnaireCompleted = updateSession.questionnaireCompleted ? true : token.questionnaireCompleted;
-        token.name = updateSession.name || token.name;
-        // Allow clearing needsPassword flag when password is set
-        if ('needsPassword' in updateSession) {
-          token.needsPassword = updateSession.needsPassword;
-        }
-        // Allow setting emailVerified
-        if ('emailVerified' in updateSession) {
-          token.emailVerified = !!updateSession.emailVerified;
-        }
-      }
+      // CRITICAL FIX: Remove picture/image from token to prevent cookie bloat (431 errors)
+      // The picture field from OAuth providers can be 4-20KB, causing cookies to exceed 4KB limit
+      delete (token as any).picture;
+      delete (token as any).image;
 
       return token;
     },

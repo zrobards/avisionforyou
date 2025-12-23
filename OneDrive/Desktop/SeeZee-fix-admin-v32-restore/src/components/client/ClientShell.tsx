@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 import {
   FiHome,
@@ -17,16 +17,23 @@ import {
   FiCheckSquare,
   FiCreditCard,
   FiHelpCircle,
-  FiMail,
   FiChevronLeft,
   FiChevronRight,
+  FiChevronDown,
   FiSettings,
-  FiUpload,
-  FiSearch,
+  FiVideo,
+  FiClock,
+  FiUser,
+  FiShield,
+  FiActivity,
+  FiZap,
+  FiPlusCircle,
+  FiCalendar,
 } from "react-icons/fi";
 import Avatar from "@/components/ui/Avatar";
 import LogoHeader from "@/components/brand/LogoHeader";
-import { fetchJson } from "@/lib/client-api";
+import GlobalSearch from "@/components/ui/GlobalSearch";
+import { Notifications } from "@/components/navbar/Notifications";
 
 interface NavItem {
   href: string;
@@ -35,13 +42,149 @@ interface NavItem {
   badge?: number | null;
 }
 
+interface NavGroup {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: NavItem[];
+  defaultOpen?: boolean;
+}
+
+// Collapsible navigation group component
+function CollapsibleNavGroup({
+  group,
+  isCollapsed,
+  isActive,
+  onNavigate,
+}: {
+  group: NavGroup;
+  isCollapsed: boolean;
+  isActive: (href: string) => boolean;
+  onNavigate: (href: string) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(group.defaultOpen ?? false);
+  const hasActiveChild = group.items.some((item) => isActive(item.href));
+  
+  // Auto-expand if a child is active
+  useState(() => {
+    if (hasActiveChild) setIsOpen(true);
+  });
+
+  if (isCollapsed) {
+    // In collapsed mode, show first item's icon with tooltip
+    return (
+      <div className="relative group">
+        <button
+          onClick={() => onNavigate(group.items[0]?.href || "#")}
+          className={`flex w-full items-center justify-center rounded-lg p-3 transition-all duration-200 ${
+            hasActiveChild
+              ? "bg-trinity-red text-white shadow-lg"
+              : "text-gray-400 hover:bg-gray-800 hover:text-white"
+          }`}
+          title={group.label}
+        >
+          <group.icon className="h-5 w-5" />
+        </button>
+        {/* Tooltip with all items */}
+        <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-50">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl py-2 min-w-[180px]">
+            <p className="px-3 pb-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-800 mb-2">
+              {group.label}
+            </p>
+            {group.items.map((item) => (
+              <button
+                key={item.href}
+                onClick={() => onNavigate(item.href)}
+                className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                  isActive(item.href)
+                    ? "bg-trinity-red/20 text-trinity-red"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+                {item.badge && (
+                  <span className="ml-auto bg-trinity-red text-white text-xs px-2 py-0.5 rounded-full">
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex w-full items-center justify-between rounded-lg px-4 py-3 transition-all duration-200 ${
+          hasActiveChild && !isOpen
+            ? "bg-gray-800 text-white"
+            : "text-gray-400 hover:bg-gray-800/50 hover:text-white"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <group.icon className="h-5 w-5 flex-shrink-0" />
+          <span className="font-medium text-sm">{group.label}</span>
+        </div>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <FiChevronDown className="h-4 w-4" />
+        </motion.div>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="ml-4 space-y-1 border-l border-gray-800 pl-4">
+              {group.items.map((item) => (
+                <motion.button
+                  key={item.href}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => onNavigate(item.href)}
+                  className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all duration-200 ${
+                    isActive(item.href)
+                      ? "bg-trinity-red text-white shadow-md"
+                      : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                  }`}
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-sm">{item.label}</span>
+                  {item.badge && (
+                    <span className="ml-auto bg-trinity-red/20 text-trinity-red text-xs px-2 py-0.5 rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function ClientShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
+  
+  // Get session data - SessionProvider should be available from root layout
+  const { data: session, status } = useSession();
+  
+  // Initialize state - must be called in same order every render
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const isActive = useCallback(
     (href: string) => {
@@ -69,18 +212,76 @@ export default function ClientShell({ children }: { children: React.ReactNode })
     router.push("/login");
   }, [router]);
 
-
-
-  const navItems: NavItem[] = useMemo(
+  // Grouped navigation structure
+  const navGroups: NavGroup[] = useMemo(
     () => [
-      { href: "/client", label: "Dashboard", icon: FiHome },
-      { href: "/settings", label: "Settings", icon: FiSettings },
-      { href: "/client/support", label: "Support", icon: FiHelpCircle },
+      {
+        id: "dashboard",
+        label: "Dashboard",
+        icon: FiHome,
+        defaultOpen: true,
+        items: [
+          { href: "/client", label: "Overview", icon: FiHome },
+          { href: "/client/activity", label: "Activity", icon: FiActivity },
+        ],
+      },
+      {
+        id: "projects",
+        label: "Projects",
+        icon: FiFolder,
+        defaultOpen: true,
+        items: [
+          { href: "/client/projects", label: "All Projects", icon: FiFolder },
+          { href: "/client/requests", label: "Change Requests", icon: FiZap },
+          { href: "/client/files", label: "Files", icon: FiFileText },
+        ],
+      },
+      {
+        id: "billing",
+        label: "Billing",
+        icon: FiCreditCard,
+        items: [
+          { href: "/client/billing", label: "Overview", icon: FiCreditCard },
+          { href: "/client/invoices", label: "Invoices", icon: FiFileText },
+          { href: "/client/hours", label: "Hour Packs", icon: FiClock },
+          { href: "/client/subscriptions", label: "Subscriptions", icon: FiCheckSquare },
+        ],
+      },
+      {
+        id: "communication",
+        label: "Communication",
+        icon: FiMessageSquare,
+        items: [
+          { href: "/client/messages", label: "Messages", icon: FiMessageSquare },
+          { href: "/client/meetings", label: "Meetings", icon: FiVideo },
+          { href: "/client/calendar", label: "Calendar", icon: FiCalendar },
+          { href: "/client/recordings", label: "Recordings", icon: FiVideo },
+        ],
+      },
+      {
+        id: "account",
+        label: "Account",
+        icon: FiUser,
+        items: [
+          { href: "/client/profile", label: "Profile", icon: FiUser },
+          { href: "/settings", label: "Settings", icon: FiSettings },
+          { href: "/client/support", label: "Support", icon: FiHelpCircle },
+        ],
+      },
     ],
     []
   );
 
   const user = session?.user;
+
+  // Handle case where session is loading - after all hooks are called
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="text-white/60">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -110,30 +311,29 @@ export default function ClientShell({ children }: { children: React.ReactNode })
               </button>
             </div>
             <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
-              {navItems.map(({ href, label, icon: Icon, badge }) => (
-                <motion.button
-                  key={href}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handleNavigate(href)}
-                  className={`group relative flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-all duration-200 ${
-                    isCollapsed ? 'justify-center' : ''
-                  } ${
-                    isActive(href)
-                      ? "bg-trinity-red text-white shadow-lg"
-                      : "text-gray-400 hover:bg-gray-800 hover:text-white"
-                  }`}
-                  title={isCollapsed ? label : undefined}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  {!isCollapsed && <span className="font-medium">{label}</span>}
-                  {isActive(href) && (
-                    <motion.span
-                      layoutId="client-nav-active"
-                      className="absolute inset-0 rounded-lg border border-trinity-red"
-                      transition={{ type: "spring", stiffness: 250, damping: 30 }}
-                    />
-                  )}
-                </motion.button>
+              {/* Quick Action Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleNavigate("/client/requests/new")}
+                className={`flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-trinity-red to-trinity-maroon px-4 py-3 text-white shadow-lg shadow-trinity-red/20 transition-all hover:shadow-trinity-red/30 mb-4 ${
+                  isCollapsed ? "justify-center" : ""
+                }`}
+                title={isCollapsed ? "New Request" : undefined}
+              >
+                <FiPlusCircle className="h-5 w-5 flex-shrink-0" />
+                {!isCollapsed && <span className="font-semibold">New Request</span>}
+              </motion.button>
+
+              {/* Collapsible Navigation Groups */}
+              {navGroups.map((group) => (
+                <CollapsibleNavGroup
+                  key={group.id}
+                  group={group}
+                  isCollapsed={isCollapsed}
+                  isActive={isActive}
+                  onNavigate={handleNavigate}
+                />
               ))}
             </nav>
             <div className="border-t border-gray-800 px-4 py-4">
@@ -211,7 +411,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
         )}
 
         <div className={`flex min-h-screen flex-1 flex-col transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
-          <header className="border-b border-gray-800 bg-gray-900/80 px-4 py-4 lg:px-8">
+          <header className="relative border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm px-4 py-4 lg:px-8 z-50">
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setIsSidebarOpen((prev) => !prev)}
@@ -221,32 +421,36 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                 {isSidebarOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
               </button>
               <div className="flex flex-1 items-center justify-end gap-3">
-                <div className="relative w-full max-w-md">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <FiSearch className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search dashboard..."
-                    className="w-full pl-10 pr-4 py-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-trinity-red/50 focus:border-trinity-red transition-all duration-200"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery("")}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white transition-colors"
-                    >
-                      <FiX className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
+                <GlobalSearch 
+                  variant="client" 
+                  placeholder="Search projects, invoices, pages..." 
+                />
+                {/* Notification Bell */}
+                <Notifications />
+                {/* Quick New Request Button (Desktop) */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleNavigate("/client/requests/new")}
+                  className="hidden md:flex items-center gap-2 rounded-lg bg-trinity-red px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-trinity-maroon"
+                >
+                  <FiPlusCircle className="h-4 w-4" />
+                  New Request
+                </motion.button>
               </div>
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto animated-gradient px-4 py-6 lg:px-10 lg:py-10">
-            <div className="mx-auto w-full max-w-[1200px] space-y-8">{children}</div>
+          <main className="flex-1 overflow-y-auto bg-[#0a1128] px-4 py-6 lg:px-10 lg:py-10">
+            {/* Subtle dot pattern background */}
+            <div 
+              className="fixed inset-0 pointer-events-none opacity-[0.03]"
+              style={{
+                backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+                backgroundSize: '32px 32px'
+              }}
+            />
+            <div className="relative mx-auto w-full max-w-[1200px] space-y-8">{children}</div>
           </main>
         </div>
       </div>

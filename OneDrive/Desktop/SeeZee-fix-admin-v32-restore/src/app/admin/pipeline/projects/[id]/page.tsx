@@ -16,9 +16,31 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
     redirect("/login");
   }
 
+  // Use explicit select to avoid issues with columns that may not exist in production
   const project = await prisma.project.findUnique({
     where: { id },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      status: true,
+      budget: true,
+      isNonprofit: true,
+      startDate: true,
+      endDate: true,
+      createdAt: true,
+      updatedAt: true,
+      assigneeId: true,
+      leadId: true,
+      organizationId: true,
+      questionnaireId: true,
+      stripeCustomerId: true,
+      stripeSubscriptionId: true,
+      maintenancePlan: true,
+      maintenanceStatus: true,
+      nextBillingDate: true,
+      githubRepo: true,
+      vercelUrl: true,
       organization: {
         select: {
           id: true,

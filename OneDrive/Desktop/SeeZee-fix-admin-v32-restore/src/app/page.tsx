@@ -29,7 +29,7 @@ export default function HomePage() {
       <StickyCTA />
       
       {/* Hero Section - Centered & Bold */}
-      <section className="bg-[#0a0a0a] py-32 lg:py-40 relative overflow-hidden min-h-[90vh] flex items-center">
+      <section className="bg-[#0a0a0a] py-20 sm:py-32 lg:py-40 relative overflow-hidden min-h-[85vh] sm:min-h-[90vh] flex items-center">
         {/* Animated Background Gradient */}
         <motion.div 
           className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#0a1128] to-[#1a1a40]"
@@ -367,7 +367,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading font-black mb-8 leading-[1.1]"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-heading font-black mb-6 sm:mb-8 leading-[1.1] px-2"
               style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
             >
               <span className="text-white">Technology That </span>
@@ -401,7 +401,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed font-light px-4"
             >
               Sean & Zach build accessible platforms for mental health organizations, 
               recovery centers, and nonprofits that need technology to feel{' '}
@@ -413,7 +413,7 @@ export default function HomePage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 sm:mb-16 px-4"
             >
               <motion.div
                 whileHover={{ scale: 1.05, y: -2 }}
@@ -421,7 +421,7 @@ export default function HomePage() {
               >
                 <Link
                   href="/start"
-                  className="inline-flex items-center gap-2 px-10 py-5 bg-[#ef4444] text-white rounded-lg font-bold text-lg shadow-2xl hover:shadow-[#ef4444]/50 transition-all duration-300 group relative overflow-hidden"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 bg-[#ef4444] text-white rounded-lg font-bold text-base sm:text-lg shadow-2xl hover:shadow-[#ef4444]/50 transition-all duration-300 group relative overflow-hidden min-h-[48px] w-full sm:w-auto"
                 >
                   <span className="relative z-10">Start Your Project</span>
                   <FiArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
@@ -439,7 +439,7 @@ export default function HomePage() {
               >
                 <Link
                   href="/projects"
-                  className="inline-flex items-center gap-2 px-10 py-5 border-2 border-white/20 text-white rounded-lg hover:border-white hover:bg-white/5 transition-all duration-300 font-semibold text-lg backdrop-blur-sm"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 border-2 border-white/20 text-white rounded-lg hover:border-white hover:bg-white/5 transition-all duration-300 font-semibold text-base sm:text-lg backdrop-blur-sm min-h-[48px] w-full sm:w-auto"
                 >
                   See Our Work
                 </Link>
@@ -512,7 +512,7 @@ export default function HomePage() {
       </section>
 
       {/* Built by Sean & Zach Section */}
-      <section className="py-20 bg-[#1a2332]">
+      <section className="py-12 sm:py-20 bg-[#1a2332]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <ScrollAnimation>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12">
@@ -544,7 +544,7 @@ export default function HomePage() {
               </div>
 
               {/* Text */}
-              <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
+              <div className="space-y-4 sm:space-y-6 text-base sm:text-lg text-gray-300 leading-relaxed px-2">
                 <p>
                   We're Sean and Zach — two developers from Louisville who build calm, trustworthy tech for organizations that don't have a tech team.
                 </p>
@@ -577,7 +577,7 @@ export default function HomePage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto px-4">
               {[
                 { icon: '🚀', title: '2 Active Projects', subtitle: 'Serving 500+ people annually' },
                 { icon: '⚡', title: '<24 Hour', subtitle: 'Average response time' },
@@ -599,20 +599,20 @@ export default function HomePage() {
       </section>
 
       {/* Who We Serve Section */}
-      <section className="py-20 bg-[#0a1128]">
+      <section className="py-12 sm:py-20 bg-[#0a1128]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <ScrollAnimation>
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-[40px] font-heading font-bold mb-6 text-white">
+            <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-16 px-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-heading font-bold mb-4 sm:mb-6 text-white">
                 Who We Build For
               </h2>
-              <p className="text-lg text-gray-300 leading-relaxed">
+              <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
                 We work with organizations that need technology to feel calm, clear, and dependable.
               </p>
             </div>
           </ScrollAnimation>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto px-4">
             {[
               {
                 icon: <FiHeart className="w-12 h-12" />,
@@ -665,20 +665,20 @@ export default function HomePage() {
       </section>
 
       {/* What We Build Section */}
-      <section className="py-20 bg-[#1a2332]">
+      <section className="py-12 sm:py-20 bg-[#1a2332]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <ScrollAnimation>
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-[40px] font-heading font-bold mb-6 text-white">
+            <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-16 px-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-heading font-bold mb-4 sm:mb-6 text-white">
                 What We Build
               </h2>
-              <p className="text-lg text-gray-300 leading-relaxed">
+              <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
                 Complete digital platforms designed for accessibility and ease of use.
               </p>
             </div>
           </ScrollAnimation>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto px-4">
             {[
               {
                 icon: <FiEye className="w-14 h-14" />,
@@ -722,7 +722,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Project - Big Red Bus */}
-      <section className="py-20 bg-[#0a1128] relative overflow-hidden">
+      <section className="py-12 sm:py-20 bg-[#0a1128] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a1128] to-[#1a1a40]/50 opacity-50"></div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
           <ScrollAnimation>
@@ -733,13 +733,13 @@ export default function HomePage() {
                     <FiHeart className="w-4 h-4" />
                     <span>Featured Project</span>
                   </div>
-                  <h2 className="text-3xl md:text-4xl lg:text-[40px] font-heading font-bold text-white mb-6">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-heading font-bold text-white mb-4 sm:mb-6">
                     Big Red Bus
                   </h2>
-                  <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                  <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-4 sm:mb-6">
                     Big Red Bus needed a platform that wouldn't overwhelm users dealing with mental health and brain health challenges. We designed everything for clarity first — not complexity.
                   </p>
-                  <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                  <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-4 sm:mb-6">
                     A mental health and neuro-inclusive community platform connecting people with brain health challenges to resources, support groups, and community events.
                   </p>
                   <ul className="space-y-3 mb-8">
@@ -787,7 +787,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Project 2: A Vision For You */}
-      <section className="py-20 bg-[#1a2332] relative overflow-hidden">
+      <section className="py-12 sm:py-20 bg-[#1a2332] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] to-[#2d1b69]/30 opacity-50"></div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
           <ScrollAnimation>
@@ -828,7 +828,7 @@ export default function HomePage() {
                     <FiHeart className="w-4 h-4" />
                     <span>Launching December 20, 2024</span>
                   </div>
-                  <h2 className="text-3xl md:text-4xl lg:text-[40px] font-heading font-bold text-white mb-4">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-heading font-bold text-white mb-4">
                     A Vision For You Recovery
                   </h2>
                   <p className="text-xl text-[#b6e41f] font-mono mb-4">
@@ -867,20 +867,20 @@ export default function HomePage() {
       </section>
 
       {/* Our Approach Section */}
-      <section className="py-20 bg-[#0a1128]">
+      <section className="py-12 sm:py-20 bg-[#0a1128]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <ScrollAnimation>
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-[40px] font-heading font-bold mb-6 text-white">
+            <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-16 px-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-heading font-bold mb-4 sm:mb-6 text-white">
                 Our Approach
               </h2>
-              <p className="text-lg text-gray-300 leading-relaxed">
+              <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
                 Three principles that guide everything we build.
               </p>
             </div>
           </ScrollAnimation>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto px-4">
             {[
               {
                 emoji: '🧠',
@@ -929,14 +929,14 @@ export default function HomePage() {
       </section>
 
       {/* Supporting Your Community Section */}
-      <section className="py-20 bg-[#0a1128]">
+      <section className="py-12 sm:py-20 bg-[#0a1128]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <ScrollAnimation>
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl lg:text-[40px] font-heading font-bold mb-6 text-white">
+            <div className="max-w-4xl mx-auto text-center px-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-heading font-bold mb-4 sm:mb-6 text-white">
                 Your mission shouldn't be held back by confusing technology.
               </h2>
-              <div className="space-y-6 text-lg text-gray-300 leading-relaxed mb-10">
+              <div className="space-y-4 sm:space-y-6 text-base sm:text-lg text-gray-300 leading-relaxed mb-8 sm:mb-10">
                 <p>
                   Most nonprofits and community organizations are juggling outdated websites, broken donation tools, and software that nobody knows how to use.
                 </p>
@@ -950,23 +950,23 @@ export default function HomePage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-32 bg-gradient-to-br from-[#ef4444] via-[#dc2626] to-[#b91c1c] relative overflow-hidden">
+      <section className="py-16 sm:py-24 lg:py-32 bg-gradient-to-br from-[#ef4444] via-[#dc2626] to-[#b91c1c] relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl">
           <ScrollAnimation>
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 text-white">
+            <div className="max-w-3xl mx-auto text-center px-2">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 sm:mb-6 text-white">
                 Ready to build something meaningful?
               </h2>
-              <p className="text-xl md:text-2xl text-white/95 mb-12 leading-relaxed">
+              <p className="text-lg sm:text-xl md:text-2xl text-white/95 mb-8 sm:mb-12 leading-relaxed">
                 Tell us what you're trying to build. We'll show you what's possible — no pressure, no tech jargon, no BS.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Link
                     href="/start"
-                    className="inline-flex items-center justify-center gap-2 px-10 py-5 bg-white text-[#ef4444] rounded-lg hover:bg-gray-100 transition-all duration-300 font-bold text-lg shadow-2xl hover:shadow-white/30"
+                    className="inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 bg-white text-[#ef4444] rounded-lg hover:bg-gray-100 transition-all duration-300 font-bold text-base sm:text-lg shadow-2xl hover:shadow-white/30 min-h-[48px] w-full sm:w-auto"
                   >
                     Start Your Project
                     <FiArrowRight className="w-5 h-5" />
@@ -975,7 +975,7 @@ export default function HomePage() {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Link
                     href="/start/nonprofit-tiers"
-                    className="inline-flex items-center justify-center gap-2 px-10 py-5 border-2 border-white text-white rounded-lg hover:bg-white/20 transition-all duration-300 font-semibold text-lg backdrop-blur"
+                    className="inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 border-2 border-white text-white rounded-lg hover:bg-white/20 transition-all duration-300 font-semibold text-base sm:text-lg backdrop-blur min-h-[48px] w-full sm:w-auto"
                   >
                     View Nonprofit Packages
                   </Link>

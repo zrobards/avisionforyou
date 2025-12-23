@@ -63,3 +63,7 @@ After setting up the environment variables:
 - For production, generate a secure `AUTH_SECRET` using: `openssl rand -base64 32`
 
 
+
+
+
+

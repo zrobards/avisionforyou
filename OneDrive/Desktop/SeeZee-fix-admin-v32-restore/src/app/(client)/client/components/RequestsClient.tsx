@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Clock, FileText, AlertCircle, CheckCircle2, XCircle, Archive, Plus, X, Eye, History as TimelineIcon, Calendar, Mail, Building2, DollarSign, Filter, Edit, Trash2, FolderKanban, ExternalLink } from "lucide-react";
+import { Clock, FileText, AlertCircle, CheckCircle2, XCircle, Archive, Plus, X, Eye, History as TimelineIcon, Calendar, Mail, Building2, DollarSign, Filter, Edit, Trash2, FolderKanban, ExternalLink, Wrench } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchJson } from "@/lib/client-api";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,6 +28,26 @@ interface ProjectRequest {
   } | null;
 }
 
+interface ChangeRequest {
+  id: string;
+  description: string;
+  status: string;
+  category: string;
+  priority: string;
+  estimatedHours: number | null;
+  actualHours: number | null;
+  createdAt: string;
+  updatedAt: string;
+  project: {
+    id: string;
+    name: string;
+  };
+  subscription: {
+    id: string;
+    planName: string;
+  } | null;
+}
+
 const STATUS_CONFIG = {
   DRAFT: { icon: FileText, color: "text-slate-400", bg: "bg-slate-500/20", border: "border-slate-500/30", label: "Draft" },
   SUBMITTED: { icon: Clock, color: "text-blue-400", bg: "bg-blue-500/20", border: "border-blue-500/30", label: "Submitted" },
@@ -38,32 +58,58 @@ const STATUS_CONFIG = {
   ARCHIVED: { icon: Archive, color: "text-slate-400", bg: "bg-slate-500/20", border: "border-slate-500/30", label: "Archived" },
 } as const;
 
+const CHANGE_REQUEST_STATUS_CONFIG = {
+  pending: { icon: Clock, color: "text-yellow-400", bg: "bg-yellow-500/20", border: "border-yellow-500/30", label: "Pending" },
+  approved: { icon: CheckCircle2, color: "text-blue-400", bg: "bg-blue-500/20", border: "border-blue-500/30", label: "Approved" },
+  in_progress: { icon: Wrench, color: "text-cyan-400", bg: "bg-cyan-500/20", border: "border-cyan-500/30", label: "In Progress" },
+  completed: { icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/20", border: "border-emerald-500/30", label: "Completed" },
+  rejected: { icon: XCircle, color: "text-red-400", bg: "bg-red-500/20", border: "border-red-500/30", label: "Rejected" },
+} as const;
+
 export function RequestsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [requests, setRequests] = useState<ProjectRequest[]>([]);
+  const [activeTab, setActiveTab] = useState<"project" | "change">("project");
+  const [projectRequests, setProjectRequests] = useState<ProjectRequest[]>([]);
+  const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRequest, setSelectedRequest] = useState<ProjectRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<ProjectRequest | ChangeRequest | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
   // Handle edit query parameter
   const editId = searchParams.get('edit');
 
-  const fetchRequests = () => {
+  const fetchProjectRequests = () => {
     fetchJson<{ requests: ProjectRequest[] }>("/api/client/requests")
-      .then((data) => setRequests(data.requests || []))
+      .then((data) => setProjectRequests(data.requests || []))
       .catch((error) => {
-        // Silently handle errors - component will show empty state
         if (process.env.NODE_ENV === 'development') {
-          console.error("Failed to fetch requests:", error);
+          console.error("Failed to fetch project requests:", error);
         }
-      })
-      .finally(() => setLoading(false));
+      });
+  };
+
+  const fetchChangeRequests = () => {
+    fetchJson<{ changeRequests: ChangeRequest[] }>("/api/client/change-requests")
+      .then((data) => setChangeRequests(data.changeRequests || []))
+      .catch((error) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Failed to fetch change requests:", error);
+        }
+      });
   };
 
   useEffect(() => {
-    fetchRequests();
+    const fetchAll = async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchProjectRequests(),
+        fetchChangeRequests(),
+      ]);
+      setLoading(false);
+    };
+    fetchAll();
   }, []);
 
   // Handle edit redirect
@@ -91,7 +137,7 @@ export function RequestsClient() {
       }
 
       // Remove from local state
-      setRequests(requests.filter((req) => req.id !== requestId));
+      setProjectRequests(projectRequests.filter((req) => req.id !== requestId));
       if (selectedRequest?.id === requestId) {
         setSelectedRequest(null);
       }
@@ -113,10 +159,18 @@ export function RequestsClient() {
     return ['DRAFT', 'SUBMITTED'].includes(status);
   };
 
-  const filteredRequests = useMemo(() => {
-    if (statusFilter === "all") return requests;
-    return requests.filter((req) => req.status === statusFilter);
-  }, [requests, statusFilter]);
+  const filteredProjectRequests = useMemo(() => {
+    if (statusFilter === "all") return projectRequests;
+    return projectRequests.filter((req) => req.status.toUpperCase() === statusFilter.toUpperCase());
+  }, [projectRequests, statusFilter]);
+
+  const filteredChangeRequests = useMemo(() => {
+    if (statusFilter === "all") return changeRequests;
+    return changeRequests.filter((req) => req.status === statusFilter);
+  }, [changeRequests, statusFilter]);
+
+  const currentRequests = activeTab === "project" ? filteredProjectRequests : filteredChangeRequests;
+  const allRequests = activeTab === "project" ? projectRequests : changeRequests;
 
   const getStatusTimeline = (request: ProjectRequest) => {
     const timeline = [
@@ -176,50 +230,131 @@ export function RequestsClient() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">My Project Requests</h1>
-          <p className="text-white/60 text-sm">Track the status of your project submissions</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Requests</h1>
+          <p className="text-white/60 text-sm">Manage your project requests and change requests</p>
         </div>
-        <Link href="/start">
-          <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Submit New Request
-          </button>
-        </Link>
+        <div className="flex gap-3">
+          {activeTab === "change" && (
+            <Link href="/client/requests/new">
+              <button className="px-6 py-3 bg-trinity-red hover:bg-trinity-maroon text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                New Change Request
+              </button>
+            </Link>
+          )}
+          {activeTab === "project" && (
+            <Link href="/start">
+              <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                New Project Request
+              </button>
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-gray-800">
+        <button
+          onClick={() => {
+            setActiveTab("project");
+            setStatusFilter("all");
+          }}
+          className={`px-6 py-3 font-medium transition-colors border-b-2 ${
+            activeTab === "project"
+              ? "border-blue-500 text-blue-400"
+              : "border-transparent text-gray-400 hover:text-white"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Project Requests ({projectRequests.length})
+          </div>
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab("change");
+            setStatusFilter("all");
+          }}
+          className={`px-6 py-3 font-medium transition-colors border-b-2 ${
+            activeTab === "change"
+              ? "border-blue-500 text-blue-400"
+              : "border-transparent text-gray-400 hover:text-white"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Wrench className="w-4 h-4" />
+            Change Requests ({changeRequests.length})
+          </div>
+        </button>
       </div>
 
       {/* Status Filter */}
-      {requests.length > 0 && (
+      {allRequests.length > 0 && (
         <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl">
           <div className="flex flex-wrap gap-2">
-            {["all", ...Object.keys(STATUS_CONFIG)].map((status) => (
-              <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  statusFilter === status
-                    ? "bg-blue-500 text-white"
-                    : "bg-white/5 text-white/60 hover:bg-white/10"
-                }`}
-              >
-                {status === "all" ? "All" : STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]?.label || status}
-              </button>
-            ))}
+            {activeTab === "project" ? (
+              // Project Request filters
+              ["all", ...Object.keys(STATUS_CONFIG)].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(status)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    statusFilter === status
+                      ? "bg-blue-500 text-white"
+                      : "bg-white/5 text-white/60 hover:bg-white/10"
+                  }`}
+                >
+                  {status === "all" ? "All" : STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]?.label || status}
+                </button>
+              ))
+            ) : (
+              // Change Request filters
+              ["all", ...Object.keys(CHANGE_REQUEST_STATUS_CONFIG)].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(status)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    statusFilter === status
+                      ? "bg-blue-500 text-white"
+                      : "bg-white/5 text-white/60 hover:bg-white/10"
+                  }`}
+                >
+                  {status === "all" ? "All" : CHANGE_REQUEST_STATUS_CONFIG[status as keyof typeof CHANGE_REQUEST_STATUS_CONFIG]?.label || status}
+                </button>
+              ))
+            )}
           </div>
         </div>
       )}
 
-      {requests.length === 0 ? (
+      {allRequests.length === 0 ? (
         <div className="bg-gray-900 border border-gray-800 p-12 text-center rounded-2xl">
-          <FileText className="w-16 h-16 text-white/20 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">No requests yet</h3>
-          <p className="text-white/60 mb-6">Get started by submitting your first project request</p>
-          <Link href="/start">
-            <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
-              Start a Project
-            </button>
-          </Link>
+          {activeTab === "project" ? (
+            <>
+              <FileText className="w-16 h-16 text-white/20 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">No project requests yet</h3>
+              <p className="text-white/60 mb-6">Get started by submitting your first project request</p>
+              <Link href="/start">
+                <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                  Start a Project
+                </button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Wrench className="w-16 h-16 text-white/20 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">No change requests yet</h3>
+              <p className="text-white/60 mb-6">Submit change requests for your active projects</p>
+              <Link href="/client/requests/new">
+                <button className="px-6 py-3 bg-trinity-red hover:bg-trinity-maroon text-white font-semibold rounded-lg transition-colors">
+                  Create Change Request
+                </button>
+              </Link>
+            </>
+          )}
         </div>
-      ) : filteredRequests.length === 0 ? (
+      ) : currentRequests.length === 0 ? (
         <div className="bg-gray-900 border border-gray-800 p-12 text-center rounded-2xl">
           <Filter className="w-12 h-12 text-white/20 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-white mb-2">No requests found</h3>
@@ -234,9 +369,11 @@ export function RequestsClient() {
       ) : (
         <div className="space-y-4">
           <AnimatePresence>
-            {filteredRequests.map((request) => {
-              const config = STATUS_CONFIG[request.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.SUBMITTED;
-              const Icon = config.icon;
+            {activeTab === "project" ? (
+              // Project Requests
+              filteredProjectRequests.map((request) => {
+                const config = STATUS_CONFIG[request.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.SUBMITTED;
+                const Icon = config.icon;
 
               return (
                 <motion.div
@@ -373,7 +510,111 @@ export function RequestsClient() {
                   )}
                 </motion.div>
               );
-            })}
+              })
+            ) : (
+              // Change Requests
+              filteredChangeRequests.map((request) => {
+                const getStatusColor = (status: string) => {
+                  const colors: Record<string, string> = {
+                    pending: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+                    approved: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+                    in_progress: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+                    completed: "bg-green-500/20 text-green-300 border-green-500/30",
+                    rejected: "bg-red-500/20 text-red-300 border-red-500/30",
+                  };
+                  return colors[status] || "bg-gray-500/20 text-gray-300 border-gray-500/30";
+                };
+
+                const getPriorityColor = (priority: string) => {
+                  const colors: Record<string, string> = {
+                    LOW: "text-gray-400",
+                    NORMAL: "text-blue-400",
+                    HIGH: "text-yellow-400",
+                    URGENT: "text-orange-400",
+                    EMERGENCY: "text-red-400",
+                  };
+                  return colors[priority] || "text-gray-400";
+                };
+
+                const statusColor = getStatusColor(request.status);
+                const priorityColor = getPriorityColor(request.priority);
+                const title = request.description.split('\n\n')[0] || request.description.substring(0, 100);
+                const description = request.description.split('\n\n').slice(1).join('\n\n') || request.description;
+
+                return (
+                  <motion.div
+                    key={request.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="bg-gray-900 border border-gray-800 p-6 hover:bg-gray-800 transition-all rounded-2xl hover:border-trinity-red"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-3">
+                          <h3 className="text-lg font-semibold text-white">{title}</h3>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${statusColor}`}>
+                            {request.status.replace('_', ' ').toUpperCase()}
+                          </span>
+                          <span className={`text-xs font-medium ${priorityColor}`}>
+                            {request.priority}
+                          </span>
+                        </div>
+                        
+                        <p className="text-white/70 text-sm line-clamp-2 mb-4">{description}</p>
+                        
+                        {/* Meta info */}
+                        <div className="flex flex-wrap gap-4 text-xs text-white/60">
+                          <span className="flex items-center gap-1.5">
+                            <FolderKanban className="w-3.5 h-3.5" />
+                            {request.project.name}
+                          </span>
+                          {request.estimatedHours && (
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5" />
+                              Est: {request.estimatedHours}h
+                            </span>
+                          )}
+                          {request.actualHours && (
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5" />
+                              Actual: {request.actualHours}h
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(request.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 ml-6 flex-shrink-0">
+                        <button
+                          onClick={() => setSelectedRequest(request)}
+                          className="p-2 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 hover:border-blue-400/30 transition-all"
+                          title="View details"
+                        >
+                          <Eye className="w-4 h-4 text-white/60" />
+                        </button>
+                        <div className="text-right text-xs text-white/40">
+                          <div>{new Date(request.createdAt).toLocaleDateString()}</div>
+                          <div className="mt-1">{new Date(request.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Category */}
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-2.5 py-1 bg-cyan-500/20 text-cyan-300 text-xs font-medium rounded-lg border border-cyan-500/30">
+                          {request.category.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })
+            )}
           </AnimatePresence>
         </div>
       )}
@@ -400,7 +641,9 @@ export function RequestsClient() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white">{selectedRequest.title}</h2>
+                  <h2 className="text-2xl font-bold text-white">
+                    {'title' in selectedRequest ? selectedRequest.title : selectedRequest.description.split('\n\n')[0] || 'Change Request'}
+                  </h2>
                   <button
                     onClick={() => setSelectedRequest(null)}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -411,7 +654,7 @@ export function RequestsClient() {
 
                 {/* Status Badge */}
                 <div className="mb-6">
-                  {selectedRequest.project ? (
+                  {'project' in selectedRequest && selectedRequest.project ? (
                     <div className="space-y-3">
                       <Link
                         href={`/client/projects/${selectedRequest.project.id}`}
@@ -438,7 +681,7 @@ export function RequestsClient() {
                         </Link>
                       </div>
                     </div>
-                  ) : (
+                  ) : 'title' in selectedRequest ? (
                     (() => {
                       const config = STATUS_CONFIG[selectedRequest.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.SUBMITTED;
                       const Icon = config.icon;
@@ -449,6 +692,27 @@ export function RequestsClient() {
                         </span>
                       );
                     })()
+                  ) : (
+                    // Change Request status
+                    (() => {
+                      const changeRequest = selectedRequest as ChangeRequest;
+                      const getStatusColor = (status: string) => {
+                        const colors: Record<string, string> = {
+                          pending: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+                          approved: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+                          in_progress: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+                          completed: "bg-green-500/20 text-green-300 border-green-500/30",
+                          rejected: "bg-red-500/20 text-red-300 border-red-500/30",
+                        };
+                        return colors[status] || "bg-gray-500/20 text-gray-300 border-gray-500/30";
+                      };
+                      const statusColor = getStatusColor(changeRequest.status);
+                      return (
+                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border ${statusColor}`}>
+                          {changeRequest.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                      );
+                    })()
                   )}
                 </div>
 
@@ -456,20 +720,25 @@ export function RequestsClient() {
                 {selectedRequest.description && (
                   <div className="mb-6">
                     <h3 className="text-sm font-semibold text-white/60 mb-2">Description</h3>
-                    <p className="text-white/80">{selectedRequest.description}</p>
+                    <p className="text-white/80">
+                      {'title' in selectedRequest ? selectedRequest.description : selectedRequest.description.split('\n\n').slice(1).join('\n\n') || selectedRequest.description}
+                    </p>
                   </div>
                 )}
 
-                {/* Timeline */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-white/60 mb-4 flex items-center gap-2">
-                    <TimelineIcon className="w-4 h-4" />
-                    Status Timeline
-                  </h3>
-                  <div className="space-y-3">
-                    {getStatusTimeline(selectedRequest).map((item, index) => (
-                      <div key={index} className="flex gap-4 relative">
-                        {index < getStatusTimeline(selectedRequest).length - 1 && (
+                {/* Timeline - Only for Project Requests */}
+                {'title' in selectedRequest && (() => {
+                  const timeline = getStatusTimeline(selectedRequest);
+                  return (
+                    <div className="mb-6">
+                      <h3 className="text-sm font-semibold text-white/60 mb-4 flex items-center gap-2">
+                        <TimelineIcon className="w-4 h-4" />
+                        Status Timeline
+                      </h3>
+                      <div className="space-y-3">
+                        {timeline.map((item, index) => (
+                        <div key={index} className="flex gap-4 relative">
+                          {index < timeline.length - 1 && (
                           <div className="absolute left-3 top-6 bottom-0 w-px bg-white/10" />
                         )}
                         <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
@@ -491,47 +760,99 @@ export function RequestsClient() {
                     ))}
                   </div>
                 </div>
+                  );
+                })()}
 
                 {/* Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="p-4 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
-                      <Mail className="w-4 h-4" />
-                      Contact Email
-                    </div>
-                    <div className="text-white font-medium">{selectedRequest.contactEmail}</div>
-                  </div>
-                  {selectedRequest.company && (
-                    <div className="p-4 bg-white/5 rounded-xl">
-                      <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
-                        <Building2 className="w-4 h-4" />
-                        Company
+                  {'contactEmail' in selectedRequest ? (
+                    // Project Request details
+                    <>
+                      <div className="p-4 bg-white/5 rounded-xl">
+                        <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                          <Mail className="w-4 h-4" />
+                          Contact Email
+                        </div>
+                        <div className="text-white font-medium">{selectedRequest.contactEmail}</div>
                       </div>
-                      <div className="text-white font-medium">{selectedRequest.company}</div>
-                    </div>
-                  )}
-                  {selectedRequest.budget && selectedRequest.budget !== "UNKNOWN" && (
-                    <div className="p-4 bg-white/5 rounded-xl">
-                      <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
-                        <DollarSign className="w-4 h-4" />
-                        Budget
+                      {selectedRequest.company && (
+                        <div className="p-4 bg-white/5 rounded-xl">
+                          <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                            <Building2 className="w-4 h-4" />
+                            Company
+                          </div>
+                          <div className="text-white font-medium">{selectedRequest.company}</div>
+                        </div>
+                      )}
+                      {selectedRequest.budget && selectedRequest.budget !== "UNKNOWN" && (
+                        <div className="p-4 bg-white/5 rounded-xl">
+                          <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                            <DollarSign className="w-4 h-4" />
+                            Budget
+                          </div>
+                          <div className="text-white font-medium">{selectedRequest.budget.replace(/_/g, " ")}</div>
+                        </div>
+                      )}
+                      {selectedRequest.timeline && (
+                        <div className="p-4 bg-white/5 rounded-xl">
+                          <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                            <Calendar className="w-4 h-4" />
+                            Timeline
+                          </div>
+                          <div className="text-white font-medium">{selectedRequest.timeline}</div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    // Change Request details
+                    <>
+                      <div className="p-4 bg-white/5 rounded-xl">
+                        <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                          <FolderKanban className="w-4 h-4" />
+                          Project
+                        </div>
+                        <Link href={`/client/projects/${selectedRequest.project.id}`} className="text-white font-medium hover:text-blue-400">
+                          {selectedRequest.project.name}
+                        </Link>
                       </div>
-                      <div className="text-white font-medium">{selectedRequest.budget.replace(/_/g, " ")}</div>
-                    </div>
-                  )}
-                  {selectedRequest.timeline && (
-                    <div className="p-4 bg-white/5 rounded-xl">
-                      <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
-                        <Calendar className="w-4 h-4" />
-                        Timeline
+                      <div className="p-4 bg-white/5 rounded-xl">
+                        <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                          <Wrench className="w-4 h-4" />
+                          Category
+                        </div>
+                        <div className="text-white font-medium">{selectedRequest.category.replace('_', ' ')}</div>
                       </div>
-                      <div className="text-white font-medium">{selectedRequest.timeline}</div>
-                    </div>
+                      <div className="p-4 bg-white/5 rounded-xl">
+                        <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                          <AlertCircle className="w-4 h-4" />
+                          Priority
+                        </div>
+                        <div className="text-white font-medium">{selectedRequest.priority}</div>
+                      </div>
+                      {selectedRequest.estimatedHours && (
+                        <div className="p-4 bg-white/5 rounded-xl">
+                          <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                            <Clock className="w-4 h-4" />
+                            Estimated Hours
+                          </div>
+                          <div className="text-white font-medium">{selectedRequest.estimatedHours}h</div>
+                        </div>
+                      )}
+                      {selectedRequest.actualHours && (
+                        <div className="p-4 bg-white/5 rounded-xl">
+                          <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
+                            <Clock className="w-4 h-4" />
+                            Actual Hours
+                          </div>
+                          <div className="text-white font-medium">{selectedRequest.actualHours}h</div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
-                {/* Services */}
-                {selectedRequest.services && selectedRequest.services.length > 0 && (
+                {/* Services - Only for Project Requests */}
+                {'services' in selectedRequest && selectedRequest.services && selectedRequest.services.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-semibold text-white/60 mb-3">Services</h3>
                     <div className="flex flex-wrap gap-2">
@@ -547,8 +868,8 @@ export function RequestsClient() {
                   </div>
                 )}
 
-                {/* Admin Notes */}
-                {selectedRequest.notes && (
+                {/* Admin Notes - Only for Project Requests */}
+                {'notes' in selectedRequest && selectedRequest.notes && (
                   <div className="mb-6">
                     <h3 className="text-sm font-semibold text-white/60 mb-2">Admin Notes</h3>
                     <div className="p-4 bg-white/5 rounded-xl text-white/80">

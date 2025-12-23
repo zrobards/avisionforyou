@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
+import { existsSync } from "fs";
 
 export async function POST(req: NextRequest) {
   try {
@@ -74,42 +77,57 @@ export async function POST(req: NextRequest) {
     }
 
     // Convert file to buffer for storage
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // For now, we'll store the file path as a placeholder
-    // In production, this should be uploaded to cloud storage (S3, UploadThing, etc.)
-    // and the URL stored in filePath
-    const filePath = `recordings/${session.user.id}/${Date.now()}-${file.name}`;
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
     
-    // TODO: Implement actual file storage (S3, UploadThing, etc.)
-    // For now, we'll create the database record with the file info
-    // The actual file storage can be implemented later
+    // Save file to public/uploads directory
+    const uploadsDir = path.join(process.cwd(), "public", "uploads", "recordings");
+    if (!existsSync(uploadsDir)) {
+      await mkdir(uploadsDir, { recursive: true });
+    }
+
+    const timestamp = Date.now();
+    const safeFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const filename = `${timestamp}-${safeFilename}`;
+    const localPath = path.join(uploadsDir, filename);
+    
+    await writeFile(localPath, buffer);
+
+    // Store the public URL path
+    const publicPath = `/uploads/recordings/${filename}`;
 
     // Create recording record in database
     const recording = await prisma.recording.create({
       data: {
         title,
         filename: file.name,
-        filePath, // This should be the actual storage URL in production
+        filePath: publicPath,
         fileSize: file.size,
         mimeType: file.type,
-        status: "PENDING", // Will be updated when AI processing starts
+        status: "PENDING",
         uploadedById: session.user.id,
         projectId: projectId || null,
       },
     });
 
-    // TODO: Trigger AI processing job here
-    // This would typically be done via a background job queue
-    // For now, we'll leave it as PENDING status
+    // Auto-trigger AI processing
+    try {
+      const processUrl = new URL("/api/recordings/process", req.url);
+      await fetch(processUrl.toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recordingId: recording.id })
+      });
+    } catch (error) {
+      console.error("Failed to trigger processing:", error);
+    }
 
-    console.log(`Recording created: ${recording.id} for user ${session.user.id}`);
+    console.log(`Recording created and processing triggered: ${recording.id}`);
     
     return NextResponse.json({
       success: true,
       recordingId: recording.id,
-      message: "Recording uploaded successfully. Processing will begin shortly.",
+      message: "Recording uploaded successfully. AI processing started.",
     });
   } catch (error) {
     console.error("Upload error:", error);

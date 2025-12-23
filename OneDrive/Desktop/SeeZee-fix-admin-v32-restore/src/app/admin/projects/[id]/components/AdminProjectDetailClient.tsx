@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AdminProjectTasks } from "./AdminProjectTasks";
 import { RepositoryTab } from "@/app/(client)/client/components/RepositoryTab";
 import { SettingsTab } from "@/app/(client)/client/components/SettingsTab";
+import { AdminChangeRequestsSection } from "./AdminChangeRequestsSection";
 
 interface AdminProjectDetailClientProps {
   project: {
@@ -274,29 +275,7 @@ export function AdminProjectDetailClient({ project }: AdminProjectDetailClientPr
         );
 
       case "requests":
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-white">Change Requests</h3>
-            {project.requests.length === 0 ? (
-              <div className="text-center py-12">
-                <MessageSquare className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                <p className="text-white/60">No change requests yet</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {project.requests.map((request) => (
-                  <div key={request.id} className="p-4 bg-gray-900 rounded-xl border border-gray-800">
-                    <h4 className="font-semibold text-white mb-2">{request.title}</h4>
-                    {request.description && <p className="text-sm text-white/60">{request.description}</p>}
-                    <p className="text-xs text-white/40 mt-2">
-                      {new Date(request.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
+        return <AdminChangeRequestsSection requests={project.requests} projectId={project.id} />;
 
       case "messages":
         return (

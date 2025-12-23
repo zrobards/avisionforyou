@@ -2,7 +2,7 @@
  * CEO System Logs - Real Activity from Database
  */
 
-import { listActivity } from "@/server/actions";
+import { listActivity } from "@/server/actions/activity";
 import { LogsClient } from "@/components/admin/LogsClient";
 
 export const dynamic = "force-dynamic";

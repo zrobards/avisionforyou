@@ -321,6 +321,13 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
         }
       }
       
+      // If a maintenance plan was created, redirect to dashboard to show updated hours
+      if (leadData.maintenancePlanId || leadData.projectId) {
+        // Force a hard navigation to ensure fresh data is loaded
+        window.location.href = '/client?refresh=hours';
+        return;
+      }
+      
       // Redirect to success page with leadId
       if (leadData.leadId) {
         router.push(`/start/questionnaire/success?leadId=${leadData.leadId}`);
@@ -384,9 +391,9 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full glass-effect rounded-xl border-2 border-gray-700 hover:border-trinity-red transition-all duration-300 p-8 shadow-medium hover:shadow-large"
+            className="w-full glass-effect rounded-xl border-2 border-gray-700 hover:border-trinity-red transition-all duration-300 p-4 sm:p-6 lg:p-8 shadow-medium hover:shadow-large"
           >
-            <h1 className="text-4xl md:text-5xl font-heading font-bold gradient-text mb-6">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold gradient-text mb-4 sm:mb-6">
               {currentQuestion.label}
               {currentQuestion.required && <span className="text-trinity-red">*</span>}
             </h1>
@@ -400,7 +407,7 @@ export function ProjectRequestForm({ selectedPackage, onClose, onSubmit }: Proje
                   placeholder={currentQuestion.placeholder}
                   readOnly={currentQuestion.readOnly}
                   disabled={currentQuestion.readOnly}
-                  className={`w-full text-lg text-white placeholder:text-white/40 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-trinity-red focus:border-trinity-red transition-all ${
+                  className={`w-full text-base sm:text-lg text-white placeholder:text-white/40 bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:ring-2 focus:ring-trinity-red focus:border-trinity-red transition-all ${
                     errors[currentQuestion.id] ? 'border-red-500' : ''
                   } ${currentQuestion.readOnly ? 'cursor-not-allowed opacity-70' : ''}`}
                 />

@@ -341,6 +341,7 @@ export async function getDashboardData(
   const access = await getClientAccessContext({ userId, email: userEmail });
   
   // Get most recent active project
+  // Use explicit select to avoid issues with columns that may not exist in production
   const project = await prisma.project.findFirst({
     where: {
       OR: [
@@ -352,7 +353,27 @@ export async function getDashboardData(
       },
     },
     orderBy: { updatedAt: 'desc' },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      status: true,
+      budget: true,
+      startDate: true,
+      endDate: true,
+      createdAt: true,
+      updatedAt: true,
+      assigneeId: true,
+      leadId: true,
+      organizationId: true,
+      questionnaireId: true,
+      stripeCustomerId: true,
+      stripeSubscriptionId: true,
+      maintenancePlan: true,
+      maintenanceStatus: true,
+      nextBillingDate: true,
+      githubRepo: true,
+      vercelUrl: true,
       organization: {
         select: { id: true, name: true },
       },
@@ -427,7 +448,7 @@ export async function getDashboardData(
   const aiSuggestions = getMockAISuggestions(project.id, 5);
   
   return {
-    project,
+    project: project as any,
     otherProjects,
     actions,
     activity,
@@ -552,10 +573,54 @@ export async function getComprehensiveDashboardData(
     take: 10,
   });
   
-  const activeRequests = projectRequests.filter(req => {
+  const activeProjectRequests = projectRequests.filter(req => {
     const status = String(req.status || '').toUpperCase();
     return ['SUBMITTED', 'REVIEWING', 'DRAFT', 'NEEDS_INFO'].includes(status);
   });
+
+  // Get change requests
+  const changeRequests = await prisma.changeRequest.findMany({
+    where: {
+      project: {
+        OR: [
+          { organizationId: { in: access.organizationIds } },
+          { id: { in: access.leadProjectIds } },
+        ],
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  });
+
+  // Combine both types of requests for recentRequests
+  const allRecentRequests = [
+    ...projectRequests.map(req => ({
+      id: req.id,
+      title: req.title || 'Untitled Request',
+      status: req.status,
+      createdAt: req.createdAt,
+      type: 'project' as const,
+    })),
+    ...changeRequests.map(req => {
+      // Extract title from change request description
+      // Try splitting by double newline first, then single newline, then just take first 100 chars
+      const desc = req.description || '';
+      const titlePart = desc.split('\n\n')[0] || desc.split('\n')[0] || desc.substring(0, 100);
+      const title = titlePart.trim() || 'Change Request';
+      return {
+        id: req.id,
+        title: title.length > 100 ? title.substring(0, 100) + '...' : title,
+        status: req.status,
+        createdAt: req.createdAt,
+        type: 'change' as const,
+      };
+    }),
+  ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 10);
+
+  const activeRequests = activeProjectRequests.length + changeRequests.filter(req => {
+    const status = String(req.status || '').toLowerCase();
+    return ['pending', 'approved', 'in_progress'].includes(status);
+  }).length;
   
   // Get client tasks across all projects
   const tasks = await prisma.clientTask.findMany({
@@ -618,7 +683,7 @@ export async function getComprehensiveDashboardData(
       activeProjects: activeProjects.length,
       totalProjects: projects.length,
       pendingInvoices: pendingInvoices.length,
-      activeRequests: activeRequests.length,
+      activeRequests: activeRequests,
       pendingTasks: tasks.length,
     },
     recentActivity,
@@ -631,9 +696,9 @@ export async function getComprehensiveDashboardData(
       return 0;
     }).slice(0, 10),
     recentMessages,
-    recentRequests: activeRequests.map(req => ({
+    recentRequests: allRecentRequests.map(req => ({
       id: req.id,
-      title: req.title || 'Untitled Request',
+      title: req.title,
       status: req.status,
       createdAt: req.createdAt,
     })),

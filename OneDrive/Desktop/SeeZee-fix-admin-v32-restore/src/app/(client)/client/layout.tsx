@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import ClientShell from "@/components/client/ClientShell";
 import { ClientErrorBoundary } from "@/components/client/ClientErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
+import { ToastContainer } from "@/components/ui/Toast";
 import { getCurrentUser } from "@/lib/auth/requireRole";
 import { ROLE } from "@/lib/role";
+import { Providers } from "@/app/providers";
 
 export default async function ClientDashboardLayout({
   children,
@@ -24,12 +26,15 @@ export default async function ClientDashboardLayout({
   if (user.email === CEO_EMAIL || user.email === "seanpm1007@gmail.com") {
     // CEO can access client dashboard
     return (
-      <ClientErrorBoundary>
-        <div className="min-h-screen" style={{ paddingTop: 'var(--h-nav)' }}>
-          <ClientShell>{children}</ClientShell>
-          <Toaster />
-        </div>
-      </ClientErrorBoundary>
+      <Providers>
+        <ClientErrorBoundary>
+          <div className="min-h-screen" style={{ paddingTop: 'var(--h-nav)' }}>
+            <ClientShell>{children}</ClientShell>
+            <Toaster />
+            <ToastContainer />
+          </div>
+        </ClientErrorBoundary>
+      </Providers>
     );
   }
 
@@ -58,11 +63,14 @@ export default async function ClientDashboardLayout({
   }
 
   return (
-    <ClientErrorBoundary>
-      <div className="min-h-screen" style={{ paddingTop: 'var(--h-nav)' }}>
-        <ClientShell>{children}</ClientShell>
-        <Toaster />
-      </div>
-    </ClientErrorBoundary>
+    <Providers>
+      <ClientErrorBoundary>
+        <div className="min-h-screen" style={{ paddingTop: 'var(--h-nav)' }}>
+          <ClientShell>{children}</ClientShell>
+          <Toaster />
+          <ToastContainer />
+        </div>
+      </ClientErrorBoundary>
+    </Providers>
   );
 }

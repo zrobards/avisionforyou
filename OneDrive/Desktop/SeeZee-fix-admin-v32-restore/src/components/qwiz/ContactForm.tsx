@@ -33,7 +33,7 @@ export function ContactForm() {
           onChange={(e) => updateContact('name', e.target.value)}
           placeholder="Your name *"
           required
-          className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
+          className="w-full pl-11 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-base sm:text-sm"
         />
       </motion.div>
 
@@ -44,14 +44,14 @@ export function ContactForm() {
         transition={{ delay: 0.1 }}
         className="relative"
       >
-        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+        <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-white/40" />
         <input
           type="email"
           value={contact?.email || ''}
           onChange={(e) => updateContact('email', e.target.value)}
           placeholder="Email address *"
           required
-          className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
+          className="w-full pl-11 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-base sm:text-sm"
         />
       </motion.div>
 
@@ -62,13 +62,13 @@ export function ContactForm() {
         transition={{ delay: 0.2 }}
         className="relative"
       >
-        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+        <Phone className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-white/40" />
         <input
           type="tel"
           value={contact?.phone || ''}
           onChange={(e) => updateContact('phone', e.target.value)}
           placeholder="Phone number (optional)"
-          className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
+          className="w-full pl-11 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-base sm:text-sm"
         />
       </motion.div>
 
@@ -85,7 +85,7 @@ export function ContactForm() {
           value={contact?.company || ''}
           onChange={(e) => updateContact('company', e.target.value)}
           placeholder="Company name (optional)"
-          className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
+          className="w-full pl-11 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-base sm:text-sm"
         />
       </motion.div>
 
@@ -102,7 +102,7 @@ export function ContactForm() {
           value={contact?.website || ''}
           onChange={(e) => updateContact('website', e.target.value)}
           placeholder="Current website (optional)"
-          className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
+          className="w-full pl-11 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-base sm:text-sm"
         />
       </motion.div>
 

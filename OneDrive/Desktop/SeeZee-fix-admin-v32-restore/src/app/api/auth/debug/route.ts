@@ -18,11 +18,11 @@ export async function GET(request: NextRequest) {
   // Check for common issues
   const issues: string[] = [];
   if (GOOGLE_SECRET) {
-    if (GOOGLE_SECRET.length < 40 || GOOGLE_SECRET.length > 50) {
-      issues.push(`⚠️ CRITICAL: Client Secret length is ${GOOGLE_SECRET.length} characters (expected 40-50). This is likely WRONG!`);
-    }
+    // GOCSPX- format secrets are 35 characters, which is valid
     if (!GOOGLE_SECRET.startsWith('GOCSPX-')) {
       issues.push(`⚠️ CRITICAL: Client Secret doesn't start with 'GOCSPX-'. This is likely WRONG!`);
+    } else if (GOOGLE_SECRET.length < 35) {
+      issues.push(`⚠️ CRITICAL: Client Secret length is ${GOOGLE_SECRET.length} characters (expected 35+ for GOCSPX- format). This is likely WRONG!`);
     }
   }
 

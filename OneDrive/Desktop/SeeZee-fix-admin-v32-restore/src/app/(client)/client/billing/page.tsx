@@ -15,24 +15,33 @@ export default async function ClientBillingPage() {
     redirect('/login?returnUrl=/client/billing');
   }
 
-  // Get user's projects with subscriptions
+  // Get user's projects with maintenance plans (single source of truth)
   const organizations = await prisma.organizationMember.findMany({
     where: { userId: user.id },
     include: {
       organization: {
         include: {
           projects: {
+            where: {
+              maintenancePlanRel: {
+                status: 'ACTIVE',
+              },
+            },
             include: {
-              subscriptions: {
-                orderBy: {
-                  createdAt: 'desc',
+              maintenancePlanRel: {
+                include: {
+                  hourPacks: {
+                    where: {
+                      isActive: true,
+                      hoursRemaining: { gt: 0 },
+                    },
+                  },
                 },
               },
               invoices: {
                 orderBy: {
                   createdAt: 'desc',
                 },
-                take: 10,
               },
             },
           },
@@ -41,26 +50,38 @@ export default async function ClientBillingPage() {
     },
   });
 
-  // Flatten all projects
+  // Flatten all projects with maintenance plans
   const projects = organizations.flatMap((orgMember) =>
-    orgMember.organization.projects.map((project) => ({
-      id: project.id,
-      name: project.name,
-      maintenancePlan: project.maintenancePlan,
-      maintenanceStatus: project.maintenanceStatus,
-      nextBillingDate: project.nextBillingDate,
-      subscriptions: project.subscriptions,
-      invoices: project.invoices.map((invoice) => ({
-        id: invoice.id,
-        number: invoice.number,
-        title: invoice.title,
-        amount: Number(invoice.amount),
-        status: invoice.status,
-        dueDate: invoice.dueDate,
-        paidAt: invoice.paidAt,
-        createdAt: invoice.createdAt,
-      })),
-    }))
+    orgMember.organization.projects
+      .filter((project) => project.maintenancePlanRel) // Only include projects with active maintenance plans
+      .map((project) => {
+        const plan = project.maintenancePlanRel!;
+        // Extract and convert Decimal fields before spreading
+        const { monthlyPrice, ...planWithoutDecimal } = plan;
+        
+        return {
+          id: project.id,
+          name: project.name,
+          maintenancePlan: {
+            ...planWithoutDecimal,
+            // Convert Decimal field to number for client component serialization
+            monthlyPrice: monthlyPrice ? Number(monthlyPrice) : 0,
+            // hourPacks cost is Int, not Decimal, so no conversion needed
+          },
+          invoices: project.invoices.map((invoice) => ({
+            id: invoice.id,
+            number: invoice.number,
+            title: invoice.title,
+            amount: Number(invoice.amount),
+            tax: Number(invoice.tax || 0),
+            total: Number(invoice.total),
+            status: invoice.status,
+            dueDate: invoice.dueDate.toISOString(),
+            paidAt: invoice.paidAt?.toISOString() || null,
+            createdAt: invoice.createdAt.toISOString(),
+          })),
+        };
+      })
   );
 
   return (

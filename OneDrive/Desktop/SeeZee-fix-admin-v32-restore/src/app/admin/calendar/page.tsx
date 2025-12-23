@@ -88,13 +88,33 @@ export default async function CalendarPage() {
   });
 
   // Fetch project deadlines with milestones
+  // Use explicit select to avoid issues with columns that may not exist in production
   const projects = await db.project.findMany({
     where: {
       status: {
         in: ["ACTIVE", "REVIEW"],
       },
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      status: true,
+      budget: true,
+      startDate: true,
+      endDate: true,
+      createdAt: true,
+      updatedAt: true,
+      assigneeId: true,
+      leadId: true,
+      organizationId: true,
+      questionnaireId: true,
+      stripeCustomerId: true,
+      stripeSubscriptionId: true,
+      maintenancePlan: true,
+      maintenanceStatus: true,
+      nextBillingDate: true,
+      githubRepo: true,
       organization: {
         select: {
           id: true,
@@ -141,11 +161,26 @@ export default async function CalendarPage() {
     milestones: project.milestones,
   }));
 
+  // Serialize calendar events
+  const serializedCalendarEvents = calendarEvents.map((event) => ({
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    startTime: event.startTime,
+    endTime: event.endTime,
+    status: event.status,
+    meetingUrl: event.meetingUrl,
+    createdBy: event.createdBy,
+    project: event.project,
+    organization: event.organization,
+  }));
+
   return (
     <CalendarClient
       tasks={tasks}
       maintenanceSchedules={maintenanceSchedules}
       projects={serializedProjects}
+      calendarEvents={serializedCalendarEvents}
       currentUser={{
         id: user.id,
         name: user.name,

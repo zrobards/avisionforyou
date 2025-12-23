@@ -28,16 +28,18 @@ const tiers: Tier[] = [
     name: 'Nonprofit Essentials',
     buildPrice: '$6,000',
     monthlyPrice: '$500/month',
-    perfectFor: 'Small nonprofits who need a modern digital presence',
-    description: 'Perfect for small nonprofits who need a modern digital presence',
+    perfectFor: 'Small sites that just need stability and fixes',
+    description: 'We keep your site safe, fast, and running.',
     features: [
-      'Modern website redesign',
-      'Donation system (Stripe)',
-      'Blog/news system',
-      'Leadership/staff pages',
-      'Basic admin panel',
-      'Monthly analytics reports',
-      '4 hours/month support',
+      'Managed hosting + SSL',
+      'Security, CMS, and plugin updates',
+      'Daily automated backups',
+      'Performance monitoring',
+      'Email support',
+      'Up to 8 hours of support work',
+      'Bug fixes',
+      'Small content edits',
+      'Minor design tweaks',
     ],
     icon: <FiHeart className="w-8 h-8" />,
     color: 'from-pink-500 to-rose-500',
@@ -48,19 +50,16 @@ const tiers: Tier[] = [
     buildPrice: '$7,500',
     monthlyPrice: '$750/month',
     yearlyPrice: '$8,000/year',
-    perfectFor: 'Medium nonprofits & recovery groups',
-    description: 'Ideal for established nonprofits with active programs, events, and volunteer needs.',
+    perfectFor: 'Orgs that update content often and want real momentum',
+    description: 'We actively manage and improve your digital presence.',
     features: [
-      'Everything in Tier 1',
-      'Event scheduling system',
-      'RSVP management',
-      'Zoom/hybrid meeting support',
-      'Email reminder automation',
-      'Recurring donation optimization',
-      'Full admin dashboard',
-      'Community platform integration',
-      'Advanced analytics',
-      '10 hours/month support',
+      'Everything in Essentials',
+      'Priority support',
+      'Extended content updates',
+      'Design improvements',
+      'Performance + SEO improvements',
+      'Monthly analytics report',
+      'Up to 16 hours of support work',
     ],
     popular: true,
     icon: <FiUsers className="w-8 h-8" />,
@@ -71,16 +70,16 @@ const tiers: Tier[] = [
     name: 'Digital COO System',
     buildPrice: '$12,500',
     monthlyPrice: '$2,000/month',
-    perfectFor: 'Large nonprofits with grants & multiple programs',
-    description: 'Complete platform for large nonprofits with complex needs and multiple programs.',
+    perfectFor: 'Serious organizations that want you as their tech lead',
+    description: 'Your outsourced digital leadership.',
     features: [
-      'Everything in Tier 1 & 2',
-      'Donor CRM integrations',
-      'Grant reporting dashboards',
-      'Custom API integrations',
-      'Unlimited monthly updates',
-      'Emergency support (2hr response)',
-      'Quarterly board-level analytics',
+      'Everything in Director',
+      'Unlimited support requests',
+      '24/7 emergency support',
+      'Strategy + planning calls',
+      'Dedicated support workflow',
+      'Ongoing feature development',
+      'Unlimited requests (fair-use)',
     ],
     icon: <FiShield className="w-8 h-8" />,
     color: 'from-blue-500 to-cyan-500',
@@ -94,7 +93,7 @@ const comparisonFeatures = [
   { name: 'Event Scheduling', tier1: false, tier2: true, tier3: true },
   { name: 'RSVP System', tier1: false, tier2: true, tier3: true },
   { name: 'Admin Dashboard', tier1: 'Basic', tier2: 'Full', tier3: 'Full' },
-  { name: 'Support Hours/Month', tier1: '4', tier2: '10', tier3: 'Unlimited' },
+  { name: 'Support Hours/Month', tier1: '8', tier2: '16', tier3: 'Unlimited*' },
   { name: 'CRM Integration', tier1: false, tier2: false, tier3: true },
   { name: 'Grant Reporting', tier1: false, tier2: false, tier3: true },
 ]
@@ -280,6 +279,12 @@ export default function NonprofitTiersPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+              <p className="text-sm text-gray-300 font-semibold mb-2">* Fair-use definition:</p>
+              <p className="text-sm text-gray-400">
+                Unlimited requests, worked on continuously. Large rebuilds, migrations, or major new systems scoped separately.
+              </p>
             </div>
           </div>
         </section>

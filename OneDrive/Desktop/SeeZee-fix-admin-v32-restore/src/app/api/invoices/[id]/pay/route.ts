@@ -42,21 +42,55 @@ export async function POST(
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
-    // For SENT invoices, allow payment without explicit approval
-    // Only require approval if the invoice type explicitly requires it
-    // (e.g., custom invoices that need approval workflow)
-    const requiresApproval = (invoice as any).invoiceType === 'custom' || (invoice as any).requiresApproval === true;
-    if (requiresApproval && (!(invoice as any).customerApprovedAt || !(invoice as any).adminApprovedAt)) {
+    // Payment logic:
+    // 1. SENT invoices can always be paid (regardless of type or approval)
+    // 2. Non-custom invoices (deposit, final, subscription) can be paid without approval
+    // 3. Custom invoices that aren't SENT require both customer and admin approval
+    
+    const invoiceType = (invoice as any).invoiceType || "deposit";
+    const isCustomInvoice = invoiceType === 'custom';
+    const isSent = invoice.status === "SENT";
+    
+    // Only require approval for custom invoices that haven't been sent yet
+    if (isCustomInvoice && !isSent) {
+      if (!(invoice as any).customerApprovedAt || !(invoice as any).adminApprovedAt) {
+        console.error("[Pay Invoice] Custom invoice requires approval but missing:", {
+          invoiceId,
+          invoiceType,
+          status: invoice.status,
+          customerApprovedAt: (invoice as any).customerApprovedAt,
+          adminApprovedAt: (invoice as any).adminApprovedAt,
+        });
+        return NextResponse.json(
+          { error: "Invoice must be approved by both customer and admin before payment" },
+          { status: 400 }
+        );
+      }
+    }
+    
+    // Check if invoice is in a payable state (block CANCELLED and PAID)
+    if (invoice.status === "CANCELLED") {
+      console.error("[Pay Invoice] Invoice is cancelled:", { invoiceId, status: invoice.status });
       return NextResponse.json(
-        { error: "Invoice must be approved by both customer and admin before payment" },
+        { error: "Cancelled invoices cannot be paid" },
+        { status: 400 }
+      );
+    }
+    
+    // Check if invoice is already paid
+    if (invoice.status === "PAID") {
+      console.error("[Pay Invoice] Invoice already paid:", { invoiceId, status: invoice.status });
+      return NextResponse.json(
+        { error: "Invoice is already paid" },
         { status: 400 }
       );
     }
 
-    // Check if invoice is already paid
-    if (invoice.status === "PAID") {
+    // Check if invoice has items
+    if (!invoice.items || invoice.items.length === 0) {
+      console.error("[Pay Invoice] Invoice has no items:", { invoiceId });
       return NextResponse.json(
-        { error: "Invoice is already paid" },
+        { error: "Invoice has no items to pay" },
         { status: 400 }
       );
     }
@@ -64,6 +98,11 @@ export async function POST(
     // Get or create Stripe customer
     const owner = invoice.organization.members.find(m => m.role === "OWNER");
     if (!owner) {
+      console.error("[Pay Invoice] No organization owner found:", {
+        invoiceId,
+        organizationId: invoice.organizationId,
+        members: invoice.organization.members.map(m => ({ role: m.role, userId: m.userId })),
+      });
       return NextResponse.json(
         { error: "No organization owner found" },
         { status: 400 }

@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   },
   description:
     'Fast, reliable web applications and databases for small teams and big ideas. Professional websites built in 48 hours with lifetime maintenance. Next.js, React, and modern tech stack. Louisville, KY.',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
   keywords: [
     'web development',
     'app development',
@@ -196,6 +202,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}

@@ -9,8 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function EditTemplatePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const user = await getCurrentUser();
 
   if (!user) {
@@ -23,7 +24,7 @@ export default async function EditTemplatePage({
   }
 
   const template = await prisma.emailTemplate.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!template) {
@@ -43,5 +44,9 @@ export default async function EditTemplatePage({
     </div>
   );
 }
+
+
+
+
 
 

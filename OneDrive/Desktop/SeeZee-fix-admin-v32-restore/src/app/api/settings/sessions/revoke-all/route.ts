@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/db";
+import { parseUserAgent, getIPFromHeaders } from "@/lib/device/parser";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
     const session = await auth();
 
@@ -13,19 +14,36 @@ export async function POST() {
       );
     }
 
-    // Get current session ID from headers or token
-    // For now, we'll delete all sessions and create a new one
-    // In production, you'd want to preserve the current session
-    
+    // Identify current session to preserve it
+    const userAgent = req.headers.get("user-agent") || "";
+    const ipAddress = getIPFromHeaders(req.headers);
+    const parsed = parseUserAgent(userAgent);
+
+    // Find current session
+    const currentSession = await prisma.userSession.findFirst({
+      where: {
+        userId: session.user.id,
+        browser: parsed.browser,
+        os: parsed.os,
+        ipAddress: ipAddress !== "unknown" ? ipAddress : undefined,
+      },
+      orderBy: {
+        lastActive: "desc",
+      },
+    });
+
+    // Delete all sessions except the current one
     const result = await prisma.userSession.deleteMany({
       where: {
         userId: session.user.id,
+        ...(currentSession ? { id: { not: currentSession.id } } : {}),
       },
     });
 
     return NextResponse.json({ 
       success: true,
-      count: result.count 
+      count: result.count,
+      preserved: currentSession ? 1 : 0
     });
   } catch (error) {
     console.error("Error revoking all sessions:", error);
@@ -35,6 +53,11 @@ export async function POST() {
     );
   }
 }
+
+
+
+
+
 
 
 

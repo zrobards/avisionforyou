@@ -235,8 +235,28 @@ export async function getProjects() {
   await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
+    // Use explicit select to avoid issues with columns that may not exist in production
     const projects = await db.project.findMany({
-      include: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        budget: true,
+        startDate: true,
+        endDate: true,
+        createdAt: true,
+        updatedAt: true,
+        assigneeId: true,
+        leadId: true,
+        organizationId: true,
+        questionnaireId: true,
+        stripeCustomerId: true,
+        stripeSubscriptionId: true,
+        maintenancePlan: true,
+        maintenanceStatus: true,
+        nextBillingDate: true,
+        githubRepo: true,
         organization: true,
         assignee: {
           select: {

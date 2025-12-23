@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     const sanitizedMessage = body.message.trim().slice(0, 5000);
 
     // Create lead in database
-    await prisma.lead.create({
+    const lead = await prisma.lead.create({
       data: {
         name: sanitizedName,
         email: sanitizedEmail,
@@ -77,6 +77,16 @@ export async function POST(request: Request) {
         source: 'CONTACT_FORM',
       },
     });
+
+    // Notify all admins about new lead
+    const { createNewLeadNotification } = await import("@/lib/notifications");
+    await createNewLeadNotification(
+      lead.id,
+      lead.name,
+      lead.email,
+      lead.company,
+      "Contact Form"
+    ).catch(err => console.error("Failed to create lead notification:", err));
 
     // Email notification to team - to be implemented
     // To enable: integrate with Resend (already in dependencies) or SendGrid

@@ -156,6 +156,16 @@ export async function POST(req: NextRequest) {
       },
     }).catch(err => console.error("Failed to log activity:", err));
 
+    // Notify all admins about new lead
+    const { createNewLeadNotification } = await import("@/lib/notifications");
+    await createNewLeadNotification(
+      lead.id,
+      lead.name,
+      lead.email,
+      lead.company,
+      lead.source || "manual"
+    ).catch(err => console.error("Failed to create lead notification:", err));
+
     return NextResponse.json(
       {
         success: true,

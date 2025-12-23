@@ -103,6 +103,7 @@ export async function PUT(
     if (body.serviceType !== undefined) updateData.serviceType = body.serviceType;
     if (body.timeline !== undefined) updateData.timeline = body.timeline;
     if (body.budget !== undefined) updateData.budget = body.budget;
+    if (body.internalNotes !== undefined) updateData.internalNotes = body.internalNotes;
     
     if (body.status !== undefined) {
       updateData.status = body.status;

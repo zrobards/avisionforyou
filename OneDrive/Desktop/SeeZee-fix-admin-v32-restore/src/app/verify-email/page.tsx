@@ -21,7 +21,21 @@ function VerifyEmailContent() {
     const storedEmail = sessionStorage.getItem("pendingVerificationEmail");
     const emailParam = searchParams.get("email");
     setEmail(storedEmail || emailParam || "");
-  }, [searchParams]);
+    
+    // Handle error messages from GET route redirects
+    const error = searchParams.get("error");
+    if (error) {
+      let errorMessage = "Verification failed. Please try again.";
+      if (error === "invalid_token") {
+        errorMessage = "Invalid verification link. Please request a new one.";
+      } else if (error === "expired_token") {
+        errorMessage = "Verification link has expired. Please request a new one.";
+      } else if (error === "verification_failed") {
+        errorMessage = "Verification failed. Please try again or request a new link.";
+      }
+      showToast(errorMessage, "error");
+    }
+  }, [searchParams, showToast]);
 
   useEffect(() => {
     if (cooldown > 0) {

@@ -72,6 +72,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Notify all admins about new lead
+    const { createNewLeadNotification } = await import("@/lib/notifications");
+    await createNewLeadNotification(
+      lead.id,
+      lead.name,
+      lead.email,
+      lead.company,
+      "AI Chat"
+    ).catch(err => console.error("Failed to create lead notification:", err));
+
     return NextResponse.json({
       success: true,
       message: "Lead captured",

@@ -22,9 +22,21 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
   }
 
   // Fetch project with all related data
+  // Use explicit select to avoid issues with columns that may not exist in production
   const project = await prisma.project.findUnique({
     where: { id },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      status: true,
+      budget: true,
+      startDate: true,
+      endDate: true,
+      createdAt: true,
+      updatedAt: true,
+      githubRepo: true,
+      vercelUrl: true,
       assignee: {
         select: {
           id: true,
@@ -131,7 +143,22 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
           id: true,
           description: true,
           status: true,
+          category: true,
+          priority: true,
+          estimatedHours: true,
+          actualHours: true,
+          hoursDeducted: true,
+          hoursSource: true,
+          urgencyFee: true,
+          isOverage: true,
+          overageAmount: true,
+          requiresClientApproval: true,
+          clientApprovedAt: true,
+          flaggedForReview: true,
+          attachments: true,
           createdAt: true,
+          updatedAt: true,
+          completedAt: true,
         },
       },
       messageThreads: {
@@ -151,6 +178,7 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
           status: true,
           total: true,
           amount: true,
+          tax: true,
           dueDate: true,
           paidAt: true,
           createdAt: true,
@@ -208,9 +236,10 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
     status: invoice.status,
     total: invoice.total ? Number(invoice.total) : 0,
     amount: invoice.amount ? Number(invoice.amount) : 0,
-    dueDate: invoice.dueDate,
-    paidAt: invoice.paidAt,
-    createdAt: invoice.createdAt,
+    tax: invoice.tax ? Number(invoice.tax) : 0,
+    dueDate: invoice.dueDate?.toISOString() || null,
+    paidAt: invoice.paidAt?.toISOString() || null,
+    createdAt: invoice.createdAt?.toISOString() || null,
   }));
 
   const transformedMessageThreads = project.messageThreads.map((thread) => ({
@@ -227,11 +256,25 @@ export default async function AdminProjectDetailPage({ params }: PageProps) {
 
   const transformedRequests = project.changeRequests.map((request) => ({
     id: request.id,
-    title: request.description?.substring(0, 50) || "Change Request",
+    title: request.description?.split('\n')[0]?.substring(0, 50) || "Change Request",
     description: request.description,
     status: request.status,
-    priority: null,
+    category: request.category,
+    priority: request.priority,
+    estimatedHours: request.estimatedHours,
+    actualHours: request.actualHours,
+    hoursDeducted: request.hoursDeducted,
+    hoursSource: request.hoursSource,
+    urgencyFee: request.urgencyFee,
+    isOverage: request.isOverage,
+    overageAmount: request.overageAmount,
+    requiresClientApproval: request.requiresClientApproval,
+    clientApprovedAt: request.clientApprovedAt,
+    flaggedForReview: request.flaggedForReview,
+    attachments: request.attachments,
     createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+    completedAt: request.completedAt,
   }));
 
   return (

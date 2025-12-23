@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const assignedTo = searchParams.get("assignedTo");
+    const assignedToRole = searchParams.get("assignedToRole");
+    const assignedToTeamId = searchParams.get("assignedToTeamId");
     const limit = searchParams.get("limit");
 
     // Build where clause
@@ -31,6 +33,12 @@ export async function GET(req: NextRequest) {
       where.assignedToId = session.user.id;
     } else if (assignedTo) {
       where.assignedToId = assignedTo;
+    }
+    if (assignedToRole) {
+      where.assignedToRole = assignedToRole;
+    }
+    if (assignedToTeamId) {
+      where.assignedToTeamId = assignedToTeamId;
     }
 
     // Fetch tasks
@@ -54,6 +62,20 @@ export async function GET(req: NextRequest) {
             image: true,
           },
         },
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        // changeRequest: {
+        //   select: {
+        //     id: true,
+        //     status: true,
+        //     category: true,
+        //     priority: true,
+        //   },
+        // },
       },
       orderBy: [
         { priority: "desc" },
@@ -89,7 +111,16 @@ export async function GET(req: NextRequest) {
         createdAt: t.createdAt,
         updatedAt: t.updatedAt,
         assignedTo: t.assignedTo,
+        assignedToRole: (t as any).assignedToRole,
+        assignedToTeamId: (t as any).assignedToTeamId,
+        changeRequestId: (t as any).changeRequestId,
+        column: (t as any).column || "todo",
+        position: (t as any).position || 0,
+        estimatedHours: (t as any).estimatedHours,
+        actualHours: (t as any).actualHours,
         createdBy: t.createdBy,
+        project: (t as any).project,
+        // changeRequest: (t as any).changeRequest,
       })),
       stats,
     });

@@ -241,12 +241,12 @@ export default async function MarketingDashboardPage() {
           </p>
         </Link>
         <Link
-          href="/admin/leads/finder"
+          href="/admin/leads"
           className="p-6 bg-slate-900/50 border border-white/10 rounded-xl hover:border-green-500/50 transition-colors group"
         >
           <Users className="w-8 h-8 text-green-400 mb-3" />
           <h3 className="font-semibold text-white group-hover:text-green-400 transition-colors">
-            Find Leads
+            Leads & Finder
           </h3>
           <p className="text-sm text-slate-400 mt-1">
             Discover nonprofits that need websites

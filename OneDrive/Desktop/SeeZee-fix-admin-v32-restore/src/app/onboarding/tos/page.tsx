@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -11,6 +11,85 @@ export default function OnboardingTosPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { data: session, status, update } = useSession();
+
+  // If not authenticated, redirect to login
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:16',message:'Auth check useEffect',data:{status:status,sessionExists:!!session,sessionUserExists:!!session?.user,sessionUserId:session?.user?.id||null},sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+    // #endregion
+    
+    // Don't redirect while session is still loading
+    if (status === "loading") {
+      return;
+    }
+    
+    // Only redirect if explicitly unauthenticated (not just missing session during load)
+    if (status === "unauthenticated" || (status === "authenticated" && !session?.user?.id)) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:25',message:'Redirecting to login',data:{status:status,session:session},sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+      // #endregion
+      router.push("/login?returnUrl=/onboarding/tos");
+    }
+  }, [status, session, router]);
+
+  // Check if user has already accepted TOS - redirect to next step or dashboard
+  // Use useEffect to prevent redirect loops and ensure session is fully loaded
+  // Also check DB directly if token seems stale to prevent crashes
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.id) {
+      // Check token first
+      if (session?.user?.tosAcceptedAt) {
+        if (session.user.profileDoneAt) {
+          const dashboardUrl = session.user.role === 'CEO' || session.user.role === 'ADMIN' ? '/admin' : '/client';
+          // Only redirect if we're not already going there
+          if (typeof window !== "undefined" && !window.location.pathname.startsWith(dashboardUrl)) {
+            router.push(dashboardUrl);
+          }
+        } else {
+          // Only redirect if we're not already on profile page
+          if (typeof window !== "undefined" && !window.location.pathname.startsWith('/onboarding/profile')) {
+            router.push("/onboarding/profile");
+          }
+        }
+      } else {
+        // Token doesn't show TOS accepted, but check DB to be sure (handles stale token case)
+        // This prevents crashes when user completed onboarding but token is stale
+        fetch('/api/user/me', { cache: 'no-store' })
+          .then(res => res.json())
+          .then(userData => {
+            if (userData.tosAcceptedAt) {
+              // DB says TOS is accepted but token doesn't - token is stale, force refresh
+              update().then(() => {
+                // After update, redirect based on profile status
+                if (userData.profileDoneAt) {
+                  const dashboardUrl = userData.role === 'CEO' || userData.role === 'ADMIN' ? '/admin' : '/client';
+                  if (!window.location.pathname.startsWith(dashboardUrl)) {
+                    router.push(dashboardUrl);
+                  }
+                } else {
+                  if (!window.location.pathname.startsWith('/onboarding/profile')) {
+                    router.push("/onboarding/profile");
+                  }
+                }
+              }).catch(err => {
+                console.error("Failed to update session:", err);
+                // Fallback: redirect anyway based on DB data
+                if (userData.profileDoneAt) {
+                  const dashboardUrl = userData.role === 'CEO' || userData.role === 'ADMIN' ? '/admin' : '/client';
+                  window.location.href = dashboardUrl;
+                } else {
+                  window.location.href = "/onboarding/profile";
+                }
+              });
+            }
+          })
+          .catch(err => {
+            console.error("Failed to check user data:", err);
+            // If check fails, continue with normal flow
+          });
+      }
+    }
+  }, [status, session, router, update]);
 
   // Show loading state while session is being fetched
   if (status === "loading") {
@@ -24,44 +103,44 @@ export default function OnboardingTosPage() {
     );
   }
 
-  // If not authenticated, redirect to login
   if (status === "unauthenticated" || !session?.user?.id) {
-    console.error("Not authenticated - redirecting to login", { status, session });
-    if (typeof window !== "undefined") {
-      window.location.href = "/login?returnUrl=/onboarding/tos";
-    }
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-slate-400">Redirecting to login...</p>
+        </div>
+      </div>
+    );
   }
 
-  // Check if user has already accepted TOS - redirect to next step or dashboard
-  if (session?.user?.tosAcceptedAt) {
+  // Show loading state if redirecting
+  if (status === "authenticated" && session?.user?.tosAcceptedAt) {
     if (session.user.profileDoneAt) {
       const dashboardUrl = session.user.role === 'CEO' || session.user.role === 'ADMIN' ? '/admin' : '/client';
-      if (typeof window !== "undefined") {
-        window.location.href = dashboardUrl;
-      }
-      // Show a simple loading state while redirecting (no full page render)
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-slate-400">Redirecting to dashboard...</p>
+      // Only show loading if we're not already on the target page
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith(dashboardUrl)) {
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-slate-400">Redirecting to dashboard...</p>
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
     } else {
-      if (typeof window !== "undefined") {
-        window.location.href = "/onboarding/profile";
-      }
-      // Show loading state while redirecting
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-            <p className="text-slate-400">Redirecting to profile...</p>
+      // Only show loading if we're not already on profile page
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith('/onboarding/profile')) {
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+              <p className="text-slate-400">Redirecting to profile...</p>
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
     }
   }
 
@@ -78,13 +157,21 @@ export default function OnboardingTosPage() {
       });
 
       if (response.ok) {
-        // Update session with new data
+        // Update session with new data - this triggers JWT callback refresh
         await update({
           tosAcceptedAt: new Date().toISOString(),
         });
         
-        // Force a hard navigation to bypass middleware cache
-        window.location.href = "/onboarding/profile";
+        // Wait a moment for the session to refresh and token to update
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Force session refresh by fetching it again
+        const refreshedSession = await fetch('/api/auth/session', {
+          credentials: 'include',
+        }).then(res => res.json());
+        
+        // Use router.push to prevent full page reload and redirect loops
+        router.push("/onboarding/profile");
       } else {
         alert("Failed to accept terms. Please try again.");
       }

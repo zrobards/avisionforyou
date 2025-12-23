@@ -9,10 +9,13 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
   const pathname = usePathname()
   const { collapsed } = useSidebar()
   
-  // Don't show sidebar on dashboard/admin routes or login
+  // Don't show sidebar on dashboard/admin routes, auth pages, or login
   const isDashboardRoute = pathname?.startsWith('/client') || 
                            pathname?.startsWith('/admin') || 
                            pathname === '/login' ||
+                           pathname === '/register' ||
+                           pathname === '/forgot-password' ||
+                           pathname === '/reset-password' ||
                            pathname?.startsWith('/onboarding') ||
                            pathname?.startsWith('/questionnaire')
 

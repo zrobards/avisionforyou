@@ -212,13 +212,23 @@ export async function getMaintenanceClients() {
   await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
 
   try {
+    // Get projects with either Stripe subscriptions OR MaintenancePlan records
     const clients = await db.project.findMany({
       where: {
-        subscriptions: {
-          some: {
-            status: "active",
+        OR: [
+          {
+            subscriptions: {
+              some: {
+                status: "active",
+              },
+            },
           },
-        },
+          {
+            maintenancePlanRel: {
+              isNot: null,
+            },
+          },
+        ],
       },
       include: {
         organization: {
@@ -235,6 +245,19 @@ export async function getMaintenanceClients() {
             id: true,
             priceId: true,
             currentPeriodEnd: true,
+          },
+        },
+        maintenancePlanRel: {
+          select: {
+            id: true,
+            tier: true,
+            monthlyPrice: true,
+            status: true,
+            supportHoursIncluded: true,
+            supportHoursUsed: true,
+            changeRequestsIncluded: true,
+            changeRequestsUsed: true,
+            createdAt: true,
           },
         },
         maintenanceSchedules: {
@@ -257,9 +280,64 @@ export async function getMaintenanceClients() {
       },
     });
 
-    return { success: true, clients };
+    // Convert Decimal to number for client components
+    const serializedClients = clients.map(client => ({
+      ...client,
+      maintenancePlanRel: client.maintenancePlanRel ? {
+        ...client.maintenancePlanRel,
+        monthlyPrice: client.maintenancePlanRel.monthlyPrice.toNumber(),
+        supportHoursUsed: Number(client.maintenancePlanRel.supportHoursUsed),
+      } : null,
+    }));
+
+    return { success: true, clients: serializedClients };
   } catch (error) {
     console.error("Failed to fetch maintenance clients:", error);
     return { success: false, error: "Failed to fetch maintenance clients", clients: [] };
+  }
+}
+
+/**
+ * Get all maintenance plans with their associated project and organization info
+ */
+export async function getMaintenancePlans() {
+  await requireRole([ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH]);
+
+  try {
+    const plans = await db.maintenancePlan.findMany({
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            status: true,
+            organization: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // Convert Decimal types to numbers for client components
+    const serializedPlans = plans.map(plan => ({
+      ...plan,
+      monthlyPrice: plan.monthlyPrice.toNumber(),
+      supportHoursUsed: Number(plan.supportHoursUsed),
+      rolloverHours: Number(plan.rolloverHours),
+    }));
+
+    return { success: true, plans: serializedPlans };
+  } catch (error) {
+    console.error("Failed to fetch maintenance plans:", error);
+    return { success: false, error: "Failed to fetch maintenance plans", plans: [] };
   }
 }

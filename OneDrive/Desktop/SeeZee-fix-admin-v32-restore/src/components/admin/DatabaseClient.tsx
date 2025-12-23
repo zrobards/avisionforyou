@@ -1,13 +1,12 @@
 "use client";
 
 /**
- * Database Client Component
- * Provides a simple interface to browse database models
+ * Database Client Component - Enhanced UI/UX
+ * Professional database browser with improved formatting and design
  */
 
 import { useState, useEffect } from "react";
-import { SectionCard } from "@/components/admin/SectionCard";
-import { Database, Table, Eye, Search, RefreshCw, Loader2 } from "lucide-react";
+import { Database, Table, RefreshCw, Loader2, FileText, Calendar, Hash, Type, CheckCircle, XCircle } from "lucide-react";
 import { query, getModelCount } from "@/server/actions/database";
 
 interface DatabaseClientProps {
@@ -51,43 +50,162 @@ export function DatabaseClient({ models }: DatabaseClientProps) {
 
   const handleRefresh = () => {
     if (selectedModel) {
+      const current = selectedModel;
       setSelectedModel(null);
-      setTimeout(() => setSelectedModel(selectedModel), 0);
+      setTimeout(() => setSelectedModel(current), 0);
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <header className="space-y-3 relative">
-        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block mb-2">
-          System Database
+  const formatValue = (key: string, value: any) => {
+    if (value === null) return <span className="text-gray-500 italic">null</span>;
+    if (value === undefined) return <span className="text-gray-500 italic">undefined</span>;
+    
+    if (typeof value === 'boolean') {
+      return value ? (
+        <span className="inline-flex items-center gap-1 text-green-400">
+          <CheckCircle className="h-3 w-3" /> true
         </span>
-        <h1 className="text-4xl font-heading font-bold gradient-text">Database Browser</h1>
-        <p className="max-w-2xl text-base text-gray-300 leading-relaxed">
-          Browse and inspect database models (Admin+ only)
+      ) : (
+        <span className="inline-flex items-center gap-1 text-red-400">
+          <XCircle className="h-3 w-3" /> false
+        </span>
+      );
+    }
+    
+    if (value instanceof Date || (typeof value === 'string' && key.toLowerCase().includes('date') || key.toLowerCase().includes('at'))) {
+      try {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          return (
+            <span className="text-blue-300 font-mono text-xs">
+              {date.toLocaleString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </span>
+          );
+        }
+      } catch (e) {}
+    }
+    
+    if (typeof value === 'object') return <span className="text-yellow-400 italic">Object</span>;
+    
+    const strValue = String(value);
+    if (strValue.length > 100) {
+      return (
+        <span className="text-gray-300 text-sm" title={strValue}>
+          {strValue.substring(0, 100)}...
+        </span>
+      );
+    }
+    
+    return <span className="text-gray-200">{strValue}</span>;
+  };
+
+  const getFieldIcon = (key: string, value: any) => {
+    if (key === 'id') return <Hash className="h-3 w-3" />;
+    if (typeof value === 'boolean') return value ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />;
+    if (value instanceof Date || key.toLowerCase().includes('date') || key.toLowerCase().includes('at')) return <Calendar className="h-3 w-3" />;
+    return <Type className="h-3 w-3" />;
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Enhanced Header */}
+      <header className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30">
+            <Database className="h-6 w-6 text-purple-400" />
+          </div>
+          <div>
+            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red">
+              System Database
+            </span>
+            <h1 className="text-4xl font-heading font-bold gradient-text mt-1">Database Browser</h1>
+          </div>
+        </div>
+        <p className="max-w-3xl text-base text-gray-400 leading-relaxed">
+          Explore and inspect your database models with an intuitive interface. View records, relationships, and data structures across all tables.
         </p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Models List */}
-        <div className="lg:col-span-1">
-          <div className="glass-effect rounded-2xl border-2 border-gray-700 p-6 hover:border-trinity-red/30 transition-all duration-300 h-fit">
-            <h2 className="text-xl font-heading font-semibold text-white mb-4">Available Models</h2>
-            <div className="space-y-2">
+      {/* Stats Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="glass-effect rounded-xl border border-gray-700/50 p-5 hover:border-purple-500/30 transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Total Models</p>
+              <p className="text-3xl font-bold text-white">{models.length}</p>
+            </div>
+            <Table className="h-8 w-8 text-purple-400" />
+          </div>
+        </div>
+        <div className="glass-effect rounded-xl border border-gray-700/50 p-5 hover:border-blue-500/30 transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Database Type</p>
+              <p className="text-lg font-semibold text-white">PostgreSQL</p>
+            </div>
+            <Database className="h-8 w-8 text-blue-400" />
+          </div>
+        </div>
+        <div className="glass-effect rounded-xl border border-gray-700/50 p-5 hover:border-green-500/30 transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Provider</p>
+              <p className="text-lg font-semibold text-white">Neon</p>
+            </div>
+            <FileText className="h-8 w-8 text-green-400" />
+          </div>
+        </div>
+        <div className="glass-effect rounded-xl border border-gray-700/50 p-5 hover:border-trinity-red/30 transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Records</p>
+              <p className="text-3xl font-bold text-white">{recordCount || "—"}</p>
+            </div>
+            <Hash className="h-8 w-8 text-trinity-red" />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        {/* Enhanced Models Sidebar */}
+        <div className="xl:col-span-1">
+          <div className="glass-effect rounded-2xl border border-gray-700/50 p-6 sticky top-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-heading font-semibold text-white">Models</h2>
+              <span className="text-xs text-gray-400 bg-gray-800/50 px-2 py-1 rounded-md">
+                {models.length}
+              </span>
+            </div>
+            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {models.map((model) => (
                 <button
                   key={model}
                   onClick={() => setSelectedModel(model)}
-                  className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+                  className={`w-full text-left p-3.5 rounded-xl border transition-all group ${
                     selectedModel === model
-                      ? "glass-effect border-trinity-red/50 text-trinity-red hover:shadow-medium"
-                      : "glass-effect border-gray-700 text-gray-300 hover:border-gray-600"
+                      ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-purple-500/50 shadow-lg shadow-purple-500/10"
+                      : "border-gray-700/50 hover:border-gray-600 hover:bg-gray-800/30"
                   }`}
                 >
-                  <div className="flex items-center space-x-2">
-                    <Table className="h-4 w-4" />
-                    <span className="font-medium capitalize">{model}</span>
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg transition-colors ${
+                      selectedModel === model 
+                        ? "bg-purple-500/20 text-purple-400" 
+                        : "bg-gray-800/50 text-gray-400 group-hover:bg-gray-700/50"
+                    }`}>
+                      <Table className="h-4 w-4" />
+                    </div>
+                    <span className={`font-medium capitalize ${
+                      selectedModel === model ? "text-white" : "text-gray-300"
+                    }`}>
+                      {model}
+                    </span>
                   </div>
                 </button>
               ))}
@@ -95,112 +213,108 @@ export function DatabaseClient({ models }: DatabaseClientProps) {
           </div>
         </div>
 
-        {/* Model Details */}
-        <div className="lg:col-span-2">
+        {/* Enhanced Data View */}
+        <div className="xl:col-span-3">
           {selectedModel ? (
-            <div className="glass-effect rounded-2xl border-2 border-gray-700 p-6 hover:border-trinity-red/30 transition-all duration-300">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-heading font-semibold text-white capitalize">
-                  {selectedModel}
-                </h2>
-                <button
-                  onClick={handleRefresh}
-                  className="p-2 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-trinity-red/50 hover:bg-gray-700 transition-colors"
-                  disabled={loading}
-                >
-                  <RefreshCw className={`h-4 w-4 text-gray-400 ${loading ? "animate-spin" : ""}`} />
-                </button>
-              </div>
-              {loading ? (
-                <div className="text-center py-12">
-                  <Loader2 className="h-12 w-12 text-purple-400 mx-auto mb-4 animate-spin" />
-                  <p className="text-gray-400">Loading records...</p>
-                </div>
-              ) : records.length === 0 ? (
-                <div className="text-center py-12">
-                  <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-400">No records found</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    The {selectedModel} table is empty
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between text-sm text-gray-400 pb-2 border-b border-white/10">
-                    <span>Showing {records.length} of {recordCount} total records</span>
+            <div className="glass-effect rounded-2xl border border-gray-700/50 overflow-hidden">
+              {/* Table Header */}
+              <div className="bg-gradient-to-r from-gray-800/80 to-gray-900/80 border-b border-gray-700/50 p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-lg bg-purple-500/20 border border-purple-500/30">
+                      <Table className="h-5 w-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-heading font-semibold text-white capitalize">
+                        {selectedModel}
+                      </h2>
+                      <p className="text-sm text-gray-400 mt-0.5">
+                        {loading ? "Loading..." : `${records.length} of ${recordCount} records`}
+                      </p>
+                    </div>
                   </div>
-                  
-                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                  <button
+                    onClick={handleRefresh}
+                    className="p-3 rounded-xl border border-gray-700/50 bg-gray-800/50 hover:border-purple-500/50 hover:bg-gray-700/50 transition-all group"
+                    disabled={loading}
+                  >
+                    <RefreshCw className={`h-4 w-4 text-gray-400 group-hover:text-purple-400 transition-colors ${loading ? "animate-spin" : ""}`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Table Content */}
+              <div className="p-6">
+                {loading ? (
+                  <div className="text-center py-20">
+                    <Loader2 className="h-12 w-12 text-purple-400 mx-auto mb-4 animate-spin" />
+                    <p className="text-gray-400 text-lg">Loading records...</p>
+                  </div>
+                ) : records.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="inline-flex p-4 rounded-full bg-gray-800/50 border border-gray-700/50 mb-4">
+                      <Database className="h-12 w-12 text-gray-500" />
+                    </div>
+                    <p className="text-gray-400 text-lg font-medium mb-2">No records found</p>
+                    <p className="text-sm text-gray-500">
+                      The {selectedModel} table is currently empty
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
                     {records.map((record, idx) => (
                       <div
                         key={record.id || idx}
-                        className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-colors"
+                        className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 rounded-xl border border-gray-700/50 p-5 hover:border-gray-600/50 hover:shadow-lg transition-all"
                       >
-                        <div className="grid grid-cols-1 gap-2">
-                          {Object.entries(record).map(([key, value]) => {
-                            // Skip rendering complex objects or null values
-                            if (value === null || typeof value === 'object') {
-                              if (value instanceof Date) {
-                                return (
-                                  <div key={key} className="flex justify-between text-sm">
-                                    <span className="text-gray-400 font-medium">{key}:</span>
-                                    <span className="text-gray-300">{new Date(value).toLocaleString()}</span>
-                                  </div>
-                                );
-                              }
-                              return null;
-                            }
-                            
-                            return (
-                              <div key={key} className="flex justify-between text-sm">
-                                <span className="text-gray-400 font-medium">{key}:</span>
-                                <span className="text-gray-300 truncate max-w-md ml-4">
-                                  {typeof value === 'boolean' ? (value ? '✓' : '✗') : String(value)}
-                                </span>
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-700/30">
+                          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            Record #{idx + 1}
+                          </span>
+                          {record.id && (
+                            <span className="text-xs font-mono text-gray-500 bg-gray-800/50 px-2 py-1 rounded">
+                              ID: {record.id}
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                          {Object.entries(record).map(([key, value]) => (
+                            <div key={key} className="flex items-start space-x-3 group">
+                              <div className="mt-1 text-gray-500 group-hover:text-gray-400 transition-colors">
+                                {getFieldIcon(key, value)}
                               </div>
-                            );
-                          })}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                                  {key}
+                                </p>
+                                <div className="text-sm break-words">
+                                  {formatValue(key, value)}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           ) : (
-            <SectionCard
-              title="Select a Model"
-            >
-              <div className="text-center py-12">
-                <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-400">
-                  Select a model from the list to browse its data
-                </p>
+            <div className="glass-effect rounded-2xl border border-gray-700/50 p-20 text-center">
+              <div className="inline-flex p-5 rounded-full bg-gray-800/50 border border-gray-700/50 mb-6">
+                <Table className="h-16 w-16 text-gray-500" />
               </div>
-            </SectionCard>
+              <h3 className="text-2xl font-heading font-semibold text-white mb-3">
+                Select a Model
+              </h3>
+              <p className="text-gray-400 max-w-md mx-auto">
+                Choose a database model from the sidebar to view its records and explore the data structure
+              </p>
+            </div>
           )}
         </div>
       </div>
-
-      {/* Info Card */}
-      <SectionCard
-        title="Database Information"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white/5 p-4 rounded-lg">
-            <h3 className="font-semibold text-white mb-2">Total Models</h3>
-            <p className="text-2xl font-bold text-blue-400">{models.length}</p>
-          </div>
-          <div className="bg-white/5 p-4 rounded-lg">
-            <h3 className="font-semibold text-white mb-2">Database Type</h3>
-            <p className="text-lg text-gray-300">PostgreSQL</p>
-          </div>
-          <div className="bg-white/5 p-4 rounded-lg">
-            <h3 className="font-semibold text-white mb-2">Provider</h3>
-            <p className="text-lg text-gray-300">Neon</p>
-          </div>
-        </div>
-      </SectionCard>
     </div>
   );
 }

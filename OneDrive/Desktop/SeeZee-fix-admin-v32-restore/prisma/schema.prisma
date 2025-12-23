@@ -37,68 +37,68 @@ model Session {
 }
 
 model User {
-  id                     String               @id @default(cuid())
-  email                  String               @unique
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @updatedAt
-  password               String?
-  image                  String?
-  name                   String?
-  emailVerified          DateTime?            @map("email_verified")
-  role                   UserRole             @default(CLIENT)
-  company                String?
-  invitedById            String?
-  phone                  String?
-  profileDoneAt          DateTime?
-  tosAcceptedAt          DateTime?
-  tosVersion             String?
-  twofaEnabled           Boolean              @default(false)
-  twofaSecret            String?
-  questionnaireCompleted DateTime?
-  briefQuestionnaireId   String?              @unique
+  id                       String                   @id @default(cuid())
+  email                    String                   @unique
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  password                 String?
+  image                    String?
+  name                     String?
+  emailVerified            DateTime?                @map("email_verified")
+  role                     UserRole                 @default(CLIENT)
+  company                  String?
+  invitedById              String?
+  phone                    String?
+  profileDoneAt            DateTime?
+  tosAcceptedAt            DateTime?
+  tosVersion               String?
+  twofaEnabled             Boolean                  @default(false)
+  twofaSecret              String?
+  questionnaireCompleted   DateTime?
+  briefQuestionnaireId     String?                  @unique
   // New fields for enhanced auth & profile
-  username               String?              @unique
-  bio                    String?
-  profileImageUrl        String?
-  location               String?
-  timezone               String?
-  lastLogin              DateTime?
-  emailVerificationToken String?              @unique
+  username                 String?                  @unique
+  bio                      String?
+  profileImageUrl          String?
+  location                 String?
+  timezone                 String?
+  lastLogin                DateTime?
+  emailVerificationToken   String?                  @unique
   emailVerificationExpires DateTime?
   // Existing relations
-  accounts               Account[]
-  activities             Activity[]
-  assignmentsCreated     Assignment[]         @relation("AssignmentCreatedBy")
-  channelMemberships     ChannelMember[]
-  messages               ChatMessage[]
-  completions            Completion[]         @relation("CompletionUser")
-  notifications          Notification[]
-  organizations          OrganizationMember[]
-  projectRequests        ProjectRequest[]
-  assignedProjects       Project[]            @relation("ProjectAssignee")
-  resourcesCreated       Resource[]           @relation("ResourceCreatedBy")
-  sessions               Session[]
-  signatures             Signature[]
-  createdInviteCodes     StaffInviteCode[]    @relation("InviteCodeCreator")
-  systemLogs             SystemLog[]
-  assignedTodos          Todo[]               @relation("TodoAssignee")
-  createdTodos           Todo[]               @relation("TodoCreator")
-  trainingsCreated       Training[]           @relation("TrainingCreatedBy")
-  briefQuestionnaire     BriefQuestionnaire?  @relation("UserBriefQuestionnaire")
-  revenueSplitsCreated   RevenueSplit[]       @relation("RevenueSplitCreatedBy")
-  clientTasksCreated     ClientTask[]         @relation("ClientTaskCreatedBy")
-  leads                  Lead[]
-  invitedBy              User?                @relation("Inviter", fields: [invitedById], references: [id])
-  invitees               User[]               @relation("Inviter")
+  accounts                 Account[]
+  activities               Activity[]
+  assignmentsCreated       Assignment[]             @relation("AssignmentCreatedBy")
+  channelMemberships       ChannelMember[]
+  messages                 ChatMessage[]
+  completions              Completion[]             @relation("CompletionUser")
+  notifications            Notification[]
+  organizations            OrganizationMember[]
+  projectRequests          ProjectRequest[]
+  assignedProjects         Project[]                @relation("ProjectAssignee")
+  resourcesCreated         Resource[]               @relation("ResourceCreatedBy")
+  sessions                 Session[]
+  signatures               Signature[]
+  createdInviteCodes       StaffInviteCode[]        @relation("InviteCodeCreator")
+  systemLogs               SystemLog[]
+  assignedTodos            Todo[]                   @relation("TodoAssignee")
+  createdTodos             Todo[]                   @relation("TodoCreator")
+  trainingsCreated         Training[]               @relation("TrainingCreatedBy")
+  briefQuestionnaire       BriefQuestionnaire?      @relation("UserBriefQuestionnaire")
+  revenueSplitsCreated     RevenueSplit[]           @relation("RevenueSplitCreatedBy")
+  clientTasksCreated       ClientTask[]             @relation("ClientTaskCreatedBy")
+  leads                    Lead[]
+  invitedBy                User?                    @relation("Inviter", fields: [invitedById], references: [id])
+  invitees                 User[]                   @relation("Inviter")
   // New relations
-  profile                UserProfile?
-  twoFactorAuth          TwoFactorAuth?
-  userSessions           UserSession[]        @relation("UserSessions")
-  notificationPreferences NotificationPreferences?
-  userPreferences        UserPreferences?
-  tosAcceptances         TosAcceptance[]
-  loginHistory           LoginHistory[]
-  recordingsUploaded     Recording[]          @relation("RecordingsUploaded")
+  profile                  UserProfile?
+  twoFactorAuth            TwoFactorAuth?
+  userSessions             UserSession[]            @relation("UserSessions")
+  notificationPreferences  NotificationPreferences?
+  userPreferences          UserPreferences?
+  tosAcceptances           TosAcceptance[]
+  loginHistory             LoginHistory[]
+  recordingsUploaded       Recording[]              @relation("RecordingsUploaded")
 
   @@map("users")
 }
@@ -133,13 +133,13 @@ model Organization {
   leads            Lead[]
   members          OrganizationMember[]
   projects         Project[]
-  
+
   // Enhanced organization fields
-  industry              String?
-  annualBudget          Int?
-  leadSource            String?
-  convertedFromLeadId   String?
-  
+  industry            String?
+  annualBudget        Int?
+  leadSource          String?
+  convertedFromLeadId String?
+
   // Relations
   maintenanceSubscriptions MaintenanceSubscription[]
   financeTransactions      FinanceTransaction[]
@@ -184,38 +184,96 @@ model Lead {
   organization   Organization?    @relation(fields: [organizationId], references: [id])
   user           User?            @relation(fields: [userId], references: [id])
   project        Project?
-  
+
   // Prospect/Client Finder fields
-  ein               String?           // Tax ID for nonprofits
-  websiteUrl        String?
-  address           String?
-  city              String?
-  state             String?
-  zipCode           String?
-  country           String            @default("US")
-  latitude          Float?
-  longitude         Float?
-  category          String?           // Arts, Education, Health, etc.
-  subcategory       String?
-  annualRevenue     Int?              // Estimated annual revenue
-  employeeCount     Int?
-  leadScore         Int               @default(0) // 0-100
-  hasWebsite        Boolean           @default(false)
-  websiteQuality    WebsiteQuality?
-  needsAssessment   Json?             // { responsive: false, accessible: false, etc. }
-  assignedToId      String?
-  lastContactedAt   DateTime?
-  emailsSent        Int               @default(0)
-  lastEmailSentAt   DateTime?
+  ein                String? // Tax ID for nonprofits
+  websiteUrl         String?
+  address            String?
+  city               String?
+  state              String?
+  zipCode            String?
+  country            String          @default("US")
+  latitude           Float?
+  longitude          Float?
+  category           String? // Arts, Education, Health, etc.
+  subcategory        String?
+  annualRevenue      Int? // Estimated annual revenue
+  employeeCount      Int?
+  leadScore          Int             @default(0) // 0-100
+  hasWebsite         Boolean         @default(false)
+  websiteQuality     WebsiteQuality?
+  needsAssessment    Json? // { responsive: false, accessible: false, etc. }
+  assignedToId       String?
+  lastContactedAt    DateTime?
+  emailsSent         Int             @default(0)
+  lastEmailSentAt    DateTime?
   outreachCampaignId String?
-  tags              String[]
-  
-  emailCampaigns    EmailCampaign[]   @relation("LeadCampaigns")
+  tags               String[]
+
+  emailCampaigns EmailCampaign[] @relation("LeadCampaigns")
+  prospect       Prospect?       @relation("ProspectToLead")
 
   @@index([status])
   @@index([leadScore])
   @@index([city, state])
   @@map("leads")
+}
+
+// Prospects are potential leads discovered through lead finder
+// They become actual leads only when user clicks "Reach Out"
+model Prospect {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @default("") // May be empty from discovery
+  phone     String?
+  company   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Discovery source
+  source            String @default("GOOGLE_PLACES")
+  discoveryMetadata Json? // Store original discovery data
+
+  // Address fields
+  address   String?
+  city      String?
+  state     String?
+  zipCode   String?
+  country   String  @default("US")
+  latitude  Float?
+  longitude Float?
+
+  // Business info
+  ein           String?
+  category      String?
+  subcategory   String?
+  annualRevenue Int?
+  employeeCount Int?
+
+  // Website info
+  websiteUrl      String?
+  hasWebsite      Boolean         @default(false)
+  websiteQuality  WebsiteQuality?
+  needsAssessment Json?
+
+  // Scoring
+  leadScore Int      @default(0)
+  tags      String[]
+
+  // AI Analysis
+  aiAnalysis    Json? // Store AI analysis results
+  internalNotes String?
+
+  // Conversion tracking
+  convertedToLeadId String?   @unique
+  convertedToLead   Lead?     @relation("ProspectToLead", fields: [convertedToLeadId], references: [id])
+  convertedAt       DateTime?
+
+  @@index([leadScore])
+  @@index([city, state])
+  @@index([convertedAt])
+  @@index([source])
+  @@map("prospects")
 }
 
 model Project {
@@ -258,24 +316,24 @@ model Project {
   subscriptions        Subscription[]
   changeRequests       ChangeRequest[]
   todos                Todo[]
-  
+
   // Enhanced project tracking fields
-  currentStage         ProjectStage          @default(DISCOVERY)
-  progress             Int                   @default(0) // 0-100
-  designFiles          String[]              // URLs to Figma, etc.
-  designApprovedAt     DateTime?
-  launchedAt           DateTime?
-  liveUrl              String?
-  
+  currentStage     ProjectStage @default(DISCOVERY)
+  progress         Int          @default(0) // 0-100
+  designFiles      String[] // URLs to Figma, etc.
+  designApprovedAt DateTime?
+  launchedAt       DateTime?
+  liveUrl          String?
+
   // Vercel integration
-  vercelProjectId      String?
-  vercelTeamId         String?
+  vercelProjectId String?
+  vercelTeamId    String?
   // vercelUrl is defined above with githubRepo
-  
+
   // Relations
-  financeTransactions  FinanceTransaction[]
-  recordings           Recording[]
-  calendarEvents       CalendarEvent[]
+  financeTransactions FinanceTransaction[]
+  recordings          Recording[]
+  calendarEvents      CalendarEvent[]
 
   @@map("projects")
 }
@@ -357,7 +415,7 @@ model Payment {
 model MaintenancePlan {
   id                      String                @id @default(cuid())
   projectId               String                @unique
-  tier                    String
+  tier                    String // NonprofitTier value: ESSENTIALS, DIRECTOR, COO
   monthlyPrice            Decimal
   features                Json?
   billingDay              Int                   @default(1)
@@ -368,15 +426,49 @@ model MaintenancePlan {
   updatedAt               DateTime              @updatedAt
   cancelledAt             DateTime?
   project                 Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  // Enhanced subscription fields
-  hoursIncluded           Int                   @default(2)  // hours per month included
-  hoursUsed               Int                   @default(0)  // hours used this period
-  currentPeriodStart      DateTime?
-  currentPeriodEnd        DateTime?
-  
+
+  // Subscription limits per tier
+  subscriptionsIncluded Int @default(2) // Subscriptions included in base tier
+  maxSubscriptions      Int @default(3) // Hard cap per tier
+
+  // Hours tracking - support hours pool
+  supportHoursIncluded Int   @default(8) // Monthly support hours included (doubled from 4)
+  supportHoursUsed     Float @default(0) // Support hours used this period
+
+  // Change request tracking - separate from support hours
+  changeRequestsIncluded Int @default(3) // Change requests per month
+  changeRequestsUsed     Int @default(0) // Requests used this period
+
+  // Billing period
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+
+  // Rollover hours system
+  rolloverEnabled Boolean @default(true)
+  rolloverCap     Int     @default(16) // Max rollover hours (2x monthly, doubled from 8)
+  rolloverHours   Float   @default(0) // Current banked rollover hours
+
+  // On-demand billing settings
+  onDemandEnabled       Boolean @default(false)
+  hourlyOverageRate     Int     @default(7500) // $75.00 in cents
+  dailyRequestLimit     Int     @default(3) // Max requests per day in on-demand mode
+  dailySpendCap         Int     @default(50000) // $500 daily cap in cents
+  monthlySpendCap       Int     @default(200000) // $2000 monthly cap in cents
+  urgentRequestsPerWeek Int     @default(2) // Max urgent requests per week
+  urgentRequestsUsed    Int     @default(0) // Urgent requests used this week
+
+  // Daily tracking for on-demand
+  requestsToday   Int       @default(0)
+  lastRequestDate DateTime?
+
+  // Grace period tracking
+  gracePeriodUsed Boolean @default(false) // One-time 1hr grace used
+
   // Usage tracking
-  logs                    MaintenanceLog[]
+  logs                 MaintenanceLog[]
+  hourPacks            HourPack[]
+  rolloverRecords      RolloverHours[]
+  overageNotifications OverageNotification[]
 
   @@map("maintenance_plans")
 }
@@ -531,6 +623,7 @@ model Todo {
   assignedToId    String?
   createdById     String
   projectId       String?
+  changeRequestId String?      @unique // Link to change request if auto-generated
   dueDate         DateTime?
   completedAt     DateTime?
   submittedAt     DateTime?
@@ -541,20 +634,28 @@ model Todo {
   assignedTo      User?        @relation("TodoAssignee", fields: [assignedToId], references: [id])
   createdBy       User         @relation("TodoCreator", fields: [createdById], references: [id])
   project         Project?     @relation(fields: [projectId], references: [id])
-  
+  changeRequest   ChangeRequest? @relation(fields: [changeRequestId], references: [id])
+
+  // Team/Role assignment fields
+  assignedToRole  UserRole? // If assigned to a role group
+  assignedToTeamId String? // If assigned to a team/organization
+
   // Kanban board fields
-  column          String       @default("todo") // "todo", "in-progress", "review", "done"
-  position        Int          @default(0)      // for ordering within column
-  estimatedHours  Float?
-  actualHours     Float?
-  dependencies    String[]                      // Task IDs this task depends on
-  attachments     String[]                      // File URLs
-  
+  column         String   @default("todo") // "todo", "in-progress", "review", "done"
+  position       Int      @default(0) // for ordering within column
+  estimatedHours Float?
+  actualHours    Float?
+  dependencies   String[] // Task IDs this task depends on
+  attachments    String[] // File URLs
+
   // Time tracking
-  timeLogs        TimeLog[]
+  timeLogs TimeLog[]
 
   @@index([projectId, column])
   @@index([status])
+  @@index([changeRequestId])
+  @@index([assignedToRole])
+  @@index([assignedToTeamId])
   @@map("todos")
 }
 
@@ -637,6 +738,11 @@ model Subscription {
   project               Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   changeRequests        ChangeRequest[]
 
+  // Addon subscription support
+  isAddon         Boolean @default(false) // True if this is an addon beyond included
+  additionalCost  Int     @default(0) // Additional monthly cost in cents
+  additionalHours Int     @default(0) // Additional hours this addon provides
+
   @@map("subscriptions")
 }
 
@@ -659,36 +765,68 @@ model ChangeRequest {
   projectId      String
   subscriptionId String
   description    String
-  status         String       @default("pending") // "pending", "approved", "completed", "rejected"
+  status         String       @default("pending") // "pending", "approved", "in_progress", "completed", "rejected"
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   completedAt    DateTime?
   project        Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  task           Todo?        // Auto-generated task (one-to-one relation via Todo.changeRequestId)
+
+  // Hours tracking
+  estimatedHours Float? // Estimated time for this request
+  actualHours    Float? // Actual hours spent
+  hoursDeducted  Float? // Hours deducted from monthly/rollover/pack
+  hoursSource    String? // "monthly", "rollover", "pack"
+  hourPackId     String? // If deducted from hour pack
+
+  // Categorization
+  category   ChangeRequestCategory @default(OTHER)
+  priority   ChangeRequestPriority @default(NORMAL)
+  urgencyFee Int                   @default(0) // Fee in cents for urgent requests
+
+  // Billing
+  isOverage        Boolean @default(false) // Beyond included hours
+  overageAmount    Int? // Overage billing amount in cents
+  flaggedForReview Boolean @default(false) // Needs billing review
+
+  // Client approval for large requests
+  requiresClientApproval Boolean   @default(false) // For >2hr estimates
+  clientApprovedAt       DateTime?
+
+  // Attachments
+  attachments String[] // URLs to attached files
 
   @@map("change_requests")
 }
 
 model ProjectRequest {
-  id           String        @id @default(cuid())
-  name         String?
-  email        String?
-  projectType  String?
-  goal         String?
-  timeline     String?
-  createdAt    DateTime      @default(now())
-  company      String?
-  contactEmail String        @default("")
-  description  String        @default("")
-  notes        String?
-  resourcesUrl String?
-  services     ServiceType[]
-  title        String        @default("")
-  updatedAt    DateTime      @default(now()) @updatedAt
-  userId       String?
-  budget       BudgetTier    @default(UNKNOWN)
-  status       RequestStatus @default(DRAFT)
-  user         User?         @relation(fields: [userId], references: [id])
+  id             String        @id @default(cuid())
+  name           String?
+  email          String?
+  projectType    String?
+  goal           String?
+  timeline       String?
+  createdAt      DateTime      @default(now())
+  company        String?
+  contactEmail   String        @default("")
+  description    String        @default("")
+  notes          String?
+  resourcesUrl   String?
+  services       ServiceType[]
+  title          String        @default("")
+  updatedAt      DateTime      @default(now()) @updatedAt
+  userId         String?
+  budget         BudgetTier    @default(UNKNOWN)
+  status         RequestStatus @default(DRAFT)
+  user           User?         @relation(fields: [userId], references: [id])
+  
+  // Hours tracking
+  estimatedHours Float? // Estimated hours set by client when creating request
+  actualHours    Float? // Actual hours set by admin when completing request
+  hoursDeducted  Float? // Hours deducted from maintenance plan
+  hoursSource    String? // "monthly", "rollover", "pack" - where hours were deducted from
+  hourPackId     String? // If deducted from hour pack
 
   @@map("project_requests")
 }
@@ -1285,9 +1423,54 @@ enum TransactionStatus {
 }
 
 enum MaintenanceTier {
-  BASIC      // $150/mo, 2 hours
-  STANDARD   // $350/mo, 5 hours
-  PREMIUM    // $750/mo, 12 hours
+  BASIC // $150/mo, 2 hours
+  STANDARD // $350/mo, 5 hours
+  PREMIUM // $750/mo, 12 hours
+}
+
+// New nonprofit tiers aligned with business model
+enum NonprofitTier {
+  ESSENTIALS // $500/mo, 8 hours, max 3 subscriptions
+  DIRECTOR // $750/mo, 16 hours, max 6 subscriptions
+  COO // $2,000/mo, unlimited requests (fair-use), unlimited subscriptions
+}
+
+// Hour pack types for marketplace purchases
+enum HourPackType {
+  SMALL // 5 hours, $350, 60-day expiry
+  MEDIUM // 10 hours, $650, 90-day expiry
+  LARGE // 20 hours, $1,200, 120-day expiry
+  PREMIUM // 10 hours, $850, never expires
+}
+
+// Change request categories
+enum ChangeRequestCategory {
+  CONTENT // Content updates
+  BUG // Bug fixes
+  FEATURE // New features
+  DESIGN // Design tweaks
+  SEO // SEO optimization
+  SECURITY // Security updates
+  OTHER // Other
+}
+
+// Change request priority
+enum ChangeRequestPriority {
+  LOW // 3-5 days
+  NORMAL // 2-3 days
+  HIGH // 1 day
+  URGENT // Same day (+$50 fee)
+  EMERGENCY // Immediate (bypasses limits)
+}
+
+// Usage warning levels
+enum UsageWarningLevel {
+  AT_80_PERCENT // 80% of hours used
+  AT_2_HOURS // 2 hours remaining
+  AT_LIMIT // 0 hours remaining
+  FIRST_OVERAGE // First time going over
+  ROLLOVER_EXPIRING // Rollover hours expiring soon
+  PACK_EXPIRING // Hour pack expiring soon
 }
 
 enum SubscriptionStatus {
@@ -1317,6 +1500,7 @@ enum CampaignStatus {
 }
 
 enum EventStatus {
+  PENDING
   SCHEDULED
   IN_PROGRESS
   COMPLETED
@@ -1343,160 +1527,160 @@ enum AIMessageRole {
 // ============================================
 
 model UserProfile {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Business info (for clients)
-  organizationName      String?
-  industry              String?
-  organizationSize      String?
-  websiteUrl            String?
-  taxId                 String?
-  businessAddress       String?
-  
+  organizationName String?
+  industry         String?
+  organizationSize String?
+  websiteUrl       String?
+  taxId            String?
+  businessAddress  String?
+
   // Professional info (for designers/admins)
-  jobTitle              String?
-  department            String?
-  skills                String[] // Array of skill tags
-  portfolioUrl          String?
-  githubUrl             String?
-  linkedinUrl           String?
-  yearsExperience       Int?
-  hourlyRate            Decimal? @db.Decimal(10, 2)
-  availabilityStatus    String?  @default("available")
-  
+  jobTitle           String?
+  department         String?
+  skills             String[] // Array of skill tags
+  portfolioUrl       String?
+  githubUrl          String?
+  linkedinUrl        String?
+  yearsExperience    Int?
+  hourlyRate         Decimal? @db.Decimal(10, 2)
+  availabilityStatus String?  @default("available")
+
   // Social links
-  twitterUrl            String?
-  customLink            String?
-  
+  twitterUrl String?
+  customLink String?
+
   // Privacy
-  publicProfile         Boolean  @default(false)
-  
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
+  publicProfile Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("user_profiles")
 }
 
 model TwoFactorAuth {
-  id              String    @id @default(cuid())
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  secret          String    // Encrypted TOTP secret
-  backupCodes     String[]  // Encrypted backup codes
-  enabled         Boolean   @default(false)
-  verifiedAt      DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  secret      String // Encrypted TOTP secret
+  backupCodes String[] // Encrypted backup codes
+  enabled     Boolean   @default(false)
+  verifiedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   @@map("two_factor_auth")
 }
 
 model UserSession {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation("UserSessions", fields: [userId], references: [id], onDelete: Cascade)
-  deviceInfo    String?
-  browser       String?
-  os            String?
-  ipAddress     String?
-  location      String?
-  lastActive    DateTime @default(now())
-  createdAt     DateTime @default(now())
-  
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation("UserSessions", fields: [userId], references: [id], onDelete: Cascade)
+  deviceInfo String?
+  browser    String?
+  os         String?
+  ipAddress  String?
+  location   String?
+  lastActive DateTime @default(now())
+  createdAt  DateTime @default(now())
+
   @@index([userId])
   @@map("user_sessions")
 }
 
 model NotificationPreferences {
-  id                      String   @id @default(cuid())
-  userId                  String   @unique
-  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Email notifications
-  projectUpdatesEmail     Boolean  @default(true)
-  billingEmail            Boolean  @default(true)
-  marketingEmail          Boolean  @default(false)
-  securityEmail           Boolean  @default(true)
-  
+  projectUpdatesEmail Boolean @default(true)
+  billingEmail        Boolean @default(true)
+  marketingEmail      Boolean @default(false)
+  securityEmail       Boolean @default(true)
+
   // In-app notifications
-  projectUpdatesApp       Boolean  @default(true)
-  billingApp              Boolean  @default(true)
-  securityApp             Boolean  @default(true)
-  
+  projectUpdatesApp Boolean @default(true)
+  billingApp        Boolean @default(true)
+  securityApp       Boolean @default(true)
+
   // Push notifications
-  browserPushEnabled      Boolean  @default(false)
-  
+  browserPushEnabled Boolean @default(false)
+
   // Schedule
-  quietHoursStart         String?  // "22:00"
-  quietHoursEnd           String?  // "08:00"
-  digestFrequency         String?  @default("none") // daily, weekly, none
-  
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
-  
+  quietHoursStart String? // "22:00"
+  quietHoursEnd   String? // "08:00"
+  digestFrequency String? @default("none") // daily, weekly, none
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("notification_preferences")
 }
 
 model UserPreferences {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Appearance
-  theme                 String   @default("dark") // light, dark, auto
-  accentColor           String?  @default("#dc2626") // trinity-red
-  fontSize              String   @default("medium") // small, medium, large
-  reduceAnimations      Boolean  @default(false)
-  
+  theme            String  @default("dark") // light, dark, auto
+  accentColor      String? @default("#dc2626") // trinity-red
+  fontSize         String  @default("medium") // small, medium, large
+  reduceAnimations Boolean @default(false)
+
   // Language & Region
-  language              String   @default("en")
-  dateFormat            String   @default("MM/DD/YYYY")
-  timeFormat            String   @default("12h") // 12h, 24h
-  
+  language   String @default("en")
+  dateFormat String @default("MM/DD/YYYY")
+  timeFormat String @default("12h") // 12h, 24h
+
   // Dashboard
-  defaultView           String   @default("kanban") // kanban, list, calendar
-  sidebarCollapsed      Boolean  @default(false)
-  compactMode           Boolean  @default(false)
-  
+  defaultView      String  @default("kanban") // kanban, list, calendar
+  sidebarCollapsed Boolean @default(false)
+  compactMode      Boolean @default(false)
+
   // Communication
-  preferredContact      String?  // email, phone, sms
-  responseTime          String?
-  meetingPreference     String?  // in-person, video, phone
-  bestTime              String?  // morning, afternoon, evening
-  
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
+  preferredContact  String? // email, phone, sms
+  responseTime      String?
+  meetingPreference String? // in-person, video, phone
+  bestTime          String? // morning, afternoon, evening
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("user_preferences")
 }
 
 model TosAcceptance {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  version     String   // e.g., "1.0"
-  acceptedAt  DateTime @default(now())
-  ipAddress   String?
-  userAgent   String?
-  
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  version    String // e.g., "1.0"
+  acceptedAt DateTime @default(now())
+  ipAddress  String?
+  userAgent  String?
+
   @@index([userId])
   @@map("tos_acceptances")
 }
 
 model LoginHistory {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  success     Boolean  @default(true)
-  ipAddress   String?
-  location    String?
-  deviceInfo  String?
-  browser     String?
-  os          String?
-  createdAt   DateTime @default(now())
-  
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  success    Boolean  @default(true)
+  ipAddress  String?
+  location   String?
+  deviceInfo String?
+  browser    String?
+  os         String?
+  createdAt  DateTime @default(now())
+
   @@index([userId, createdAt])
   @@map("login_history")
 }
@@ -1507,36 +1691,100 @@ model LoginHistory {
 
 // Time tracking for tasks
 model TimeLog {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   todoId      String
-  todo        Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  todo        Todo      @relation(fields: [todoId], references: [id], onDelete: Cascade)
   hoursSpent  Float
   description String?
-  performedBy String?  // User ID
+  performedBy String? // User ID
   startedAt   DateTime?
   endedAt     DateTime?
-  createdAt   DateTime @default(now())
-  
+  createdAt   DateTime  @default(now())
+
   @@index([todoId])
   @@map("time_logs")
 }
 
 // Maintenance activity logs
 model MaintenanceLog {
-  id              String          @id @default(cuid())
-  planId          String
-  plan            MaintenancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
-  hoursSpent      Float
-  description     String
-  performedBy     String?         // User ID of staff member
-  performedAt     DateTime        @default(now())
-  billable        Boolean         @default(true)
-  overage         Boolean         @default(false) // true if beyond included hours
-  createdAt       DateTime        @default(now())
-  
+  id          String          @id @default(cuid())
+  planId      String
+  plan        MaintenancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  hoursSpent  Float
+  description String
+  performedBy String? // User ID of staff member
+  performedAt DateTime        @default(now())
+  billable    Boolean         @default(true)
+  overage     Boolean         @default(false) // true if beyond included hours
+  createdAt   DateTime        @default(now())
+
   @@index([planId])
   @@index([performedAt])
   @@map("maintenance_logs")
+}
+
+// Purchased hour packs for additional work
+model HourPack {
+  id              String          @id @default(cuid())
+  planId          String
+  plan            MaintenancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  packType        HourPackType
+  hours           Float // Total hours in pack
+  hoursRemaining  Float // Hours still available
+  cost            Int // Cost in cents
+  purchasedAt     DateTime        @default(now())
+  expiresAt       DateTime? // Null for never-expire packs
+  neverExpires    Boolean         @default(false)
+  stripePaymentId String?
+
+  // Extension tracking
+  timesExtended  Int       @default(0)
+  originalExpiry DateTime? // Original expiry before extensions
+
+  // Usage
+  usedAt   DateTime? // When fully used
+  isActive Boolean   @default(true)
+
+  @@index([planId])
+  @@index([expiresAt])
+  @@index([isActive])
+  @@map("hour_packs")
+}
+
+// Rollover hours tracking with FIFO expiration
+model RolloverHours {
+  id             String          @id @default(cuid())
+  planId         String
+  plan           MaintenancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  hours          Float // Hours rolled over
+  hoursRemaining Float // Hours still available
+  sourceMonth    DateTime // Which month these came from
+  expiresAt      DateTime // When these hours expire
+  usedAt         DateTime? // When fully used
+  isExpired      Boolean         @default(false)
+
+  @@index([planId])
+  @@index([expiresAt])
+  @@map("rollover_hours")
+}
+
+// Track overage and warning notifications sent
+model OverageNotification {
+  id           String            @id @default(cuid())
+  planId       String
+  plan         MaintenancePlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  warningLevel UsageWarningLevel
+  periodStart  DateTime // Which billing period this is for
+  sentAt       DateTime          @default(now())
+  emailTo      String // Email address sent to
+
+  // For expiring hours/packs
+  expiryDate    DateTime? // Date of expiring hours/pack
+  hoursExpiring Float? // How many hours are expiring
+
+  @@unique([planId, warningLevel, periodStart]) // Prevent duplicate warnings per period
+  @@index([planId])
+  @@map("overage_notifications")
 }
 
 // Finance transactions
@@ -1547,13 +1795,13 @@ model FinanceTransaction {
   organizationId       String?
   organization         Organization?     @relation(fields: [organizationId], references: [id])
   type                 TransactionType
-  amount               Int               // in cents
+  amount               Int // in cents
   currency             String            @default("USD")
   status               TransactionStatus @default(PENDING)
   stripeInvoiceId      String?           @unique
   stripePaymentId      String?           @unique
   stripeSubscriptionId String?
-  paymentMethod        String?           // card, ach, manual
+  paymentMethod        String? // card, ach, manual
   description          String
   dueDate              DateTime?
   paidAt               DateTime?
@@ -1561,7 +1809,7 @@ model FinanceTransaction {
   notes                String?
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
-  
+
   @@index([projectId])
   @@index([organizationId])
   @@index([status])
@@ -1574,8 +1822,8 @@ model MaintenanceSubscription {
   organizationId       String
   organization         Organization       @relation(fields: [organizationId], references: [id])
   tier                 MaintenanceTier
-  monthlyRate          Int                // in cents
-  hoursIncluded        Int                // hours per month
+  monthlyRate          Int // in cents
+  hoursIncluded        Int // hours per month
   hoursUsed            Int                @default(0)
   status               SubscriptionStatus @default(ACTIVE)
   stripeSubscriptionId String?            @unique
@@ -1584,7 +1832,7 @@ model MaintenanceSubscription {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   cancelledAt          DateTime?
-  
+
   @@index([organizationId])
   @@index([status])
   @@map("maintenance_subscriptions")
@@ -1592,18 +1840,18 @@ model MaintenanceSubscription {
 
 // Email templates
 model EmailTemplate {
-  id          String        @id @default(cuid())
-  name        String        @unique
+  id          String          @id @default(cuid())
+  name        String          @unique
   category    EmailCategory
   subject     String
-  htmlContent String        @db.Text
-  textContent String?       @db.Text
-  variables   String[]      // e.g., ["clientName", "projectName", "amount"]
-  active      Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  htmlContent String          @db.Text
+  textContent String?         @db.Text
+  variables   String[] // e.g., ["clientName", "projectName", "amount"]
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   campaigns   EmailCampaign[]
-  
+
   @@index([category])
   @@map("email_templates")
 }
@@ -1626,39 +1874,39 @@ model EmailCampaign {
   replied      Int            @default(0)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  
+
   // Track which leads were targeted
-  leads        Lead[]         @relation("LeadCampaigns")
-  
+  leads Lead[] @relation("LeadCampaigns")
+
   @@index([status])
   @@map("email_campaigns")
 }
 
 // Calendar events
 model CalendarEvent {
-  id             String       @id @default(cuid())
+  id             String        @id @default(cuid())
   title          String
-  description    String?      @db.Text
+  description    String?       @db.Text
   location       String?
   startTime      DateTime
   endTime        DateTime
-  allDay         Boolean      @default(false)
-  timezone       String       @default("America/New_York")
+  allDay         Boolean       @default(false)
+  timezone       String        @default("America/New_York")
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
   projectId      String?
-  project        Project?     @relation(fields: [projectId], references: [id])
-  createdBy      String       // User ID
-  attendees      String[]     // User IDs or email addresses
-  meetingUrl     String?      // Zoom, Google Meet, etc.
-  recurring      Boolean      @default(false)
-  recurrenceRule String?      // iCal RRULE format
-  status         EventStatus  @default(SCHEDULED)
-  remindersSent  Boolean      @default(false)
-  color          String?      // For calendar display
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  
+  project        Project?      @relation(fields: [projectId], references: [id])
+  createdBy      String // User ID
+  attendees      String[] // User IDs or email addresses
+  meetingUrl     String? // Zoom, Google Meet, etc.
+  recurring      Boolean       @default(false)
+  recurrenceRule String? // iCal RRULE format
+  status         EventStatus   @default(SCHEDULED)
+  remindersSent  Boolean       @default(false)
+  color          String? // For calendar display
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
   @@index([startTime])
   @@index([organizationId])
   @@index([projectId])
@@ -1669,23 +1917,23 @@ model CalendarEvent {
 model AIConversation {
   id           String      @id @default(cuid())
   sessionId    String      @unique
-  userId       String?     // If logged in user
+  userId       String? // If logged in user
   visitorName  String?
   visitorEmail String?
   visitorPhone String?
   messages     AIMessage[]
   status       ChatStatus  @default(ACTIVE)
   handedOff    Boolean     @default(false)
-  handedOffTo  String?     // Admin user ID
-  intent       String?     // "pricing", "portfolio", "support", etc.
-  leadQuality  String?     // "hot", "warm", "cold"
-  source       String?     // URL where chat started
+  handedOffTo  String? // Admin user ID
+  intent       String? // "pricing", "portfolio", "support", etc.
+  leadQuality  String? // "hot", "warm", "cold"
+  source       String? // URL where chat started
   device       String?
   browser      String?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   closedAt     DateTime?
-  
+
   @@index([status])
   @@index([createdAt])
   @@map("ai_conversations")
@@ -1702,37 +1950,52 @@ model AIMessage {
   tokens         Int?
   confidence     Float?
   createdAt      DateTime       @default(now())
-  
+
   @@index([conversationId])
   @@map("ai_messages")
 }
 
 // Session recordings for AI transcription
 model Recording {
-  id           String           @id @default(cuid())
-  title        String
-  filename     String
-  filePath     String
-  fileSize     Int
-  mimeType     String
-  duration     Int?             // Duration in seconds
-  status       RecordingStatus  @default(PENDING)
-  transcript   String?          @db.Text
-  summary      String?          @db.Text
-  actionItems  Json?            // Array of action items extracted
-  projectBrief Json?            // Auto-generated project brief
-  uploadedById String
-  uploadedBy   User             @relation("RecordingsUploaded", fields: [uploadedById], references: [id])
-  projectId    String?
-  project      Project?         @relation(fields: [projectId], references: [id])
-  transcribedAt DateTime?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id              String             @id @default(cuid())
+  title           String
+  filename        String
+  filePath        String
+  fileSize        Int
+  mimeType        String
+  duration        Int? // Duration in seconds
+  status          RecordingStatus    @default(PENDING)
+  category        RecordingCategory? // AI-tagged category based on content
+  transcript      String?            @db.Text
+  summary         String?            @db.Text
+  actionItems     Json? // Array of action items extracted
+  projectBrief    Json? // Auto-generated project brief
+  isClientVisible Boolean            @default(false) // Whether client can view
+  uploadedById    String
+  uploadedBy      User               @relation("RecordingsUploaded", fields: [uploadedById], references: [id])
+  projectId       String?
+  project         Project?           @relation(fields: [projectId], references: [id])
+  transcribedAt   DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@index([status])
+  @@index([category])
   @@index([uploadedById])
   @@index([projectId])
   @@map("recordings")
+}
+
+enum RecordingCategory {
+  DISCOVERY_CALL // Initial client meeting
+  DESIGN_REVIEW // Design feedback session
+  TECHNICAL_DISCUSSION // Development/tech talk
+  PROJECT_UPDATE // Progress update meeting
+  BRAINSTORMING // Ideation session
+  TRAINING // Client training/onboarding
+  SUPPORT // Support/troubleshooting
+  INTERNAL // Internal team meeting
+  OTHER // Uncategorized
 }
 
 enum RecordingStatus {

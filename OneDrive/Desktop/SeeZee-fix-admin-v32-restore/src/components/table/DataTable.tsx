@@ -26,15 +26,15 @@ export function DataTable<T>({ columns, data, emptyMessage = "No data available"
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-800 bg-gray-900/70" style={{ position: 'relative' }}>
-      <table className="w-full" style={{ minWidth: '800px' }}>
+    <div className="overflow-x-auto rounded-2xl border border-gray-800 bg-gray-900/70 -mx-4 sm:-mx-6 px-4 sm:px-6" style={{ position: 'relative', WebkitOverflowScrolling: 'touch' }}>
+      <table className="w-full" style={{ minWidth: 'max-content' }}>
         <thead>
           <tr className="border-b border-gray-800/80">
             {columns.map((column, index) => (
               <th
                 key={index}
                 className={clsx(
-                  "px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.2em] text-gray-500",
+                  "px-2 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 whitespace-nowrap",
                   column.className,
                 )}
               >
@@ -52,7 +52,7 @@ export function DataTable<T>({ columns, data, emptyMessage = "No data available"
                 {columns.map((column, colIndex) => {
                   const cellKey = `${rowKey}-${colIndex}-${String(column.key)}`;
                   return (
-                    <td key={cellKey} className={clsx("px-4 py-4 text-sm text-gray-200", column.className)}>
+                    <td key={cellKey} className={clsx("px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-gray-200 whitespace-nowrap", column.className)}>
                       {column.render
                         ? column.render(row)
                         : (() => {

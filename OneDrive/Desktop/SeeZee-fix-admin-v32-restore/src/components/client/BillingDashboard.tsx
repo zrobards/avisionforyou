@@ -4,11 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, DollarSign, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
 
-interface Subscription {
-  id: string;
-  status: string;
-  currentPeriodEnd: Date | null;
-}
+import { NONPROFIT_TIERS, getTier } from '@/lib/config/tiers';
 
 interface Invoice {
   id: string;
@@ -16,18 +12,25 @@ interface Invoice {
   title: string;
   amount: number;
   status: string;
-  dueDate: Date;
-  paidAt: Date | null;
-  createdAt: Date;
+  dueDate: string | Date;
+  paidAt: string | Date | null;
+  createdAt: string | Date;
+}
+
+interface MaintenancePlan {
+  id: string;
+  tier: string;
+  status: string;
+  monthlyPrice: number;
+  currentPeriodEnd: string | Date | null;
+  changeRequestsIncluded: number;
+  changeRequestsUsed: number;
 }
 
 interface Project {
   id: string;
   name: string;
-  maintenancePlan: string | null;
-  maintenanceStatus: string | null;
-  nextBillingDate: Date | null;
-  subscriptions: Subscription[];
+  maintenancePlan: MaintenancePlan;
   invoices: Invoice[];
 }
 
@@ -56,21 +59,22 @@ export function BillingDashboard({ projects }: BillingDashboardProps) {
     );
   };
 
-  const getSubscriptionStatusIcon = (status: string | null) => {
-    switch (status) {
-      case 'active':
+  const getSubscriptionStatusIcon = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
         return <CheckCircle className="w-5 h-5 text-green-400" />;
-      case 'cancelled':
-      case 'canceled':
+      case 'CANCELLED':
+      case 'CANCELED':
+      case 'PAUSED':
         return <XCircle className="w-5 h-5 text-red-400" />;
-      case 'past_due':
+      case 'PAST_DUE':
         return <Clock className="w-5 h-5 text-yellow-400" />;
       default:
         return <Clock className="w-5 h-5 text-white/40" />;
     }
   };
 
-  const formatDate = (date: Date | null) => {
+  const formatDate = (date: string | Date | null) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
@@ -121,40 +125,44 @@ export function BillingDashboard({ projects }: BillingDashboardProps) {
               Maintenance Subscription
             </h3>
 
-            {selectedProject.subscriptions.length > 0 ? (
+            {selectedProject.maintenancePlan ? (
               <div className="space-y-4">
-                {selectedProject.subscriptions.map((subscription) => (
-                  <div
-                    key={subscription.id}
-                    className="bg-slate-800 border border-white/10 rounded-lg p-4"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        {getSubscriptionStatusIcon(subscription.status)}
-                        <div>
-                          <div className="text-white font-medium">
-                            {selectedProject.maintenancePlan === 'premium' ? 'Premium' : 'Standard'} Plan
+                {(() => {
+                  const plan = selectedProject.maintenancePlan;
+                  const tierKey = (plan.tier || 'ESSENTIALS').toUpperCase() as keyof typeof NONPROFIT_TIERS;
+                  const tierConfig = getTier(tierKey) || NONPROFIT_TIERS.ESSENTIALS;
+                  const monthlyPrice = Number(plan.monthlyPrice) / 100; // Convert cents to dollars
+                  
+                  return (
+                    <div className="bg-slate-800 border border-white/10 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          {getSubscriptionStatusIcon(plan.status)}
+                          <div>
+                            <div className="text-white font-medium">
+                              {tierConfig.name}
+                            </div>
+                            <div className="text-sm text-white/60">
+                              {plan.status === 'ACTIVE' ? 'Active' : plan.status}
+                            </div>
                           </div>
-                          <div className="text-sm text-white/60">
-                            {subscription.status === 'active' ? 'Active' : subscription.status}
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-white">
+                            {formatCurrency(monthlyPrice)}/mo
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-white">
-                          {selectedProject.maintenancePlan === 'premium' ? '$90' : '$50'}/mo
-                        </div>
-                      </div>
-                    </div>
 
-                    {subscription.currentPeriodEnd && (
-                      <div className="flex items-center gap-2 text-sm text-white/60">
-                        <Calendar className="w-4 h-4" />
-                        <span>Next billing date: {formatDate(subscription.currentPeriodEnd)}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      {plan.currentPeriodEnd && (
+                        <div className="flex items-center gap-2 text-sm text-white/60 mb-3">
+                          <Calendar className="w-4 h-4" />
+                          <span>Next billing date: {formatDate(plan.currentPeriodEnd)}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* Plan Features */}
                 <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
@@ -163,16 +171,8 @@ export function BillingDashboard({ projects }: BillingDashboardProps) {
                     <li>✓ Managed hosting & SSL certificate</li>
                     <li>✓ Security & plugin updates</li>
                     <li>✓ Daily automated backups</li>
-                    <li>✓ Email support (48hr response)</li>
-                    <li>✓ Basic content updates (1hr/month)</li>
+                    <li>✓ Email support</li>
                     <li>✓ Performance monitoring</li>
-                    {selectedProject.maintenancePlan === 'premium' && (
-                      <>
-                        <li>✓ Priority support (24hr response)</li>
-                        <li>✓ Extended content updates (3hrs/month)</li>
-                        <li>✓ Monthly analytics & SEO reports</li>
-                      </>
-                    )}
                   </ul>
                 </div>
               </div>

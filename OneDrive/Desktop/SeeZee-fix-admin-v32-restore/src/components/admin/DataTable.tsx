@@ -10,7 +10,7 @@ import { Search, Filter, ChevronDown } from "lucide-react";
 
 export interface Column<T> {
   key: keyof T | string;
-  label: string;
+  label: string | React.ReactNode;
   render?: (item: T) => React.ReactNode;
   sortable?: boolean;
 }
@@ -70,9 +70,9 @@ export function DataTable<T extends { id: string }>({
     <div className="space-y-4">
       {/* Header with search and filters */}
       {(searchable || filters || actions) && (
-        <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
           {searchable && (
-            <div className="relative flex-1 min-w-[240px]">
+            <div className="relative flex-1 min-w-0 sm:min-w-[240px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
@@ -110,15 +110,15 @@ export function DataTable<T extends { id: string }>({
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#1e293b]/40 backdrop-blur-xl max-w-full">
-        <table className="w-full min-w-0">
+      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#1e293b]/40 backdrop-blur-xl max-w-full -mx-4 sm:-mx-6 px-4 sm:px-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <table className="w-full" style={{ minWidth: 'max-content' }}>
           <thead className="bg-[#0f172a]/60 border-b border-white/5">
             <tr>
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
                   className={`
-                    px-5 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider
+                    px-2 sm:px-4 lg:px-5 py-2 sm:py-3 lg:py-4 text-left text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap
                     ${col.sortable ? "cursor-pointer hover:text-white select-none transition-colors" : ""}
                   `}
                   onClick={() => col.sortable && handleSort(String(col.key))}
@@ -154,7 +154,7 @@ export function DataTable<T extends { id: string }>({
                 {columns.map((col) => (
                   <td
                     key={String(col.key)}
-                    className="px-5 py-4 text-sm text-slate-300"
+                    className="px-2 sm:px-4 lg:px-5 py-3 sm:py-4 text-xs sm:text-sm text-slate-300 whitespace-nowrap"
                   >
                     {col.render
                       ? col.render(item)

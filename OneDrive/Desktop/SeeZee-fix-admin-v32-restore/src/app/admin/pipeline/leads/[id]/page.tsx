@@ -49,9 +49,23 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
 
       if (projectRequest) {
         // Convert ProjectRequest to Lead-like format for display
+        // Prioritize name field, but extract name from title if needed (e.g., "John's Maintenance Plan Request" -> "John")
+        let displayName = projectRequest.name;
+        if (!displayName && projectRequest.title) {
+          // Try to extract name from title (e.g., "John's Maintenance Plan Request" -> "John")
+          const nameMatch = projectRequest.title.match(/^([^']+?)(?:'s|'s\s)/);
+          if (nameMatch) {
+            displayName = nameMatch[1].trim();
+          } else {
+            // If title doesn't contain a name, use the contact email username as fallback
+            const emailUsername = projectRequest.contactEmail?.split('@')[0] || 'Unknown';
+            displayName = emailUsername;
+          }
+        }
+        
         lead = {
           id: projectRequest.id,
-          name: projectRequest.name || projectRequest.title || "New Project Request",
+          name: displayName || "New Project Request",
           email: projectRequest.email || projectRequest.contactEmail || "",
           phone: null,
           company: projectRequest.company,

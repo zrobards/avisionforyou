@@ -42,6 +42,14 @@ interface FormData {
   timeline: string;
   contentReadiness: string; // 'ready' | 'partial' | 'need-help'
   
+  // Maintenance-specific
+  maintenanceTier: string;
+  maintenanceNeeds: string[];
+  urgency: string;
+  websiteUrl: string;
+  websitePlatform: string;
+  hasAccessCredentials: string;
+  
   // Additional
   attachments: File[];
   additionalNotes: string;
@@ -99,6 +107,71 @@ const IMPORTANT_FEATURES = [
   'Member portal',
 ];
 
+// Maintenance Plan Options - matches NONPROFIT_TIERS config
+const MAINTENANCE_TIERS = [
+  {
+    id: 'essentials',
+    name: 'Nonprofit Essentials',
+    price: '$500/month',
+    hours: '8 hours/month',
+    features: [
+      'Managed hosting & SSL certificate',
+      'Security & plugin updates',
+      'Daily automated backups',
+      'Email support',
+      'Performance monitoring',
+      '8 hours of support work per month',
+    ],
+  },
+  {
+    id: 'director',
+    name: 'Digital Director Platform',
+    price: '$750/month',
+    hours: '16 hours/month',
+    features: [
+      'Everything in Essentials',
+      'Priority support',
+      'Extended content updates',
+      'Monthly analytics & SEO reports',
+      'Up to 16 hours of support work per month',
+    ],
+  },
+  {
+    id: 'coo',
+    name: 'Digital COO System',
+    price: '$2,000/month',
+    hours: 'Unlimited hours/month',
+    features: [
+      'Everything in Director',
+      'Unlimited support hours',
+      '24/7 emergency support',
+      'Strategy consultation calls',
+      'Dedicated support team',
+      'Unlimited change requests',
+    ],
+  },
+];
+
+const MAINTENANCE_NEEDS = [
+  'Bug fixes & troubleshooting',
+  'Security updates',
+  'Content updates',
+  'Design changes',
+  'New feature development',
+  'Performance optimization',
+  'SEO improvements',
+  'Backup & recovery',
+  'Hosting management',
+  'Other',
+];
+
+const URGENCY_OPTIONS = [
+  'Immediately - I have urgent issues',
+  'This week',
+  'Within 2 weeks',
+  'Flexible / Planning ahead',
+];
+
 const BEST_TIME_TO_CALL = [
   'Morning (9am-12pm)',
   'Afternoon (12pm-5pm)',
@@ -123,6 +196,7 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
   const router = useRouter();
   const { data: session } = useSession();
   const isNonprofit = serviceType === ServiceCategory.NONPROFIT_WEBSITE;
+  const isMaintenance = serviceType === ServiceCategory.MAINTENANCE_PLAN;
   
   // Get tier information
   const tierInfo = tier ? TIER_INFO[tier] : null;
@@ -149,6 +223,14 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
     otherFeature: '',
     timeline: '',
     contentReadiness: '',
+    // Maintenance fields
+    maintenanceTier: '',
+    maintenanceNeeds: [],
+    urgency: '',
+    websiteUrl: '',
+    websitePlatform: '',
+    hasAccessCredentials: '',
+    // Additional
     attachments: [],
     additionalNotes: '',
   });
@@ -180,12 +262,12 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
     }));
   };
 
-  const handleCheckboxChange = (feature: string) => {
+  const handleCheckboxChange = (feature: string, fieldName: 'importantFeatures' | 'maintenanceNeeds' = 'importantFeatures') => {
     setFormData((prev) => ({
       ...prev,
-      importantFeatures: prev.importantFeatures.includes(feature)
-        ? prev.importantFeatures.filter((f) => f !== feature)
-        : [...prev.importantFeatures, feature],
+      [fieldName]: prev[fieldName].includes(feature)
+        ? prev[fieldName].filter((f) => f !== feature)
+        : [...prev[fieldName], feature],
     }));
   };
 
@@ -212,6 +294,13 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
           !formData.email || !formData.phone || !formData.pricingComfort || 
           !formData.goals || formData.importantFeatures.length === 0 || 
           !formData.timeline || !formData.contentReadiness) {
+        setError('Please fill in all required fields');
+        return false;
+      }
+    } else if (isMaintenance) {
+      // Maintenance-specific validation
+      if (!formData.name || !formData.email || !formData.websiteUrl || 
+          formData.maintenanceNeeds.length === 0 || !formData.urgency) {
         setError('Please fill in all required fields');
         return false;
       }
@@ -271,6 +360,18 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
         submissionData.contentReadiness = formData.contentReadiness;
         submissionData.additionalNotes = formData.additionalNotes;
         submissionData.tier = tier;
+      } else if (isMaintenance) {
+        // Maintenance-specific fields
+        submissionData.projectGoals = `Maintenance needs: ${formData.maintenanceNeeds.join(', ')}\n\nDetails: ${formData.goals || 'Not specified'}`;
+        submissionData.currentWebsite = formData.websiteUrl;
+        submissionData.websiteUrl = formData.websiteUrl;
+        submissionData.websitePlatform = formData.websitePlatform;
+        submissionData.hasAccessCredentials = formData.hasAccessCredentials;
+        submissionData.maintenanceNeeds = formData.maintenanceNeeds;
+        submissionData.maintenanceTier = formData.maintenanceTier;
+        submissionData.urgency = formData.urgency;
+        submissionData.additionalNotes = formData.additionalNotes;
+        submissionData.timeline = formData.urgency; // Use urgency as timeline for maintenance
       } else {
         // Standard form fields
         submissionData.company = formData.organizationName || '';
@@ -311,10 +412,16 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
     >
       <div className="mb-8">
         <h2 className="text-3xl font-heading font-bold text-white mb-2">
-          {isNonprofit && tierInfo ? `Nonprofit Website - ${tierInfo.name.split(' - ')[1]}` : getServiceCategoryDisplayName(serviceType)}
+          {isNonprofit && tierInfo 
+            ? `Nonprofit Website - ${tierInfo.name.split(' - ')[1]}` 
+            : isMaintenance 
+              ? 'Website Maintenance Plan'
+              : getServiceCategoryDisplayName(serviceType)}
         </h2>
         <p className="text-gray-300">
-          Fill out this form and we'll contact you within 24 hours.
+          {isMaintenance 
+            ? "Tell us about your website and what kind of support you need. We'll set you up with the perfect plan."
+            : "Fill out this form and we'll contact you within 24 hours."}
         </p>
       </div>
 
@@ -326,6 +433,221 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
       )}
 
       <div className="space-y-8">
+        {/* SECTION: Maintenance Website Info (Maintenance only) */}
+        {isMaintenance && (
+          <div className="space-y-6 border-b border-gray-700 pb-8">
+            <h3 className="text-xl font-semibold text-white">Your Website</h3>
+            
+            {/* Website URL */}
+            <div>
+              <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-2">
+                Website URL <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="url"
+                id="websiteUrl"
+                name="websiteUrl"
+                required
+                value={formData.websiteUrl}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-trinity-red focus:border-transparent"
+                placeholder="https://yourwebsite.com"
+              />
+            </div>
+
+            {/* Website Platform */}
+            <div>
+              <label htmlFor="websitePlatform" className="block text-sm font-medium text-gray-300 mb-2">
+                What platform is your website built on?
+              </label>
+              <select
+                id="websitePlatform"
+                name="websitePlatform"
+                value={formData.websitePlatform}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trinity-red focus:border-transparent"
+              >
+                <option value="">Select platform...</option>
+                <option value="wordpress" className="bg-gray-900">WordPress</option>
+                <option value="shopify" className="bg-gray-900">Shopify</option>
+                <option value="squarespace" className="bg-gray-900">Squarespace</option>
+                <option value="wix" className="bg-gray-900">Wix</option>
+                <option value="nextjs" className="bg-gray-900">Next.js / React</option>
+                <option value="custom" className="bg-gray-900">Custom Built</option>
+                <option value="unknown" className="bg-gray-900">I'm not sure</option>
+                <option value="other" className="bg-gray-900">Other</option>
+              </select>
+            </div>
+
+            {/* Access Credentials */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Do you have admin/login access to your website?
+              </label>
+              <div className="space-y-2">
+                {['Yes, I have full access', 'Yes, but limited access', 'No, I need help getting access', "I'm not sure"].map((option) => (
+                  <label
+                    key={option}
+                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
+                  >
+                    <input
+                      type="radio"
+                      name="hasAccessCredentials"
+                      value={option}
+                      checked={formData.hasAccessCredentials === option}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-trinity-red focus:ring-trinity-red"
+                    />
+                    <span className="text-white">{option}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SECTION: Maintenance Needs (Maintenance only) */}
+        {isMaintenance && (
+          <div className="space-y-6 border-b border-gray-700 pb-8">
+            <h3 className="text-xl font-semibold text-white">What Do You Need Help With?</h3>
+            
+            {/* Maintenance Needs Checkboxes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Select all that apply <span className="text-red-400">*</span>
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {MAINTENANCE_NEEDS.map((need) => (
+                  <label
+                    key={need}
+                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.maintenanceNeeds.includes(need)}
+                      onChange={() => handleCheckboxChange(need, 'maintenanceNeeds')}
+                      className="w-4 h-4 text-trinity-red focus:ring-trinity-red rounded"
+                    />
+                    <span className="text-white text-sm">{need}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Describe Issues */}
+            <div>
+              <label htmlFor="goals" className="block text-sm font-medium text-gray-300 mb-2">
+                Describe your needs in more detail
+              </label>
+              <textarea
+                id="goals"
+                name="goals"
+                rows={4}
+                value={formData.goals}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-trinity-red focus:border-transparent resize-none"
+                placeholder="Tell us more about the issues you're experiencing or changes you need..."
+              />
+            </div>
+
+            {/* Urgency */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                How soon do you need help? <span className="text-red-400">*</span>
+              </label>
+              <div className="space-y-2">
+                {URGENCY_OPTIONS.map((option) => (
+                  <label
+                    key={option}
+                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
+                  >
+                    <input
+                      type="radio"
+                      name="urgency"
+                      value={option}
+                      checked={formData.urgency === option}
+                      onChange={handleInputChange}
+                      required
+                      className="w-4 h-4 text-trinity-red focus:ring-trinity-red"
+                    />
+                    <span className="text-white">{option}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SECTION: Maintenance Tier Selection (Maintenance only) */}
+        {isMaintenance && (
+          <div className="space-y-6 border-b border-gray-700 pb-8">
+            <h3 className="text-xl font-semibold text-white">Choose Your Plan (Optional)</h3>
+            <p className="text-gray-400 text-sm">Not sure? We'll recommend the best plan after reviewing your needs.</p>
+            
+            <div className="grid gap-4">
+              {MAINTENANCE_TIERS.map((tierOption) => (
+                <label
+                  key={tierOption.id}
+                  className={`block p-4 border rounded-xl cursor-pointer transition-all ${
+                    formData.maintenanceTier === tierOption.id
+                      ? 'border-trinity-red bg-trinity-red/10'
+                      : 'border-white/10 bg-white/5 hover:bg-white/10'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="radio"
+                      name="maintenanceTier"
+                      value={tierOption.id}
+                      checked={formData.maintenanceTier === tierOption.id}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 mt-1 text-trinity-red focus:ring-trinity-red"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-white">{tierOption.name}</span>
+                        <span className="text-trinity-red font-bold">{tierOption.price}</span>
+                      </div>
+                      <p className="text-gray-400 text-sm mb-2">{tierOption.hours}</p>
+                      <ul className="space-y-1">
+                        {tierOption.features.map((feature, idx) => (
+                          <li key={idx} className="text-gray-300 text-sm flex items-center gap-2">
+                            <span className="text-green-400">✓</span> {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </label>
+              ))}
+              
+              {/* Custom/Not sure option */}
+              <label
+                className={`block p-4 border rounded-xl cursor-pointer transition-all ${
+                  formData.maintenanceTier === 'custom'
+                    ? 'border-trinity-red bg-trinity-red/10'
+                    : 'border-white/10 bg-white/5 hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="maintenanceTier"
+                    value="custom"
+                    checked={formData.maintenanceTier === 'custom'}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-trinity-red focus:ring-trinity-red"
+                  />
+                  <div>
+                    <span className="font-semibold text-white">I'm not sure / Need custom quote</span>
+                    <p className="text-gray-400 text-sm">We'll recommend the best option for you</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
+
         {/* SECTION 1: Organization Information (Nonprofit only) */}
         {isNonprofit && (
           <div className="space-y-6 border-b border-gray-700 pb-8">
@@ -534,7 +856,8 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
           )}
         </div>
 
-        {/* SECTION 3: Project Details */}
+        {/* SECTION 3: Project Details (Not for Maintenance) */}
+        {!isMaintenance && (
         <div className="space-y-6 border-b border-gray-700 pb-8">
           <h3 className="text-xl font-semibold text-white">Project Details</h3>
           
@@ -673,8 +996,10 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
             </div>
           )}
         </div>
+        )}
 
-        {/* SECTION 4: Timeline & Content */}
+        {/* SECTION 4: Timeline & Content (Not for Maintenance) */}
+        {!isMaintenance && (
         <div className="space-y-6 border-b border-gray-700 pb-8">
           <h3 className="text-xl font-semibold text-white">Timeline & Content</h3>
           
@@ -728,6 +1053,7 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
             </div>
           )}
         </div>
+        )}
 
         {/* SECTION 5: Additional Information */}
         <div className="space-y-6">
@@ -803,10 +1129,16 @@ export default function ContactIntakeForm({ serviceType, tier }: ContactIntakeFo
           disabled={isSubmitting}
           className="w-full px-6 py-4 bg-gradient-to-r from-trinity-red to-red-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-red-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit Project Request'}
+          {isSubmitting 
+            ? 'Submitting...' 
+            : isMaintenance 
+              ? 'Submit Maintenance Request' 
+              : 'Submit Project Request'}
         </button>
         <p className="text-center text-sm text-gray-400 mt-4">
-          We'll review your request and contact you within 24 hours
+          {isMaintenance 
+            ? "We'll review your website and get back to you within 24 hours with a plan recommendation"
+            : "We'll review your request and contact you within 24 hours"}
         </p>
       </div>
     </motion.form>

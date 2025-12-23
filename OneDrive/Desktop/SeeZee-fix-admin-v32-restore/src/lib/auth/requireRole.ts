@@ -73,11 +73,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
 
   const rawRole = session.user.role as string;
   const mappedRole = mapUserRoleToRole(rawRole);
-  
-  // Debug logging
-  if (rawRole !== mappedRole) {
-    console.log(`[getCurrentUser] Role mapping: ${rawRole} -> ${mappedRole} for user ${session.user.email}`);
-  }
 
   return {
     id: session.user.id || "",
@@ -109,16 +104,9 @@ export async function requireRole(
     redirect("/login");
   }
 
-  // Debug logging
-  console.log(`[requireRole] User: ${user.email}, Role: ${user.role}, Allowed: ${allowedRoles.join(", ")}`);
-  console.log(`[requireRole] Role type: ${typeof user.role}, Allowed[0] type: ${typeof allowedRoles[0]}`);
-  console.log(`[requireRole] Strict equality check: ${user.role} === ${allowedRoles[0]} = ${user.role === allowedRoles[0]}`);
-  console.log(`[requireRole] Includes check: allowedRoles.includes(user.role) = ${allowedRoles.includes(user.role)}`);
-
   // CEO email always has access - bypass role check for admin routes
   const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "seezee.enterprises@gmail.com"];
   const isCEOEmail = CEO_EMAILS.includes(user.email || "");
-  console.log(`[requireRole] CEO email check: ${user.email} in [${CEO_EMAILS.join(", ")}] = ${isCEOEmail}`);
   
   if (isCEOEmail) {
     // If accessing admin routes, allow access
@@ -127,7 +115,6 @@ export async function requireRole(
         allowedRoles.includes("FRONTEND") || 
         allowedRoles.includes("BACKEND") || 
         allowedRoles.includes("OUTREACH")) {
-      console.log(`[requireRole] ✅ CEO email bypass - granting access`);
       // Return user with CEO role for admin access
       return {
         ...user,

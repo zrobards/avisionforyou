@@ -9,8 +9,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2 } from 'lucide-react';
 import PageShell from '@/components/PageShell';
 import FloatingShapes from '@/components/shared/FloatingShapes';
+import { ServiceCategory } from '@prisma/client';
 
 type ServiceType = 'small-business' | 'ecommerce' | 'nonprofit' | 'maintenance' | 'quick-fix';
+
+// Map internal service types to ServiceCategory enum values for API
+const serviceTypeToCategory: Record<ServiceType, ServiceCategory> = {
+  'small-business': ServiceCategory.BUSINESS_WEBSITE,
+  'ecommerce': ServiceCategory.BUSINESS_WEBSITE,
+  'nonprofit': ServiceCategory.NONPROFIT_WEBSITE,
+  'maintenance': ServiceCategory.MAINTENANCE_PLAN,
+  'quick-fix': ServiceCategory.MAINTENANCE_PLAN,
+};
 
 interface ProjectRequestData {
   name: string;
@@ -320,12 +330,15 @@ function QuestionnairePageContent() {
 
     setIsSubmitting(true);
     try {
+      // Convert internal service type to ServiceCategory enum for API
+      const serviceCategory = serviceTypeToCategory[selectedServiceType];
+      
       // Create lead via API
       const leadResponse = await fetch('/api/leads/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          serviceType: selectedServiceType,
+          serviceType: serviceCategory,
           email: formData.email,
           name: formData.name,
           phone: formData.phone,

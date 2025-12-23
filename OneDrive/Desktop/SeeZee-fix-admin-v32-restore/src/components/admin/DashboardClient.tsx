@@ -57,6 +57,7 @@ interface DashboardLead {
 }
 
 interface DashboardClientProps {
+  userName: string;
   stats: AdminStats;
   activities: ActivityItem[];
   topTasks: DashboardTask[];
@@ -77,9 +78,9 @@ const quickActions = [
     accent: "from-trinity-red/20 via-trinity-red/10 to-transparent text-trinity-red",
   },
   {
-    href: "/admin/leads/finder",
-    label: "🗺️ Lead Finder",
-    description: "Discover nonprofits that need websites",
+    href: "/admin/leads",
+    label: "🗺️ Leads & Finder",
+    description: "View all leads and discover new prospects",
     icon: FiMapPin,
     accent: "from-green-500/20 via-green-500/10 to-transparent text-green-400",
   },
@@ -144,6 +145,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 });
 
 export function DashboardClient({
+  userName,
   stats,
   activities,
   topTasks,
@@ -197,7 +199,7 @@ export function DashboardClient({
           <div className="space-y-2">
             <p className="text-sm text-slate-400">{getCurrentDate()}</p>
             <h1 className="text-3xl lg:text-4xl font-heading font-bold text-white">
-              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">Sean</span>
+              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">{userName}</span>
             </h1>
             <p className="text-base text-slate-400 max-w-xl">
               Here's what's happening with your projects and clients today.

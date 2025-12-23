@@ -13,6 +13,8 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
+    "seed:templates": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/seed-templates.ts",
+    "populate-leads": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/populate-leads.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -21,6 +23,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@googlemaps/google-maps-services-js": "^3.4.2",
     "@hookform/resolvers": "^3.3.2",
     "@prisma/client": "^5.6.0",
     "@radix-ui/react-tabs": "^1.1.13",
@@ -43,6 +46,7 @@
     "next": "^16.0.8",
     "next-auth": "^5.0.0-beta.29",
     "nodemailer": "^7.0.9",
+    "openai": "^6.15.0",
     "qrcode": "^1.5.4",
     "react": "^18.2.0",
     "react-big-calendar": "^1.19.4",

@@ -8,6 +8,15 @@ const RESET_CODE_EXPIRY_MINUTES = 15;
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if email service is configured
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not configured");
+      return NextResponse.json(
+        { error: "Email service is not configured. Please contact support." },
+        { status: 503 }
+      );
+    }
+
     const body = await request.json();
     const { email } = body;
 
@@ -89,19 +98,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log the reset request
-    await prisma.systemLog.create({
-      data: {
-        userId: user.id,
-        action: "password_reset_requested",
-        entityType: "User",
-        entityId: user.id,
-        metadata: {
-          email: user.email,
-          expiresAt: expiresAt.toISOString(),
+    // Log the reset request (non-blocking, don't fail if logging fails)
+    try {
+      await prisma.systemLog.create({
+        data: {
+          userId: user.id,
+          action: "password_reset_requested",
+          entityType: "User",
+          entityId: user.id,
+          metadata: {
+            email: user.email,
+            expiresAt: expiresAt.toISOString(),
+          },
         },
-      },
-    });
+      });
+    } catch (logError) {
+      // Log to console but don't fail the request
+      console.error("Failed to log password reset request:", logError);
+    }
 
     return NextResponse.json({
       success: true,
@@ -109,6 +123,23 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Forgot password error:", error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes("RESEND_API_KEY")) {
+        return NextResponse.json(
+          { error: "Email service is not configured. Please contact support." },
+          { status: 503 }
+        );
+      }
+      if (error.message.includes("prisma") || error.message.includes("database")) {
+        return NextResponse.json(
+          { error: "Database error. Please try again later." },
+          { status: 503 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: "An error occurred. Please try again later." },
       { status: 500 }

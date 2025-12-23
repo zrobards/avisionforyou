@@ -60,7 +60,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <div className="relative">
           {/* Left Icon */}
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+            <div className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-gray-500">
               {leftIcon}
             </div>
           )}
@@ -69,10 +69,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             type={inputType}
             className={cn(
-              "w-full px-4 py-3 bg-bus-navy-light border rounded-lg text-white placeholder-gray-500 transition-all duration-200",
+              "w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-bus-navy-light border rounded-lg text-white placeholder-gray-500 transition-all duration-200 text-base sm:text-sm",
               "focus:outline-none focus:ring-2 focus:ring-offset-0",
-              leftIcon && "pl-10",
-              (rightIcon || showPasswordToggle || error || success) && "pr-10",
+              leftIcon && "pl-9 sm:pl-10",
+              (rightIcon || showPasswordToggle || error || success) && "pr-9 sm:pr-10",
               error
                 ? "border-red-500 focus:ring-red-500"
                 : success
@@ -96,7 +96,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           />
           
           {/* Right Icons */}
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          <div className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-2">
             {/* Error Icon */}
             {error && (
               <AlertCircle className="w-5 h-5 text-red-400" />

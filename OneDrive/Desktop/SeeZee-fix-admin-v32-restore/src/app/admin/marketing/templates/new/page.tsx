@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function NewTemplatePage({
   searchParams,
 }: {
-  searchParams: { preset?: string };
+  searchParams: Promise<{ preset?: string }>;
 }) {
   const user = await getCurrentUser();
 
@@ -22,7 +22,8 @@ export default async function NewTemplatePage({
     redirect("/admin");
   }
 
-  const preset = searchParams.preset;
+  const params = await searchParams;
+  const preset = params.preset;
 
   return (
     <div className="p-6 space-y-6">
@@ -37,5 +38,9 @@ export default async function NewTemplatePage({
     </div>
   );
 }
+
+
+
+
 
 

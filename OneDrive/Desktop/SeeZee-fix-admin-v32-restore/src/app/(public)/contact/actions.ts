@@ -37,7 +37,7 @@ export async function createLead(
     const validatedData = leadSchema.parse(data)
 
     // Save to database
-    await prisma.lead.create({
+    const lead = await prisma.lead.create({
       data: {
         name: `${validatedData.firstName} ${validatedData.lastName}`,
         email: validatedData.email,
@@ -46,6 +46,16 @@ export async function createLead(
         status: 'NEW'
       }
     })
+
+    // Notify all admins about new lead
+    const { createNewLeadNotification } = await import("@/lib/notifications");
+    await createNewLeadNotification(
+      lead.id,
+      lead.name,
+      lead.email,
+      lead.company,
+      "Contact Form"
+    ).catch(err => console.error("Failed to create lead notification:", err));
 
     return {
       success: true,

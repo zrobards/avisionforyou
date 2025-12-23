@@ -2,11 +2,13 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, CheckCircle2, Clock, DollarSign, User, FileText, ListTodo, History as TimelineIcon, Folder, Download, Eye, Upload, MessageSquare, Send, CreditCard, Plus, Target, Settings, Github } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ClientTaskList } from "./ClientTaskList";
 import { RepositoryTab } from "./RepositoryTab";
 import { SettingsTab } from "./SettingsTab";
+import { ClientChangeRequestsSection } from "./ClientChangeRequestsSection";
 
 // Invoice Pay Button Component
 function InvoicePayButton({ invoiceId, invoiceNumber }: { invoiceId: string; invoiceNumber: string }) {
@@ -26,9 +28,21 @@ function InvoicePayButton({ invoiceId, invoiceNumber }: { invoiceId: string; inv
       const data = await response.json();
 
       if (!response.ok) {
-        // If approval is required, show a helpful message
+        console.error("[Invoice Payment] Error response:", {
+          status: response.status,
+          error: data.error,
+          invoiceId,
+        });
+        
+        // Show specific error messages based on the error
         if (data.error?.includes("approved")) {
           setError("This invoice needs to be approved before payment. Please contact support.");
+        } else if (data.error?.includes("already paid")) {
+          setError("This invoice has already been paid.");
+        } else if (data.error?.includes("No organization owner")) {
+          setError("Unable to process payment: Organization configuration issue. Please contact support.");
+        } else if (data.error?.includes("no items")) {
+          setError("This invoice has no items to pay.");
         } else {
           setError(data.error || "Failed to initiate payment");
         }
@@ -44,7 +58,7 @@ function InvoicePayButton({ invoiceId, invoiceNumber }: { invoiceId: string; inv
         setLoading(false);
       }
     } catch (err) {
-      console.error("Payment error:", err);
+      console.error("[Invoice Payment] Network error:", err);
       setError("Failed to process payment. Please try again.");
       setLoading(false);
     }
@@ -126,10 +140,24 @@ interface ProjectDetailClientProps {
     requests?: Array<{
       id: string;
       title: string;
-      description: string | null;
+      description: string;
       status: string;
-      priority: string | null;
-      createdAt: Date;
+      category?: string;
+      priority?: string;
+      estimatedHours?: number | null;
+      actualHours?: number | null;
+      hoursDeducted?: number | null;
+      hoursSource?: string | null;
+      urgencyFee?: number;
+      isOverage?: boolean;
+      overageAmount?: number | null;
+      requiresClientApproval?: boolean;
+      clientApprovedAt?: Date | null;
+      flaggedForReview?: boolean;
+      attachments?: string[];
+      createdAt: Date | string;
+      updatedAt?: Date | string;
+      completedAt?: Date | string | null;
     }>;
     messageThreads?: Array<{
       id: string;
@@ -159,6 +187,7 @@ interface ProjectDetailClientProps {
 type TabType = "overview" | "milestones" | "tasks" | "files" | "requests" | "messages" | "invoices" | "repository" | "settings";
 
 export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -179,6 +208,7 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
       setCurrentThreadId(thread.id);
     }
   }, [project.messageThreads?.[0]?.id]);
+
 
   const getStatusBadge = (status: string) => {
     const config = {
@@ -454,7 +484,7 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
               <h3 className="text-lg font-bold text-white">Project Files</h3>
               <div className="flex items-center gap-3">
                 <Link
-                  href={`/client/projects/${project.id}/requests`}
+                  href={`/client/requests?projectId=${project.id}`}
                   className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
                 >
                   <MessageSquare className="w-4 h-4" />
@@ -566,72 +596,11 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
         );
 
       case "requests":
-        const requests = project.requests || [];
-        
-        const getRequestStatusBadge = (status: string) => {
-          const statusUpper = status.toUpperCase();
-          const config: Record<string, { bg: string; text: string; border: string; label: string }> = {
-            NEW: { bg: "bg-slate-500/20", text: "text-slate-300", border: "border-slate-500/30", label: "New" },
-            DRAFT: { bg: "bg-slate-500/20", text: "text-slate-300", border: "border-slate-500/30", label: "Draft" },
-            SUBMITTED: { bg: "bg-blue-500/20", text: "text-blue-300", border: "border-blue-500/30", label: "Submitted" },
-            REVIEWING: { bg: "bg-amber-500/20", text: "text-amber-300", border: "border-amber-500/30", label: "Under Review" },
-            NEEDS_INFO: { bg: "bg-orange-500/20", text: "text-orange-300", border: "border-orange-500/30", label: "Needs Info" },
-            APPROVED: { bg: "bg-emerald-500/20", text: "text-emerald-300", border: "border-emerald-500/30", label: "Approved" },
-            REJECTED: { bg: "bg-red-500/20", text: "text-red-300", border: "border-red-500/30", label: "Rejected" },
-          };
-          return config[statusUpper] || { bg: "bg-gray-500/20", text: "text-gray-300", border: "border-gray-500/30", label: status };
-        };
-        
         return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white">Change Requests</h3>
-              <Link
-                href={`/client/projects/${project.id}/requests`}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                New Request
-              </Link>
-            </div>
-            {requests.length === 0 ? (
-              <div className="text-center py-12">
-                <MessageSquare className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                <p className="text-white/60 mb-2">No change requests yet</p>
-                <p className="text-sm text-white/40">Submit a request to communicate changes or additions to this project</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {requests.map((request) => {
-                  const badge = getRequestStatusBadge(request.status);
-                  return (
-                    <div
-                      key={request.id}
-                      className="p-4 bg-gray-900 hover:bg-gray-800 rounded-xl border border-gray-800 transition-all"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-white">{request.title}</h4>
-                        <span className={`px-2 py-1 text-xs rounded-full border ${badge.bg} ${badge.text} ${badge.border}`}>
-                          {badge.label}
-                        </span>
-                      </div>
-                      {request.description && (
-                        <p className="text-sm text-white/60 mb-2">{request.description}</p>
-                      )}
-                      {request.priority && (
-                        <div className="flex items-center gap-2 text-xs text-white/40 mb-2">
-                          <span>Priority: {request.priority}</span>
-                        </div>
-                      )}
-                      <p className="text-xs text-white/40">
-                        {new Date(request.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          <ClientChangeRequestsSection 
+            requests={project.requests || []} 
+            projectId={project.id} 
+          />
         );
 
       case "messages":
@@ -882,7 +851,7 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
           </div>
           <div className="flex items-center gap-3">
             <Link
-              href={`/client/projects/${project.id}/requests`}
+              href={`/client/requests?projectId=${project.id}`}
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
             >
               <MessageSquare className="w-4 h-4" />

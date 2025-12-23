@@ -77,15 +77,28 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               createdAt: true,
             },
           },
-          requests: {
+          changeRequests: {
             orderBy: { createdAt: "desc" },
             select: {
               id: true,
-              title: true,
-              details: true,
-              state: true,
-              source: true,
+              description: true,
+              status: true,
+              category: true,
+              priority: true,
+              estimatedHours: true,
+              actualHours: true,
+              hoursDeducted: true,
+              hoursSource: true,
+              urgencyFee: true,
+              isOverage: true,
+              overageAmount: true,
+              requiresClientApproval: true,
+              clientApprovedAt: true,
+              flaggedForReview: true,
+              attachments: true,
               createdAt: true,
+              updatedAt: true,
+              completedAt: true,
             },
           },
           messageThreads: {
@@ -162,14 +175,28 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     createdAt: task.createdAt,
   })) || [];
 
-  // Transform requests
-  const transformedRequests = (project as any).requests?.map((request: any) => ({
+  // Transform change requests
+  const transformedRequests = (project as any).changeRequests?.map((request: any) => ({
     id: request.id,
-    title: request.title,
-    description: request.details,
-    status: request.state,
-    priority: null,
+    title: request.description?.split('\n')[0]?.substring(0, 50) || "Change Request",
+    description: request.description,
+    status: request.status,
+    category: request.category,
+    priority: request.priority,
+    estimatedHours: request.estimatedHours,
+    actualHours: request.actualHours,
+    hoursDeducted: request.hoursDeducted,
+    hoursSource: request.hoursSource,
+    urgencyFee: request.urgencyFee,
+    isOverage: request.isOverage,
+    overageAmount: request.overageAmount,
+    requiresClientApproval: request.requiresClientApproval,
+    clientApprovedAt: request.clientApprovedAt,
+    flaggedForReview: request.flaggedForReview,
+    attachments: request.attachments,
     createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+    completedAt: request.completedAt,
   })) || [];
 
   // Transform message threads
@@ -185,16 +212,17 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     })) || [],
   })) || [];
 
-  // Transform invoices (convert Decimal to number)
+  // Transform invoices (convert Decimal to number and Date to ISO string)
   const transformedInvoices = (project as any).invoices?.map((invoice: any) => ({
     id: invoice.id,
     number: invoice.number,
     status: invoice.status,
     total: invoice.total ? Number(invoice.total) : 0,
     amount: invoice.amount ? Number(invoice.amount) : 0,
-    dueDate: invoice.dueDate,
-    paidAt: invoice.paidAt,
-    createdAt: invoice.createdAt,
+    tax: invoice.tax ? Number(invoice.tax) : 0,
+    dueDate: invoice.dueDate?.toISOString() || null,
+    paidAt: invoice.paidAt?.toISOString() || null,
+    createdAt: invoice.createdAt?.toISOString() || null,
   })) || [];
 
   return (

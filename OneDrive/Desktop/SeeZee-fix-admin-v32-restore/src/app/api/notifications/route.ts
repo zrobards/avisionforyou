@@ -33,7 +33,7 @@ export async function GET() {
       timestamp: notif.createdAt,
       read: notif.read,
       // Generate action URL based on type/message
-      actionUrl: generateActionUrl(notif.type, notif.message),
+      actionUrl: generateActionUrl(notif.type, notif.message, notif.projectId || undefined),
       actionLabel: generateActionLabel(notif.type),
     }));
 
@@ -115,8 +115,17 @@ function mapNotificationType(type: string): "info" | "success" | "warning" | "er
 /**
  * Generate action URL based on notification content
  */
-function generateActionUrl(type: string, message: string): string | undefined {
+function generateActionUrl(type: string, message: string, projectId?: string | null): string | undefined {
   // Check message for common patterns
+  if (message.toLowerCase().includes("new lead")) {
+    return "/admin/pipeline/leads";
+  }
+  if (message.toLowerCase().includes("change request")) {
+    if (projectId) {
+      return `/admin/projects/${projectId}`;
+    }
+    return "/admin/maintenance";
+  }
   if (message.toLowerCase().includes("maintenance")) {
     return "/admin/maintenance";
   }
@@ -124,12 +133,18 @@ function generateActionUrl(type: string, message: string): string | undefined {
     return "/admin/pipeline/invoices";
   }
   if (message.toLowerCase().includes("task")) {
+    if (projectId) {
+      return `/admin/projects/${projectId}`;
+    }
     return "/admin/tasks";
   }
   if (message.toLowerCase().includes("lead")) {
     return "/admin/pipeline/leads";
   }
   if (message.toLowerCase().includes("project")) {
+    if (projectId) {
+      return `/admin/projects/${projectId}`;
+    }
     return "/admin/pipeline/projects";
   }
   return undefined;

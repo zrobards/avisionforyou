@@ -1,7 +1,7 @@
-import { redirect, notFound } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth/requireRole";
-import { ROLE } from "@/lib/role";
-import { prisma } from "@/lib/prisma";
+'use client';
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
   ArrowLeft, 
@@ -14,66 +14,115 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Copy
+  Copy,
+  Download,
+  Play,
+  RefreshCw
 } from "lucide-react";
 import { CopyButton } from "@/components/admin/recordings/CopyButton";
 
-export const dynamic = "force-dynamic";
+interface Recording {
+  id: string;
+  title: string;
+  filename: string;
+  filePath: string;
+  fileSize: number;
+  mimeType: string;
+  duration: number | null;
+  status: string;
+  category: string | null;
+  isClientVisible: boolean;
+  transcript: string | null;
+  summary: string | null;
+  actionItems: any;
+  projectBrief: any;
+  createdAt: string;
+  transcribedAt: string | null;
+  project: { id: string; name: string } | null;
+}
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function RecordingDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect("/login");
+// Helper function to normalize file paths for older recordings
+const normalizeFilePath = (filePath: string): string => {
+  // If path starts with /, it's already absolute
+  if (filePath.startsWith('/')) {
+    return filePath;
   }
-
-  // Only admin roles can access recordings
-  const allowedRoles = [ROLE.CEO, ROLE.CFO];
-  if (!allowedRoles.includes(user.role as any)) {
-    redirect("/admin");
+  // If path starts with 'recordings/', it's an old format - prepend /uploads/
+  if (filePath.startsWith('recordings/')) {
+    return `/uploads/${filePath}`;
   }
+  // Otherwise, assume it's relative and prepend /uploads/recordings/
+  return `/uploads/recordings/${filePath}`;
+};
 
-  // Fetch recording with related data
-  const recording = await prisma.recording.findUnique({
-    where: { id },
-    include: {
-      project: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-      uploadedBy: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
-    },
-  });
+export default function RecordingDetailPage({ params }: PageProps) {
+  const router = useRouter();
+  const [recording, setRecording] = useState<Recording | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [id, setId] = useState<string>('');
 
-  if (!recording) {
-    notFound();
-  }
+  useEffect(() => {
+    params.then(p => setId(p.id));
+  }, [params]);
 
-  // Parse JSON fields
-  const actionItems = recording.actionItems 
-    ? (Array.isArray(recording.actionItems) 
-        ? recording.actionItems 
-        : JSON.parse(recording.actionItems as string))
-    : null;
+  useEffect(() => {
+    if (!id) return;
+    
+    const fetchRecording = async () => {
+      try {
+        const res = await fetch(`/api/recordings/${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setRecording(data.recording);
+        } else {
+          router.push('/admin/recordings');
+        }
+      } catch (error) {
+        console.error('Failed to fetch recording:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const projectBrief = recording.projectBrief 
-    ? (typeof recording.projectBrief === 'object' 
-        ? recording.projectBrief 
-        : JSON.parse(recording.projectBrief as string))
-    : null;
+    fetchRecording();
+  }, [id, router]);
+
+  const handleProcessNow = async () => {
+    if (isProcessing || !recording) return;
+    
+    setIsProcessing(true);
+    try {
+      const res = await fetch('/api/recordings/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recordingId: recording.id })
+      });
+
+      if (res.ok) {
+        setRecording({ ...recording, status: 'PROCESSING' });
+        // Poll for updates every 5 seconds
+        const interval = setInterval(async () => {
+          const checkRes = await fetch(`/api/recordings/${recording.id}`);
+          if (checkRes.ok) {
+            const data = await checkRes.json();
+            if (data.recording.status !== 'PROCESSING') {
+              clearInterval(interval);
+              router.refresh();
+            }
+          }
+        }, 5000);
+      }
+    } catch (error) {
+      console.error('Failed to process recording:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -97,6 +146,30 @@ export default async function RecordingDetailPage({ params }: PageProps) {
     }
     return `${minutes}m`;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 text-pink-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!recording) {
+    return null;
+  }
+
+  const actionItems = recording.actionItems 
+    ? (Array.isArray(recording.actionItems) 
+        ? recording.actionItems 
+        : JSON.parse(recording.actionItems as string))
+    : null;
+
+  const projectBrief = recording.projectBrief 
+    ? (typeof recording.projectBrief === 'object' 
+        ? recording.projectBrief 
+        : JSON.parse(recording.projectBrief as string))
+    : null;
 
   return (
     <div className="space-y-6">
@@ -129,6 +202,119 @@ export default async function RecordingDetailPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Audio Player and Controls */}
+      <div className="bg-slate-900/50 border border-white/10 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Play className="w-6 h-6 text-pink-400" />
+            <h2 className="text-xl font-semibold text-white">Recording</h2>
+          </div>
+          <a
+            href={normalizeFilePath(recording.filePath)}
+            download={recording.filename}
+            className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg transition-all font-medium flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </a>
+        </div>
+        {recording.mimeType.startsWith('audio/') && (
+          <audio controls className="w-full" preload="metadata">
+            <source src={normalizeFilePath(recording.filePath)} type={recording.mimeType} />
+            Your browser does not support the audio element.
+          </audio>
+        )}
+        {recording.mimeType.startsWith('video/') && (
+          <video controls className="w-full rounded-lg" preload="metadata">
+            <source src={normalizeFilePath(recording.filePath)} type={recording.mimeType} />
+            Your browser does not support the video element.
+          </video>
+        )}
+      </div>
+
+      {/* Category & Visibility Controls */}
+      <div className="bg-slate-900/50 border border-white/10 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-pink-400" />
+          Recording Settings
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Category Selector */}
+          <div>
+            <label className="block text-sm text-slate-400 mb-2">Category (AI-tagged)</label>
+            <select
+              value={recording.category || ''}
+              onChange={async (e) => {
+                const newCategory = e.target.value || null;
+                try {
+                  const res = await fetch(`/api/recordings/${recording.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category: newCategory })
+                  });
+                  if (res.ok) {
+                    setRecording({ ...recording, category: newCategory });
+                  }
+                } catch (err) {
+                  console.error('Failed to update category:', err);
+                }
+              }}
+              className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2.5 text-white"
+            >
+              <option value="">Uncategorized</option>
+              <option value="DISCOVERY_CALL">📞 Discovery Call</option>
+              <option value="DESIGN_REVIEW">🎨 Design Review</option>
+              <option value="TECHNICAL_DISCUSSION">💻 Technical Discussion</option>
+              <option value="PROJECT_UPDATE">📊 Project Update</option>
+              <option value="BRAINSTORMING">💡 Brainstorming</option>
+              <option value="TRAINING">📚 Training</option>
+              <option value="SUPPORT">🛠️ Support</option>
+              <option value="INTERNAL">🏢 Internal</option>
+              <option value="OTHER">📁 Other</option>
+            </select>
+          </div>
+          
+          {/* Client Visibility Toggle */}
+          <div>
+            <label className="block text-sm text-slate-400 mb-2">Client Visibility</label>
+            <button
+              onClick={async () => {
+                const newVisibility = !recording.isClientVisible;
+                try {
+                  const res = await fetch(`/api/recordings/${recording.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isClientVisible: newVisibility })
+                  });
+                  if (res.ok) {
+                    setRecording({ ...recording, isClientVisible: newVisibility });
+                  }
+                } catch (err) {
+                  console.error('Failed to update visibility:', err);
+                }
+              }}
+              className={`w-full px-4 py-2.5 rounded-lg border font-medium transition-all flex items-center justify-center gap-2 ${
+                recording.isClientVisible
+                  ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400'
+                  : 'bg-slate-800 border-white/10 text-slate-400 hover:text-white'
+              }`}
+            >
+              {recording.isClientVisible ? (
+                <>
+                  <span className="w-2 h-2 bg-cyan-400 rounded-full" />
+                  Visible to Client
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 bg-slate-500 rounded-full" />
+                  Hidden from Client
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Recording Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-slate-900/50 border border-white/10 rounded-xl p-4">
@@ -157,10 +343,19 @@ export default async function RecordingDetailPage({ params }: PageProps) {
             </div>
             <Link
               href={`/admin/projects/${recording.project.id}`}
-              className="text-white font-semibold hover:text-pink-400 transition-colors"
+              className="text-white font-semibold hover:text-pink-400 transition-colors block"
             >
               {recording.project.name}
             </Link>
+            {recording.isClientVisible && (
+              <Link
+                href={`/client/meetings`}
+                target="_blank"
+                className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors mt-2 inline-flex items-center gap-1"
+              >
+                View in Client Portal →
+              </Link>
+            )}
           </div>
         )}
       </div>
@@ -229,24 +424,27 @@ export default async function RecordingDetailPage({ params }: PageProps) {
                 <FileText className="w-6 h-6 text-cyan-400" />
                 <h2 className="text-xl font-semibold text-white">Project Brief</h2>
               </div>
-              <div className="prose prose-invert max-w-none">
+              <div className="space-y-4">
                 {typeof projectBrief === "string" ? (
                   <p className="text-slate-300 whitespace-pre-wrap">{projectBrief}</p>
                 ) : (
-                  <div className="space-y-4">
+                  <>
                     {projectBrief.title && (
-                      <h3 className="text-lg font-semibold text-white">
-                        {projectBrief.title}
-                      </h3>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {projectBrief.title}
+                        </h3>
+                      </div>
                     )}
                     {projectBrief.description && (
-                      <p className="text-slate-300">{projectBrief.description}</p>
-                    )}
-                    {projectBrief.requirements && (
                       <div>
-                        <h4 className="text-md font-semibold text-white mb-2">
-                          Requirements
-                        </h4>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-1">Description</h4>
+                        <p className="text-slate-300">{projectBrief.description}</p>
+                      </div>
+                    )}
+                    {projectBrief.requirements && projectBrief.requirements.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-2">Requirements</h4>
                         <ul className="list-disc list-inside space-y-1 text-slate-300">
                           {Array.isArray(projectBrief.requirements) ? (
                             projectBrief.requirements.map((req: string, i: number) => (
@@ -258,19 +456,53 @@ export default async function RecordingDetailPage({ params }: PageProps) {
                         </ul>
                       </div>
                     )}
-                    {projectBrief.timeline && (
-                      <p className="text-slate-300">
-                        <span className="font-semibold">Timeline:</span>{" "}
-                        {projectBrief.timeline}
-                      </p>
+                    {projectBrief.deliverables && projectBrief.deliverables.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-2">Deliverables</h4>
+                        <ul className="list-disc list-inside space-y-1 text-slate-300">
+                          {Array.isArray(projectBrief.deliverables) ? (
+                            projectBrief.deliverables.map((item: string, i: number) => (
+                              <li key={i}>{item}</li>
+                            ))
+                          ) : (
+                            <li>{String(projectBrief.deliverables)}</li>
+                          )}
+                        </ul>
+                      </div>
                     )}
-                    {projectBrief.budget && (
-                      <p className="text-slate-300">
-                        <span className="font-semibold">Budget:</span>{" "}
-                        {projectBrief.budget}
-                      </p>
+                    {projectBrief.technologies && projectBrief.technologies.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-2">Technologies</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {Array.isArray(projectBrief.technologies) ? (
+                            projectBrief.technologies.map((tech: string, i: number) => (
+                              <span key={i} className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-sm">
+                                {tech}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-sm">
+                              {String(projectBrief.technologies)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     )}
-                  </div>
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+                      {projectBrief.timeline && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-slate-400 mb-1">Timeline</h4>
+                          <p className="text-white">{projectBrief.timeline}</p>
+                        </div>
+                      )}
+                      {projectBrief.budget && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-slate-400 mb-1">Budget</h4>
+                          <p className="text-white">{projectBrief.budget}</p>
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -316,9 +548,26 @@ export default async function RecordingDetailPage({ params }: PageProps) {
             <AlertCircle className="w-6 h-6 text-red-400" />
             <h3 className="text-xl font-semibold text-white">Processing Error</h3>
           </div>
-          <p className="text-slate-300">
-            There was an error processing this recording. Please try uploading again.
+          <p className="text-slate-300 mb-4">
+            There was an error processing this recording. You can try processing it again.
           </p>
+          <button
+            onClick={handleProcessNow}
+            disabled={isProcessing}
+            className="px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-lg transition-all font-medium inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-5 h-5" />
+                Retry Processing
+              </>
+            )}
+          </button>
         </div>
       )}
 
@@ -329,9 +578,26 @@ export default async function RecordingDetailPage({ params }: PageProps) {
           <h3 className="text-xl font-semibold text-white mb-2">
             Recording Queued
           </h3>
-          <p className="text-slate-400">
+          <p className="text-slate-400 mb-6">
             Your recording is queued for processing. Processing will begin shortly.
           </p>
+          <button
+            onClick={handleProcessNow}
+            disabled={isProcessing}
+            className="px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-lg transition-all font-medium inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-5 h-5" />
+                Process Now
+              </>
+            )}
+          </button>
         </div>
       )}
     </div>

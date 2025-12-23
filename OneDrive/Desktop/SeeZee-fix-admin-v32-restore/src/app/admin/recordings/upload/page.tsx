@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,7 +12,15 @@ import {
   ArrowLeft,
   CheckCircle,
   AlertCircle,
+  ChevronDown,
+  FolderOpen,
 } from "lucide-react";
+
+interface Project {
+  id: string;
+  name: string;
+  status?: string;
+}
 
 const ALLOWED_TYPES = [
   "audio/mp3",
@@ -34,10 +42,30 @@ export default function UploadRecordingPage() {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [projectId, setProjectId] = useState("");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Fetch projects on mount
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch('/api/projects?limit=100');
+        if (res.ok) {
+          const data = await res.json();
+          setProjects(data.projects || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch projects:', err);
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -249,13 +277,30 @@ export default function UploadRecordingPage() {
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Link to Project (optional)
           </label>
-          <input
-            type="text"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            placeholder="Project ID or search..."
-            className="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-pink-500/50"
-          />
+          <div className="relative">
+            <FolderOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+            <select
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              disabled={loadingProjects}
+              className="w-full bg-slate-800/50 border border-white/10 rounded-lg pl-10 pr-10 py-3 text-white focus:outline-none focus:border-pink-500/50 appearance-none cursor-pointer disabled:opacity-50"
+            >
+              <option value="">
+                {loadingProjects ? "Loading projects..." : "Select a project (optional)"}
+              </option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+          </div>
+          {projects.length === 0 && !loadingProjects && (
+            <p className="text-xs text-slate-500 mt-1">
+              No projects found. You can still upload without linking to a project.
+            </p>
+          )}
         </div>
 
         {/* Progress Bar */}

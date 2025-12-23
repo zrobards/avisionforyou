@@ -18,6 +18,10 @@ import {
   Briefcase,
   Filter,
   Users,
+  Video,
+  Check,
+  CalendarClock,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, addMonths, subMonths } from "date-fns";
@@ -72,10 +76,29 @@ type Project = {
   }[];
 };
 
+type CalendarEventData = {
+  id: string;
+  title: string;
+  description: string | null;
+  startTime: Date;
+  endTime: Date;
+  status: string;
+  meetingUrl: string | null;
+  project: {
+    id: string;
+    name: string;
+  } | null;
+  organization: {
+    id: string;
+    name: string;
+  } | null;
+};
+
 interface CalendarClientProps {
   tasks: Task[];
   maintenanceSchedules: MaintenanceSchedule[];
   projects: Project[];
+  calendarEvents?: CalendarEventData[];
   currentUser: {
     id: string;
     name: string | null;
@@ -87,7 +110,7 @@ interface CalendarClientProps {
 
 type CalendarEvent = {
   id: string;
-  type: "task" | "maintenance" | "milestone";
+  type: "task" | "maintenance" | "milestone" | "meeting";
   title: string;
   description: string | null;
   date: Date;
@@ -95,6 +118,8 @@ type CalendarEvent = {
   status: string;
   assignee?: string | null;
   projectName?: string;
+  meetingUrl?: string | null;
+  originalEvent?: CalendarEventData; // Store original event data for meetings
 };
 
 const priorityColors: Record<string, string> = {
@@ -107,24 +132,111 @@ const eventTypeIcons: Record<string, any> = {
   task: Clock,
   maintenance: Wrench,
   milestone: Briefcase,
+  meeting: Video,
 };
 
 const eventTypeColors: Record<string, string> = {
   task: "bg-blue-500/20 text-blue-400 border-blue-500/30",
   maintenance: "bg-orange-500/20 text-orange-400 border-orange-500/30",
   milestone: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  meeting: "bg-green-500/20 text-green-400 border-green-500/30",
 };
 
 export function CalendarClient({
   tasks,
   maintenanceSchedules,
   projects,
+  calendarEvents = [],
   currentUser,
   viewMode,
 }: CalendarClientProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [eventFilter, setEventFilter] = useState<"all" | "task" | "maintenance" | "milestone">("all");
+  const [eventFilter, setEventFilter] = useState<"all" | "task" | "maintenance" | "milestone" | "meeting">("all");
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [selectedMeeting, setSelectedMeeting] = useState<CalendarEventData | null>(null);
+  const [rescheduleForm, setRescheduleForm] = useState({
+    newStartTime: '',
+    newEndTime: '',
+    reason: '',
+  });
+  const [processing, setProcessing] = useState(false);
+
+  // Handle approve meeting
+  const handleApproveMeeting = async (meetingId: string) => {
+    setProcessing(true);
+    try {
+      const res = await fetch(`/api/admin/meetings/${meetingId}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to approve meeting');
+      }
+
+      // Refresh the page to show updated status
+      window.location.reload();
+    } catch (error: any) {
+      alert(error.message || 'Failed to approve meeting');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  // Handle reschedule meeting
+  const handleRescheduleMeeting = async () => {
+    if (!selectedMeeting) return;
+
+    if (!rescheduleForm.newStartTime || !rescheduleForm.newEndTime) {
+      alert('Please provide both start and end times');
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      const res = await fetch(`/api/admin/meetings/${selectedMeeting.id}/reschedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          newStartTime: rescheduleForm.newStartTime,
+          newEndTime: rescheduleForm.newEndTime,
+          reason: rescheduleForm.reason,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to reschedule meeting');
+      }
+
+      setShowRescheduleModal(false);
+      setSelectedMeeting(null);
+      setRescheduleForm({ newStartTime: '', newEndTime: '', reason: '' });
+      
+      // Refresh the page to show updated status
+      window.location.reload();
+    } catch (error: any) {
+      alert(error.message || 'Failed to reschedule meeting');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  // Open reschedule modal
+  const openRescheduleModal = (event: CalendarEvent) => {
+    if (event.originalEvent) {
+      setSelectedMeeting(event.originalEvent);
+      setRescheduleForm({
+        newStartTime: new Date(event.originalEvent.startTime).toISOString().slice(0, 16),
+        newEndTime: new Date(event.originalEvent.endTime).toISOString().slice(0, 16),
+        reason: '',
+      });
+      setShowRescheduleModal(true);
+    }
+  };
 
   // Convert all data into calendar events
   const allEvents = useMemo<CalendarEvent[]>(() => {
@@ -176,8 +288,23 @@ export function CalendarClient({
       });
     });
 
+    // Add calendar events (meetings)
+    calendarEvents.forEach((event) => {
+      events.push({
+        id: event.id,
+        type: "meeting",
+        title: event.title,
+        description: event.description,
+        date: new Date(event.startTime),
+        status: event.status,
+        projectName: event.project?.name || event.organization?.name || undefined,
+        meetingUrl: event.meetingUrl || undefined,
+        originalEvent: event, // Store original event for actions
+      });
+    });
+
     return events.sort((a, b) => a.date.getTime() - b.date.getTime());
-  }, [tasks, maintenanceSchedules, projects]);
+  }, [tasks, maintenanceSchedules, projects, calendarEvents]);
 
   // Filter events
   const filteredEvents = eventFilter === "all"
@@ -260,6 +387,17 @@ export function CalendarClient({
           >
             <Briefcase className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="hidden sm:inline">Miles. </span>({allEvents.filter((e) => e.type === "milestone").length})
+          </button>
+          <button
+            onClick={() => setEventFilter("meeting")}
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${
+              eventFilter === "meeting"
+                ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                : "text-slate-400 hover:text-white hover:bg-seezee-card-bg"
+            }`}
+          >
+            <Video className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Meetings </span>({allEvents.filter((e) => e.type === "meeting").length})
           </button>
         </div>
       </div>
@@ -426,6 +564,49 @@ export function CalendarClient({
                               )}
                             </div>
                           )}
+                          {event.meetingUrl && (
+                            <div className="mt-2">
+                              <a
+                                href={event.meetingUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs px-3 py-1.5 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition-colors inline-flex items-center gap-1"
+                              >
+                                <Video className="w-3 h-3" />
+                                Join Meeting
+                              </a>
+                            </div>
+                          )}
+                          {/* Admin actions for pending meetings */}
+                          {event.type === "meeting" && event.status === "PENDING" && event.originalEvent && (
+                            <div className="mt-3 flex gap-2">
+                              <button
+                                onClick={() => handleApproveMeeting(event.id)}
+                                disabled={processing}
+                                className="text-xs px-3 py-1.5 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition-colors inline-flex items-center gap-1 disabled:opacity-50"
+                              >
+                                <Check className="w-3 h-3" />
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => openRescheduleModal(event)}
+                                disabled={processing}
+                                className="text-xs px-3 py-1.5 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-lg hover:bg-yellow-500/30 transition-colors inline-flex items-center gap-1 disabled:opacity-50"
+                              >
+                                <CalendarClock className="w-3 h-3" />
+                                Reschedule
+                              </button>
+                            </div>
+                          )}
+                          {/* Status badge for rescheduled meetings */}
+                          {event.type === "meeting" && event.status === "RESCHEDULED" && (
+                            <div className="mt-2">
+                              <span className="text-xs px-3 py-1.5 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-lg inline-flex items-center gap-1">
+                                <CalendarClock className="w-3 h-3" />
+                                Awaiting Client Confirmation
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -490,6 +671,96 @@ export function CalendarClient({
             })}
         </div>
       </SectionCard>
+
+      {/* Reschedule Modal */}
+      {showRescheduleModal && selectedMeeting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-slate-700">
+              <h2 className="text-xl font-bold text-white">Reschedule Meeting</h2>
+              <button
+                onClick={() => {
+                  setShowRescheduleModal(false);
+                  setSelectedMeeting(null);
+                }}
+                className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  New Start Time <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={rescheduleForm.newStartTime}
+                  onChange={(e) => setRescheduleForm({ ...rescheduleForm, newStartTime: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-seezee-blue/50"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  New End Time <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={rescheduleForm.newEndTime}
+                  onChange={(e) => setRescheduleForm({ ...rescheduleForm, newEndTime: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-seezee-blue/50"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Reason for Rescheduling (optional)
+                </label>
+                <textarea
+                  value={rescheduleForm.reason}
+                  onChange={(e) => setRescheduleForm({ ...rescheduleForm, reason: e.target.value })}
+                  placeholder="Explain why the meeting needs to be rescheduled..."
+                  rows={3}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-seezee-blue/50 resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleRescheduleMeeting}
+                  disabled={processing || !rescheduleForm.newStartTime || !rescheduleForm.newEndTime}
+                  className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {processing ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Rescheduling...
+                    </>
+                  ) : (
+                    <>
+                      <CalendarClock className="w-5 h-5" />
+                      Reschedule Meeting
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowRescheduleModal(false);
+                    setSelectedMeeting(null);
+                  }}
+                  className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -183,3 +183,7 @@ DATABASE_URL=your_postgresql_connection_string
 - Middleware only runs on protected routes to minimize performance impact
 
 
+
+
+
+

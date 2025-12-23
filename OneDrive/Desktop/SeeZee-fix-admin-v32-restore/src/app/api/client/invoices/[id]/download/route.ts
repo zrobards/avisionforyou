@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { generateInvoicePDF } from "@/lib/pdf";
 import { getClientAccessContext } from "@/lib/client-access";
+import React from "react";
 
 /**
  * GET /api/client/invoices/[id]/download
@@ -72,38 +73,70 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:35',message:'Raw invoice from Prisma',data:{invoiceKeys:Object.keys(invoice),hasItems:!!invoice.items,itemsCount:invoice.items?.length,hasOrg:!!invoice.organization,hasProject:!!invoice.project},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+
     // Format invoice data for PDF generation
     const invoiceData = {
-      number: invoice.number,
-      title: invoice.title,
-      description: invoice.description,
-      status: invoice.status,
+      number: String(invoice.number || ''),
+      title: String(invoice.title || ''),
+      description: invoice.description ? String(invoice.description) : null,
+      status: String(invoice.status || 'DRAFT'),
       createdAt: invoice.createdAt.toISOString(),
       dueDate: invoice.dueDate.toISOString(),
       paidAt: invoice.paidAt?.toISOString() || null,
-      amount: Number(invoice.amount),
+      amount: Number(invoice.amount) || 0,
       tax: Number(invoice.tax || 0),
-      total: Number(invoice.total),
-      currency: invoice.currency,
+      total: Number(invoice.total) || 0,
+      currency: String(invoice.currency || 'USD'),
       items: invoice.items.map((item) => ({
-        description: item.description,
-        quantity: item.quantity,
-        rate: Number(item.rate),
-        amount: Number(item.amount),
+        description: String(item.description || ''),
+        quantity: Number(item.quantity) || 0,
+        rate: Number(item.rate) || 0,
+        amount: Number(item.amount) || 0,
       })),
       organization: invoice.organization
         ? {
-            name: invoice.organization.name,
-            email: invoice.organization.email,
-            address: invoice.organization.address,
+            name: String(invoice.organization.name || ''),
+            email: invoice.organization.email ? String(invoice.organization.email) : null,
+            address: invoice.organization.address ? String(invoice.organization.address) : null,
           }
         : undefined,
       project: invoice.project
         ? {
-            name: invoice.project.name,
+            name: String(invoice.project.name || ''),
           }
         : undefined,
     };
+
+    // #region agent log
+    // Find React elements tracer - this will tell us exactly where React elements are hiding
+    function findReactElements(value: any, path = 'root', hits: string[] = []): string[] {
+      if (React.isValidElement(value)) {
+        hits.push(path);
+        return hits;
+      }
+      if (!value || typeof value !== 'object') return hits;
+
+      if (Array.isArray(value)) {
+        value.forEach((v, i) => findReactElements(v, `${path}[${i}]`, hits));
+        return hits;
+      }
+
+      for (const k of Object.keys(value)) {
+        findReactElements(value[k], `${path}.${k}`, hits);
+      }
+      return hits;
+    }
+    const reactElementHits = findReactElements(invoiceData);
+    if (reactElementHits.length > 0) {
+      console.error('🚨 React elements found in invoiceData at:', reactElementHits);
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:findReactElements',message:'React elements found in invoiceData',data:{hits:reactElementHits,count:reactElementHits.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    } else {
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:findReactElements',message:'No React elements found in invoiceData',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    }
+    // #endregion
 
     // Generate PDF
     const pdfBuffer = await generateInvoicePDF(invoiceData);
@@ -116,9 +149,14 @@ export async function GET(
       },
     });
   } catch (error: any) {
-    console.error("[GET /api/client/invoices/:id/download]", error);
+    console.error("[GET /api/client/invoices/:id/download] Error:", error);
+    console.error("[GET /api/client/invoices/:id/download] Error stack:", error?.stack);
+    console.error("[GET /api/client/invoices/:id/download] Error message:", error?.message);
     return NextResponse.json(
-      { error: "Failed to generate invoice PDF" },
+      { 
+        error: "Failed to generate invoice PDF",
+        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+      },
       { status: 500 }
     );
   }

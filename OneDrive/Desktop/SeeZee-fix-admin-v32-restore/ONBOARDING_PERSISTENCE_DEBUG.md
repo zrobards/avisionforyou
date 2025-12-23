@@ -136,3 +136,7 @@ WHERE email = 'your-email@example.com';
 - `middleware.ts` (Lines 94-115) - Middleware onboarding checks
 
 
+
+
+
+

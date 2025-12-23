@@ -7,11 +7,13 @@ import { DashboardClient } from "@/components/admin/DashboardClient";
 import { getPipeline, getProjects, getInvoices } from "@/server/actions/pipeline";
 import { getTasks, getTaskStats } from "@/server/actions/tasks";
 import { getActivityFeed } from "@/server/actions/activity";
+import { getCurrentUser } from "@/lib/auth/requireRole";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  // Auth check is handled in layout.tsx to prevent flash
+  // Get current user for personalized greeting
+  const user = await getCurrentUser();
 
   // Fetch all data in parallel
   const [
@@ -120,6 +122,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <DashboardClient
+      userName={user?.name || user?.email || "there"}
       stats={stats}
       activities={transformedActivities}
       topTasks={topTasks}

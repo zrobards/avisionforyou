@@ -326,24 +326,10 @@ export function TeamClient({ users }: TeamClientProps) {
         })}
       </div>
 
-      {/* Filter Bar */}
+      {/* Search Bar */}
       <FilterBar
         searchPlaceholder={selectedRole === "CLIENT" ? "Search clients..." : "Search team members..."}
         onSearchChange={setSearchQuery}
-        filters={[
-          {
-            label: "Role",
-            value: selectedRole || "all",
-            onChange: (value) => setSelectedRole(value === "all" ? null : value),
-            options: [
-              { label: "All Roles", value: "all" },
-              ...roles.map((role) => ({ 
-                label: role === "CLIENT" ? "CLIENT (New Clients)" : role, 
-                value: role 
-              })),
-            ],
-          },
-        ]}
       />
 
       {/* Team Members / Clients */}
@@ -541,7 +527,7 @@ export function TeamClient({ users }: TeamClientProps) {
                   <select
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trinity-red focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-white border border-white/10 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-trinity-red focus:border-transparent transition-all"
                   >
                     <option value="CEO">CEO - Chief Executive</option>
                     <option value="CFO">CFO - Chief Financial Officer</option>
