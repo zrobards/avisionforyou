@@ -133,13 +133,32 @@ export async function GET(request: NextRequest) {
     if (isOAuthCallback) {
       console.log("🔄 [OAuth] Processing callback through NextAuth handlers...");
       console.log("   [OAuth] This will trigger PrismaAdapter database operations");
+      console.log(`   [OAuth] Callback URL: ${url.toString()}`);
     }
     
-    const response = await handlers.GET(request);
+    let response: Response;
+    try {
+      response = await handlers.GET(request);
+    } catch (handlerError) {
+      // Catch errors from NextAuth handlers and log them
+      const handlerErrorMessage = handlerError instanceof Error ? handlerError.message : String(handlerError);
+      console.error("❌ [OAuth] NextAuth handler error:", handlerErrorMessage);
+      
+      // Re-throw to be caught by outer catch block
+      throw handlerError;
+    }
     
     // Log successful completion
     if (isOAuthCallback) {
       console.log("✅ [OAuth] Handlers completed successfully");
+      console.log(`   [OAuth] Response status: ${response.status}`);
+      // Log redirect location if it's a redirect
+      if (response.status >= 300 && response.status < 400) {
+        const location = response.headers.get('location');
+        if (location) {
+          console.log(`   [OAuth] Redirecting to: ${location}`);
+        }
+      }
     }
     
     // Handle response creation errors
