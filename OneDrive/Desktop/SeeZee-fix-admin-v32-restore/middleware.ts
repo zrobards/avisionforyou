@@ -106,9 +106,11 @@ export async function middleware(req: NextRequest) {
       return NextResponse.next();
     }
 
+    // CRITICAL FIX: Check authentication first, then onboarding status
+    // If NOT logged in → redirect to login with returnUrl = original path
     if (!isLoggedIn || !token) {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:104',message:'REDIRECTING TO LOGIN - not authenticated',data:{pathname:pathname,isLoggedIn,hasToken:!!token,returnUrl:pathname + searchParams.toString()},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:109',message:'REDIRECTING TO LOGIN - not authenticated',data:{pathname:pathname,isLoggedIn,hasToken:!!token,returnUrl:pathname + searchParams.toString()},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
       const loginUrl = new URL('/login', req.url);
       loginUrl.searchParams.set('returnUrl', pathname + searchParams.toString());
@@ -121,6 +123,27 @@ export async function middleware(req: NextRequest) {
     // Check onboarding completion flags (optimized format: "1" = completed, null = not completed)
     const tosAccepted = token.tosAccepted === true;
     const profileDone = token.profileDone === true;
+    
+    // CRITICAL FIX: If logged in BUT not onboarded, redirect DIRECTLY to onboarding (NOT via login)
+    // This prevents the redirect loop where logged-in users get sent to login with returnUrl=/onboarding/tos
+    // Only check this for protected routes that require onboarding (client routes, not onboarding routes themselves)
+    if (!isOnboardingRoute && !isSetPasswordRoute) {
+      if (!tosAccepted) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:125',message:'REDIRECTING TO TOS - logged in but not onboarded',data:{pathname:pathname,tosAccepted,profileDone},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        // User is logged in but hasn't accepted TOS - redirect DIRECTLY to onboarding
+        return NextResponse.redirect(new URL('/onboarding/tos', req.url));
+      }
+      
+      if (!profileDone) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:132',message:'REDIRECTING TO PROFILE - logged in but profile not done',data:{pathname:pathname,tosAccepted,profileDone},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        // User is logged in, TOS accepted, but profile not done - redirect DIRECTLY to profile
+        return NextResponse.redirect(new URL('/onboarding/profile', req.url));
+      }
+    }
     
     // #region agent log
     fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:97',message:'Middleware verification checks',data:{pathname:pathname,tokenTosAccepted:token.tosAccepted,tokenTosAcceptedType:typeof token.tosAccepted,tosAccepted:tosAccepted,tokenProfileDone:token.profileDone,tokenProfileDoneType:typeof token.profileDone,profileDone:profileDone,tokenNeedsPassword:token.needsPassword,tokenNeedsPasswordType:typeof token.needsPassword,isOnboardingRoute:isOnboardingRoute,isSetPasswordRoute:isSetPasswordRoute},sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
