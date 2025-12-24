@@ -141,3 +141,4 @@ export function getNextSuggestedStatus(currentStatus: ProspectStatus): ProspectS
   return nextStatus[currentStatus] ?? null;
 }
 
+

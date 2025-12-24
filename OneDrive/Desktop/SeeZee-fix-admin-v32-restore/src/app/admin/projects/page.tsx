@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { getProjects } from "@/server/actions";
-import { FiCalendar, FiUsers, FiTrash2, FiEdit } from "react-icons/fi";
+import { FiCalendar, FiUsers, FiTrash2, FiEdit, FiPlus } from "react-icons/fi";
+import { CreateProjectModal } from "@/components/admin/CreateProjectModal";
 
 interface ProjectRow {
   id: string;
@@ -30,6 +31,7 @@ export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadProjects() {
@@ -180,13 +182,24 @@ export default function AdminProjectsPage() {
   return (
       <div className="space-y-8">
         <header className="space-y-3 relative">
-          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
-            Delivery Operations
-          </span>
-          <h1 className="text-4xl font-heading font-bold gradient-text">Projects</h1>
-          <p className="max-w-2xl text-base text-gray-300 leading-relaxed">
-            Portfolio view of every active build, including assigned owners and projected revenue impact.
-          </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red glow-on-hover inline-block">
+                Delivery Operations
+              </span>
+              <h1 className="text-4xl font-heading font-bold gradient-text">Projects</h1>
+              <p className="max-w-2xl text-base text-gray-300 leading-relaxed mt-2">
+                Portfolio view of every active build, including assigned owners and projected revenue impact.
+              </p>
+            </div>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="px-6 py-3 rounded-lg bg-trinity-red text-white hover:bg-trinity-red/90 transition-colors flex items-center gap-2 font-semibold"
+            >
+              <FiPlus className="h-5 w-5" />
+              Create Project
+            </button>
+          </div>
         </header>
 
         <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -231,6 +244,19 @@ export default function AdminProjectsPage() {
             />
           </div>
         </div>
+
+        <CreateProjectModal 
+          isOpen={isCreateModalOpen}
+          onClose={() => {
+            setIsCreateModalOpen(false);
+            // Reload projects after creation
+            async function reloadProjects() {
+              const projectsResult = await getProjects();
+              setProjects(projectsResult.success ? projectsResult.projects : []);
+            }
+            reloadProjects();
+          }}
+        />
       </div>
   );
 }

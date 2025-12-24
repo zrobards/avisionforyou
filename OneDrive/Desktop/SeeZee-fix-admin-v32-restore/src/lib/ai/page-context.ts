@@ -125,3 +125,4 @@ export function formatPageContextForAI(context: PageContext): string {
   return prompt;
 }
 
+
