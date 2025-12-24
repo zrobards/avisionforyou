@@ -1,0 +1,303 @@
+{
+  "company": {
+    "name": "SeeZee Studio",
+    "tagline": "websites, apps, and databases that ship fast and look sharp",
+    "description": "seezee studio builds clean, reliable software for small teams and big ideas. straight to value, no baggage.",
+    "location": "Louisville, Kentucky",
+    "founded": "Started at Trinity High School through FBLA competitions",
+    "mission": "Building accessible, mission-focused technology for nonprofits and community organizations"
+  },
+  "founders": {
+    "sean": {
+      "name": "Sean McCulloch",
+      "role": "Co-Founder & Technical Director",
+      "age": 18,
+      "location": "Louisville, Kentucky",
+      "specialties": [
+        "Frontend & backend development",
+        "Database architecture",
+        "Admin dashboard design",
+        "Payment & donation integrations",
+        "Performance optimization",
+        "Accessible UI/UX design"
+      ],
+      "focus": "Cognitive accessibility - creating websites that work for people with memory challenges, processing differences, anxiety, or sensory sensitivities",
+      "principle": "If someone can't use it easily, it's not done.",
+      "contact": {
+        "email": "sean@see-zee.com",
+        "phone": "(502) 435-2986"
+      },
+      "social": {
+        "github": "https://github.com/SeanSpon",
+        "linkedin": "https://www.linkedin.com/in/sean-mcculloch-58a3761a9/",
+        "instagram": "https://www.instagram.com/sean.mcculloch7/?hl=en"
+      },
+      "description": "Sean builds the systems that power SeeZee — but more importantly, he builds with empathy. He specializes in cognitive accessibility: creating websites and platforms that work for people with memory challenges, processing differences, anxiety, or sensory sensitivities. Every system he designs follows one principle: 'If someone can't use it easily, it's not done.'"
+    },
+    "zach": {
+      "name": "Zach Robards",
+      "role": "Co-Founder & Client Experience Director",
+      "age": 18,
+      "location": "Louisville, Kentucky",
+      "specialties": [
+        "Client communication & onboarding",
+        "Project planning & timelines",
+        "Content strategy & copywriting",
+        "Community partnerships",
+        "Nonprofit discount coordination",
+        "Long-term client relationships"
+      ],
+      "focus": "Making SeeZee human - works directly with clients who feel overwhelmed by technology, guiding them through the process with patience, clarity, and genuine care",
+      "contact": {
+        "email": "sean@see-zee.com",
+        "phone": "(502) 435-2986"
+      },
+      "social": {
+        "github": "https://github.com/zrobards",
+        "linkedin": "https://www.linkedin.com/in/zachary-robards-b51457337/",
+        "instagram": "https://www.instagram.com/zachrobards/?hl=en"
+      },
+      "description": "Zach makes SeeZee human. He works directly with clients who feel overwhelmed by technology, guiding them through the process with patience, clarity, and genuine care. He also leads SeeZee's community partnerships with FBLA, Beta Club, and local service organizations — connecting students with real projects that help nonprofits and community groups."
+    }
+  },
+  "services": {
+    "primary": [
+      "Website Design & Development",
+      "Web Applications & Platforms",
+      "Mobile Apps (iOS, Android, cross-platform)",
+      "Custom Software Solutions",
+      "API Development & Integrations",
+      "Database Design & Architecture",
+      "Accessibility Consulting (WCAG AA+ compliance)"
+    ],
+    "specializations": [
+      "Nonprofit organizations",
+      "Mental health & recovery centers",
+      "Community-focused businesses",
+      "Healthcare providers",
+      "Educational institutions",
+      "Local Louisville businesses",
+      "Any organization with a mission we believe in"
+    ]
+  },
+  "pricing": {
+    "nonprofitTiers": {
+      "tier1": {
+        "name": "Essentials",
+        "buildPrice": "$3,000",
+        "buildPriceNum": 3000,
+        "description": "Starting at $3k - Website + donations + basic events",
+        "features": [
+          "Modern website",
+          "Donation system (Stripe)",
+          "Event scheduling",
+          "Basic admin dashboard",
+          "Monthly maintenance"
+        ],
+        "timeline": "2-4 weeks",
+        "maintenanceHours": "2 hours/month"
+      },
+      "tier2": {
+        "name": "Digital Director",
+        "buildPrice": "$3,000-$7,500",
+        "buildPriceMin": 3000,
+        "buildPriceMax": 7500,
+        "description": "$3k-$7.5k - Full platform + RSVPs + email automation",
+        "popular": true,
+        "features": [
+          "Everything in Tier 1",
+          "RSVP system",
+          "Email automation",
+          "Attendance tracking",
+          "Advanced dashboard"
+        ],
+        "timeline": "4-8 weeks",
+        "maintenanceHours": "4 hours/month"
+      },
+      "tier3": {
+        "name": "Digital COO",
+        "buildPrice": "$7,500-$15,000+",
+        "buildPriceMin": 7500,
+        "buildPriceMax": 15000,
+        "description": "$7.5k-$15k+ - CRM + grant tracking + advanced automation",
+        "features": [
+          "Everything in Tier 2",
+          "CRM integration",
+          "Grant reporting",
+          "Advanced automation",
+          "Custom integrations"
+        ],
+        "timeline": "8-12 weeks",
+        "maintenanceHours": "8 hours/month"
+      }
+    },
+    "nonprofitDiscount": {
+      "percentage": 40,
+      "description": "40% off for verified 501(c)(3) organizations"
+    },
+    "otherServices": {
+      "business": {
+        "description": "Modern, professional websites for small businesses and local teams",
+        "pricing": "Custom pricing - Share your budget range",
+        "features": [
+          "5-10 pages",
+          "Contact forms",
+          "Service showcases",
+          "Mobile responsive",
+          "Basic SEO"
+        ]
+      },
+      "personal": {
+        "description": "Portfolio, resume, or personal brand platform",
+        "pricing": "Typically $1,500-$3,000",
+        "features": [
+          "Clean, modern design",
+          "About & contact pages",
+          "Portfolio/work showcase",
+          "Blog (optional)",
+          "Simple admin tools"
+        ]
+      },
+      "mobileApps": {
+        "description": "Native or cross-platform mobile applications",
+        "pricing": "Starts around $10k depending on complexity",
+        "platforms": ["iOS", "Android", "Cross-platform"]
+      },
+      "custom": {
+        "description": "Complex web platforms, APIs, custom integrations",
+        "pricing": "Starts at $10k+ for complex platforms, $2k+ for integrations, $3k+ for APIs"
+      },
+      "maintenance": {
+        "description": "Ongoing support for existing websites",
+        "pricing": "$79-$149/month - Nonprofit discounts available",
+        "features": [
+          "Updates & bug fixes",
+          "Security monitoring",
+          "Content changes",
+          "Performance optimization",
+          "Priority support"
+        ]
+      }
+    },
+    "payment": {
+      "method": "50% deposit to start, 50% on completion",
+      "plans": "Payment plans available (discuss with Sean)",
+      "accepts": "Stripe - Credit cards, debit cards, ACH transfers"
+    }
+  },
+  "values": [
+    "Technology Should Be Accessible — Cognitively, Not Just Structurally",
+    "People Deserve Dignity Online — Even If They Struggle With Tech",
+    "We Build for the People Big Agencies Overlook",
+    "Support Doesn't Disappear After Launch",
+    "Relationships Matter More Than Contracts",
+    "We Give Back Through Community & Education"
+  ],
+  "philosophy": {
+    "principles": [
+      {
+        "title": "Accessible by Design",
+        "description": "We design for cognitive clarity, not complexity. Large type, strong hierarchy, predictable navigation, and minimal distractions. Accessibility isn't a checkbox we add later. It's the foundation."
+      },
+      {
+        "title": "Show the Work",
+        "description": "We don't sell buzzwords. We show drafts early: clickable flows, working pages, and real prototypes. You'll always know what's being built, what's next, and what done looks like."
+      },
+      {
+        "title": "Built to Last",
+        "description": "We build systems that are maintainable. Clean structure, real documentation, and support that doesn't vanish after launch. When requirements change, we adapt the system instead of patching it into a mess."
+      }
+    ]
+  },
+  "caseStudies": {
+    "aVisionForYou": {
+      "name": "A Vision For You (AVFY)",
+      "type": "Recovery Center Management Platform",
+      "client": "Louisville 501(c)(3) recovery center",
+      "status": "Live - Launched January 2025",
+      "description": "Comprehensive platform helping a Louisville nonprofit serve 500+ community members through program management, donation processing, and impact tracking.",
+      "impact": "Serves 500+ people annually with better digital access",
+      "features": [
+        "Four distinct recovery pathways",
+        "Residential treatment programs",
+        "Intensive outpatient programs",
+        "Donation processing system",
+        "Impact tracking",
+        "Meeting finder",
+        "Admin dashboards"
+      ],
+      "techStack": ["Next.js 14", "TypeScript", "PostgreSQL", "Prisma", "Stripe", "Resend"],
+      "mission": "To empower the homeless, addicted, maladjusted, and mentally ill to lead productive lives through housing, education, self-help, treatment, or any other available resource."
+    },
+    "bigRedBus": {
+      "name": "Big Red Bus",
+      "type": "Community Platform for Mental Health & Recovery",
+      "description": "A digital platform supporting Louisville's mental health community through organization discovery, event scheduling, and accessible resources.",
+      "status": "Live",
+      "context": "Built for FBLA competition and real community impact",
+      "techStack": ["React", "TypeScript", "Vite", "Accessible UI"]
+    }
+  },
+  "process": {
+    "step1": {
+      "title": "Discovery Call",
+      "duration": "Free, 30 minutes",
+      "description": "We learn about your organization and mission. You tell us what you need and what challenges you face. We discuss whether we're a good fit. No pressure, no sales pitch - just a conversation."
+    },
+    "step2": {
+      "title": "Proposal & Quote",
+      "description": "We send a detailed proposal outlining scope, timeline, pricing. You review and ask questions. We revise until it feels right. Contract signed, deposit paid."
+    },
+    "step3": {
+      "title": "Design & Development",
+      "description": "We create mockups/wireframes for your approval. Weekly check-ins to show progress. You can request changes along the way. We build with your feedback."
+    },
+    "step4": {
+      "title": "Testing & Launch",
+      "description": "We test everything thoroughly. You do final review and approval. We launch your site/app. Training on how to manage it."
+    },
+    "step5": {
+      "title": "Ongoing Support",
+      "description": "Free bug fixes for 30 days post-launch. Optional maintenance plans available. We're here if you need updates or help. Long-term partnership, not a one-time gig."
+    }
+  },
+  "roots": {
+    "school": "Trinity High School",
+    "organizations": ["FBLA (Future Business Leaders of America)", "Beta Club"],
+    "description": "SeeZee was born at Trinity High School, where Sean and Zach first discovered their passion for building technology that serves others. Through FBLA, we learned that business and service go hand in hand. Today, we continue to partner with FBLA chapters, offering students real-world experience by working on projects for nonprofits and community organizations."
+  },
+  "whoWeServe": [
+    "Mental Health Organizations",
+    "Neuro-Inclusive Communities",
+    "Senior & Community Groups",
+    "Nonprofits & Small Teams",
+    "Student & Youth Programs",
+    "Support & Recovery Groups"
+  ],
+  "techStack": {
+    "frontend": ["Next.js 15", "React", "TypeScript", "Tailwind CSS"],
+    "backend": ["Node.js", "Next.js API routes"],
+    "database": ["PostgreSQL (Neon)", "Prisma ORM"],
+    "auth": ["NextAuth.js"],
+    "payments": ["Stripe"],
+    "email": ["Resend API"],
+    "hosting": ["Vercel", "Cloudflare Workers"],
+    "mobile": ["React Native", "Flutter"]
+  },
+  "contact": {
+    "email": "sean@see-zee.com",
+    "phone": "(502) 435-2986",
+    "location": "Louisville, Kentucky",
+    "responseTime": "Typically responds within 24 hours"
+  },
+  "whatMakesUsDifferent": [
+    "We're VERSATILE - web, mobile, custom software - we build whatever you need",
+    "We're LOCAL - Louisville-based, we understand our community",
+    "We're ACCESSIBLE - WCAG AA+ standards on everything we build",
+    "We're AFFORDABLE - student rates, nonprofit discounts, flexible pricing",
+    "We're PASSIONATE - we only take projects we believe in",
+    "We're HUNGRY - we're building our business and eager for work",
+    "We're RESPONSIVE - fast replies, quick turnaround, always available"
+  ]
+}
+

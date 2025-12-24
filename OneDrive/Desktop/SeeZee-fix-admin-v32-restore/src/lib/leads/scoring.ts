@@ -160,14 +160,34 @@ export function calculateLeadScore(lead: LeadForScoring): number {
 }
 
 export function getScoreLabel(score: number): { label: string; color: string; emoji: string } {
-  if (score >= 80) {
+  if (score >= 90) {
     return { label: "Hot Lead", color: "red", emoji: "🔥" };
+  } else if (score >= 80) {
+    return { label: "Warm Lead", color: "orange", emoji: "🔥" };
+  } else if (score >= 70) {
+    return { label: "Good Lead", color: "yellow", emoji: "⭐" };
   } else if (score >= 60) {
     return { label: "Warm Lead", color: "amber", emoji: "☀️" };
   } else if (score >= 40) {
     return { label: "Cool Lead", color: "orange", emoji: "🌤️" };
   } else {
     return { label: "Cold Lead", color: "slate", emoji: "❄️" };
+  }
+}
+
+/**
+ * Get score badge CSS classes for Tailwind
+ * Matches spec: 90-100 (red), 80-89 (orange), 70-79 (yellow), <70 (gray)
+ */
+export function getScoreBadgeClasses(score: number): string {
+  if (score >= 90) {
+    return 'bg-red-100 text-red-800';
+  } else if (score >= 80) {
+    return 'bg-orange-100 text-orange-800';
+  } else if (score >= 70) {
+    return 'bg-yellow-100 text-yellow-800';
+  } else {
+    return 'bg-gray-100 text-gray-800';
   }
 }
 

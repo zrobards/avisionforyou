@@ -176,8 +176,37 @@ export default function OnboardingProfilePage() {
           name: formData.name,
         });
         
+        // CRITICAL FIX: Wait for JWT callback to complete and verify token refresh
+        // The JWT callback fetches fresh data from DB, but needs time to complete
+        // Verify the session has updated before redirecting to prevent redirect loops
+        let retries = 0;
+        const maxRetries = 5;
+        let tokenRefreshed = false;
+        
+        while (retries < maxRetries && !tokenRefreshed) {
+          // Wait a bit for JWT callback to complete
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Fetch fresh session to verify token was updated
+          const sessionResponse = await fetch('/api/auth/session', { 
+            cache: 'no-store',
+            credentials: 'include' 
+          });
+          
+          if (sessionResponse.ok) {
+            const sessionData = await sessionResponse.json();
+            // Check if token shows profile done (either as "1" or truthy value)
+            if (sessionData?.user?.profileDoneAt || sessionData?.user?.profileDone) {
+              tokenRefreshed = true;
+              break;
+            }
+          }
+          
+          retries++;
+        }
+        
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/profile/page.tsx:178',message:'Profile completed - session updated, redirecting',data:{targetUrl:isClient ? "/client" : "/admin"},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/profile/page.tsx:178',message:'Profile completed - session updated, redirecting',data:{targetUrl:isClient ? "/client" : "/admin",tokenRefreshed,retries},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
         // #endregion
         
         // CRITICAL: Use hard redirect to force full page reload and fresh token

@@ -15,6 +15,7 @@
     "seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
     "seed:templates": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/seed-templates.ts",
     "populate-leads": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/populate-leads.ts",
+    "clear-test-stripe": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/clear-test-stripe-customers.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

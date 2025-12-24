@@ -1,76 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
-
-const SEEZEE_SYSTEM_PROMPT = `You are SeeZee's AI assistant, a helpful and friendly chatbot for a Louisville, Kentucky-based web development studio specializing in nonprofit and small business websites.
-
-## ABOUT SEEZEE STUDIO
-- Founded by Sean McCulloch and Zach Robards
-- Focus: Accessible, beautiful websites for nonprofits and local businesses
-- Location: Louisville, Kentucky  
-- Core value: Making professional web presence affordable for organizations doing good
-
-## PRICING (Always mention nonprofit discount when relevant!)
-- **Starter Package**: $599 (3-5 pages, perfect for small nonprofits)
-- **Growth Package**: $1,499 (7-10 pages, blog, contact forms)
-- **Pro Package**: $2,999 (unlimited pages, custom features, e-commerce)
-- **40% NONPROFIT DISCOUNT** on all packages!
-- **Maintenance plans** from $150/month
-
-## TIMELINE
-- Starter: 1-2 weeks
-- Growth: 2-3 weeks  
-- Pro: 4-6 weeks
-- Rush delivery available for additional fee
-
-## RECENT WORK (use as examples when asked about portfolio)
-- **A Vision For You (AVFY)**: Recovery community platform with meeting finder
-- **Big Red Bus**: Mental health resource directory for Louisville
-- Various nonprofit and small business websites
-
-## YOUR PERSONALITY
-- Friendly and approachable, but professional
-- Knowledgeable about web development basics
-- Louisville local (you can mention local references)
-- Solution-focused and helpful
-- Never pushy or salesy
-
-## RULES
-1. Keep responses concise (2-3 short paragraphs max)
-2. Use markdown formatting: **bold** for emphasis, bullet points for lists
-3. Always ask a follow-up question to keep conversation going
-4. If asked about competitors, stay positive and focus on SeeZee's strengths
-5. For complex technical questions, offer to connect with the team
-6. Never make up specific information about timelines or custom pricing
-7. Be honest about what you don't know
-8. If user seems frustrated, offer human connection options
-
-## NAVIGATION TIPS
-You can suggest these pages:
-- /services - All services and packages
-- /portfolio - Past work examples
-- /about - Meet Sean and Zach
-- /contact - Contact form
-- /start - Begin a project
-
-## HANDOFF TO HUMAN
-If the user asks to speak to a human, is frustrated, has complex requirements, or needs a custom quote, suggest:
-- Email: sean@see-zee.com
-- Schedule a call: /contact
-- The team typically responds within 24 hours`;
+import { buildSystemPrompt } from "@/lib/ai/build-system-prompt";
 
 interface ChatHistory {
   role: "user" | "assistant";
   content: string;
 }
 
+interface PageContext {
+  url: string;
+  title: string;
+  headings: string[];
+  links: Array<{ text: string; href: string }>;
+  mainContent: string;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { message, conversationId, leadInfo, history } = body as {
+    const { message, conversationId, leadInfo, pageContext, pageContextText, history } = body as {
       message: string;
       conversationId?: string;
       leadInfo?: { name?: string; email?: string };
+      pageContext?: PageContext;
+      pageContextText?: string;
       history?: ChatHistory[];
     };
 
@@ -106,19 +60,26 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Add current message
+    // Build user message with page context
+    let userMessage = leadInfo?.name 
+      ? `[User: ${leadInfo.name}${leadInfo.email ? `, ${leadInfo.email}` : ""}] ${message}`
+      : message;
+
+    // Add page context if available
+    if (pageContextText) {
+      userMessage = `${pageContextText}\n\nUser's question: ${message}`;
+    }
+
     messages.push({
       role: "user",
-      content: leadInfo?.name 
-        ? `[User: ${leadInfo.name}${leadInfo.email ? `, ${leadInfo.email}` : ""}] ${message}`
-        : message,
+      content: userMessage,
     });
 
     // Call Claude API
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 500,
-      system: SEEZEE_SYSTEM_PROMPT,
+      system: buildSystemPrompt(),
       messages,
     });
 
@@ -170,10 +131,26 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Extract any links from the AI response for potential navigation
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const links: Array<{ text: string; href: string }> = [];
+    let match;
+    while ((match = linkRegex.exec(aiContent)) !== null) {
+      links.push({
+        text: match[1],
+        href: match[2],
+      });
+    }
+
     return NextResponse.json({
       content: aiContent,
       conversationId: convId,
       quickActions: getQuickActions(message),
+      links: links.length > 0 ? links : undefined,
+      pageContext: pageContext ? {
+        url: pageContext.url,
+        availableLinks: pageContext.links,
+      } : undefined,
     });
 
   } catch (error) {
@@ -184,7 +161,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       content: getFallbackResponse(body.message || ""),
       conversationId: body.conversationId || `error-${Date.now()}`,
-      quickActions: ["💰 Pricing", "📁 Portfolio", "📅 Schedule"],
+      quickActions: ["Pricing", "Services", "Contact"],
     });
   }
 }
@@ -207,14 +184,14 @@ function getQuickActions(message: string): string[] {
   const intent = detectIntent(message);
   
   const actions: Record<string, string[]> = {
-    pricing: ["📁 Portfolio", "📅 Schedule", "🚀 Get Started"],
-    portfolio: ["💰 Pricing", "📅 Schedule", "🚀 Get Started"],
-    contact: ["💰 Pricing", "📁 Portfolio", "🚀 Get Started"],
-    get_started: ["💰 Pricing", "📁 Portfolio", "📅 Schedule"],
-    maintenance: ["💰 Pricing", "📅 Schedule", "🚀 Get Started"],
-    nonprofit: ["💰 Pricing", "📁 Portfolio", "📅 Schedule"],
-    timeline: ["💰 Pricing", "📅 Schedule", "🚀 Get Started"],
-    general: ["💰 Pricing", "📁 Portfolio", "📅 Schedule"],
+    pricing: ["Services", "Contact", "Get Started"],
+    portfolio: ["Pricing", "Contact", "Get Started"],
+    contact: ["Pricing", "Services", "Get Started"],
+    get_started: ["Pricing", "Services", "Contact"],
+    maintenance: ["Pricing", "Contact", "Get Started"],
+    nonprofit: ["Pricing", "Services", "Contact"],
+    timeline: ["Pricing", "Contact", "Get Started"],
+    general: ["Pricing", "Services", "Contact"],
   };
   
   return actions[intent] || actions.general;
@@ -230,7 +207,7 @@ function getFallbackResponse(message: string): string {
 • **Growth Package**: $1,499 (7-10 pages)
 • **Pro Package**: $2,999 (unlimited pages, custom features)
 
-**Nonprofits get 40% off!** 🎉
+**Nonprofits get 40% off!**
 
 Would you like to schedule a free consultation to discuss your specific needs?`,
 
@@ -258,7 +235,7 @@ The team typically responds within 24 hours. Is there anything else I can help w
 
 The whole process takes about 15 minutes. Ready to begin?`,
 
-    nonprofit: `SeeZee loves working with nonprofits! 💙
+    nonprofit: `SeeZee loves working with nonprofits!
 
 We offer a **40% discount** on all packages for 501(c)(3) organizations. That means:
 • Starter: **$359** (instead of $599)
@@ -284,7 +261,7 @@ Need it faster? We offer rush delivery for an additional fee. When are you hopin
 
 Already have a website that needs care? Let me know more about it!`,
 
-    general: `Hey there! 👋 I'm SeeZee's AI assistant. I can help you with:
+    general: `Hey there! I'm SeeZee's AI assistant. I can help you with:
 
 • **Pricing** for websites and apps
 • **Portfolio** examples of our work

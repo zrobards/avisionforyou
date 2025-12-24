@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -22,7 +22,14 @@ import { LeadsList } from "./LeadsList";
 import { LeadScoreCard } from "./LeadScoreCard";
 import { AddLeadModal } from "./AddLeadModal";
 import { ReachOutModal } from "./ReachOutModal";
-import { getScoreLabel, getScoreColor } from "@/lib/leads/scoring";
+import { DiscoverLeadsModal } from "./DiscoverLeadsModal";
+import { ProspectCard } from "./ProspectCard";
+import { DraftEmailModal } from "./DraftEmailModal";
+import { SendEmailConfirmationModal } from "./SendEmailConfirmationModal";
+import { ActivityFeed } from "./ActivityFeed";
+import { getScoreLabel, getScoreColor, getScoreBadgeClasses } from "@/lib/leads/scoring";
+import { getStatusBadgeClasses, getStatusLabel } from "@/lib/leads/prospect-status";
+import { ProspectStatus } from "@prisma/client";
 
 interface Lead {
   id: string;
@@ -73,6 +80,26 @@ interface Prospect {
   zipCode: string | null;
   latitude: number | null;
   longitude: number | null;
+  status?: ProspectStatus;
+  archived?: boolean;
+  googleRating?: number | null;
+  googleReviews?: number | null;
+  websiteQualityScore?: number | null;
+  revenuePotential?: number | null;
+  categoryFit?: number | null;
+  locationScore?: number | null;
+  organizationSize?: number | null;
+  urgencyLevel?: string | null;
+  opportunities?: string[];
+  redFlags?: string[];
+  aiAnalysis?: any;
+  internalNotes?: string | null;
+  emailDraft?: string | null;
+  emailSentAt?: Date | null;
+  emailOpenedAt?: Date | null;
+  emailRepliedAt?: Date | null;
+  lastContactedAt?: Date | null;
+  followUpDate?: Date | null;
 }
 
 interface Stats {
@@ -85,35 +112,113 @@ interface Stats {
 }
 
 interface ClientFinderClientProps {
-  initialLeads: Lead[];
+  initialLeads?: Lead[];
   initialProspects?: Prospect[];
-  stats: Stats;
-  categories: string[];
-  states: string[];
+  stats?: Stats;
+  categories?: string[];
+  states?: string[];
 }
 
 export function ClientFinderClient({
-  initialLeads,
+  initialLeads = [],
   initialProspects = [],
-  stats,
-  categories,
-  states,
+  stats: initialStats,
+  categories: initialCategories = [],
+  states: initialStates = [],
 }: ClientFinderClientProps) {
-  const [leads, setLeads] = useState(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
-  const [viewMode, setViewMode] = useState<"map" | "list">("map");
+  const [stats, setStats] = useState<Stats>(initialStats || {
+    total: 0,
+    hot: 0,
+    warm: 0,
+    contacted: 0,
+    converted: 0,
+    prospects: 0,
+  });
+  const [categories, setCategories] = useState<string[]>(initialCategories);
+  const [states, setStates] = useState<string[]>(initialStates);
+  const [loading, setLoading] = useState(!initialLeads.length && !initialProspects.length);
+  
+  // Filter states - must be declared before useEffect and fetchData
+  const [websiteFilter, setWebsiteFilter] = useState<string>("all"); // "all", "yes", "no"
+
+  // Fetch data from API on mount and when needed
+  useEffect(() => {
+    fetchData();
+  }, [websiteFilter]); // Refetch when website filter changes
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Build query params
+      const params = new URLSearchParams({
+        archived: "false",
+        limit: "1000",
+      });
+      if (websiteFilter !== "all") {
+        params.append("hasWebsite", websiteFilter === "yes" ? "true" : "false");
+      }
+
+      // Fetch prospects (non-archived, non-converted)
+      const prospectsRes = await fetch(`/api/prospects?${params.toString()}`);
+      if (!prospectsRes.ok) {
+        const errorData = await prospectsRes.json().catch(() => ({}));
+        console.error("Failed to fetch prospects:", errorData);
+        throw new Error(errorData.error || `Failed to fetch prospects: ${prospectsRes.status}`);
+      }
+      const prospectsData = await prospectsRes.json();
+      
+      // Leads are managed separately - use empty array for now
+      // TODO: Create /api/leads endpoint if needed for lead finder
+      const allLeads: Lead[] = [];
+
+      const allProspects = prospectsData.prospects || [];
+      setProspects(allProspects);
+      setLeads(allLeads);
+      
+      // Calculate stats
+      setStats({
+        total: allLeads.length,
+        hot: allProspects.filter((p: Prospect) => p.leadScore >= 80).length,
+        warm: allProspects.filter((p: Prospect) => p.leadScore >= 60 && p.leadScore < 80).length,
+        contacted: allProspects.filter((p: Prospect) => p.status === "CONTACTED" || p.status === "RESPONDED").length,
+        converted: allProspects.filter((p: Prospect) => p.status === "CONVERTED").length,
+        prospects: allProspects.length,
+      });
+
+      // Extract categories and states
+      const allCats = [...allLeads.map((l: Lead) => l.category), ...allProspects.map((p: Prospect) => p.category)].filter(Boolean);
+      const allSts = [...allLeads.map((l: Lead) => l.state), ...allProspects.map((p: Prospect) => p.state)].filter(Boolean);
+      setCategories([...new Set(allCats)] as string[]);
+      setStates([...new Set(allSts)] as string[]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const [viewMode, setViewMode] = useState<"cards" | "list" | "map">("cards");
   const [tab, setTab] = useState<"leads" | "prospects">("prospects"); // Show prospects by default
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [minScore, setMinScore] = useState(0);
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [maxScore, setMaxScore] = useState(100);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [prospectStatusFilter, setProspectStatusFilter] = useState<string>("all");
+  const [archivedFilter, setArchivedFilter] = useState(false);
+  const [dateFilter, setDateFilter] = useState("all");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDiscoverModal, setShowDiscoverModal] = useState(false);
   const [showReachOutModal, setShowReachOutModal] = useState(false);
+  const [showDraftEmailModal, setShowDraftEmailModal] = useState(false);
+  const [showSendEmailModal, setShowSendEmailModal] = useState(false);
+  const [emailDraft, setEmailDraft] = useState<{ subject: string; body: string } | null>(null);
   const [isDiscovering, setIsDiscovering] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [discoveryResults, setDiscoveryResults] = useState<any>(null);
 
   // Filter leads
@@ -141,6 +246,9 @@ export function ClientFinderClient({
   // Filter prospects
   const filteredProspects = useMemo(() => {
     return prospects.filter((prospect) => {
+      if (archivedFilter && !prospect.archived) return false;
+      if (!archivedFilter && prospect.archived) return false;
+
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matches =
@@ -153,32 +261,59 @@ export function ClientFinderClient({
 
       if (selectedState !== "all" && prospect.state !== selectedState) return false;
       if (selectedCategory !== "all" && prospect.category !== selectedCategory) return false;
-      if (prospect.leadScore < minScore) return false;
+      if (prospect.leadScore < minScore || prospect.leadScore > maxScore) return false;
+
+      if (prospectStatusFilter !== "all" && prospect.status !== prospectStatusFilter) return false;
+
+      if (dateFilter !== "all") {
+        const now = new Date();
+        const createdAt = new Date(prospect.createdAt);
+        if (dateFilter === "today") {
+          if (createdAt.toDateString() !== now.toDateString()) return false;
+        } else if (dateFilter === "week") {
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (createdAt < weekAgo) return false;
+        } else if (dateFilter === "month") {
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          if (createdAt < monthAgo) return false;
+        }
+      }
 
       return true;
     });
-  }, [prospects, searchQuery, selectedState, selectedCategory, minScore]);
+  }, [prospects, searchQuery, selectedState, selectedCategory, minScore, maxScore, prospectStatusFilter, archivedFilter, dateFilter]);
 
-  const handleDiscoverPlaces = async (searchParams: {
+  const handleDiscoverPlaces = async (params: {
     location: string;
     radius: number;
-    type: string;
-    keyword: string;
+    types: string[];
+    keyword?: string;
+    hasWebsite?: boolean;
+    minRating?: number;
+    minReviews?: number;
     analyzeWithAI: boolean;
-    filters: {
-      hasWebsite?: boolean;
-      minRating?: number;
-      minReviews?: number;
-    };
+    autoGenerateDrafts: boolean;
   }) => {
     setIsDiscovering(true);
     setDiscoveryResults(null);
 
     try {
+      // Convert types array to single type for API (use first type)
       const res = await fetch("/api/leads/discover-places", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(searchParams),
+        body: JSON.stringify({
+          location: params.location,
+          radius: params.radius,
+          type: params.types[0] || "nonprofit",
+          keyword: params.keyword,
+          analyzeWithAI: params.analyzeWithAI,
+          filters: {
+            hasWebsite: params.hasWebsite,
+            minRating: params.minRating,
+            minReviews: params.minReviews,
+          },
+        }),
       });
 
       const data = await res.json();
@@ -187,11 +322,9 @@ export function ClientFinderClient({
         setDiscoveryResults(data);
         
         // Refresh prospects after discovery
-        if (data.prospects && data.prospects.length > 0) {
-          // Reload page to show new prospects
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+        if (data.prospects && data.prospects.length > 0 || data.saved > 0) {
+          // Refresh data from API
+          await fetchData();
         }
       } else {
         alert(data.error || "Discovery failed");
@@ -204,16 +337,220 @@ export function ClientFinderClient({
     }
   };
 
+  const handleDraftEmail = async (prospectId: string) => {
+    setSelectedProspect(prospects.find((p) => p.id === prospectId) || null);
+    setShowDraftEmailModal(true);
+  };
+
+  const handleSendEmail = async (subject: string, body: string) => {
+    if (!selectedProspect) return;
+
+    setEmailDraft({ subject, body });
+    setShowDraftEmailModal(false);
+    setShowSendEmailModal(true);
+  };
+
+  const handleConfirmSendEmail = async () => {
+    if (!selectedProspect || !emailDraft) return;
+
+    setIsSendingEmail(true);
+    try {
+      const res = await fetch(`/api/prospects/${selectedProspect.id}/send-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject: emailDraft.subject,
+          emailBody: emailDraft.body,
+          fromEmail: "sean@see-zee.com",
+        }),
+      });
+
+      if (res.ok) {
+        alert("Email sent successfully!");
+        setShowSendEmailModal(false);
+        setEmailDraft(null);
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to send email");
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      alert("Failed to send email");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  const handleArchiveProspect = async (prospectId: string) => {
+    if (!confirm("Are you sure you want to archive this prospect?")) return;
+    
+    try {
+      const res = await fetch(`/api/prospects/${prospectId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: true }),
+      });
+
+      if (res.ok) {
+        setProspects(prospects.filter((p) => p.id !== prospectId));
+        fetchData(); // Refresh data
+      }
+    } catch (error) {
+      console.error("Error archiving prospect:", error);
+      alert("Failed to archive prospect");
+    }
+  };
+
+  const handleDeleteProspect = async (prospectId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this prospect? This cannot be undone.")) return;
+    
+    try {
+      const res = await fetch(`/api/prospects/${prospectId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setProspects(prospects.filter((p) => p.id !== prospectId));
+        fetchData(); // Refresh data
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete prospect");
+      }
+    } catch (error) {
+      console.error("Error deleting prospect:", error);
+      alert("Failed to delete prospect");
+    }
+  };
+
+  const handleRefreshDetails = async (prospectId: string) => {
+    try {
+      const res = await fetch(`/api/prospects/${prospectId}/refresh-details`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert("Prospect details refreshed successfully!");
+        fetchData(); // Refresh data to show updates
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to refresh details");
+      }
+    } catch (error) {
+      console.error("Error refreshing details:", error);
+      alert("Failed to refresh prospect details");
+    }
+  };
+
+  const handleConvertToLead = async (prospectId: string) => {
+    if (!confirm("Convert this prospect to a lead? This will move it to the leads section.")) return;
+    
+    try {
+      // First, create a lead from the prospect
+      const prospect = prospects.find((p) => p.id === prospectId);
+      if (!prospect) return;
+
+      const leadData: any = {
+        name: prospect.name,
+        email: prospect.email || "",
+        phone: prospect.phone || "",
+        company: prospect.company || prospect.name,
+        category: prospect.category || "",
+        city: prospect.city || "",
+        state: prospect.state || "",
+        address: prospect.address || "",
+        websiteUrl: prospect.websiteUrl || "",
+        leadScore: prospect.leadScore || 0,
+        hasWebsite: prospect.hasWebsite || false,
+        source: "PROSPECT_DISCOVERY",
+      };
+
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(leadData),
+      });
+
+      if (res.ok) {
+        const leadResult = await res.json();
+        
+        // Mark prospect as converted and link to lead
+        await fetch(`/api/prospects/${prospectId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            status: "CONVERTED",
+            convertedAt: new Date().toISOString(),
+            convertedToLeadId: leadResult.lead?.id || leadResult.id,
+          }),
+        });
+        
+        setProspects(prospects.filter((p) => p.id !== prospectId));
+        fetchData(); // Refresh data
+        alert("Prospect converted to lead successfully!");
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to convert prospect to lead");
+      }
+    } catch (error) {
+      console.error("Error converting prospect:", error);
+      alert("Failed to convert prospect to lead");
+    }
+  };
+
+  const handleStatusChange = async (prospectId: string, status: ProspectStatus) => {
+    try {
+      const res = await fetch(`/api/prospects/${prospectId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+
+      if (res.ok) {
+        setProspects(
+          prospects.map((p) => (p.id === prospectId ? { ...p, status } : p))
+        );
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
+  const handleAddNote = (prospectId: string) => {
+    const note = prompt("Enter internal note:");
+    if (note) {
+      fetch(`/api/prospects/${prospectId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ internalNotes: note }),
+      }).then(() => {
+        fetchData(); // Refresh data instead of full page reload
+      }).catch((error) => {
+        console.error("Error adding note:", error);
+        alert("Failed to add note");
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <span className="text-xs font-semibold uppercase tracking-[0.3em] text-trinity-red">
-            Prospect Discovery
+            Lead Finder
           </span>
           <h1 className="text-4xl font-heading font-bold gradient-text">
-            Client Finder
+            Lead Finder
           </h1>
         </div>
         <div className="flex items-center gap-3">
@@ -223,7 +560,7 @@ export function ClientFinderClient({
             className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:from-purple-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Sparkles className="w-4 h-4" />
-            {isDiscovering ? "Discovering..." : "🔍 Discover from Google"}
+            🔍 Discover Leads
           </button>
           <button
             onClick={() => setShowAddModal(true)}
@@ -236,24 +573,31 @@ export function ClientFinderClient({
       </header>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-6">
-        {[
-          { label: "Prospects", value: stats.prospects || 0, color: "text-purple-400" },
-          { label: "Total Leads", value: stats.total, color: "text-white" },
-          { label: "Hot (80+)", value: stats.hot, color: "text-green-400" },
-          { label: "Warm (60-79)", value: stats.warm, color: "text-yellow-400" },
-          { label: "Contacted", value: stats.contacted, color: "text-blue-400" },
-          { label: "Converted", value: stats.converted, color: "text-cyan-400" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border-2 border-gray-700 bg-[#151b2e] p-4 text-center"
-          >
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
-            <p className={`text-xs ${stat.color}`}>{stat.label}</p>
-          </div>
-        ))}
+      <div className="grid gap-4 md:grid-cols-4">
+        <div className="rounded-xl border-2 border-gray-700 bg-[#151b2e] p-4">
+          <p className="text-2xl font-bold text-white">{stats.prospects || 0}</p>
+          <p className="text-xs text-purple-400">Total Prospects</p>
+        </div>
+        <div className="rounded-xl border-2 border-gray-700 bg-[#151b2e] p-4">
+          <p className="text-2xl font-bold text-white">
+            {prospects.filter((p) => p.status === "QUALIFIED" || p.status === "CONTACTED" || p.status === "RESPONDED").length}
+          </p>
+          <p className="text-xs text-blue-400">Qualified Leads</p>
+        </div>
+        <div className="rounded-xl border-2 border-gray-700 bg-[#151b2e] p-4">
+          <p className="text-2xl font-bold text-white">
+            {prospects.filter((p) => p.status === "CONTACTED" || p.status === "RESPONDED").length}
+          </p>
+          <p className="text-xs text-green-400">Contacted This Week</p>
+        </div>
+        <div className="rounded-xl border-2 border-gray-700 bg-[#151b2e] p-4">
+          <p className="text-2xl font-bold text-white">
+            {prospects.filter((p) => p.status === "CONVERTED").length}
+          </p>
+          <p className="text-xs text-cyan-400">Converted This Month</p>
+        </div>
       </div>
+
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-gray-700">
@@ -280,184 +624,298 @@ export function ClientFinderClient({
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl border-2 border-gray-700 bg-[#151b2e]">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search organizations..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-700 bg-[#1a2235] text-white placeholder-gray-500 focus:border-trinity-red focus:outline-none text-sm"
-          />
-        </div>
+      <div className="space-y-3 p-4 rounded-xl border-2 border-gray-700 bg-[#151b2e]">
+        {/* First Row - Main Filters */}
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Status Filter */}
+          {tab === "prospects" && (
+            <select
+              value={prospectStatusFilter}
+              onChange={(e) => setProspectStatusFilter(e.target.value)}
+              className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
+            >
+              <option value="all">All Status</option>
+              <option value="PROSPECT">Prospects</option>
+              <option value="REVIEWING">Reviewing</option>
+              <option value="QUALIFIED">Qualified</option>
+              <option value="CONTACTED">Contacted</option>
+              <option value="RESPONDED">Responded</option>
+              <option value="CONVERTED">Converted</option>
+            </select>
+          )}
 
-        {/* State Filter */}
-        <select
-          value={selectedState}
-          onChange={(e) => setSelectedState(e.target.value)}
-          className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
-        >
-          <option value="all">All States</option>
-          {states.sort().map((state) => (
-            <option key={state} value={state}>
-              {state}
-            </option>
-          ))}
-        </select>
+          {/* Score Range */}
+          <div className="flex items-center gap-2">
+            <select
+              value={minScore}
+              onChange={(e) => setMinScore(parseInt(e.target.value))}
+              className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
+            >
+              <option value="0">All Scores</option>
+              <option value="90">90-100</option>
+              <option value="80">80-89</option>
+              <option value="70">70-79</option>
+              <option value="0">&lt;70</option>
+            </select>
+            {minScore > 0 && (
+              <select
+                value={maxScore}
+                onChange={(e) => setMaxScore(parseInt(e.target.value))}
+                className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
+              >
+                <option value={minScore + 9}>{minScore}-{minScore + 9}</option>
+                <option value={minScore + 19}>{minScore}-{minScore + 19}</option>
+                <option value={100}>{minScore}-100</option>
+              </select>
+            )}
+          </div>
 
-        {/* Category Filter */}
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
-        >
-          <option value="all">All Categories</option>
-          {categories.sort().map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-
-        {/* Min Score */}
-        <select
-          value={minScore}
-          onChange={(e) => setMinScore(parseInt(e.target.value))}
-          className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
-        >
-          <option value="0">Any Score</option>
-          <option value="40">40+ (Cool+)</option>
-          <option value="60">60+ (Warm+)</option>
-          <option value="80">80+ (Hot)</option>
-        </select>
-
-        {/* Status Filter - Only show for leads tab */}
-        {tab === "leads" && (
+          {/* Date Filter */}
           <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
             className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
           >
-            <option value="all">All Status</option>
-            <option value="NEW">New</option>
-            <option value="CONTACTED">Contacted</option>
-            <option value="QUALIFIED">Qualified</option>
-            <option value="PROPOSAL_SENT">Proposal Sent</option>
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
           </select>
-        )}
 
-        {/* View Toggle - Only show for leads tab */}
-        {tab === "leads" && (
-          <div className="flex items-center gap-1 rounded-lg border border-gray-700 p-1">
-            <button
-              onClick={() => setViewMode("map")}
-              className={`p-2 rounded ${
-                viewMode === "map" ? "bg-trinity-red text-white" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              <MapPin className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2 rounded ${
-                viewMode === "list" ? "bg-trinity-red text-white" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              <List className="w-4 h-4" />
-            </button>
+          {/* State Filter */}
+          <select
+            value={selectedState}
+            onChange={(e) => setSelectedState(e.target.value)}
+            className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
+          >
+            <option value="all">All States</option>
+            {states.sort().map((state) => (
+              <option key={state} value={state}>
+                {state}
+              </option>
+            ))}
+          </select>
+
+          {/* Category Filter */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
+          >
+            <option value="all">All Categories</option>
+            {categories.sort().map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+
+          {/* Website Filter */}
+          <select
+            value={websiteFilter}
+            onChange={(e) => setWebsiteFilter(e.target.value)}
+            className="rounded-lg border border-gray-700 bg-[#1a2235] px-3 py-2 text-sm text-white focus:border-trinity-red focus:outline-none"
+          >
+            <option value="all">All Websites</option>
+            <option value="yes">Has Website</option>
+            <option value="no">No Website</option>
+          </select>
+        </div>
+
+        {/* Second Row - Search and View Toggle */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search organizations..."
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-700 bg-[#1a2235] text-white placeholder-gray-500 focus:border-trinity-red focus:outline-none text-sm"
+            />
           </div>
-        )}
+
+          {/* View Toggle */}
+          {tab === "prospects" && (
+            <div className="flex items-center gap-1 rounded-lg border border-gray-700 p-1 bg-[#1a2235]">
+              <button
+                onClick={() => setViewMode("cards")}
+                className={`p-2 rounded ${
+                  viewMode === "cards" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
+                }`}
+                title="Card View"
+              >
+                <Grid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded ${
+                  viewMode === "list" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
+                }`}
+                title="List View"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("map")}
+                className={`p-2 rounded ${
+                  viewMode === "map" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
+                }`}
+                title="Map View"
+              >
+                <MapPin className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Hide Archived Toggle */}
+          <label className="flex items-center gap-2 text-sm text-gray-400">
+            <input
+              type="checkbox"
+              checked={archivedFilter}
+              onChange={(e) => setArchivedFilter(e.target.checked)}
+              className="rounded border-gray-600 bg-gray-800 text-purple-500 focus:ring-purple-500"
+            />
+            Hide Archived
+          </label>
+        </div>
       </div>
 
       {/* Main Content */}
       <div className="grid gap-6 lg:grid-cols-5">
-        {/* Map or List */}
-        <div className={viewMode === "map" ? "lg:col-span-3" : "lg:col-span-5"}>
+        {/* Map or List or Cards */}
+        <div className={viewMode === "map" ? "lg:col-span-3" : "lg:col-span-4"}>
           {tab === "prospects" ? (
-            // Prospects List
-            <div className="rounded-2xl border-2 border-gray-700 glass-effect overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-700 bg-[#1a2235]">
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
-                        Organization
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
-                        Category
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
-                        Location
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
-                        Score
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-800">
-                    {filteredProspects.map((prospect) => (
-                      <motion.tr
-                        key={prospect.id}
-                        whileHover={{ backgroundColor: "rgba(139, 92, 246, 0.1)" }}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedProspect(prospect)}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-white">
-                            {prospect.company || prospect.name}
-                          </div>
-                          {prospect.email && (
-                            <div className="text-sm text-gray-400">{prospect.email}</div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-300">
-                          {prospect.category || "N/A"}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-300">
-                          {[prospect.city, prospect.state].filter(Boolean).join(", ") || "N/A"}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className="px-2 py-1 rounded-full text-xs font-medium"
-                            style={{
-                              backgroundColor: `${getScoreColor(prospect.leadScore)}20`,
-                              color: getScoreColor(prospect.leadScore),
-                            }}
-                          >
-                            {prospect.leadScore}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedProspect(prospect);
-                              setShowReachOutModal(true);
-                            }}
-                            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:from-purple-700 hover:to-blue-700 transition"
-                          >
-                            <Send className="w-4 h-4" />
-                            Reach Out
-                          </button>
-                        </td>
-                      </motion.tr>
-                    ))}
-                    {filteredProspects.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                          No prospects found. Use "Discover from Google" to find new prospects.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+            viewMode === "cards" ? (
+              // Card View
+              <div className="grid gap-4 md:grid-cols-2">
+                {filteredProspects.map((prospect) => (
+                  <ProspectCard
+                    key={prospect.id}
+                    prospect={{
+                      ...prospect,
+                      status: prospect.status || 'PROSPECT' as any,
+                    } as any}
+                    onDraftEmail={handleDraftEmail}
+                    onAddNote={handleAddNote}
+                    onArchive={handleArchiveProspect}
+                    onDelete={handleDeleteProspect}
+                    onConvertToLead={handleConvertToLead}
+                    onStatusChange={handleStatusChange}
+                    onViewDetails={(id) => {
+                      const p = prospects.find((p) => p.id === id);
+                      if (p) setSelectedProspect(p);
+                    }}
+                    onRefreshDetails={handleRefreshDetails}
+                  />
+                ))}
+                {filteredProspects.length === 0 && (
+                  <div className="col-span-2 p-12 text-center text-gray-500 rounded-xl border-2 border-dashed border-gray-700 bg-[#151b2e]">
+                    No prospects found. Use "Discover Leads" to find new prospects.
+                  </div>
+                )}
               </div>
-            </div>
+            ) : viewMode === "list" ? (
+              // List View
+              <div className="rounded-2xl border-2 border-gray-700 glass-effect overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-700 bg-[#1a2235]">
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                          Organization
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                          Category
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                          Location
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                          Score
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                          Status
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800">
+                      {filteredProspects.map((prospect) => (
+                        <motion.tr
+                          key={prospect.id}
+                          whileHover={{ backgroundColor: "rgba(139, 92, 246, 0.1)" }}
+                          className="cursor-pointer"
+                          onClick={() => setSelectedProspect(prospect)}
+                        >
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-white">
+                              {prospect.company || prospect.name}
+                            </div>
+                            {prospect.email && (
+                              <div className="text-sm text-gray-400">{prospect.email}</div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-300">
+                            {prospect.category || "N/A"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-300">
+                            {[prospect.city, prospect.state].filter(Boolean).join(", ") || "N/A"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getScoreBadgeClasses(
+                                prospect.leadScore
+                              )}`}
+                            >
+                              {prospect.leadScore}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {prospect.status && (
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClasses(
+                                  prospect.status
+                                )}`}
+                              >
+                                {getStatusLabel(prospect.status)}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDraftEmail(prospect.id);
+                              }}
+                              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:from-purple-700 hover:to-blue-700 transition"
+                            >
+                              <Mail className="w-4 h-4" />
+                              Draft Email
+                            </button>
+                          </td>
+                        </motion.tr>
+                      ))}
+                      {filteredProspects.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
+                            No prospects found. Use "Discover Leads" to find new prospects.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              // Map View for Prospects
+              <div className="rounded-2xl border-2 border-gray-700 bg-[#151b2e] p-8 text-center text-gray-400">
+                Map view for prospects coming soon. Use Card or List view.
+              </div>
+            )
           ) : viewMode === "map" ? (
             <LeadsMap
               leads={filteredLeads}
@@ -473,7 +931,14 @@ export function ClientFinderClient({
           )}
         </div>
 
-        {/* Side Panel */}
+        {/* Side Panel - Activity Feed */}
+        {tab === "prospects" && (
+          <div className="lg:col-span-1">
+            <ActivityFeed limit={10} />
+          </div>
+        )}
+
+        {/* Side Panel - Leads Map */}
         {viewMode === "map" && tab === "leads" && (
           <div className="lg:col-span-2 space-y-4">
             <div className="rounded-xl border-2 border-gray-700 bg-[#151b2e] p-4">
@@ -550,338 +1015,61 @@ export function ClientFinderClient({
 
       {/* Google Places Discovery Modal */}
       {showDiscoverModal && (
-        <PlacesDiscoveryModal
+        <DiscoverLeadsModal
+          isOpen={showDiscoverModal}
           onClose={() => setShowDiscoverModal(false)}
           onDiscover={handleDiscoverPlaces}
           isDiscovering={isDiscovering}
-          results={discoveryResults}
         />
       )}
 
-      {/* Reach Out Modal */}
-      <ReachOutModal
-        prospect={selectedProspect}
-        isOpen={showReachOutModal}
-        onClose={() => {
-          setShowReachOutModal(false);
-          setSelectedProspect(null);
-        }}
-        onSuccess={() => {
-          // Remove prospect from list and refresh
-          setProspects(prospects.filter((p) => p.id !== selectedProspect?.id));
-          window.location.reload();
-        }}
-      />
-    </div>
-  );
-}
+      {/* Draft Email Modal */}
+      {showDraftEmailModal && selectedProspect && (
+        <DraftEmailModal
+          isOpen={showDraftEmailModal}
+          onClose={() => {
+            setShowDraftEmailModal(false);
+            setSelectedProspect(null);
+          }}
+          prospectId={selectedProspect.id}
+          prospectName={selectedProspect.company || selectedProspect.name}
+          prospectEmail={selectedProspect.email}
+          onSend={handleSendEmail}
+        />
+      )}
 
-// Google Places Discovery Modal
-function PlacesDiscoveryModal({
-  onClose,
-  onDiscover,
-  isDiscovering,
-  results,
-}: {
-  onClose: () => void;
-  onDiscover: (params: any) => void;
-  isDiscovering: boolean;
-  results: any;
-}) {
-  const [location, setLocation] = useState("Louisville, KY");
-  const [radius, setRadius] = useState(16000); // 10 miles
-  const [type, setType] = useState("nonprofit");
-  const [keyword, setKeyword] = useState("charity OR community");
-  const [analyzeWithAI, setAnalyzeWithAI] = useState(true);
-  const [hasWebsite, setHasWebsite] = useState<string>("any"); // Changed from "no" to get all first
-  const [minRating, setMinRating] = useState(0); // Changed from 4.0 to accept all
-  const [minReviews, setMinReviews] = useState(0); // Changed from 10 to accept all
+      {/* Send Email Confirmation Modal */}
+      {showSendEmailModal && selectedProspect && emailDraft && (
+        <SendEmailConfirmationModal
+          isOpen={showSendEmailModal}
+          onClose={() => {
+            setShowSendEmailModal(false);
+            setEmailDraft(null);
+          }}
+          prospectName={selectedProspect.company || selectedProspect.name}
+          prospectEmail={selectedProspect.email}
+          subject={emailDraft.subject}
+          onConfirm={handleConfirmSendEmail}
+          isSending={isSendingEmail}
+        />
+      )}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const filters: any = {};
-    if (hasWebsite === "no") filters.hasWebsite = false;
-    if (hasWebsite === "yes") filters.hasWebsite = true;
-    if (minRating > 0) filters.minRating = minRating;
-    if (minReviews > 0) filters.minReviews = minReviews;
-
-    onDiscover({
-      location,
-      radius,
-      type,
-      keyword,
-      analyzeWithAI,
-      filters,
-    });
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl mx-4 rounded-2xl border-2 border-gray-700 bg-[#151b2e] p-6 shadow-2xl"
-      >
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold gradient-text flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-purple-500" />
-              Discover Leads with Google Places
-            </h2>
-            <p className="text-sm text-gray-400 mt-1">
-              Find businesses and nonprofits in real-time with AI-powered analysis
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-800 hover:text-white transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {results ? (
-          // Show results
-          <div className="space-y-4">
-            <div className="rounded-lg border-2 border-green-500/30 bg-green-500/10 p-4">
-              <h3 className="text-lg font-semibold text-green-400 mb-2">
-                ✅ Discovery Complete!
-              </h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-400">Total Found</p>
-                  <p className="text-2xl font-bold text-white">{results.totalFound}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">After Filters</p>
-                  <p className="text-2xl font-bold text-white">{results.filtered}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">AI Analyzed</p>
-                  <p className="text-2xl font-bold text-blue-400">{results.analyzed}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">New Prospects Saved</p>
-                  <p className="text-2xl font-bold text-green-400">{results.saved}</p>
-                </div>
-              </div>
-              {results.skippedExisting > 0 && (
-                <p className="text-xs text-gray-400 mt-3">
-                  Skipped {results.skippedExisting} existing prospects/leads
-                </p>
-              )}
-            </div>
-
-            {results.prospects?.length > 0 && (
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {results.prospects.map((prospect: any, i: number) => (
-                  <div
-                    key={i}
-                    className="rounded-lg border border-gray-700 bg-[#1a2235] p-3"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="font-semibold text-white">{prospect.name}</p>
-                        <p className="text-xs text-gray-400">{prospect.category}</p>
-                        <p className="text-xs text-gray-500 mt-1">{prospect.address}</p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span
-                          className="px-2 py-1 rounded-full text-xs font-bold"
-                          style={{
-                            backgroundColor: prospect.leadScore >= 80 ? "#10b98120" : prospect.leadScore >= 60 ? "#fbbf2420" : "#3b82f620",
-                            color: prospect.leadScore >= 80 ? "#10b981" : prospect.leadScore >= 60 ? "#fbbf24" : "#3b82f6"
-                          }}
-                        >
-                          {prospect.leadScore}
-                        </span>
-                        <span className="text-xs text-gray-500">{prospect.urgencyLevel}</span>
-                      </div>
-                    </div>
-                    {prospect.opportunities?.length > 0 && (
-                      <div className="mt-2 text-xs text-gray-400">
-                        💡 {prospect.opportunities[0]}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full rounded-lg bg-green-600 px-4 py-3 font-semibold text-white hover:bg-green-700 transition"
-            >
-              View All Prospects
-            </button>
-          </div>
-        ) : (
-          // Show form
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Louisville, KY"
-                  required
-                  className="w-full rounded-lg border border-gray-700 bg-[#1a2235] px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Search Radius
-                </label>
-                <select
-                  value={radius}
-                  onChange={(e) => setRadius(parseInt(e.target.value))}
-                  className="w-full rounded-lg border border-gray-700 bg-[#1a2235] px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
-                >
-                  <option value="8000">5 miles</option>
-                  <option value="16000">10 miles</option>
-                  <option value="32000">20 miles</option>
-                  <option value="50000">31 miles (max)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Business Type
-                </label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-full rounded-lg border border-gray-700 bg-[#1a2235] px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
-                >
-                  <option value="nonprofit">Nonprofit / Charity</option>
-                  <option value="restaurant">Restaurant</option>
-                  <option value="store">Retail Store</option>
-                  <option value="gym">Gym / Fitness</option>
-                  <option value="spa">Spa / Salon</option>
-                  <option value="lawyer">Law Firm</option>
-                  <option value="doctor">Medical Practice</option>
-                  <option value="dentist">Dental Practice</option>
-                  <option value="school">School / Education</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Website Status
-                </label>
-                <select
-                  value={hasWebsite}
-                  onChange={(e) => setHasWebsite(e.target.value)}
-                  className="w-full rounded-lg border border-gray-700 bg-[#1a2235] px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
-                >
-                  <option value="no">No Website (Best Leads)</option>
-                  <option value="any">Any</option>
-                  <option value="yes">Has Website</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Keywords (Optional)
-              </label>
-              <input
-                type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="e.g., charity OR foundation OR community"
-                className="w-full rounded-lg border border-gray-700 bg-[#1a2235] px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Min Rating
-                </label>
-                <select
-                  value={minRating}
-                  onChange={(e) => setMinRating(parseFloat(e.target.value))}
-                  className="w-full rounded-lg border border-gray-700 bg-[#1a2235] px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
-                >
-                  <option value="0">Any Rating</option>
-                  <option value="3.0">3.0+ Stars</option>
-                  <option value="4.0">4.0+ Stars</option>
-                  <option value="4.5">4.5+ Stars</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Min Reviews
-                </label>
-                <select
-                  value={minReviews}
-                  onChange={(e) => setMinReviews(parseInt(e.target.value))}
-                  className="w-full rounded-lg border border-gray-700 bg-[#1a2235] px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
-                >
-                  <option value="0">Any</option>
-                  <option value="10">10+ Reviews</option>
-                  <option value="50">50+ Reviews</option>
-                  <option value="100">100+ Reviews</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 rounded-lg border border-gray-700 bg-[#1a2235] p-4">
-              <input
-                type="checkbox"
-                id="analyzeWithAI"
-                checked={analyzeWithAI}
-                onChange={(e) => setAnalyzeWithAI(e.target.checked)}
-                className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
-              />
-              <label htmlFor="analyzeWithAI" className="flex-1 text-sm text-gray-300">
-                <span className="font-semibold text-white">Analyze with AI</span>
-                <br />
-                Uses Claude to score leads, identify opportunities, and generate insights
-              </label>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isDiscovering}
-                className="flex-1 rounded-lg border-2 border-gray-700 bg-[#1a2235] px-4 py-3 font-semibold text-white hover:border-gray-600 transition disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isDiscovering}
-                className="flex-1 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-3 font-semibold text-white hover:from-purple-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isDiscovering ? (
-                  <>
-                    <span className="animate-pulse">Discovering...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="inline w-4 h-4 mr-2" />
-                    Discover Leads
-                  </>
-                )}
-              </button>
-            </div>
-
-            <p className="text-xs text-gray-500 text-center">
-              Estimated time: 30-60 seconds • Cost: ~$0.10-0.30 per search
-            </p>
-          </form>
-        )}
-      </motion.div>
+      {/* Reach Out Modal - For converting to lead with email */}
+      {selectedProspect && (
+        <ReachOutModal
+          prospect={selectedProspect}
+          isOpen={showReachOutModal}
+          onClose={() => {
+            setShowReachOutModal(false);
+            setSelectedProspect(null);
+          }}
+          onSuccess={() => {
+            // Remove prospect from list and refresh
+            setProspects(prospects.filter((p) => p.id !== selectedProspect?.id));
+            fetchData();
+          }}
+        />
+      )}
     </div>
   );
 }

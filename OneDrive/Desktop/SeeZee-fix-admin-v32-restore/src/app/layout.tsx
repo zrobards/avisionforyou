@@ -9,6 +9,7 @@ import SidebarWrapper from '../components/shared/SidebarWrapper'
 import { Toaster } from '../components/ui/toaster'
 import { PasswordSetupPrompt } from '../components/PasswordSetupPrompt'
 import { CookieConsent } from '../components/shared/CookieConsent'
+import { ChatWidget } from '../components/shared/ChatWidget'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -222,6 +223,7 @@ export default function RootLayout({
           <DebugHUD />
           <Toaster />
           <CookieConsent />
+          <ChatWidget />
         </Providers>
       </body>
     </html>

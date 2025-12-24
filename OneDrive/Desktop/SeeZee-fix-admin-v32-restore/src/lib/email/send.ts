@@ -37,8 +37,8 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:35',message:'sendEmail entry',data:{to:Array.isArray(options.to)?options.to[0]:options.to,hasSubject:!!options.subject,hasHtml:!!options.html,hasText:!!options.text,hasResendKey:!!process.env.RESEND_API_KEY,resendKeyLength:process.env.RESEND_API_KEY?.length||0},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   try {
-    // Default from address - use RESEND_FROM_EMAIL env var or fallback to verified Resend domain
-    const defaultFrom = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    // Default from address - use RESEND_FROM_EMAIL env var or fallback to verified domain
+    const defaultFrom = process.env.RESEND_FROM_EMAIL || "noreply@see-zee.com";
     const from = options.from || `SeeZee Studio <${defaultFrom}>`;
     
     // Get Resend instance (lazy initialization)
@@ -116,7 +116,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
       error: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
       to: options.to,
-      from: options.from || process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+      from: options.from || process.env.RESEND_FROM_EMAIL || "noreply@see-zee.com",
       subject: options.subject,
       hasApiKey: !!process.env.RESEND_API_KEY,
       apiKeyLength: process.env.RESEND_API_KEY?.length || 0,

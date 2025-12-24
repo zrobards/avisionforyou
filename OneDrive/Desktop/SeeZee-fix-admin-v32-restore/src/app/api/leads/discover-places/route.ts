@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { db } from '@/server/db';
+import { prisma } from '@/lib/prisma';
 import { searchPlaces, filterPlaces, PlaceDetails } from '@/lib/leads/places-finder';
 import { analyzeLeadWithAI, batchAnalyzeLeads } from '@/lib/leads/ai-lead-analyzer';
 
@@ -100,8 +100,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Limit to top 20 for AI analysis to get more leads
-    const placesToAnalyze = filteredPlaces.slice(0, 20);
+    // Analyze up to 50 places for better coverage
+    // Google Places can return up to 50, so we can analyze all of them
+    const placesToAnalyze = filteredPlaces.slice(0, 50);
     console.log(`🤖 Analyzing ${placesToAnalyze.length} leads with AI...`);
 
     const analyzedResults = await batchAnalyzeLeads(placesToAnalyze, {
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
 
     // Step 4: Save ALL analyzed leads to database (let user filter later)
     const savedLeads: any[] = [];
-    const minimumScore = 30; // Lower threshold - save more leads, let user filter
+    const minimumScore = 25; // Lower threshold - save more leads, let user filter manually
 
     for (const { place, analysis } of analyzedResults) {
       if (analysis.leadScore < minimumScore) {
@@ -120,18 +121,39 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        // Check if prospect or lead already exists
-        const existingProspect = await db.prospect.findFirst({
+        // Extract city and state from address FIRST (before using in queries)
+        let city = '';
+        let state = '';
+        let zipCode = '';
+        
+        if (place.address) {
+          const addressParts = place.address.split(',').map(p => p.trim());
+          city = addressParts[addressParts.length - 3] || '';
+          const stateZip = addressParts[addressParts.length - 2] || '';
+          state = stateZip.split(' ')[0] || '';
+          zipCode = stateZip.split(' ')[1] || '';
+        }
+
+        // Build OR conditions array for duplicate check
+        const orConditions: any[] = [];
+        if (place.placeId) {
+          orConditions.push({ googlePlaceId: place.placeId });
+        }
+        if (city && state) {
+          orConditions.push({ name: place.name, city, state });
+        } else {
+          orConditions.push({ name: place.name });
+        }
+
+        // Check if prospect or lead already exists by googlePlaceId or name
+        const existingProspect = await prisma.prospect.findFirst({
           where: {
-            OR: [
-              { name: place.name },
-              { email: place.name.toLowerCase().replace(/\s+/g, '') + '@placeholder.com' }
-            ],
+            OR: orConditions,
             convertedAt: null // Only check unconverted prospects
           }
         });
 
-        const existingLead = await db.lead.findFirst({
+        const existingLead = await prisma.lead.findFirst({
           where: {
             OR: [
               { name: place.name },
@@ -152,15 +174,48 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        // Extract city and state from address
-        const addressParts = place.address.split(',').map(p => p.trim());
-        const city = addressParts[addressParts.length - 3] || '';
-        const stateZip = addressParts[addressParts.length - 2] || '';
-        const state = stateZip.split(' ')[0] || '';
-        const zipCode = stateZip.split(' ')[1] || '';
+        // Calculate scoring breakdown using actual data from place and analysis
+        // Use the rule-based scoring system to calculate accurate breakdown
+        const { calculateLeadScoreDetailed } = await import('@/lib/leads/scoring');
+        
+        // Build lead data for scoring calculation
+        const leadForScoring = {
+          hasWebsite: !!place.website,
+          websiteQuality: !place.website ? undefined : 
+            (analysis.opportunities?.some(o => o.toLowerCase().includes('website')) ? 'POOR' : 
+             place.rating && place.rating < 4.0 ? 'FAIR' : 
+             place.totalRatings && place.totalRatings > 50 ? 'GOOD' : 'FAIR') as any,
+          annualRevenue: null, // Not available from Places API
+          category: analysis.category || place.types?.[0] || null,
+          city,
+          state,
+          employeeCount: place.totalRatings ? 
+            (place.totalRatings > 100 ? 50 : 
+             place.totalRatings > 50 ? 20 : 
+             place.totalRatings > 20 ? 10 : 5) : null,
+          email: null,
+          phone: place.phone || null,
+          emailsSent: 0,
+          convertedAt: null,
+        };
+
+        // Calculate detailed score breakdown from actual data
+        const detailedScore = calculateLeadScoreDetailed(leadForScoring);
+        
+        // Use AI score as primary, but use rule-based breakdown for transparency
+        // Take the higher of AI score or rule-based score (they should be close)
+        // This gives us best of both worlds - AI insights + data-driven breakdown
+        const finalScore = Math.max(analysis.leadScore, detailedScore.total);
+        
+        // Use the calculated breakdown values (more accurate than proportional distribution)
+        const websiteQualityScore = detailedScore.breakdown.websiteScore;
+        const revenuePotential = detailedScore.breakdown.revenueScore;
+        const categoryFit = detailedScore.breakdown.categoryScore;
+        const locationScore = detailedScore.breakdown.locationScore;
+        const organizationSize = detailedScore.breakdown.sizeScore;
 
         // Create new prospect (not a lead yet - user must click "Reach Out" to convert)
-        const prospect = await db.prospect.create({
+        const prospect = await prisma.prospect.create({
           data: {
             name: place.name,
             email: '', // No email from Places API
@@ -181,19 +236,35 @@ export async function POST(req: NextRequest) {
             websiteUrl: place.website,
             hasWebsite: !!place.website,
             
-            // Scoring
-            leadScore: analysis.leadScore,
+            // Google Places data
+            googlePlaceId: place.placeId,
+            googleRating: place.rating,
+            googleReviews: place.totalRatings,
+            
+            // Scoring - use the final calculated score
+            leadScore: finalScore,
+            websiteQualityScore,
+            revenuePotential,
+            categoryFit,
+            locationScore,
+            organizationSize,
+            urgencyLevel: analysis.urgencyLevel,
             category: analysis.category,
             
             // AI Analysis
             aiAnalysis: {
               keyInsights: analysis.keyInsights,
               opportunities: analysis.opportunities,
+              redFlags: analysis.redFlags,
               reasoning: analysis.reasoning,
               contactStrategy: analysis.contactStrategy,
               urgencyLevel: analysis.urgencyLevel,
               estimatedBudget: analysis.estimatedBudget,
             },
+            
+            // Opportunities and red flags
+            opportunities: analysis.opportunities || [],
+            redFlags: analysis.redFlags || [],
             
             // Discovery metadata
             discoveryMetadata: {
@@ -218,11 +289,44 @@ export async function POST(req: NextRequest) {
               analysis.urgencyLevel.toLowerCase(),
               analysis.category.toLowerCase().replace(/\s+/g, '-'),
               place.website ? 'has-website' : 'no-website'
-            ]
+            ],
+            
+            // Create DISCOVERED activity
+            activities: {
+              create: {
+                type: 'DISCOVERED',
+                description: `Discovered via Google Places API with lead score of ${analysis.leadScore}`,
+                metadata: {
+                  source: 'GOOGLE_PLACES',
+                  location,
+                  searchRadius: radius,
+                  searchType: type,
+                  keyword,
+                  placeId: place.placeId,
+                }
+              }
+            }
+          },
+          include: {
+            activities: true
           }
         });
 
         console.log(`✅ Saved prospect: ${place.name} (score: ${analysis.leadScore})`);
+
+        // Create ANALYZED activity
+        await prisma.prospectActivity.create({
+          data: {
+            prospectId: prospect.id,
+            type: 'ANALYZED',
+            description: `AI analyzed with score of ${analysis.leadScore}. Urgency: ${analysis.urgencyLevel}`,
+            metadata: {
+              leadScore: analysis.leadScore,
+              urgencyLevel: analysis.urgencyLevel,
+              estimatedBudget: analysis.estimatedBudget,
+            }
+          }
+        });
 
         savedLeads.push({
           ...place,

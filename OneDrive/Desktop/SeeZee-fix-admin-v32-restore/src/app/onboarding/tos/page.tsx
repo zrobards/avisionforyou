@@ -46,17 +46,26 @@ export default function OnboardingTosPage() {
   // Also check DB directly if token seems stale to prevent crashes
   useEffect(() => {
     if (status === "authenticated" && session?.user?.id) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:48',message:'TOS page useEffect - checking if TOS already accepted',data:{hasTosAcceptedAt:!!session?.user?.tosAcceptedAt,tosAcceptedAtValue:session?.user?.tosAcceptedAt,hasProfileDoneAt:!!session?.user?.profileDoneAt,profileDoneAtValue:session?.user?.profileDoneAt,currentPath:typeof window !== "undefined" ? window.location.pathname : null},sessionId:'debug-session',runId:'run1',hypothesisId:'H3'})}).catch(()=>{});
+      // #endregion
       // Check token first
       if (session?.user?.tosAcceptedAt) {
         if (session.user.profileDoneAt) {
           const dashboardUrl = session.user.role === 'CEO' || session.user.role === 'ADMIN' ? '/admin' : '/client';
           // Only redirect if we're not already going there
           if (typeof window !== "undefined" && !window.location.pathname.startsWith(dashboardUrl)) {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:55',message:'CLIENT-SIDE REDIRECT from TOS to dashboard',data:{dashboardUrl,currentPath:window.location.pathname,reason:'TOS and profile both done'},sessionId:'debug-session',runId:'run1',hypothesisId:'H3'})}).catch(()=>{});
+            // #endregion
             router.push(dashboardUrl);
           }
         } else {
           // Only redirect if we're not already on profile page
           if (typeof window !== "undefined" && !window.location.pathname.startsWith('/onboarding/profile')) {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:60',message:'CLIENT-SIDE REDIRECT from TOS to profile',data:{currentPath:window.location.pathname,reason:'TOS done but profile not done'},sessionId:'debug-session',runId:'run1',hypothesisId:'H3'})}).catch(()=>{});
+            // #endregion
             router.push("/onboarding/profile");
           }
         }
@@ -175,8 +184,37 @@ export default function OnboardingTosPage() {
           tosAcceptedAt: new Date().toISOString(),
         });
         
+        // CRITICAL FIX: Wait for JWT callback to complete and verify token refresh
+        // The JWT callback fetches fresh data from DB, but needs time to complete
+        // Verify the session has updated before redirecting to prevent redirect loops
+        let retries = 0;
+        const maxRetries = 5;
+        let tokenRefreshed = false;
+        
+        while (retries < maxRetries && !tokenRefreshed) {
+          // Wait a bit for JWT callback to complete
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Fetch fresh session to verify token was updated
+          const sessionResponse = await fetch('/api/auth/session', { 
+            cache: 'no-store',
+            credentials: 'include' 
+          });
+          
+          if (sessionResponse.ok) {
+            const sessionData = await sessionResponse.json();
+            // Check if token shows TOS accepted (either as "1" or truthy value)
+            if (sessionData?.user?.tosAcceptedAt || sessionData?.user?.tosAccepted) {
+              tokenRefreshed = true;
+              break;
+            }
+          }
+          
+          retries++;
+        }
+        
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:175',message:'TOS accepted - session updated, redirecting',data:{redirectingTo:'/onboarding/profile'},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/tos/page.tsx:175',message:'TOS accepted - session updated, redirecting',data:{redirectingTo:'/onboarding/profile',tokenRefreshed,retries},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
         // #endregion
         
         // CRITICAL: Use hard redirect to force full page reload and fresh token

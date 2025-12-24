@@ -92,8 +92,9 @@ export async function searchPlaces(params: PlaceSearchParams): Promise<PlaceDeta
       };
     }
     
-    // Request more results
-    searchBody.maxResultCount = 20;
+    // Request more results - Google allows up to 50 per request
+    // We can also paginate to get even more
+    searchBody.maxResultCount = 50;
 
     console.log('📍 Search query:', searchBody.textQuery);
 
@@ -111,8 +112,8 @@ export async function searchPlaces(params: PlaceSearchParams): Promise<PlaceDeta
       return [];
     }
 
-    // 3. Process results
-    const places: PlaceDetails[] = [];
+    // 3. Process results from first page
+    let places: PlaceDetails[] = [];
     
     for (const place of searchResponse.data.places) {
       if (!place.id) continue;
@@ -142,6 +143,77 @@ export async function searchPlaces(params: PlaceSearchParams): Promise<PlaceDeta
       }
     }
 
+    // 4. Try to get more results via pagination (if available)
+    // Google Places API v1 returns nextPageToken in response
+    let nextPageToken = searchResponse.data.nextPageToken;
+    let pageCount = 1;
+    const maxPages = 3; // Get up to 3 pages (150 total results max)
+
+    while (nextPageToken && pageCount < maxPages && places.length < 150) {
+      try {
+        console.log(`📍 Fetching page ${pageCount + 1}...`);
+        // Wait 2 seconds between pages (Google requirement for pageToken)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const nextPageResponse = await axios.post(
+          'https://places.googleapis.com/v1/places:searchText',
+          {
+            textQuery: searchBody.textQuery,
+            locationBias: searchBody.locationBias,
+            pageToken: nextPageToken,
+            maxResultCount: 50,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': apiKey,
+              'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.types,places.businessStatus,places.priceLevel,places.location'
+            }
+          }
+        );
+
+        if (nextPageResponse.data.places && nextPageResponse.data.places.length > 0) {
+          for (const place of nextPageResponse.data.places) {
+            if (!place.id) continue;
+
+            try {
+              places.push({
+                placeId: place.id,
+                name: place.displayName?.text || 'Unknown',
+                address: place.formattedAddress || '',
+                phone: place.nationalPhoneNumber,
+                website: place.websiteUri,
+                rating: place.rating,
+                totalRatings: place.userRatingCount,
+                reviews: [],
+                photos: [],
+                types: place.types || [],
+                businessStatus: place.businessStatus || 'OPERATIONAL',
+                priceLevel: place.priceLevel,
+                geometry: place.location ? {
+                  lat: place.location.latitude,
+                  lng: place.location.longitude
+                } : undefined
+              });
+            } catch (error) {
+              console.error(`Failed to process place ${place.id}:`, error);
+            }
+          }
+          console.log(`✅ Page ${pageCount + 1} complete, got ${nextPageResponse.data.places.length} places`);
+        } else {
+          break; // No more results
+        }
+
+        nextPageToken = nextPageResponse.data.nextPageToken;
+        pageCount++;
+      } catch (error: any) {
+        console.error(`Error fetching page ${pageCount + 1}:`, error.message);
+        // Continue with what we have rather than failing completely
+        break;
+      }
+    }
+
+    console.log(`✅ Total places found: ${places.length}`);
     return places;
   } catch (error: any) {
     // Log detailed error info from Google

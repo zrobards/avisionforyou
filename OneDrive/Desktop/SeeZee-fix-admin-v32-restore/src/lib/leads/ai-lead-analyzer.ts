@@ -75,12 +75,49 @@ Consider:
   "keyInsights": ["insight1", "insight2", "insight3"]
 }
 
-**Scoring Guidelines:**
-- 90-100: Perfect lead (no website, great reviews, clear need, established business)
-- 75-89: Strong lead (some website issues or clear opportunities)
-- 60-74: Good lead (potential but may need more qualification)
-- 40-59: Medium lead (some concerns or lower urgency)
-- 0-39: Weak lead (major red flags or poor fit)
+**Scoring Guidelines (BE SPECIFIC AND CONSERVATIVE):**
+Rate each factor independently, then combine:
+
+1. **Website Status (0-30 points)**:
+   - No website: 30 points (HIGHEST PRIORITY)
+   - Poor/outdated website (mentioned in reviews): 25 points
+   - Website exists but basic: 15 points
+   - Good modern website: 5 points
+   - Excellent website: 0 points
+
+2. **Business Strength (0-25 points)**:
+   - High reviews (50+), good rating (4.5+): 25 points
+   - Medium reviews (20-50), good rating (4.0+): 20 points
+   - Some reviews (10-20): 15 points
+   - Few reviews (<10) or lower rating: 10 points
+   - No reviews: 5 points
+
+3. **Category Fit (0-20 points)**:
+   - Nonprofit/charity: 20 points (PERFECT for SeeZee)
+   - Healthcare/education/social services: 18 points
+   - Local small business: 15 points
+   - Other service business: 10 points
+   - Retail/restaurant: 5 points
+
+4. **Location (0-15 points)**:
+   - Louisville, KY: 15 points
+   - Kentucky: 12 points
+   - Neighboring state (IN, OH, TN): 7 points
+   - Other: 3 points
+
+5. **Size Indicators (0-10 points)**:
+   - Large org (100+ reviews, multiple locations): 10 points
+   - Medium org (20-100 reviews): 7 points
+   - Small but established (10-20 reviews): 5 points
+   - Very small (<10 reviews): 3 points
+
+**Final Score Calculation:**
+Add up all 5 factors to get total (0-100).
+
+**Examples:**
+- Nonprofit in Louisville, no website, 50+ reviews, 4.5 rating = 30+25+20+15+7 = 97 (PERFECT)
+- Small business in KY, has website but outdated, 20 reviews = 25+20+15+12+5 = 77 (STRONG)
+- Restaurant in Louisville, has good website, 10 reviews = 5+15+5+15+3 = 43 (MEDIUM)
 
 Return ONLY the JSON object, no additional text.`;
 

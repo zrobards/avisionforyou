@@ -39,12 +39,25 @@ async function getConversation(id: string) {
     browser: conversation.browser,
     createdAt: conversation.createdAt.toISOString(),
     closedAt: conversation.closedAt?.toISOString() || null,
-    messages: conversation.messages.map((m) => ({
-      id: m.id,
-      role: m.role,
-      content: m.content,
-      createdAt: m.createdAt.toISOString(),
-    })),
+    messages: conversation.messages.map((m) => {
+      // Map Prisma AIMessageRole (USER | ASSISTANT | HUMAN | SYSTEM) to component Message role type (USER | ASSISTANT | SYSTEM)
+      let role: 'USER' | 'ASSISTANT' | 'SYSTEM' = 'USER';
+      const messageRole = m.role as string;
+      if (messageRole === 'HUMAN' || messageRole === 'USER') {
+        role = 'USER';
+      } else if (messageRole === 'ASSISTANT') {
+        role = 'ASSISTANT';
+      } else if (messageRole === 'SYSTEM') {
+        role = 'SYSTEM';
+      }
+      
+      return {
+        id: m.id,
+        role,
+        content: m.content,
+        createdAt: m.createdAt.toISOString(),
+      };
+    }),
   };
 }
 

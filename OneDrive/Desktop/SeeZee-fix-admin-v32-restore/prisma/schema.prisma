@@ -256,24 +256,101 @@ model Prospect {
   websiteQuality  WebsiteQuality?
   needsAssessment Json?
 
+  // Google Places data
+  googlePlaceId String? @unique
+  googleRating  Float?
+  googleReviews Int?
+
   // Scoring
-  leadScore Int      @default(0)
-  tags      String[]
+  leadScore          Int      @default(0)
+  websiteQualityScore Int?     // 0-20 (scoring breakdown)
+  revenuePotential   Int?     // 0-25
+  categoryFit        Int?     // 0-25
+  locationScore      Int?     // 0-15
+  organizationSize   Int?     // 0-10
+  urgencyLevel       String?  // "HIGH", "MEDIUM", "LOW"
+  tags               String[]
 
   // AI Analysis
   aiAnalysis    Json? // Store AI analysis results
-  internalNotes String?
+  opportunities String[] // ["No website", "Poor mobile experience"]
+  redFlags      String[] // ["Low rating", "Negative reviews"]
+
+  // Workflow Status
+  status   ProspectStatus @default(PROSPECT)
+  archived Boolean        @default(false)
+
+  // Outreach
+  emailDraft      String?
+  emailSentAt     DateTime?
+  emailOpenedAt   DateTime?
+  emailRepliedAt  DateTime?
+  lastContactedAt DateTime?
+  followUpDate    DateTime?
 
   // Conversion tracking
-  convertedToLeadId String?   @unique
-  convertedToLead   Lead?     @relation("ProspectToLead", fields: [convertedToLeadId], references: [id])
+  convertedToLeadId String? @unique
+  convertedToLead   Lead?   @relation("ProspectToLead", fields: [convertedToLeadId], references: [id])
   convertedAt       DateTime?
+
+  // Internal notes
+  internalNotes String?
+
+  // Relations
+  activities ProspectActivity[]
+  emails     SentEmail[]
 
   @@index([leadScore])
   @@index([city, state])
   @@index([convertedAt])
   @@index([source])
+  @@index([status])
+  @@index([archived])
   @@map("prospects")
+}
+
+// Prospect-specific activity tracking
+model ProspectActivity {
+  id          String       @id @default(cuid())
+  createdAt   DateTime     @default(now())
+  prospectId  String
+  prospect    Prospect     @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  type        ActivityType
+  description String
+  metadata    Json?
+
+  @@index([prospectId])
+  @@index([createdAt])
+  @@map("prospect_activities")
+}
+
+// Sent emails tracking with Resend integration
+model SentEmail {
+  id         String      @id @default(cuid())
+  createdAt  DateTime    @default(now())
+  prospectId String
+  prospect   Prospect    @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  from   String
+  to     String
+  subject String
+  body   String @db.Text
+
+  sentAt     DateTime?
+  deliveredAt DateTime?
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  bouncedAt  DateTime?
+  repliedAt  DateTime?
+
+  resendId String? // ID from Resend API
+  status   EmailStatus @default(DRAFT)
+
+  @@index([prospectId])
+  @@index([status])
+  @@index([sentAt])
+  @@index([resendId])
+  @@map("sent_emails")
 }
 
 model Project {
@@ -1327,6 +1404,18 @@ enum ActivityType {
   MILESTONE
   PAYMENT
   STATUS_CHANGE
+  // Prospect-specific activity types
+  DISCOVERED
+  ANALYZED
+  REFRESHED_DETAILS
+  STATUS_CHANGED
+  EMAIL_DRAFTED
+  EMAIL_SENT
+  EMAIL_OPENED
+  EMAIL_REPLIED
+  NOTE_ADDED
+  ARCHIVED
+  CONVERTED
 }
 
 enum MaintenanceStatus {
@@ -1509,17 +1598,20 @@ enum EventStatus {
 }
 
 enum ChatStatus {
-  ACTIVE
-  WAITING_FOR_HUMAN
-  WITH_HUMAN
-  RESOLVED
+  ACTIVE // Currently chatting
+  WAITING_FOR_HUMAN // Flagged for human, waiting
+  WITH_HUMAN // Human has taken over (old name kept for compatibility)
+  HUMAN_ACTIVE // Human has taken over
+  RESOLVED // Conversation ended
   ABANDONED
+  ARCHIVED // Archived/hidden
 }
 
 enum AIMessageRole {
-  USER
-  ASSISTANT
-  SYSTEM
+  USER // Visitor message
+  ASSISTANT // AI response
+  HUMAN // Human team member response
+  SYSTEM // System message like "Sean has joined the chat"
 }
 
 // ============================================
@@ -1917,25 +2009,38 @@ model CalendarEvent {
 model AIConversation {
   id           String      @id @default(cuid())
   sessionId    String      @unique
+  visitorId    String?     @unique // Unique visitor identifier
   userId       String? // If logged in user
   visitorName  String?
   visitorEmail String?
   visitorPhone String?
+  organization String? // Organization name if provided
   messages     AIMessage[]
   status       ChatStatus  @default(ACTIVE)
   handedOff    Boolean     @default(false)
   handedOffTo  String? // Admin user ID
+  handedOffAt  DateTime? // When human took over
+  handoffReason String? // Why handoff was requested
   intent       String? // "pricing", "portfolio", "support", etc.
   leadQuality  String? // "hot", "warm", "cold"
+  leadScore    Int? // Numeric lead score 0-100
   source       String? // URL where chat started
+  referrer     String? // HTTP referrer
   device       String?
   browser      String?
+  ipAddress    String?
+  userAgent    String?
+  location     String? // Geographic location if available
+  aiSummary    String? @db.Text // AI-generated summary of conversation
+  detectedNeeds String[] // Array of detected needs like ["website", "donations", "crm"]
+  tags         String[] // Tags like ["nonprofit", "urgent", "hot-lead"]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   closedAt     DateTime?
 
   @@index([status])
   @@index([createdAt])
+  @@index([visitorId])
   @@map("ai_conversations")
 }
 
@@ -1945,13 +2050,18 @@ model AIMessage {
   conversationId String
   conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   role           AIMessageRole
+  senderName     String? // "SeeZee AI", "Sean", "Visitor"
   content        String         @db.Text
   modelUsed      String?
   tokens         Int?
   confidence     Float?
+  isRead         Boolean        @default(false)
+  readAt         DateTime?
+  attachments    String[] // URLs to uploaded files
   createdAt      DateTime       @default(now())
 
   @@index([conversationId])
+  @@index([createdAt])
   @@map("ai_messages")
 }
 
@@ -2003,4 +2113,31 @@ enum RecordingStatus {
   PROCESSING
   TRANSCRIBED
   ERROR
+}
+
+enum ProspectStatus {
+  PROSPECT      // Just discovered, not reviewed yet
+  REVIEWING     // Currently being reviewed by team
+  QUALIFIED     // Reviewed and marked as good lead
+  DRAFT_READY   // Email drafted but not sent
+  CONTACTED     // Email sent
+  RESPONDED     // They replied
+  MEETING       // Meeting scheduled
+  PROPOSAL      // Sent proposal
+  NEGOTIATING   // Discussing terms
+  CONVERTED     // Became paying client
+  LOST          // Decided not to pursue
+  ARCHIVED      // Old/irrelevant
+}
+
+enum EmailStatus {
+  DRAFT
+  QUEUED
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  REPLIED
+  BOUNCED
+  FAILED
 }
