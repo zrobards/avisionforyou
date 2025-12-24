@@ -26,10 +26,24 @@ async function addCorsHeaders(response: Response, origin: string | null): Promis
   }
   
   const headers = new Headers(response.headers);
+  
+  // CRITICAL: Log Set-Cookie headers to debug cookie issues
+  const setCookieHeaders = response.headers.getSetCookie ? response.headers.getSetCookie() : [];
+  if (setCookieHeaders.length > 0) {
+    console.log('[AUTH API] Set-Cookie headers present:', setCookieHeaders.length);
+    setCookieHeaders.forEach((cookie, index) => {
+      console.log(`[AUTH API] Set-Cookie ${index + 1}:`, cookie.substring(0, 150) + (cookie.length > 150 ? '...' : ''));
+    });
+  } else {
+    console.warn('[AUTH API] WARNING: No Set-Cookie headers in response! Cookies may not be set.');
+  }
+  
   headers.set("Access-Control-Allow-Origin", origin);
   headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
   headers.set("Access-Control-Allow-Credentials", "true");
+  
+  // Note: new Headers(response.headers) should automatically preserve all Set-Cookie headers
   
   // Clone the response to avoid consuming the body stream
   // Read the body as text to preserve it

@@ -120,12 +120,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     enableWebAuthn: false,
   },
   // Optimize cookies to prevent chunking issues
+  // CRITICAL: Let NextAuth v5 handle cookie naming automatically
+  // It will auto-prefix with __Secure- in production when secure: true
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'lax' as const,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         // CRITICAL: Don't set domain in production - let browser handle it
