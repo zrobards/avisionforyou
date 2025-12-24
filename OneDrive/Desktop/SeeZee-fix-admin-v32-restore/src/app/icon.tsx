@@ -8,19 +8,19 @@ export const size = {
 export const contentType = 'image/png'
 
 export default async function Icon() {
-  // Try to fetch the bus image from the public folder
+  // Try to fetch the logo image from the public folder
   // Try production URL first, then fallback to localhost for dev
   const productionUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://see-zee.com'
   const localhostUrl = 'http://localhost:3000'
   
   // Try production first, then localhost
-  let busImageResponse = await fetch(`${productionUrl}/big-red-bus-1.png`).catch(() => null)
-  if (!busImageResponse?.ok) {
-    busImageResponse = await fetch(`${localhostUrl}/big-red-bus-1.png`).catch(() => null)
+  let logoImageResponse = await fetch(`${productionUrl}/logos/Stylized%20Red%20Bus%20Logo%20with%20Integrated%20Text.png`).catch(() => null)
+  if (!logoImageResponse?.ok) {
+    logoImageResponse = await fetch(`${localhostUrl}/logos/Stylized%20Red%20Bus%20Logo%20with%20Integrated%20Text.png`).catch(() => null)
   }
   
-  const busImageBase64 = busImageResponse?.ok 
-    ? await busImageResponse.arrayBuffer().then(buffer => {
+  const logoImageBase64 = logoImageResponse?.ok 
+    ? await logoImageResponse.arrayBuffer().then(buffer => {
         const base64 = Buffer.from(buffer).toString('base64')
         return `data:image/png;base64,${base64}`
       })
@@ -39,15 +39,15 @@ export default async function Icon() {
           fontFamily: 'system-ui, -apple-system, sans-serif',
           borderRadius: '20%',
           overflow: 'hidden',
-          background: busImageBase64 
-            ? `url(${busImageBase64})` 
+          background: logoImageBase64 
+            ? `url(${logoImageBase64})` 
             : '#0A0E27',
-          backgroundSize: 'cover',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
         }}
       >
-        {!busImageBase64 && (
+        {!logoImageBase64 && (
           // Fallback to SZ monogram if image fails to load
           <div
             style={{

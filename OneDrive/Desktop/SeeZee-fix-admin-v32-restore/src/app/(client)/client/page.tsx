@@ -80,11 +80,13 @@ export default async function ClientDashboard() {
     select: { id: true },
   });
   
-  // If no projects and no project requests, redirect to /start to create a project
+  // CRITICAL: If no projects and no project requests, redirect to /start to create a project
+  // This must happen BEFORE any subscription checks to prevent redirect loops
   if (!hasProjects && !hasProjectRequests) {
     redirect("/start");
   }
   
+  // Only check subscriptions if user has projects or project requests
   // Now check if user has an active paid subscription before allowing access
   // #region agent log
   fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client/page.tsx:56',message:'Checking subscription access',data:{email:email,userId:userId,organizationIds:access.organizationIds,leadProjectIds:access.leadProjectIds},sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});

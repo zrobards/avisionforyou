@@ -1,13 +1,18 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Dark background with rounded corners -->
-  <rect width="32" height="32" rx="5" fill="#0A0E27"/>
-  
-  <!-- Big Red Bus Image -->
-  <image 
-    href="/big-red-bus-1.png" 
-    width="32" 
-    height="32" 
-    preserveAspectRatio="xMidYMid slice"
-    style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
-  />
+  <!-- SeeZee Studio Logo - cropped to focus on the bus -->
+  <defs>
+    <clipPath id="busClip">
+      <rect x="0" y="0" width="32" height="32"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#busClip)">
+    <image 
+      href="/logos/Stylized Red Bus Logo with Integrated Text.png" 
+      x="-4" 
+      y="-12"
+      width="40" 
+      height="56"
+      preserveAspectRatio="xMidYMid meet"
+    />
+  </g>
 </svg>

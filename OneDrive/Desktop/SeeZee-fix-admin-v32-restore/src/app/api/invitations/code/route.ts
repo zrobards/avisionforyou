@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 import { sendInviteEmail } from "@/lib/mailer";
 import { UserRole } from "@prisma/client";
 
-const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "seezee.enterprises@gmail.com"];
+const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "seezee.enterprises@gmail.com", "sean.mcculloch23@gmail.com"];
 
 function generateSixDigit(): string {
   // Generate a random 6-digit number (000000–999999) with leading zeros

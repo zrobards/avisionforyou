@@ -60,3 +60,4 @@ export function SubscriptionSuccessEmailTrigger({ sessionId }: SubscriptionSucce
   return null;
 }
 
+

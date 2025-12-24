@@ -65,14 +65,17 @@ export default function SetPasswordPage() {
       // Update session to clear needsPassword flag
       await updateSession({ needsPassword: false });
       
-      // Redirect to appropriate dashboard after 2 seconds
-      // Use hard navigation to ensure session is fully refreshed
+      // Redirect after session update
+      // For new users setting password, redirect to /start to create their first project
+      // The /client page will also redirect to /start if no projects exist (safety net)
       setTimeout(() => {
         const role = session?.user?.role;
         if (role === "CEO" || role === "ADMIN" || role === "STAFF") {
           window.location.href = "/admin";
         } else {
-          window.location.href = "/client";
+          // For client users, redirect to /start to create first project
+          // If they already have projects, /start will detect and redirect to /client
+          window.location.href = "/start";
         }
       }, 2000);
     } catch (err) {

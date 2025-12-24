@@ -39,3 +39,4 @@ CREATE INDEX IF NOT EXISTS "todos_changeRequestId_idx" ON "todos"("changeRequest
 -- Add relation to ChangeRequest model (this is handled by Prisma, but documenting here)
 -- The ChangeRequest model should have: task Todo? @relation(fields: [id], references: [changeRequestId])
 
+

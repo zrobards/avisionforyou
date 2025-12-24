@@ -105,7 +105,7 @@ export async function requireRole(
   }
 
   // CEO email always has access - bypass role check for admin routes
-  const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "seezee.enterprises@gmail.com"];
+  const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "seezee.enterprises@gmail.com", "sean.mcculloch23@gmail.com"];
   const isCEOEmail = CEO_EMAILS.includes(user.email || "");
   
   if (isCEOEmail) {

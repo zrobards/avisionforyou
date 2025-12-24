@@ -4,18 +4,36 @@ import { generateToken } from "@/lib/encryption/crypto";
 import { sendEmailWithRateLimit } from "@/lib/email/send";
 import { renderVerificationEmail } from "@/lib/email/templates/verification";
 import { emailSchema } from "@/lib/auth/validation";
+import { auth } from "@/auth";
 
 export async function POST(request: NextRequest) {
   // #region agent log
   fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'resend-verification/route.ts:8',message:'Resend verification POST entry',data:{timestamp:Date.now()},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
   // #endregion
   try {
-    const body = await request.json();
-    const { email } = body;
+    const body = await request.json().catch(() => ({}));
+    let { email } = body;
+    
+    // Priority: Always use session email if available (it's the source of truth)
+    const session = await auth();
+    if (session?.user?.email) {
+      // Session email takes priority over body email to prevent stale data issues
+      email = session.user.email;
+    } else if (!email) {
+      // Only use body email if no session email available
+      email = body.email;
+    }
     
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'resend-verification/route.ts:12',message:'Request body parsed',data:{email:email},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'resend-verification/route.ts:12',message:'Request body parsed',data:{email:email,fromSession:!body.email},sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
     // #endregion
+    
+    if (!email) {
+      return NextResponse.json(
+        { error: "Email address is required" },
+        { status: 400 }
+      );
+    }
     
     // Validate email
     const validation = emailSchema.safeParse(email);
@@ -100,18 +118,25 @@ export async function POST(request: NextRequest) {
     // #endregion
     
     if (!emailResult.success) {
+      console.error("[RESEND VERIFICATION] Failed to send email:", {
+        email: user.email,
+        error: emailResult.error,
+        rateLimited: emailResult.rateLimited,
+      });
+      
       if (emailResult.rateLimited) {
         return NextResponse.json(
-          { error: emailResult.error },
+          { error: emailResult.error || "Too many emails sent. Please try again later." },
           { status: 429 }
         );
       }
       return NextResponse.json(
-        { error: "Failed to send verification email. Please try again later." },
+        { error: emailResult.error || "Failed to send verification email. Please try again later." },
         { status: 500 }
       );
     }
     
+    console.log("[RESEND VERIFICATION] ✅ Email sent successfully to:", user.email);
     return NextResponse.json({
       success: true,
       message: "Verification email sent successfully.",
@@ -127,6 +152,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 
 
 

@@ -54,8 +54,8 @@ export async function requireAdmin() {
   const session = await requireAuth();
   
   // CEO email always has access - bypass role check
-  const CEO_EMAIL = "seanspm1007@gmail.com";
-  if (session.user?.email === CEO_EMAIL || session.user?.email === "seanpm1007@gmail.com") {
+  const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "sean.mcculloch23@gmail.com"];
+  if (session.user?.email && CEO_EMAILS.includes(session.user.email.toLowerCase())) {
     return session;
   }
   

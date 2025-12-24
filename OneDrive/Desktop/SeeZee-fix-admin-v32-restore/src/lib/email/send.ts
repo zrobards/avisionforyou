@@ -37,8 +37,9 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:35',message:'sendEmail entry',data:{to:Array.isArray(options.to)?options.to[0]:options.to,hasSubject:!!options.subject,hasHtml:!!options.html,hasText:!!options.text,hasResendKey:!!process.env.RESEND_API_KEY,resendKeyLength:process.env.RESEND_API_KEY?.length||0},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   try {
-    // Default from address
-    const from = options.from || "SeeZee Studio <noreply@see-zee.com>";
+    // Default from address - use RESEND_FROM_EMAIL env var or fallback to verified Resend domain
+    const defaultFrom = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    const from = options.from || `SeeZee Studio <${defaultFrom}>`;
     
     // Get Resend instance (lazy initialization)
     // #region agent log
@@ -71,17 +72,36 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     // #endregion
     
     if (response.error) {
-      console.error("[EMAIL SEND] Resend API error:", {
+      const errorMessage = response.error.message || "Unknown error";
+      console.error("[EMAIL SEND] ❌ Resend API error:", {
         error: response.error,
-        message: response.error.message,
+        message: errorMessage,
         to: options.to,
+        from: from,
         subject: options.subject,
+        errorType: response.error.name,
+        // Check if it's a domain verification issue
+        isDomainError: errorMessage.toLowerCase().includes("domain") || 
+                      errorMessage.toLowerCase().includes("verify") ||
+                      errorMessage.toLowerCase().includes("unauthorized"),
       });
-      return { success: false, error: response.error.message };
+      
+      // Provide helpful error message for domain verification issues
+      if (errorMessage.toLowerCase().includes("domain") || 
+          errorMessage.toLowerCase().includes("verify") ||
+          errorMessage.toLowerCase().includes("unauthorized")) {
+        return { 
+          success: false, 
+          error: `Email sending failed: Domain verification required. Please verify the domain in Resend dashboard or use a verified email address. Original error: ${errorMessage}` 
+        };
+      }
+      
+      return { success: false, error: errorMessage };
     }
     
     console.log("[EMAIL SEND] ✅ Email sent successfully:", {
       to: options.to,
+      from: from,
       subject: options.subject,
       emailId: response.data?.id,
     });
@@ -91,14 +111,18 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     // #region agent log
     fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'email/send.ts:72',message:'sendEmail catch block',data:{error:error instanceof Error?error.message:String(error),stack:error instanceof Error?error.stack:null,errorType:error?.constructor?.name},sessionId:'debug-session',runId:'run1',hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
     // #endregion
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("[EMAIL SEND] ❌ Exception sending email:", {
-      error: error instanceof Error ? error.message : String(error),
+      error: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
       to: options.to,
+      from: options.from || process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
       subject: options.subject,
       hasApiKey: !!process.env.RESEND_API_KEY,
+      apiKeyLength: process.env.RESEND_API_KEY?.length || 0,
+      resendFromEmail: process.env.RESEND_FROM_EMAIL || "not set",
     });
-    return { success: false, error: error instanceof Error ? error.message : "Failed to send email" };
+    return { success: false, error: errorMessage };
   }
 }
 

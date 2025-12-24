@@ -7,20 +7,71 @@ import { motion } from "framer-motion";
 import { FiArrowLeft, FiMail } from "react-icons/fi";
 import { useToast } from "@/components/ui/Toast";
 import LogoHeader from "@/components/brand/LogoHeader";
+import { useSession } from "next-auth/react";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { showToast } = useToast();
+  const { data: session } = useSession();
   const [email, setEmail] = useState("");
   const [resending, setResending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [loadingEmail, setLoadingEmail] = useState(true);
 
   useEffect(() => {
-    // Get email from session storage or URL
-    const storedEmail = sessionStorage.getItem("pendingVerificationEmail");
-    const emailParam = searchParams.get("email");
-    setEmail(storedEmail || emailParam || "");
+    const loadEmail = async () => {
+      setLoadingEmail(true);
+      
+      // Priority 1: Get email from current session (if logged in)
+      if (session?.user?.email) {
+        setEmail(session.user.email);
+        setLoadingEmail(false);
+        return;
+      }
+      
+      // Priority 2: Try to get from API if session exists but no email in session
+      if (session?.user?.id) {
+        try {
+          const response = await fetch("/api/user/me");
+          if (response.ok) {
+            const userData = await response.json();
+            if (userData.email) {
+              setEmail(userData.email);
+              setLoadingEmail(false);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch user email:", error);
+        }
+      }
+      
+      // Priority 3: Get email from URL parameter (but ignore if it doesn't match session)
+      const emailParam = searchParams.get("email");
+      if (emailParam) {
+        // If we have a session email, only use URL param if it matches (prevents stale token data)
+        if (!session?.user?.email || emailParam.toLowerCase() === session.user.email.toLowerCase()) {
+          setEmail(emailParam);
+          setLoadingEmail(false);
+          return;
+        }
+        // URL email doesn't match session email - session email takes priority
+        // Fall through to use session email instead
+      }
+      
+      // Priority 4: Get email from session storage (last resort)
+      const storedEmail = sessionStorage.getItem("pendingVerificationEmail");
+      if (storedEmail) {
+        setEmail(storedEmail);
+        setLoadingEmail(false);
+        return;
+      }
+      
+      setLoadingEmail(false);
+    };
+    
+    loadEmail();
     
     // Handle error messages from GET route redirects
     const error = searchParams.get("error");
@@ -35,7 +86,7 @@ function VerifyEmailContent() {
       }
       showToast(errorMessage, "error");
     }
-  }, [searchParams, showToast]);
+  }, [searchParams, showToast, session]);
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -45,9 +96,17 @@ function VerifyEmailContent() {
   }, [cooldown]);
 
   const handleResend = async () => {
-    if (!email) {
+    // Always prioritize the session email if available (it's the source of truth)
+    const emailToUse = session?.user?.email || email;
+    
+    if (!emailToUse) {
       showToast("No email address found", "error");
       return;
+    }
+    
+    // Update displayed email to match what we're actually using
+    if (session?.user?.email && session.user.email !== email) {
+      setEmail(session.user.email);
     }
 
     setResending(true);
@@ -55,7 +114,7 @@ function VerifyEmailContent() {
       const response = await fetch("/api/auth/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: emailToUse }),
       });
 
       const data = await response.json();
@@ -114,12 +173,27 @@ function VerifyEmailContent() {
             <h1 className="text-3xl font-heading font-bold text-white mb-2">
               Check Your Email
             </h1>
-            <p className="text-gray-400">
-              We've sent a verification link to
-            </p>
-            {email && (
-              <p className="text-bus-red font-semibold mt-2 break-all">
-                {email}
+            {loadingEmail ? (
+              <p className="text-gray-400">
+                Loading...
+              </p>
+            ) : email ? (
+              <>
+                <p className="text-gray-400">
+                  We've sent a verification link to
+                </p>
+                <p className="text-bus-red font-semibold mt-2 break-all">
+                  {email}
+                </p>
+                {email !== session?.user?.email && session?.user?.email && (
+                  <p className="text-yellow-400 text-sm mt-2">
+                    ⚠️ Email mismatch detected. Your session email is: {session.user.email}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-gray-400">
+                Please log in or provide your email address to resend the verification email.
               </p>
             )}
           </div>

@@ -1,13 +1,9 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Dark background with rounded corners -->
-  <rect width="512" height="512" rx="80" fill="#0A0E27"/>
-  
-  <!-- Big Red Bus Image -->
+  <!-- Big Red Bus Image - fills the entire icon -->
   <image 
     href="/big-red-bus-1.png" 
     width="512" 
     height="512" 
-    preserveAspectRatio="xMidYMid cover"
-    style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+    preserveAspectRatio="xMidYMid meet"
   />
 </svg>

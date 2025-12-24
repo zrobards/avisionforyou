@@ -111,8 +111,11 @@ export async function sendInviteEmail({
     If you didn't expect this invitation, you can safely ignore this email.
   `;
 
+  // Use RESEND_FROM_EMAIL or fallback to Resend's verified test domain
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  
   await resend.emails.send({
-    from: `SeeZee Team <${process.env.RESEND_FROM_EMAIL || "noreply@seezee.studio"}>`,
+    from: `SeeZee Team <${fromEmail}>`,
     to,
     subject: "Your SeeZee Worker Invitation",
     text,
@@ -211,8 +214,11 @@ export async function sendWelcomeEmail({
     </html>
   `;
 
+  // Use RESEND_FROM_EMAIL or fallback to Resend's verified test domain
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  
   const result = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'noreply@seezee.studio',
+    from: fromEmail,
     to,
     subject: 'Welcome to SeeZee Studio! 🎉',
     html,

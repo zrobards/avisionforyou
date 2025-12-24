@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signupSchema } from "@/lib/auth/validation";
-import { generateToken } from "@/lib/encryption/crypto";
-import { sendEmailWithRateLimit } from "@/lib/email/send";
-import { renderVerificationEmail } from "@/lib/email/templates/verification";
 import { rateLimitByIP, RateLimits, createRateLimitResponse } from "@/lib/rate-limit";
 import { getIPFromHeaders } from "@/lib/device/parser";
 
@@ -92,18 +89,13 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
     
-    // Generate email verification token
-    const verificationToken = generateToken(32);
-    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    
-    // Create user
+    // Create user with email auto-verified
     const user = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
         password: passwordHash,
         username: username?.toLowerCase(),
-        emailVerificationToken: verificationToken,
-        emailVerificationExpires: verificationExpires,
+        emailVerified: new Date(), // Auto-verify email on signup
         role: "CLIENT", // Default role
       },
     });
@@ -118,32 +110,10 @@ export async function POST(request: NextRequest) {
       },
     });
     
-    // Send verification email
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/verify-email/${verificationToken}`;
-    const emailTemplate = renderVerificationEmail({
-      email: user.email,
-      verificationUrl,
-    });
-    
-    const emailResult = await sendEmailWithRateLimit(
-      {
-        to: user.email,
-        subject: "Verify your email address - SeeZee Studio",
-        html: emailTemplate.html,
-        text: emailTemplate.text,
-      },
-      "email_verification"
-    );
-    
-    if (!emailResult.success) {
-      console.error("Failed to send verification email:", emailResult.error);
-      // Don't fail the signup if email fails - user can request resend
-    }
-    
     return NextResponse.json(
       {
         success: true,
-        message: "Account created successfully. Please check your email to verify your account.",
+        message: "Account created successfully.",
         email: user.email,
       },
       { status: 201 }

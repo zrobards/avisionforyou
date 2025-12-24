@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { SubscriptionStatus } from "@prisma/client";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
         await prisma.maintenanceSubscription.updateMany({
           where: { stripeSubscriptionId: subscription.id },
           data: {
-            status: "CANCELLED",
+            status: SubscriptionStatus.CANCELLED,
             cancelledAt: new Date(),
           },
         });
@@ -72,15 +73,29 @@ export async function POST(request: NextRequest) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
 
+        // Build update data object, only including valid dates
+        const updateData: {
+          currentPeriodStart?: Date;
+          currentPeriodEnd?: Date;
+          status: SubscriptionStatus;
+        } = {
+          status: subscription.status === "active" ? SubscriptionStatus.ACTIVE : 
+                 subscription.status === "paused" ? SubscriptionStatus.PAUSED : SubscriptionStatus.CANCELLED,
+        };
+
+        // Only add dates if they are valid numbers
+        if (subscription.current_period_start && typeof subscription.current_period_start === 'number') {
+          updateData.currentPeriodStart = new Date(subscription.current_period_start * 1000);
+        }
+        
+        if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+          updateData.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+        }
+
         // Update subscription period
         await prisma.maintenanceSubscription.updateMany({
           where: { stripeSubscriptionId: subscription.id },
-          data: {
-            currentPeriodStart: new Date(subscription.current_period_start * 1000),
-            currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-            status: subscription.status === "active" ? "ACTIVE" : 
-                   subscription.status === "paused" ? "PAUSED" : "CANCELLED",
-          },
+          data: updateData,
         });
 
         console.log(`Subscription ${subscription.id} updated`);

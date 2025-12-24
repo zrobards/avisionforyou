@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, MaintenancePlanStatus, MaintenanceStatus } from "@prisma/client";
 import Stripe from "stripe";
 import { sendEmail } from "@/lib/email/send";
 import { renderReceiptEmail, ReceiptType } from "@/lib/email/templates/receipt";
@@ -1367,25 +1367,45 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
     
     // Update maintenance plan with Stripe subscription ID
     // Set status to ACTIVE if subscription is active
+    const maintenancePlanUpdateData: {
+      stripeSubscriptionId: string;
+      status: MaintenancePlanStatus;
+      currentPeriodEnd?: Date;
+    } = {
+      stripeSubscriptionId: subscription.id,
+      status: subscription.status === 'active' ? MaintenancePlanStatus.ACTIVE : MaintenancePlanStatus.PAUSED,
+    };
+
+    // Only add currentPeriodEnd if it's a valid number
+    if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+      maintenancePlanUpdateData.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+    }
+
     const updateResult = await prisma.maintenancePlan.update({
       where: { id: maintenancePlan.id },
-      data: {
-        stripeSubscriptionId: subscription.id,
-        status: subscription.status === 'active' ? 'ACTIVE' : 'PAUSED',
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      },
+      data: maintenancePlanUpdateData,
     });
     
     console.log(`[WEBHOOK] Maintenance plan ${maintenancePlan.id} updated: status=${updateResult.status}, subscription=${subscription.id}`);
 
     // Also update project for backward compatibility
+    const projectUpdateData: {
+      stripeSubscriptionId: string;
+      maintenanceStatus: MaintenanceStatus;
+      nextBillingDate?: Date;
+    } = {
+      stripeSubscriptionId: subscription.id,
+      maintenanceStatus: subscription.status === 'active' ? MaintenanceStatus.ACTIVE : MaintenanceStatus.CANCELLED,
+    };
+
+    // Only add nextBillingDate if it's a valid number
+    if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+      projectUpdateData.nextBillingDate = new Date(subscription.current_period_end * 1000);
+    }
+
     await prisma.project.update({
       where: { id: maintenancePlan.projectId },
-      data: {
-        stripeSubscriptionId: subscription.id,
-        maintenanceStatus: subscription.status === 'active' ? 'ACTIVE' : 'INACTIVE',
-        nextBillingDate: new Date(subscription.current_period_end * 1000),
-      },
+      data: projectUpdateData,
     });
 
     console.log(`[WEBHOOK] Subscription ${subscription.id} linked to maintenance plan ${maintenancePlan.id}, status: ${subscription.status === 'active' ? 'ACTIVE' : 'PAUSED'}`);
@@ -1471,21 +1491,39 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     }
 
     // Update maintenance plan
+    const maintenancePlanUpdateData: {
+      status: MaintenancePlanStatus;
+      currentPeriodEnd?: Date;
+    } = {
+      status: subscription.status === 'active' ? MaintenancePlanStatus.ACTIVE : subscription.status === 'paused' ? MaintenancePlanStatus.PAUSED : MaintenancePlanStatus.CANCELLED,
+    };
+
+    // Only add currentPeriodEnd if it's a valid number
+    if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+      maintenancePlanUpdateData.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+    }
+
     await prisma.maintenancePlan.update({
       where: { id: maintenancePlan.id },
-      data: {
-        status: subscription.status === 'active' ? 'ACTIVE' : subscription.status === 'paused' ? 'PAUSED' : 'CANCELLED',
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      },
+      data: maintenancePlanUpdateData,
     });
 
     // Also update project for backward compatibility
+    const projectUpdateData: {
+      maintenanceStatus: MaintenanceStatus;
+      nextBillingDate?: Date;
+    } = {
+      maintenanceStatus: subscription.status === 'active' ? MaintenanceStatus.ACTIVE : MaintenanceStatus.CANCELLED,
+    };
+
+    // Only add nextBillingDate if it's a valid number
+    if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+      projectUpdateData.nextBillingDate = new Date(subscription.current_period_end * 1000);
+    }
+
     await prisma.project.update({
       where: { id: maintenancePlan.projectId },
-      data: {
-        maintenanceStatus: subscription.status === 'active' ? 'ACTIVE' : 'INACTIVE',
-        nextBillingDate: new Date(subscription.current_period_end * 1000),
-      },
+      data: projectUpdateData,
     });
 
     console.log(`Subscription ${subscription.id} updated for maintenance plan ${maintenancePlan.id}`);

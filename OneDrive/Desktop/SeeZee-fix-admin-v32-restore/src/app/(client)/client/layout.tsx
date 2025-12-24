@@ -22,8 +22,8 @@ export default async function ClientDashboardLayout({
   }
 
   // CEO email always has access to client dashboard
-  const CEO_EMAIL = "seanspm1007@gmail.com";
-  if (user.email === CEO_EMAIL || user.email === "seanpm1007@gmail.com") {
+  const CEO_EMAILS = ["seanspm1007@gmail.com", "seanpm1007@gmail.com", "sean.mcculloch23@gmail.com"];
+  if (user.email && CEO_EMAILS.includes(user.email.toLowerCase())) {
     // CEO can access client dashboard
     return (
       <Providers>
