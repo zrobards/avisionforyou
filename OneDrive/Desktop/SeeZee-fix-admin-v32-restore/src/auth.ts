@@ -128,6 +128,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        // CRITICAL: Don't set domain in production - let browser handle it
+        // Setting domain explicitly can cause cookie issues with subdomains
+        // domain: process.env.NODE_ENV === 'production' ? '.see-zee.com' : undefined,
       },
     },
   },
@@ -676,6 +679,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // The picture field from OAuth providers can be 4-20KB, causing cookies to exceed 4KB limit
       delete (token as any).picture;
       delete (token as any).image;
+
+      // CRITICAL FIX: Ensure onboarding fields are always set as booleans (never undefined)
+      // This ensures they're included when NextAuth serializes the token to JWT
+      // Undefined values might be omitted during JSON serialization
+      if (typeof token.tosAccepted !== 'boolean') {
+        token.tosAccepted = false;
+      }
+      if (typeof token.profileDone !== 'boolean') {
+        token.profileDone = false;
+      }
+      if (typeof token.questionnaireCompleted !== 'boolean') {
+        token.questionnaireCompleted = false;
+      }
+      if (typeof token.emailVerified !== 'boolean') {
+        token.emailVerified = false;
+      }
+      if (typeof token.needsPassword !== 'boolean') {
+        token.needsPassword = false;
+      }
+
+      // Log final token state to verify fields are set before encoding
+      console.log('[JWT] Returning token (will be encoded to cookie):', {
+        email: token.email,
+        sub: token.sub,
+        role: token.role,
+        tosAccepted: token.tosAccepted,
+        profileDone: token.profileDone,
+        questionnaireCompleted: token.questionnaireCompleted,
+        emailVerified: token.emailVerified,
+        needsPassword: token.needsPassword,
+        allKeys: Object.keys(token),
+      });
 
       return token;
     },
