@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Heart } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Heart, Twitter } from 'lucide-react';
 import NewsletterSignup from '@/components/shared/NewsletterSignup';
 
 export default function Footer() {
@@ -26,6 +26,9 @@ export default function Footer() {
                 </a>
                 <a href="https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition">
                   <Linkedin className="w-5 h-5" />
+                </a>
+                <a href="https://twitter.com/search?q=avisionforyourecovery" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-sky-400 transition">
+                  <Twitter className="w-5 h-5" />
                 </a>
               </div>
             </div>
@@ -120,6 +123,40 @@ export default function Footer() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Social Media Boxes */}
+          <div className="mt-12 pt-8 border-t border-gray-800">
+            <h3 className="text-white font-bold text-lg mb-6">Connect With Us On Social Media</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <a href="https://www.facebook.com/avisionforyourecovery" target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-blue-600 transition rounded-lg p-4 text-center">
+                <Facebook className="w-6 h-6 mx-auto mb-2" />
+                <p className="text-white text-sm font-semibold">Facebook</p>
+                <p className="text-gray-400 text-xs">869 followers</p>
+              </a>
+              <a href="https://www.instagram.com/avision_foryourecovery/" target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-pink-600 transition rounded-lg p-4 text-center">
+                <Instagram className="w-6 h-6 mx-auto mb-2" />
+                <p className="text-white text-sm font-semibold">Instagram</p>
+                <p className="text-gray-400 text-xs">112 followers</p>
+              </a>
+              <a href="https://twitter.com/search?q=avisionforyourecovery" target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-sky-500 transition rounded-lg p-4 text-center">
+                <Twitter className="w-6 h-6 mx-auto mb-2" />
+                <p className="text-white text-sm font-semibold">Twitter/X</p>
+                <p className="text-gray-400 text-xs">70 followers</p>
+              </a>
+              <a href="https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/" target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-blue-700 transition rounded-lg p-4 text-center">
+                <Linkedin className="w-6 h-6 mx-auto mb-2" />
+                <p className="text-white text-sm font-semibold">LinkedIn</p>
+                <p className="text-gray-400 text-xs">23 followers</p>
+              </a>
+              <a href="https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y" target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-black transition rounded-lg p-4 text-center">
+                <svg className="w-6 h-6 mx-auto mb-2 fill-current" viewBox="0 0 24 24">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.74 2.89 2.89 0 0 1 2.31-4.64 2.86 2.86 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.54-.05z" />
+                </svg>
+                <p className="text-white text-sm font-semibold">TikTok</p>
+                <p className="text-gray-400 text-xs">41 followers</p>
+              </a>
             </div>
           </div>
 
