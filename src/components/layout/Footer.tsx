@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Heart } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Heart } from 'lucide-react';
 import NewsletterSignup from '@/components/shared/NewsletterSignup';
 
 export default function Footer() {
@@ -18,17 +18,14 @@ export default function Footer() {
                 Empowering individuals and communities through recovery, hope, and transformation. Building a world where everyone has a vision for their future.
               </p>
               <div className="flex gap-4">
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition">
+                <a href="https://www.facebook.com/avisionforyourecovery" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition">
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition">
-                  <Twitter className="w-5 h-5" />
-                </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition">
-                  <Linkedin className="w-5 h-5" />
-                </a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-pink-400 transition">
+                <a href="https://www.instagram.com/avision_foryourecovery/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-pink-400 transition">
                   <Instagram className="w-5 h-5" />
+                </a>
+                <a href="https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition">
+                  <Linkedin className="w-5 h-5" />
                 </a>
               </div>
             </div>
