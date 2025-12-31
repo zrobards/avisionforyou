@@ -1,6 +1,13 @@
 'use client'
 
-import { Facebook, Instagram, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, ExternalLink } from 'lucide-react'
+import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin, ExternalLink } from 'lucide-react'
+
+// TikTok Icon Component
+const TikTokIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.75 2.9 2.9 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.96-.1z" />
+  </svg>
+)
 
 export default function SocialMediaPage() {
   const socialChannels = [
@@ -10,7 +17,7 @@ export default function SocialMediaPage() {
       handle: '@AVisionForYouRecovery',
       url: 'https://www.facebook.com/avisionforyourecovery',
       description: 'Join our community for daily inspiration, event updates, and recovery resources',
-      followers: '2.3K',
+      followers: '2.5K',
       color: 'from-blue-600 to-blue-700',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200'
@@ -21,7 +28,7 @@ export default function SocialMediaPage() {
       handle: '@avisionforyourecovery',
       url: 'https://www.instagram.com/avision_foryourecovery/',
       description: 'Follow us for recovery stories, program highlights, and community celebrations',
-      followers: '1.8K',
+      followers: '2.1K',
       color: 'from-pink-600 to-purple-600',
       bgColor: 'bg-pink-50',
       borderColor: 'border-pink-200'
@@ -32,7 +39,7 @@ export default function SocialMediaPage() {
       handle: '@AVFYRecovery',
       url: 'https://twitter.com/avfyrecovery',
       description: 'Stay updated with recovery news, advocacy efforts, and community announcements',
-      followers: '1.2K',
+      followers: '890',
       color: 'from-sky-500 to-sky-600',
       bgColor: 'bg-sky-50',
       borderColor: 'border-sky-200'
@@ -43,21 +50,21 @@ export default function SocialMediaPage() {
       handle: 'A Vision For You Recovery',
       url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/',
       description: 'Connect with us professionally and explore career opportunities',
-      followers: '850',
+      followers: '1.2K',
       color: 'from-blue-700 to-blue-800',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-300'
     },
     {
-      name: 'YouTube',
-      icon: Youtube,
-      handle: '@AVisionForYouRecovery',
-      url: 'https://youtube.com/@avisionforyourecovery',
-      description: 'Watch testimonials, program tours, educational content, and recovery resources',
-      followers: '920',
-      color: 'from-red-600 to-red-700',
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200'
+      name: 'TikTok',
+      icon: TikTokIcon,
+      handle: '@avisionforyourecovery',
+      url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y',
+      description: 'Watch short-form recovery tips, success stories, and community highlights',
+      followers: '3.2K',
+      color: 'from-gray-800 to-black',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-200'
     }
   ]
 
@@ -65,7 +72,7 @@ export default function SocialMediaPage() {
     {
       title: 'Recovery Stories',
       description: 'Real testimonials from graduates sharing their journey to sobriety',
-      platforms: ['Instagram', 'Facebook', 'YouTube']
+      platforms: ['Instagram', 'Facebook', 'TikTok']
     },
     {
       title: 'Event Updates',
@@ -73,14 +80,14 @@ export default function SocialMediaPage() {
       platforms: ['Facebook', 'Twitter', 'Instagram']
     },
     {
-      title: 'Educational Content',
-      description: 'Tips, resources, and evidence-based recovery information',
-      platforms: ['YouTube', 'LinkedIn', 'Twitter']
+      title: 'Quick Tips & Insights',
+      description: 'Short-form recovery tips, resources, and evidence-based information',
+      platforms: ['TikTok', 'Instagram', 'Twitter']
     },
     {
       title: 'Program Highlights',
-      description: 'Behind-the-scenes looks at our programs and facilities',
-      platforms: ['Instagram', 'YouTube', 'Facebook']
+      description: 'Behind-the-scenes looks at our programs and community impact',
+      platforms: ['Instagram', 'TikTok', 'Facebook']
     }
   ]
 
