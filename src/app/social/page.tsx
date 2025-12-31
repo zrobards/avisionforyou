@@ -17,7 +17,7 @@ export default function SocialMediaPage() {
       handle: '@AVisionForYouRecovery',
       url: 'https://www.facebook.com/avisionforyourecovery',
       description: 'Join our community for daily inspiration, event updates, and recovery resources',
-      followers: '2.5K',
+      followers: '869',
       color: 'from-blue-600 to-blue-700',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200'
@@ -28,7 +28,7 @@ export default function SocialMediaPage() {
       handle: '@avisionforyourecovery',
       url: 'https://www.instagram.com/avision_foryourecovery/',
       description: 'Follow us for recovery stories, program highlights, and community celebrations',
-      followers: '2.1K',
+      followers: '112',
       color: 'from-pink-600 to-purple-600',
       bgColor: 'bg-pink-50',
       borderColor: 'border-pink-200'
@@ -39,7 +39,7 @@ export default function SocialMediaPage() {
       handle: '@AVFYRecovery',
       url: 'https://twitter.com/avfyrecovery',
       description: 'Stay updated with recovery news, advocacy efforts, and community announcements',
-      followers: '890',
+      followers: '70',
       color: 'from-sky-500 to-sky-600',
       bgColor: 'bg-sky-50',
       borderColor: 'border-sky-200'
@@ -50,7 +50,7 @@ export default function SocialMediaPage() {
       handle: 'A Vision For You Recovery',
       url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/',
       description: 'Connect with us professionally and explore career opportunities',
-      followers: '1.2K',
+      followers: '23',
       color: 'from-blue-700 to-blue-800',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-300'
@@ -61,7 +61,7 @@ export default function SocialMediaPage() {
       handle: '@avisionforyourecovery',
       url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y',
       description: 'Watch short-form recovery tips, success stories, and community highlights',
-      followers: '3.2K',
+      followers: '41',
       color: 'from-gray-800 to-black',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200'
