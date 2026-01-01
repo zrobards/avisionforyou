@@ -49,22 +49,29 @@ export default function SocialStatsAdmin() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(stats),
-        cache: 'no-store'
+        cache: 'no-cache'
       })
 
       if (response.ok) {
         setSaved(true)
         
-        // Force refresh footer and social page by invalidating cache
-        // This will make the changes appear instantly across the site
+        // Broadcast update event to all tabs/windows
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('social-stats-updated'))
+          
+          // Also use broadcast channel for cross-tab communication
+          const bc = new BroadcastChannel('social-stats-channel')
+          bc.postMessage({ type: 'stats-updated', stats })
+          bc.close()
         }
         
         setTimeout(() => setSaved(false), 3000)
+      } else {
+        alert('Failed to save. Please try again.')
       }
     } catch (error) {
       console.error('Failed to save stats:', error)
+      alert('Error saving stats. Please try again.')
     } finally {
       setLoading(false)
     }

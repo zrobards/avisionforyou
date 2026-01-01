@@ -21,12 +21,15 @@ export default function Footer() {
   });
 
   useEffect(() => {
-    // Fetch social stats from public API
+    // Fetch social stats from database on mount and when updated
     const fetchStats = async () => {
       try {
         const response = await fetch('/api/public/social-stats', {
-          cache: 'no-store',
-          next: { revalidate: 0 }
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
         });
         if (response.ok) {
           const data = await response.json();
@@ -41,6 +44,7 @@ export default function Footer() {
     
     // Listen for updates from admin panel
     const handleStatsUpdate = () => {
+      console.log('Social stats update event received, fetching new data...');
       fetchStats();
     };
     

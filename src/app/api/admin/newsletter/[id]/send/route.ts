@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
 import { Resend } from 'resend'
+import { revalidatePath } from 'next/cache'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -31,13 +32,40 @@ export async function POST(
       return NextResponse.json({ error: 'Newsletter not found' }, { status: 404 })
     }
 
+    // Update newsletter status to PUBLISHED immediately
+    const now = new Date()
+    await prisma.newsletter.update({
+      where: { id: params.id },
+      data: {
+        status: 'PUBLISHED',
+        publishedAt: now,
+        sentAt: now
+      }
+    })
+
+    // Revalidate newsletter pages so it appears instantly
+    revalidatePath('/newsletter')
+    revalidatePath('/api/public/newsletter')
+    revalidatePath('/admin/newsletter')
+
     // Get all subscribed users
     const subscribers = await prisma.newsletterSubscriber.findMany({
       where: { subscribed: true }
     })
 
     if (subscribers.length === 0) {
-      return NextResponse.json({ error: 'No subscribers found' }, { status: 400 })
+      // Still mark as published even with no subscribers
+      await prisma.newsletter.update({
+        where: { id: params.id },
+        data: { sentCount: 0 }
+      })
+      
+      return NextResponse.json({ 
+        success: true, 
+        sentCount: 0,
+        message: 'Newsletter published but no subscribers to send to',
+        newsletter: await prisma.newsletter.findUnique({ where: { id: params.id } })
+      })
     }
 
     // Send emails in batches (Resend allows batch sending)
@@ -156,15 +184,11 @@ export async function POST(
       }
     }
 
-    // Update newsletter status
-    const now = new Date()
+    // Update final sent count after all emails processed
     const updatedNewsletter = await prisma.newsletter.update({
       where: { id: params.id },
       data: {
-        sentAt: now,
-        sentCount: successCount,
-        status: 'PUBLISHED',
-        publishedAt: now
+        sentCount: successCount
       }
     })
 
