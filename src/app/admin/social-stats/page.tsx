@@ -48,11 +48,19 @@ export default function SocialStatsAdmin() {
       const response = await fetch('/api/admin/social-stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(stats)
+        body: JSON.stringify(stats),
+        cache: 'no-store'
       })
 
       if (response.ok) {
         setSaved(true)
+        
+        // Force refresh footer and social page by invalidating cache
+        // This will make the changes appear instantly across the site
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('social-stats-updated'))
+        }
+        
         setTimeout(() => setSaved(false), 3000)
       }
     } catch (error) {

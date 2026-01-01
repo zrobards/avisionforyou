@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,6 +46,11 @@ export async function POST(request: NextRequest) {
         create: data
       })
     }
+
+    // Revalidate all pages that use social stats
+    revalidatePath('/', 'layout')
+    revalidatePath('/social')
+    revalidatePath('/api/public/social-stats')
 
     return NextResponse.json({
       success: true,

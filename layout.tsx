@@ -1,120 +1,82 @@
-'use client'
+import type { Metadata } from "next"
+import { AuthProvider } from "@/providers"
+import { ToastProvider } from "@/components/shared/ToastProvider"
+import ConditionalLayout from "@/components/layout/ConditionalLayout"
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics"
+import "./globals.css"
 
-import { ReactNode, useState } from 'react'
-import Link from 'next/link'
-import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image, Share2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { signOut } from 'next-auth/react'
-import { ToastProvider } from '@/components/ui/toast'
-
-const adminMenuItems = [
-  { href: '/admin', label: 'Overview', icon: Home },
-  { href: '/admin/users', label: 'Users', icon: Users },
-  { href: '/admin/meetings', label: 'Meetings', icon: Calendar },
-  { href: '/admin/media', label: 'Media Library', icon: Image },
-  { href: '/admin/blog', label: 'Blog', icon: FileText },
-  { href: '/admin/newsletter', label: 'Newsletter', icon: Mail },
-  { href: '/admin/team', label: 'Team', icon: Users },
-  { href: '/admin/contact', label: 'Contact', icon: Mail },
-  { href: '/admin/donations', label: 'Donations', icon: Heart },
-  { href: '/admin/social-stats', label: 'Social Stats', icon: Share2 },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-]
-
-export default function AdminLayout({
-  children,
-}: {
-  children: ReactNode
-}) {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const router = useRouter()
-
-  const handleLogout = async () => {
-    await signOut({ redirect: false })
-    router.push('/login')
-  }
-
-  return (
-    <ToastProvider>
-    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? 'w-56' : 'w-0'
-        } bg-gradient-to-b from-brand-purple via-purple-800 to-purple-900 text-white transition-all duration-300 overflow-hidden fixed h-screen z-40 shadow-lg`}
-      >
-        <div className="px-4 py-4 h-full flex flex-col">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-white">Admin</h2>
-            <p className="text-purple-200 text-xs mt-0.5">Dashboard</p>
-          </div>
-          <nav className="space-y-0.5 flex-1">
-            {adminMenuItems.map(item => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-white/20 transition-colors text-xs font-medium text-white/90 hover:text-white"
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
-              )
-            })}
-          </nav>
-
-          {/* Logout Button */}
-          <div className="pt-4 border-t border-white/20">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-white/20 transition-colors text-xs w-full text-left font-medium text-white/90 hover:text-white"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-56' : 'ml-0'} transition-all duration-300`}>
-        {/* Top Bar */}
-        <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30 h-16 flex items-center">
-          <div className="flex items-center justify-between px-6 w-full">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              {sidebarOpen ? (
-                <X className="w-6 h-6 text-gray-700" />
-              ) : (
-                <Menu className="w-6 h-6 text-gray-700" />
-              )}
-            </button>
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                ← Back to Dashboard
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-gray-50">
-          {children}
-        </main>
-      </div>
-
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-    </div>
-    </ToastProvider>
-  )
+export const metadata: Metadata = {
+  metadataBase: new URL('https://avisionforyou.org'),
+  title: {
+    default: "A Vision For You Recovery | Faith-Based Recovery in Louisville, KY",
+    template: "%s | A Vision For You Recovery"
+  },
+  description: "A faith-based nonprofit recovery center providing comprehensive support for homeless, addicted, maladjusted, and mentally ill individuals in Louisville, Kentucky. We offer IOP programs, peer support, and community resources.",
+  keywords: ["recovery", "addiction treatment", "mental health", "housing assistance", "Louisville Kentucky", "nonprofit", "faith-based recovery", "IOP program", "peer support", "community resources"],
+  authors: [{ name: "A Vision For You Recovery", url: "https://avisionforyou.org" }],
+  creator: "A Vision For You Recovery",
+  publisher: "A Vision For You Recovery",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png"
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://avisionforyou.org',
+    siteName: 'A Vision For You Recovery',
+    title: 'A Vision For You Recovery | Faith-Based Recovery in Louisville, KY',
+    description: 'Comprehensive recovery support for homeless, addicted, and mentally ill individuals. Join our community-based programs in Louisville, Kentucky.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'A Vision For You Recovery',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'A Vision For You Recovery | Louisville, KY',
+    description: 'Faith-based recovery center providing IOP programs, peer support, and community resources.',
+    images: ['/og-image.jpg'],
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
 }
 
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <GoogleAnalytics />
+      </head>
+      <body>
+        <AuthProvider>
+          <ToastProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+          </ToastProvider>
+        </AuthProvider>
+      </body>
+    </html>
+  )
+}

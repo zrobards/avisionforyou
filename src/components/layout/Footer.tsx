@@ -24,7 +24,10 @@ export default function Footer() {
     // Fetch social stats from public API
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/public/social-stats');
+        const response = await fetch('/api/public/social-stats', {
+          cache: 'no-store',
+          next: { revalidate: 0 }
+        });
         if (response.ok) {
           const data = await response.json();
           setSocialStats(data);
@@ -33,7 +36,19 @@ export default function Footer() {
         console.error('Failed to fetch social stats:', error);
       }
     };
+    
     fetchStats();
+    
+    // Listen for updates from admin panel
+    const handleStatsUpdate = () => {
+      fetchStats();
+    };
+    
+    window.addEventListener('social-stats-updated', handleStatsUpdate);
+    
+    return () => {
+      window.removeEventListener('social-stats-updated', handleStatsUpdate);
+    };
   }, []);
 
   return (
