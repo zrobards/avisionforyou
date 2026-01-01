@@ -3,6 +3,7 @@ import { AuthProvider } from "@/providers"
 import { ToastProvider } from "@/components/shared/ToastProvider"
 import ConditionalLayout from "@/components/layout/ConditionalLayout"
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics"
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -76,6 +77,7 @@ export default function RootLayout({
             </ConditionalLayout>
           </ToastProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   )
