@@ -24,7 +24,7 @@ export default function Footer() {
     // Fetch social stats from database on mount
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/public/social-stats');
+        const response = await fetch('/api/public/social-stats', { cache: 'no-store' });
         if (response.ok) {
           const data = await response.json();
           setSocialStats(data);
@@ -35,6 +35,10 @@ export default function Footer() {
     };
     
     fetchStats();
+    
+    // Refresh stats every 30 seconds to catch updates
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (

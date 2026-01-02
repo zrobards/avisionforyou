@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin, ExternalLink } from 'lucide-react'
 
 // TikTok Icon Component
@@ -9,15 +10,50 @@ const TikTokIcon = () => (
   </svg>
 )
 
+interface SocialStat {
+  followers: number
+  handle: string
+  url: string
+}
+
 export default function SocialMediaPage() {
+  const [socialStats, setSocialStats] = useState<Record<string, SocialStat>>({
+    facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avisionforyourecovery' },
+    instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
+    twitter: { followers: 70, handle: '@AVFYRecovery', url: 'https://twitter.com/search?q=avisionforyourecovery' },
+    linkedin: { followers: 23, handle: 'A Vision For You Recovery', url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/' },
+    tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y' }
+  })
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Fetch social stats from database
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/public/social-stats', { cache: 'no-store' })
+        if (response.ok) {
+          const data = await response.json()
+          setSocialStats(data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch social stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchStats()
+  }, [])
+
   const socialChannels = [
     {
       name: 'Facebook',
       icon: Facebook,
-      handle: '@AVisionForYouRecovery',
-      url: 'https://www.facebook.com/avisionforyourecovery',
+      handle: socialStats.facebook.handle,
+      url: socialStats.facebook.url,
       description: 'Join our community for daily inspiration, event updates, and recovery resources',
-      followers: '869',
+      followers: socialStats.facebook.followers.toString(),
       color: 'from-blue-600 to-blue-700',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200'
@@ -25,10 +61,10 @@ export default function SocialMediaPage() {
     {
       name: 'Instagram',
       icon: Instagram,
-      handle: '@avisionforyourecovery',
-      url: 'https://www.instagram.com/avision_foryourecovery/',
+      handle: socialStats.instagram.handle,
+      url: socialStats.instagram.url,
       description: 'Follow us for recovery stories, program highlights, and community celebrations',
-      followers: '112',
+      followers: socialStats.instagram.followers.toString(),
       color: 'from-pink-600 to-purple-600',
       bgColor: 'bg-pink-50',
       borderColor: 'border-pink-200'
@@ -36,10 +72,10 @@ export default function SocialMediaPage() {
     {
       name: 'Twitter / X',
       icon: Twitter,
-      handle: '@AVFYRecovery',
-      url: 'https://twitter.com/avfyrecovery',
+      handle: socialStats.twitter.handle,
+      url: socialStats.twitter.url,
       description: 'Stay updated with recovery news, advocacy efforts, and community announcements',
-      followers: '70',
+      followers: socialStats.twitter.followers.toString(),
       color: 'from-sky-500 to-sky-600',
       bgColor: 'bg-sky-50',
       borderColor: 'border-sky-200'
@@ -47,10 +83,10 @@ export default function SocialMediaPage() {
     {
       name: 'LinkedIn',
       icon: Linkedin,
-      handle: 'A Vision For You Recovery',
-      url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/',
+      handle: socialStats.linkedin.handle,
+      url: socialStats.linkedin.url,
       description: 'Connect with us professionally and explore career opportunities',
-      followers: '23',
+      followers: socialStats.linkedin.followers.toString(),
       color: 'from-blue-700 to-blue-800',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-300'
@@ -58,10 +94,10 @@ export default function SocialMediaPage() {
     {
       name: 'TikTok',
       icon: TikTokIcon,
-      handle: '@avisionforyourecovery',
-      url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y',
+      handle: socialStats.tiktok.handle,
+      url: socialStats.tiktok.url,
       description: 'Watch short-form recovery tips, success stories, and community highlights',
-      followers: '41',
+      followers: socialStats.tiktok.followers.toString(),
       color: 'from-gray-800 to-black',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200'

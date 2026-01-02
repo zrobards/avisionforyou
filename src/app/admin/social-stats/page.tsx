@@ -51,16 +51,27 @@ export default function SocialStatsAdmin() {
         body: JSON.stringify(stats)
       })
 
+      const data = await response.json()
+
       if (response.ok) {
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
+        // Refresh the stats to show updated values
+        const refreshResponse = await fetch('/api/admin/social-stats')
+        if (refreshResponse.ok) {
+          const refreshedData = await refreshResponse.json()
+          setStats(refreshedData)
+        }
       } else {
-        const error = await response.json()
-        alert(`Failed to save: ${error.error || 'Please try again.'}`)
+        const errorMessage = data.details 
+          ? `${data.error}: ${Array.isArray(data.details) ? data.details.join(', ') : data.details}`
+          : data.error || 'Please try again.'
+        alert(`Failed to save: ${errorMessage}`)
       }
     } catch (error) {
       console.error('Failed to save stats:', error)
-      alert('Error saving stats. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Error saving stats: ${errorMessage}. Please try again.`)
     } finally {
       setLoading(false)
     }

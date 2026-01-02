@@ -27,15 +27,38 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { facebook, instagram, twitter, linkedin, tiktok } = await request.json()
+    const body = await request.json()
+    const { facebook, instagram, twitter, linkedin, tiktok } = body
+
+    // Validate that all values are provided and are valid numbers
+    const values = { facebook, instagram, twitter, linkedin, tiktok }
+    const errors: string[] = []
+
+    for (const [platform, value] of Object.entries(values)) {
+      if (value === undefined || value === null || value === '') {
+        errors.push(`${platform} is required`)
+      } else {
+        const numValue = parseInt(String(value), 10)
+        if (isNaN(numValue) || numValue < 0) {
+          errors.push(`${platform} must be a valid positive number`)
+        }
+      }
+    }
+
+    if (errors.length > 0) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: errors },
+        { status: 400 }
+      )
+    }
 
     // Store each platform's stats in the database
     const platforms = [
-      { platform: 'facebook', followers: parseInt(facebook), url: 'https://www.facebook.com/avisionforyourecovery', handle: '@AVisionForYouRecovery' },
-      { platform: 'instagram', followers: parseInt(instagram), url: 'https://www.instagram.com/avision_foryourecovery/', handle: '@avisionforyourecovery' },
-      { platform: 'twitter', followers: parseInt(twitter), url: 'https://twitter.com/search?q=avisionforyourecovery', handle: '@AVFYRecovery' },
-      { platform: 'linkedin', followers: parseInt(linkedin), url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/', handle: 'A Vision For You Recovery' },
-      { platform: 'tiktok', followers: parseInt(tiktok), url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y', handle: '@avisionforyourecovery' }
+      { platform: 'facebook', followers: parseInt(String(facebook), 10), url: 'https://www.facebook.com/avisionforyourecovery', handle: '@AVisionForYouRecovery' },
+      { platform: 'instagram', followers: parseInt(String(instagram), 10), url: 'https://www.instagram.com/avision_foryourecovery/', handle: '@avisionforyourecovery' },
+      { platform: 'twitter', followers: parseInt(String(twitter), 10), url: 'https://twitter.com/search?q=avisionforyourecovery', handle: '@AVFYRecovery' },
+      { platform: 'linkedin', followers: parseInt(String(linkedin), 10), url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/', handle: 'A Vision For You Recovery' },
+      { platform: 'tiktok', followers: parseInt(String(tiktok), 10), url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y', handle: '@avisionforyourecovery' }
     ]
 
     // Upsert each platform's stats
@@ -58,8 +81,9 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error updating social stats:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to update social stats' },
+      { error: 'Failed to update social stats', details: errorMessage },
       { status: 500 }
     )
   }
