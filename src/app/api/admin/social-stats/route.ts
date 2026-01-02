@@ -61,6 +61,41 @@ export async function POST(request: NextRequest) {
       { platform: 'tiktok', followers: parseInt(String(tiktok), 10), url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y', handle: '@avisionforyourecovery' }
     ]
 
+    // Check if table exists, create it if not
+    try {
+      await db.socialStats.findFirst()
+    } catch (error: any) {
+      // Table doesn't exist, create it
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        console.log('Creating social_stats table...')
+        try {
+          await db.$executeRawUnsafe(`
+            CREATE TABLE IF NOT EXISTS "social_stats" (
+              "id" TEXT NOT NULL,
+              "platform" TEXT NOT NULL,
+              "followers" INTEGER NOT NULL DEFAULT 0,
+              "handle" TEXT,
+              "url" TEXT,
+              "updatedAt" TIMESTAMP(3) NOT NULL,
+              "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              CONSTRAINT "social_stats_pkey" PRIMARY KEY ("id")
+            );
+          `)
+
+          await db.$executeRawUnsafe(`
+            CREATE UNIQUE INDEX IF NOT EXISTS "social_stats_platform_key" 
+            ON "social_stats"("platform");
+          `)
+          console.log('Table created successfully')
+        } catch (createError) {
+          console.error('Error creating table:', createError)
+          // Continue anyway, might already exist
+        }
+      } else {
+        throw error
+      }
+    }
+
     // Upsert each platform's stats
     for (const data of platforms) {
       await db.socialStats.upsert({
@@ -92,9 +127,24 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Fetch all social stats from database
-    const stats = await db.socialStats.findMany({
-      orderBy: { platform: 'asc' }
-    })
+    let stats
+    try {
+      stats = await db.socialStats.findMany({
+        orderBy: { platform: 'asc' }
+      })
+    } catch (error: any) {
+      // If table doesn't exist, return defaults
+      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+        return NextResponse.json({
+          facebook: '869',
+          instagram: '112',
+          twitter: '70',
+          linkedin: '23',
+          tiktok: '41'
+        })
+      }
+      throw error
+    }
 
     // Convert to object format for easier access
     const statsObj = stats.reduce((acc, stat) => {
