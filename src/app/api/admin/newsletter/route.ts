@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 
 // GET - Fetch all newsletters
 export async function GET(req: NextRequest) {
@@ -82,6 +83,13 @@ export async function POST(req: NextRequest) {
         }
       }
     })
+
+    // Revalidate pages to show new newsletter instantly
+    revalidatePath('/newsletter')
+    revalidatePath('/admin/newsletter')
+    if (status === 'PUBLISHED') {
+      revalidatePath('/api/public/newsletter')
+    }
 
     return NextResponse.json(newsletter)
   } catch (error) {

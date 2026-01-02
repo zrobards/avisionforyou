@@ -48,26 +48,15 @@ export default function SocialStatsAdmin() {
       const response = await fetch('/api/admin/social-stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(stats),
-        cache: 'no-cache'
+        body: JSON.stringify(stats)
       })
 
       if (response.ok) {
         setSaved(true)
-        
-        // Broadcast update event to all tabs/windows
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('social-stats-updated'))
-          
-          // Also use broadcast channel for cross-tab communication
-          const bc = new BroadcastChannel('social-stats-channel')
-          bc.postMessage({ type: 'stats-updated', stats })
-          bc.close()
-        }
-        
         setTimeout(() => setSaved(false), 3000)
       } else {
-        alert('Failed to save. Please try again.')
+        const error = await response.json()
+        alert(`Failed to save: ${error.error || 'Please try again.'}`)
       }
     } catch (error) {
       console.error('Failed to save stats:', error)

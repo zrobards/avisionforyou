@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 
 // GET - Fetch single newsletter
 export async function GET(
@@ -99,6 +100,11 @@ export async function PATCH(
       }
     })
 
+    // Revalidate pages to show updated newsletter instantly
+    revalidatePath('/newsletter')
+    revalidatePath('/admin/newsletter')
+    revalidatePath('/api/public/newsletter')
+
     return NextResponse.json(newsletter)
   } catch (error) {
     console.error('Error updating newsletter:', error)
@@ -126,6 +132,11 @@ export async function DELETE(
     await prisma.newsletter.delete({
       where: { id: params.id }
     })
+
+    // Revalidate pages to remove deleted newsletter instantly
+    revalidatePath('/newsletter')
+    revalidatePath('/admin/newsletter')
+    revalidatePath('/api/public/newsletter')
 
     return NextResponse.json({ success: true })
   } catch (error) {

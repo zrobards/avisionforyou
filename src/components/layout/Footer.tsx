@@ -21,16 +21,10 @@ export default function Footer() {
   });
 
   useEffect(() => {
-    // Fetch social stats from database on mount and when updated
+    // Fetch social stats from database on mount
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/public/social-stats', {
-          cache: 'no-cache',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
-        });
+        const response = await fetch('/api/public/social-stats');
         if (response.ok) {
           const data = await response.json();
           setSocialStats(data);
@@ -41,18 +35,6 @@ export default function Footer() {
     };
     
     fetchStats();
-    
-    // Listen for updates from admin panel
-    const handleStatsUpdate = () => {
-      console.log('Social stats update event received, fetching new data...');
-      fetchStats();
-    };
-    
-    window.addEventListener('social-stats-updated', handleStatsUpdate);
-    
-    return () => {
-      window.removeEventListener('social-stats-updated', handleStatsUpdate);
-    };
   }, []);
 
   return (
