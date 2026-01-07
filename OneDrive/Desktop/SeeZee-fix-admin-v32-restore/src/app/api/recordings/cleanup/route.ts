@@ -26,12 +26,21 @@ export async function POST(req: NextRequest) {
       select: { id: true, filePath: true, title: true, status: true }
     });
 
-    const orphaned: { id: string; title: string; filePath: string }[] = [];
+    const orphaned: { id: string; title: string; filePath: string | null }[] = [];
     const valid: { id: string; title: string }[] = [];
 
     for (const recording of recordings) {
       // Try to find the file
       let filePath = recording.filePath;
+      
+      // Skip if no file path (e.g., manual transcripts)
+      if (!filePath) {
+        valid.push({
+          id: recording.id,
+          title: recording.title,
+        });
+        continue;
+      }
       
       // Normalize the path
       if (filePath.startsWith('/uploads/')) {
