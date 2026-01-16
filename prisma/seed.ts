@@ -383,7 +383,7 @@ async function main() {
       credentials: 'Founder, Recovery Advocate',
       email: 'ghaynes@avisionforyou.org',
       phone: '(502) 749-6344',
-      imageUrl: null,
+      imageUrl: '/team/gregory-haynes.png',
       order: 1,
       isActive: true
     },
@@ -395,7 +395,7 @@ async function main() {
       credentials: 'MBA, Business Leader',
       email: 'cmoore@avisionforyou.org',
       phone: null,
-      imageUrl: null,
+      imageUrl: '/team/charles-moore.png',
       order: 2,
       isActive: true
     },
@@ -407,7 +407,7 @@ async function main() {
       credentials: 'CPA, Financial Management',
       email: 'hfuqua@avisionforyou.org',
       phone: null,
-      imageUrl: null,
+      imageUrl: '/team/henry-fuqua.png',
       order: 3,
       isActive: true
     },
@@ -419,7 +419,7 @@ async function main() {
       credentials: 'JD, Attorney',
       email: 'emassey@avisionforyou.org',
       phone: null,
-      imageUrl: null,
+      imageUrl: '/team/evan-massey.png',
       order: 4,
       isActive: true
     },
@@ -432,7 +432,7 @@ async function main() {
       credentials: 'MSW, LCSW',
       email: 'lbennett@avisionforyou.org',
       phone: '(502) 749-6345',
-      imageUrl: null,
+      imageUrl: '/team/lucas-bennett.png',
       order: 5,
       isActive: true
     },
@@ -444,7 +444,7 @@ async function main() {
       credentials: 'LCSW, CADC',
       email: 'jaltizer@avisionforyou.org',
       phone: null,
-      imageUrl: null,
+      imageUrl: '/team/josh-altizer.png',
       order: 6,
       isActive: true
     },
@@ -456,7 +456,7 @@ async function main() {
       credentials: 'Peer Recovery Specialist',
       email: 'zwilbert@avisionforyou.org',
       phone: null,
-      imageUrl: null,
+      imageUrl: '/team/zach-wilbert.png',
       order: 7,
       isActive: true
     },
@@ -468,7 +468,7 @@ async function main() {
       credentials: 'BA, Nonprofit Development',
       email: 'sfurlow@avisionforyou.org',
       phone: null,
-      imageUrl: null,
+      imageUrl: '/team/steven-furlow.png',
       order: 8,
       isActive: true
     }
