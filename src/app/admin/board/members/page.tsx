@@ -53,28 +53,21 @@ export default function BoardMembersPage() {
 
   const getRoleDisplay = (role: string): string => {
     const roleMap: Record<string, string> = {
+      BOARD_MEMBER: 'Board Member',
       BOARD_PRESIDENT: 'Board President',
-      BOARD_VP: 'Board Vice President',
+      BOARD_VP: 'Board Vice President', 
       BOARD_TREASURER: 'Board Treasurer',
       BOARD_SECRETARY: 'Board Secretary',
-      BOARD_MEMBER: 'Board Member',
     };
     return roleMap[role] || role;
   };
 
   const getRoleColor = (role: string): string => {
-    switch (role) {
-      case 'BOARD_PRESIDENT':
-        return 'bg-purple-100 text-purple-700';
-      case 'BOARD_VP':
-        return 'bg-blue-100 text-blue-700';
-      case 'BOARD_TREASURER':
-        return 'bg-green-100 text-green-700';
-      case 'BOARD_SECRETARY':
-        return 'bg-yellow-100 text-yellow-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+    // All board-related roles get purple badge
+    if (role.startsWith('BOARD_')) {
+      return 'bg-purple-100 text-purple-700';
     }
+    return 'bg-gray-100 text-gray-700';
   };
 
   if (status === 'loading' || loading) {

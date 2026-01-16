@@ -31,9 +31,11 @@ export async function PATCH(
 
     const { role } = await request.json()
 
-    if (!['USER', 'STAFF', 'ADMIN'].includes(role)) {
+    const validRoles = ['USER', 'STAFF', 'ADMIN']
+
+    if (!validRoles.includes(role)) {
       return NextResponse.json(
-        { error: "Invalid role" },
+        { error: "Invalid role. Valid roles are: USER, STAFF (Board Member), ADMIN" },
         { status: 400 }
       )
     }
@@ -71,10 +73,19 @@ export async function PATCH(
     })
 
     return NextResponse.json({ user: updatedUser })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Update user role error:", error)
+    console.error("Error details:", {
+      message: error.message,
+      code: error.code,
+      meta: error.meta
+    })
     return NextResponse.json(
-      { error: "Failed to update user role" },
+      { 
+        error: "Failed to update user role",
+        details: error.message,
+        code: error.code
+      },
       { status: 500 }
     )
   }

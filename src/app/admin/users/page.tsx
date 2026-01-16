@@ -80,6 +80,7 @@ export default function AdminUsersPage() {
         showToast('Failed to load users', 'error')
       }
       console.error(error)
+      setUsers([]) // Ensure users is always an array
     } finally {
       setLoading(false)
     }
@@ -131,7 +132,9 @@ export default function AdminUsersPage() {
       case 'ADMIN':
         return 'bg-red-100 text-red-800'
       case 'STAFF':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-purple-100 text-purple-800'
+      case 'USER':
+        return 'bg-gray-100 text-gray-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -182,9 +185,9 @@ export default function AdminUsersPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
               >
                 <option value="ALL">All Roles</option>
-                <option value="ADMIN">Admin</option>
-                <option value="STAFF">Staff</option>
                 <option value="USER">User</option>
+                <option value="STAFF">Board Member</option>
+                <option value="ADMIN">Admin</option>
               </select>
             </div>
           </div>
@@ -222,10 +225,10 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-4">
                     <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
                       user.role === 'ADMIN' ? 'bg-red-100 text-red-700' :
-                      user.role === 'STAFF' ? 'bg-blue-100 text-blue-700' :
+                      user.role === 'BOARD_MEMBER' ? 'bg-purple-100 text-purple-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>
-                      {user.role}
+                      {user.role === 'BOARD_MEMBER' ? 'Board Member' : user.role}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
@@ -240,24 +243,16 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {user.role !== 'ADMIN' && (
-                        <button
-                          onClick={() => updateUserRole(user.id, 'ADMIN')}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-smooth hover-scale"
-                          title="Promote to Admin"
-                        >
-                          <Shield className="w-4 h-4" />
-                        </button>
-                      )}
-                      {user.role === 'ADMIN' && (
-                        <button
-                          onClick={() => updateUserRole(user.id, 'USER')}
-                          className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-smooth hover-scale"
-                          title="Demote to User"
-                        >
-                          <ShieldOff className="w-4 h-4" />
-                        </button>
-                      )}
+                      {/* Role Assignment Dropdown */}
+                      <select
+                        value={user.role}
+                        onChange={(e) => updateUserRole(user.id, e.target.value)}
+                        className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
+                      >
+                        <option value="USER">User</option>
+                        <option value="STAFF">Board Member</option>
+                        <option value="ADMIN">Admin</option>
+                      </select>
                       <button
                         onClick={() => deleteUser(user.id, user.name || user.email)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-smooth hover-scale"

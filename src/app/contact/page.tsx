@@ -216,53 +216,64 @@ export default function ContactPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="contact-name" className="block text-sm font-semibold text-gray-700 mb-2">
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
+                      id="contact-name"
+                      name="name"
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition"
                       placeholder="John Doe"
+                      autoComplete="name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="contact-email" className="block text-sm font-semibold text-gray-700 mb-2">
                       Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="email"
+                      id="contact-email"
+                      name="email"
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition"
                       placeholder="john@example.com"
+                      autoComplete="email"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="contact-phone" className="block text-sm font-semibold text-gray-700 mb-2">
                       Phone Number
                     </label>
                     <input
                       type="tel"
+                      id="contact-phone"
+                      name="phone"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition"
                       placeholder="(502) 123-4567"
+                      autoComplete="tel"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="contact-department" className="block text-sm font-semibold text-gray-700 mb-2">
                       Department <span className="text-red-500">*</span>
                     </label>
                     <select
+                      id="contact-department"
+                      name="department"
                       required
                       value={formData.department}
                       onChange={(e) => setFormData({ ...formData, department: e.target.value })}
@@ -276,11 +287,13 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="contact-subject" className="block text-sm font-semibold text-gray-700 mb-2">
                     Subject <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
+                    id="contact-subject"
+                    name="subject"
                     required
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -290,7 +303,7 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="contact-message" className="block text-sm font-semibold text-gray-700 mb-2">
                     Message <span className="text-red-500">*</span>
                   </label>
                   <div className="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -299,6 +312,8 @@ export default function ContactPage() {
                     </p>
                   </div>
                   <textarea
+                    id="contact-message"
+                    name="message"
                     required
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}

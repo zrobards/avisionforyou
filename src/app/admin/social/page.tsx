@@ -87,9 +87,9 @@ export default function AdminSocialPage() {
         setSelectedPlatforms([])
         setScheduledFor('')
         
-        alert('Post created successfully!')
+        alert('Post draft saved successfully! Remember to manually post to your selected platforms.')
       } else {
-        alert('Failed to create post')
+        alert('Failed to save post draft')
       }
     } catch (error) {
       console.error('Error creating post:', error)
@@ -103,15 +103,20 @@ export default function AdminSocialPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Social Media Management</h1>
-        <p className="text-gray-600">Upload videos and manage posts across all platforms from one place</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Social Media Post Planning</h1>
+        <p className="text-gray-600">Plan and organize your social media content - Save videos and descriptions for posting manually to each platform</p>
+        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Note:</strong> This tool helps you plan and organize your social media posts. Videos and descriptions are saved here for reference. You'll need to manually post content to each platform (Facebook, Instagram, Twitter, YouTube) using their native apps or websites.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Upload Form */}
         <div className="lg:col-span-2">
           <Card className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Create New Post</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Plan New Post</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Video Upload */}
@@ -204,12 +209,12 @@ export default function AdminSocialPage() {
                 {uploading ? (
                   <>
                     <Loader className="h-5 w-5 animate-spin" />
-                    Creating Post...
+                    Saving Draft...
                   </>
                 ) : (
                   <>
-                    <Send className="h-5 w-5" />
-                    Create & Post
+                    <Upload className="h-5 w-5" />
+                    Save Post Draft
                   </>
                 )}
               </Button>

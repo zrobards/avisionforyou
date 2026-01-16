@@ -5,25 +5,28 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request })
   const pathname = request.nextUrl.pathname
 
-  // Protect admin routes
+  // Protect admin routes - Only ADMIN can access
   if (pathname.startsWith("/admin")) {
-    if (!token || (token.role !== "ADMIN" && token.role !== "STAFF")) {
+    if (!token || token.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/login", request.url))
     }
   }
 
-  // Protect board routes
+  // Protect board routes - Staff (board members) and admins only
   if (pathname.startsWith("/board")) {
-    const boardRoles = ["BOARD_PRESIDENT", "BOARD_VP", "BOARD_TREASURER", "BOARD_SECRETARY", "BOARD_MEMBER", "ADMIN"]
-    if (!token || !boardRoles.includes(token.role as string)) {
+    if (!token || (token.role !== "STAFF" && token.role !== "ADMIN")) {
       return NextResponse.redirect(new URL("/login", request.url))
     }
   }
 
-  // Protect dashboard
+  // Protect dashboard - Staff (board members) should go to /board instead
   if (pathname.startsWith("/dashboard")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url))
+    }
+    // Redirect staff (board members) to their board portal
+    if (token.role === "STAFF") {
+      return NextResponse.redirect(new URL("/board", request.url))
     }
   }
 
@@ -56,21 +59,21 @@ export async function middleware(request: NextRequest) {
     'max-age=31536000; includeSubDomains; preload'
   )
   
-  // CSP in Report-Only mode (Stage 1)
-  // After testing, change to Content-Security-Policy (remove -Report-Only)
+  // CSP in Report-Only mode (Stage 1) - Relaxed for development
+  // After testing in production, can tighten and enforce
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https: blob:",
-    "font-src 'self' data:",
-    "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://connect.squareup.com https://connect.squareupsandbox.com https://api.resend.com",
-    "frame-src 'self' https://connect.squareup.com https://connect.squareupsandbox.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.vercel-scripts.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "img-src 'self' data: https: blob: https://*.vercel.app",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://connect.squareup.com https://connect.squareupsandbox.com https://api.resend.com https://*.vercel.app https://*.vercel-scripts.com wss://*.vercel.app",
+    "frame-src 'self' https://connect.squareup.com https://connect.squareupsandbox.com https://www.facebook.com https://www.instagram.com https://platform.twitter.com",
+    "media-src 'self' data: blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "frame-ancestors 'self'",
-    "upgrade-insecure-requests"
+    "frame-ancestors 'self'"
   ].join('; ')
   
   response.headers.set('Content-Security-Policy-Report-Only', cspDirectives)
@@ -86,6 +89,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|favicon.ico|team/).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ]
 }

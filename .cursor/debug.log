@@ -1,0 +1,7 @@
+{"location":"storage.ts:22","message":"uploadFile entry","data":{"hasFilename":true,"isFile":true,"isBuffer":false},"timestamp":1768532526971,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"storage.ts:22","message":"uploadFile entry","data":{"hasFilename":true,"isFile":true,"isBuffer":false},"timestamp":1768533426736,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"media/route.ts:56","message":"Parsing form data","data":{"hasFile":true,"fileName":"31-IMG_0040.JPEG"},"timestamp":1768533441470,"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}
+{"location":"media/route.ts:62","message":"Tags/usage parsed successfully","data":{"tagsCount":1,"usageCount":2},"timestamp":1768533441471,"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}
+{"location":"media/route.ts:78","message":"Before blob upload","data":{"fileName":"31-IMG_0040.JPEG","fileSize":4087803,"fileType":"image"},"timestamp":1768533441471,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"storage.ts:22","message":"uploadFile entry","data":{"hasFilename":true,"isFile":true,"isBuffer":false},"timestamp":1768533441472,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"media/route.ts:86","message":"Blob upload failed","data":{"error":"Error: BLOB_READ_WRITE_TOKEN environment variable is not set"},"timestamp":1768533441473,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}

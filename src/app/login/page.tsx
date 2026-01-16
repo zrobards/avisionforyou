@@ -117,29 +117,35 @@ function LoginContent() {
             )}
             
             <div>
-              <label className="block text-slate-300 text-sm font-semibold mb-2">
+              <label htmlFor="login-email" className="block text-slate-300 text-sm font-semibold mb-2">
                 Email Address
               </label>
               <input
                 type="email"
+                id="login-email"
+                name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
+                autoComplete="email"
                 className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/20 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 text-sm font-semibold mb-2">
+              <label htmlFor="login-password" className="block text-slate-300 text-sm font-semibold mb-2">
                 Password
               </label>
               <input
                 type="password"
+                id="login-password"
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
+                autoComplete="current-password"
                 className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/20 transition-all"
               />
             </div>

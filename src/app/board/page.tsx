@@ -25,14 +25,7 @@ export default function BoardDashboard() {
   }
 
   const userRole = (session?.user as any)?.role || 'USER';
-  const isBoardMember = [
-    'BOARD_PRESIDENT',
-    'BOARD_VP',
-    'BOARD_TREASURER',
-    'BOARD_SECRETARY',
-    'BOARD_MEMBER',
-    'ADMIN'
-  ].includes(userRole);
+  const isBoardMember = userRole === 'STAFF' || userRole === 'ADMIN';
 
   if (!isBoardMember) {
     return (
@@ -57,12 +50,9 @@ export default function BoardDashboard() {
 
   const getRoleDisplay = (role: string): string => {
     const roleMap: Record<string, string> = {
-      BOARD_PRESIDENT: 'Board President',
-      BOARD_VP: 'Board Vice President',
-      BOARD_TREASURER: 'Board Treasurer',
-      BOARD_SECRETARY: 'Board Secretary',
-      BOARD_MEMBER: 'Board Member',
+      STAFF: 'Board Member',
       ADMIN: 'Administrator',
+      USER: 'User',
     };
     return roleMap[role] || role;
   };

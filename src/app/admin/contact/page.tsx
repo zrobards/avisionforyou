@@ -70,11 +70,14 @@ export default function AdminContactPage() {
     try {
       const response = await fetch('/api/admin/contact', { cache: 'no-store' })
       if (!response.ok) throw new Error('Failed to fetch inquiries')
-      const data = await response.json()
-      setInquiries(data.data || [])
+      const result = await response.json()
+      // Handle response format: { success: true, data: { data: [...], pagination: {...} } }
+      const inquiriesData = result.data?.data || result.data || []
+      setInquiries(Array.isArray(inquiriesData) ? inquiriesData : [])
     } catch (error) {
       showToast('Failed to load inquiries', 'error')
       console.error(error)
+      setInquiries([]) // Ensure inquiries is always an array
     } finally {
       setLoading(false)
     }

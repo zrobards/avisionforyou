@@ -141,6 +141,9 @@ async function main() {
 
   console.log(`✅ Created test user: ${testUser.email}`)
 
+  // TODO: Create Test Board Member User (temporarily disabled due to Prisma Client cache issue)
+  // Will add via admin panel after seed completes
+
   // Create Test Users
   const testUsers = []
   const userEmails = [
@@ -374,102 +377,90 @@ async function main() {
 
   // Create Team Members
   const teamMembersData = [
-    // Board Members
+    // Executive Leadership - Board Members
     {
-      name: 'Gregory Haynes',
-      title: 'Board President & Founder',
-      role: 'BOARD_PRESIDENT',
-      bio: 'Gregory Haynes founded A Vision For You in 2012 after his own transformative recovery journey. With over 15 years of sobriety, Greg has dedicated his life to creating accessible recovery pathways for individuals facing homelessness and addiction. Under his leadership, AVFY has grown from a single house to a comprehensive network of recovery services serving hundreds of individuals annually.',
-      credentials: 'Founder, Recovery Advocate',
-      email: 'ghaynes@avisionforyou.org',
-      phone: '(502) 749-6344',
-      imageUrl: '/team/gregory-haynes.png',
+      name: 'Lucas Bennett',
+      title: 'President & Executive Director',
+      role: 'BOARD_MEMBER',
+      bio: 'Lucas founded A Vision For You and leads the organization with passion and dedication to serving individuals and families.',
+      credentials: null,
+      email: 'lucas@avisionforyourecovery.org',
+      phone: null,
+      imageUrl: '/team/lucas-bennett.png',
       order: 1,
       isActive: true
     },
     {
-      name: 'Charles Moore',
-      title: 'Board Vice President',
-      role: 'BOARD_VP',
-      bio: 'Charles Moore brings extensive nonprofit governance experience to AVFY. As a successful business owner and community leader, Charles has been instrumental in developing strategic partnerships and expanding AVFY\'s reach throughout the Louisville community. His passion for service and commitment to evidence-based recovery approaches guide the organization\'s programmatic direction.',
-      credentials: 'MBA, Business Leader',
-      email: 'cmoore@avisionforyou.org',
+      name: 'Dr. Evan Massey',
+      title: 'Vice President',
+      role: 'BOARD_MEMBER',
+      bio: 'Dr. Massey provides strategic leadership and oversight, ensuring the organization maintains its mission and vision while expanding services to meet community needs.',
+      credentials: null,
+      email: 'evan.massey@avisionforyourecovery.org',
       phone: null,
-      imageUrl: '/team/charles-moore.png',
+      imageUrl: '/team/evan-massey.png',
       order: 2,
       isActive: true
     },
     {
-      name: 'Henry Fuqua',
-      title: 'Board Treasurer',
-      role: 'BOARD_TREASURER',
-      bio: 'Henry Fuqua oversees AVFY\'s financial operations with over 20 years of accounting and financial management experience. His careful stewardship ensures that donor contributions are used effectively and transparently. Henry\'s quarterly financial reports provide the board with detailed insights into organizational sustainability and program cost-effectiveness.',
-      credentials: 'CPA, Financial Management',
-      email: 'hfuqua@avisionforyou.org',
+      name: 'Charles Moore',
+      title: 'Treasurer',
+      role: 'BOARD_MEMBER',
+      bio: 'Charles oversees the financial operations and ensures fiscal responsibility and transparency across all programs and services.',
+      credentials: null,
+      email: 'charles.moore@avisionforyourecovery.org',
       phone: null,
-      imageUrl: '/team/henry-fuqua.png',
+      imageUrl: '/team/charles-moore.png',
       order: 3,
       isActive: true
     },
+    // Staff Members (Note: TeamRole is different from UserRole - these use TeamRole.STAFF)
     {
-      name: 'Evan Massey',
-      title: 'Board Secretary',
-      role: 'BOARD_SECRETARY',
-      bio: 'Evan Massey maintains meticulous records of board proceedings and ensures organizational compliance with nonprofit regulations. As an attorney specializing in nonprofit law, Evan provides invaluable guidance on governance matters, policy development, and legal compliance. His attention to detail keeps AVFY operating with full transparency and accountability.',
-      credentials: 'JD, Attorney',
-      email: 'emassey@avisionforyou.org',
+      name: 'Zach Wilbert',
+      title: 'Medical Director',
+      role: 'STAFF',
+      bio: 'As Medical Director, Zach provides comprehensive medical oversight and ensures quality healthcare services are integrated into all recovery programming.',
+      credentials: 'APRN-FNP',
+      email: 'zach.wilbert@avisionforyourecovery.org',
       phone: null,
-      imageUrl: '/team/evan-massey.png',
+      imageUrl: '/team/zach-wilbert.png',
       order: 4,
       isActive: true
     },
-    // Staff Members
     {
-      name: 'Lucas Bennett',
-      title: 'Executive Director',
-      role: 'EXECUTIVE_DIRECTOR',
-      bio: 'Lucas Bennett leads AVFY\'s day-to-day operations and program development. With a Master\'s in Social Work and 12 years of experience in addiction treatment, Lucas brings clinical expertise and strategic vision to the organization. He coordinates between programs, manages staff, and ensures quality care delivery across all AVFY services. Lucas is passionate about data-driven outcomes and continuous quality improvement.',
-      credentials: 'MSW, LCSW',
-      email: 'lbennett@avisionforyou.org',
-      phone: '(502) 749-6345',
-      imageUrl: '/team/lucas-bennett.png',
+      name: 'Henry Fuqua',
+      title: 'MindBodySoul IOP Program Director',
+      role: 'STAFF',
+      bio: 'Henry leads the MindBodySoul IOP program with expertise in addiction counseling and evidence-based treatment approaches.',
+      credentials: 'CADC',
+      email: 'henry.fuqua@avisionforyourecovery.org',
+      phone: null,
+      imageUrl: '/team/henry-fuqua.png',
       order: 5,
       isActive: true
     },
     {
-      name: 'Josh Altizer',
-      title: 'Program Director - MindBodySoul IOP',
+      name: 'Gregory Haynes',
+      title: 'Director of Client Engagement',
       role: 'STAFF',
-      bio: 'Josh Altizer directs our intensive outpatient program, bringing together clinical excellence and lived recovery experience. As a Licensed Clinical Social Worker with specialty training in trauma-informed care, Josh oversees individual counseling, group therapy, and psychiatric coordination. His approach emphasizes whole-person wellness, addressing mental health, physical health, and spiritual growth in an integrated treatment model.',
-      credentials: 'LCSW, CADC',
-      email: 'jaltizer@avisionforyou.org',
+      bio: 'Gregory builds meaningful connections with clients and ensures each individual receives personalized support throughout their recovery journey.',
+      credentials: 'CADCA-1 PSS',
+      email: 'gregory.haynes@avisionforyourecovery.org',
       phone: null,
-      imageUrl: '/team/josh-altizer.png',
+      imageUrl: '/team/gregory-haynes.png',
       order: 6,
       isActive: true
     },
     {
-      name: 'Zach Wilbert',
-      title: 'Surrender Program Manager',
+      name: 'Josh Altizer',
+      title: 'Surrender Program Director',
       role: 'STAFF',
-      bio: 'Zach Wilbert manages AVFY\'s flagship residential recovery program. A graduate of the Surrender Program himself, Zach embodies the transformative power of peer-driven recovery. He facilitates daily house meetings, coordinates community service activities, and mentors residents through the 12-step process. Zach\'s compassionate leadership creates a structured, supportive environment where men can rebuild their lives.',
-      credentials: 'Peer Recovery Specialist',
-      email: 'zwilbert@avisionforyou.org',
+      bio: 'Josh is an alumni who was originally criminal justice involved when he went through the program. He initially struggled to grasp recovery and even returned to the Surrender Program for a refocus. After Josh achieved recovery success, he knew he had to dedicate his life to walking alongside clients as they overcome the challenges of recovery.',
+      credentials: null,
+      email: 'josh.altizer@avisionforyourecovery.org',
       phone: null,
-      imageUrl: '/team/zach-wilbert.png',
+      imageUrl: '/team/josh-altizer.png',
       order: 7,
-      isActive: true
-    },
-    {
-      name: 'Steven Furlow',
-      title: 'Director of Community Engagement',
-      role: 'STAFF',
-      bio: 'Steven Furlow builds bridges between AVFY and the Louisville community. He coordinates volunteer recruitment, manages community partnerships, and organizes fundraising events. Steven\'s background in nonprofit development and public relations helps AVFY maintain strong relationships with donors, faith communities, businesses, and civic organizations. His work ensures sustainable funding for AVFY\'s mission.',
-      credentials: 'BA, Nonprofit Development',
-      email: 'sfurlow@avisionforyou.org',
-      phone: null,
-      imageUrl: '/team/steven-furlow.png',
-      order: 8,
       isActive: true
     }
   ]
@@ -495,6 +486,7 @@ async function main() {
   console.log('\n📝 Test Accounts:')
   console.log(`   Admin: admin@avisionforyou.org / AdminPassword123!`)
   console.log(`   Test User: testuser@avisionforyou.org / TestUser123!`)
+  console.log(`   Note: Create board member via Admin → Users panel using the role dropdown`)
   const userList = userEmails.join(', ')
   console.log(`   Other Users: ${userList} (all with password: TestPassword123!)`)
 }

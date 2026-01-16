@@ -6,30 +6,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from './auth';
 
 /**
- * Board role types from TeamRole enum
- */
-export const BOARD_ROLES = [
-  'BOARD_PRESIDENT',
-  'BOARD_VP',
-  'BOARD_TREASURER',
-  'BOARD_SECRETARY',
-  'BOARD_MEMBER',
-] as const;
-
-export type BoardRole = typeof BOARD_ROLES[number];
-
-/**
- * Check if a user role is a board role
- */
-export function isBoardRole(role: string): role is BoardRole {
-  return BOARD_ROLES.includes(role as BoardRole);
-}
-
-/**
- * Check if a user is a board member (has any BOARD_* role)
+ * Check if a user is a board member (STAFF role = board members)
  */
 export function isBoardMember(role: string): boolean {
-  return isBoardRole(role) || role === 'ADMIN';
+  return role === 'STAFF' || role === 'ADMIN';
 }
 
 /**
@@ -55,24 +35,14 @@ export async function requireBoardAccess() {
 }
 
 /**
- * Get board member display info
+ * Get role display name
  */
-export function getBoardRoleDisplay(role: string): string {
+export function getRoleDisplay(role: string): string {
   const roleMap: Record<string, string> = {
-    BOARD_PRESIDENT: 'Board President',
-    BOARD_VP: 'Board Vice President',
-    BOARD_TREASURER: 'Board Treasurer',
-    BOARD_SECRETARY: 'Board Secretary',
-    BOARD_MEMBER: 'Board Member',
+    STAFF: 'Board Member',
     ADMIN: 'Administrator',
+    USER: 'User',
   };
 
   return roleMap[role] || role;
-}
-
-/**
- * Check if a role has executive board privileges (President, VP, Treasurer, Secretary)
- */
-export function isExecutiveBoardMember(role: string): boolean {
-  return ['BOARD_PRESIDENT', 'BOARD_VP', 'BOARD_TREASURER', 'BOARD_SECRETARY', 'ADMIN'].includes(role);
 }

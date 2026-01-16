@@ -185,52 +185,63 @@ export default function AdmissionPage() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="admission-name" className="block text-sm font-semibold text-gray-700 mb-2">
                     Full Name *
                   </label>
                   <input
                     type="text"
+                    id="admission-name"
+                    name="name"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="Your name"
+                    autoComplete="name"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="admission-email" className="block text-sm font-semibold text-gray-700 mb-2">
                     Email *
                   </label>
                   <input
                     type="email"
+                    id="admission-email"
+                    name="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="your@email.com"
+                    autoComplete="email"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="admission-phone" className="block text-sm font-semibold text-gray-700 mb-2">
                     Phone *
                   </label>
                   <input
                     type="tel"
+                    id="admission-phone"
+                    name="phone"
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="(555) 123-4567"
+                    autoComplete="tel"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="admission-program" className="block text-sm font-semibold text-gray-700 mb-2">
                     Interested Program
                   </label>
                   <select
+                    id="admission-program"
+                    name="program"
                     value={formData.program}
                     onChange={(e) => setFormData({ ...formData, program: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -244,7 +255,7 @@ export default function AdmissionPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="admission-message" className="block text-sm font-semibold text-gray-700 mb-2">
                     Message
                   </label>
                   <div className="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -253,6 +264,8 @@ export default function AdmissionPage() {
                     </p>
                   </div>
                   <textarea
+                    id="admission-message"
+                    name="message"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"

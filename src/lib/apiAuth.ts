@@ -13,13 +13,13 @@ import { authOptions } from '@/lib/auth'
  * 
  * ADMIN:
  * - Full access to all admin endpoints
- * - Can create/publish newsletters
  * - Can manage all data
+ * - Can access both /admin and /board
  * 
- * STAFF:
- * - Can create/edit newsletters (drafts only)
- * - Can create/edit meetings
- * - Cannot access sensitive data (donations, admissions)
+ * STAFF (Board Members):
+ * - Can access board portal at /board
+ * - Can view board documents and meetings
+ * - Cannot access admin dashboard
  * 
  * USER:
  * - Can submit admissions
@@ -79,7 +79,7 @@ export async function requireAdminAuth(req: NextRequest) {
 }
 
 /**
- * Verify request is from authenticated admin or staff user
+ * Verify request is from authenticated admin or staff (board member)
  * 
  * Usage in API routes:
  * const session = await requireAdminOrStaffAuth(req)
