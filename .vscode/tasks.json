@@ -1,0 +1,47 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Dev Server",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Fix Build - Clear Cache & Restart",
+			"type": "shell",
+			"command": "cd '/Users/zacharyrobards/Documents/A vision for you recovery full website mockup/avisionforyou' && rm -rf .next && npm run dev",
+			"isBackground": false
+		},
+		{
+			"label": "Rebuild - Fix Tailwind and Start Dev Server",
+			"type": "shell",
+			"command": "bash '/Users/zacharyrobards/Documents/A vision for you recovery full website mockup/avisionforyou/rebuild.sh'",
+			"isBackground": false
+		},
+		{
+			"label": "Build Next.js Project",
+			"type": "shell",
+			"command": "npm run build",
+			"group": "build"
+		},
+		{
+			"label": "Start Next.js Dev Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"group": "test"
+		},
+		{
+			"label": "Start Development Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}
