@@ -7,7 +7,15 @@ export async function middleware(request: NextRequest) {
 
   // Protect admin routes
   if (pathname.startsWith("/admin")) {
-    if (!token || token.role !== "ADMIN") {
+    if (!token || (token.role !== "ADMIN" && token.role !== "STAFF")) {
+      return NextResponse.redirect(new URL("/login", request.url))
+    }
+  }
+
+  // Protect board routes
+  if (pathname.startsWith("/board")) {
+    const boardRoles = ["BOARD_PRESIDENT", "BOARD_VP", "BOARD_TREASURER", "BOARD_SECRETARY", "BOARD_MEMBER", "ADMIN"]
+    if (!token || !boardRoles.includes(token.role as string)) {
       return NextResponse.redirect(new URL("/login", request.url))
     }
   }
@@ -78,6 +86,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|team/).*)',
   ]
 }
