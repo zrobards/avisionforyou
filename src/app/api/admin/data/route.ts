@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     const newUsersThisMonth = await db.user.count({
       where: { createdAt: { gte: startOfMonth } }
     })
-    const adminCount = await db.user.count({ where: { role: 'ADMIN' } })
+    // adminCount already calculated above for dev bypass check
 
     // Get donation stats
     const recurringDonations = await db.donation.count({
