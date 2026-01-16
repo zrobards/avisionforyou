@@ -2,13 +2,14 @@
 
 import { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image, Share2 } from 'lucide-react'
+import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image, Share2, Shield } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
 import { ToastProvider } from '@/components/ui/toast'
 
 const adminMenuItems = [
   { href: '/admin', label: 'Overview', icon: Home },
+  { href: '/admin/board', label: 'Board Portal', icon: Shield },
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/donations', label: 'Donations', icon: Heart },
   { href: '/admin/contact', label: 'Contact', icon: Mail },

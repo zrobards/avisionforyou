@@ -372,6 +372,125 @@ async function main() {
 
   console.log(`✅ Created ${blogCount} blog posts`)
 
+  // Create Team Members
+  const teamMembersData = [
+    // Board Members
+    {
+      name: 'Gregory Haynes',
+      title: 'Board President & Founder',
+      role: 'BOARD_PRESIDENT',
+      bio: 'Gregory Haynes founded A Vision For You in 2012 after his own transformative recovery journey. With over 15 years of sobriety, Greg has dedicated his life to creating accessible recovery pathways for individuals facing homelessness and addiction. Under his leadership, AVFY has grown from a single house to a comprehensive network of recovery services serving hundreds of individuals annually.',
+      credentials: 'Founder, Recovery Advocate',
+      email: 'ghaynes@avisionforyou.org',
+      phone: '(502) 749-6344',
+      imageUrl: null,
+      order: 1,
+      isActive: true
+    },
+    {
+      name: 'Charles Moore',
+      title: 'Board Vice President',
+      role: 'BOARD_VP',
+      bio: 'Charles Moore brings extensive nonprofit governance experience to AVFY. As a successful business owner and community leader, Charles has been instrumental in developing strategic partnerships and expanding AVFY\'s reach throughout the Louisville community. His passion for service and commitment to evidence-based recovery approaches guide the organization\'s programmatic direction.',
+      credentials: 'MBA, Business Leader',
+      email: 'cmoore@avisionforyou.org',
+      phone: null,
+      imageUrl: null,
+      order: 2,
+      isActive: true
+    },
+    {
+      name: 'Henry Fuqua',
+      title: 'Board Treasurer',
+      role: 'BOARD_TREASURER',
+      bio: 'Henry Fuqua oversees AVFY\'s financial operations with over 20 years of accounting and financial management experience. His careful stewardship ensures that donor contributions are used effectively and transparently. Henry\'s quarterly financial reports provide the board with detailed insights into organizational sustainability and program cost-effectiveness.',
+      credentials: 'CPA, Financial Management',
+      email: 'hfuqua@avisionforyou.org',
+      phone: null,
+      imageUrl: null,
+      order: 3,
+      isActive: true
+    },
+    {
+      name: 'Evan Massey',
+      title: 'Board Secretary',
+      role: 'BOARD_SECRETARY',
+      bio: 'Evan Massey maintains meticulous records of board proceedings and ensures organizational compliance with nonprofit regulations. As an attorney specializing in nonprofit law, Evan provides invaluable guidance on governance matters, policy development, and legal compliance. His attention to detail keeps AVFY operating with full transparency and accountability.',
+      credentials: 'JD, Attorney',
+      email: 'emassey@avisionforyou.org',
+      phone: null,
+      imageUrl: null,
+      order: 4,
+      isActive: true
+    },
+    // Staff Members
+    {
+      name: 'Lucas Bennett',
+      title: 'Executive Director',
+      role: 'EXECUTIVE_DIRECTOR',
+      bio: 'Lucas Bennett leads AVFY\'s day-to-day operations and program development. With a Master\'s in Social Work and 12 years of experience in addiction treatment, Lucas brings clinical expertise and strategic vision to the organization. He coordinates between programs, manages staff, and ensures quality care delivery across all AVFY services. Lucas is passionate about data-driven outcomes and continuous quality improvement.',
+      credentials: 'MSW, LCSW',
+      email: 'lbennett@avisionforyou.org',
+      phone: '(502) 749-6345',
+      imageUrl: null,
+      order: 5,
+      isActive: true
+    },
+    {
+      name: 'Josh Altizer',
+      title: 'Program Director - MindBodySoul IOP',
+      role: 'STAFF',
+      bio: 'Josh Altizer directs our intensive outpatient program, bringing together clinical excellence and lived recovery experience. As a Licensed Clinical Social Worker with specialty training in trauma-informed care, Josh oversees individual counseling, group therapy, and psychiatric coordination. His approach emphasizes whole-person wellness, addressing mental health, physical health, and spiritual growth in an integrated treatment model.',
+      credentials: 'LCSW, CADC',
+      email: 'jaltizer@avisionforyou.org',
+      phone: null,
+      imageUrl: null,
+      order: 6,
+      isActive: true
+    },
+    {
+      name: 'Zach Wilbert',
+      title: 'Surrender Program Manager',
+      role: 'STAFF',
+      bio: 'Zach Wilbert manages AVFY\'s flagship residential recovery program. A graduate of the Surrender Program himself, Zach embodies the transformative power of peer-driven recovery. He facilitates daily house meetings, coordinates community service activities, and mentors residents through the 12-step process. Zach\'s compassionate leadership creates a structured, supportive environment where men can rebuild their lives.',
+      credentials: 'Peer Recovery Specialist',
+      email: 'zwilbert@avisionforyou.org',
+      phone: null,
+      imageUrl: null,
+      order: 7,
+      isActive: true
+    },
+    {
+      name: 'Steven Furlow',
+      title: 'Director of Community Engagement',
+      role: 'STAFF',
+      bio: 'Steven Furlow builds bridges between AVFY and the Louisville community. He coordinates volunteer recruitment, manages community partnerships, and organizes fundraising events. Steven\'s background in nonprofit development and public relations helps AVFY maintain strong relationships with donors, faith communities, businesses, and civic organizations. His work ensures sustainable funding for AVFY\'s mission.',
+      credentials: 'BA, Nonprofit Development',
+      email: 'sfurlow@avisionforyou.org',
+      phone: null,
+      imageUrl: null,
+      order: 8,
+      isActive: true
+    }
+  ]
+
+  let teamCount = 0
+  for (const member of teamMembersData) {
+    const existingMember = await prisma.teamMember.findFirst({
+      where: { email: member.email || undefined }
+    })
+    if (existingMember) {
+      console.log(`ℹ️  Team member already exists, skipping: ${member.name}`)
+      continue
+    }
+    await prisma.teamMember.create({
+      data: member
+    })
+    teamCount++
+  }
+
+  console.log(`✅ Created ${teamCount} team members`)
+
   console.log('\n✨ Database seed completed successfully!')
   console.log('\n📝 Test Accounts:')
   console.log(`   Admin: admin@avisionforyou.org / AdminPassword123!`)

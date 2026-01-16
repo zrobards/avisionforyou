@@ -1,65 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { getRecentAuditActivity } from '@/lib/audit'
-
-export const dynamic = 'force-dynamic'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { db } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
-    if (!session || !session.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = await db.user.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (user?.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      )
+    const userRole = (session.user as any).role;
+    if (userRole !== 'ADMIN' && userRole !== 'STAFF') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get query parameters
-    const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const entity = searchParams.get('entity')
-    const action = searchParams.get('action')
+    const searchParams = request.nextUrl.searchParams;
+    const entity = searchParams.get('entity');
+    const action = searchParams.get('action');
+    const userId = searchParams.get('userId');
+    const limit = parseInt(searchParams.get('limit') || '100');
 
-    // Build where clause
-    const where: any = {}
-    
-    if (entity) {
-      where.entity = entity
-    }
-    
-    if (action) {
-      where.action = action
-    }
+    const where: any = {};
+    if (entity) where.entity = entity;
+    if (action) where.action = action;
+    if (userId) where.userId = userId;
 
-    // Fetch audit logs
     const logs = await db.auditLog.findMany({
       where,
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: Math.min(limit, 100)
-    })
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
 
-    return NextResponse.json({ data: logs })
+    return NextResponse.json(logs);
   } catch (error) {
-    console.error('Failed to fetch audit logs:', error)
+    console.error('Get audit logs error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch audit logs' },
       { status: 500 }
-    )
+    );
   }
 }
