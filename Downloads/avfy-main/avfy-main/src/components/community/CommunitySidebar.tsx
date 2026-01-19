@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Calendar, CheckCircle, Bell, BookOpen, ArrowLeft } from 'lucide-react'
+import { Home, Calendar, CheckCircle, Bell, BookOpen, ArrowLeft, Vote } from 'lucide-react'
 
 const communityMenuItems = [
   { href: '/community', label: 'Dashboard', icon: Home },
   { href: '/community/meetings', label: 'Meetings', icon: Calendar },
   { href: '/community/my-rsvps', label: 'My RSVPs', icon: CheckCircle },
+  { href: '/community/polls', label: 'Polls & Voting', icon: Vote },
   { href: '/community/announcements', label: 'Announcements', icon: Bell },
   { href: '/community/resources', label: 'Resources', icon: BookOpen },
 ]

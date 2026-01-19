@@ -1,0 +1,4 @@
+# This file ensures the data directory is tracked by git
+# Migration scripts will create files here:
+# - wix-posts.json (exported posts from Wix)
+# - blog-redirects.json (generated redirect mappings)

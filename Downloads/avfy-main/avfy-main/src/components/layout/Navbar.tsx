@@ -14,7 +14,10 @@ export default function Navbar() {
   const [showBlogDropdown, setShowBlogDropdown] = useState(false)
   const [showMobileAboutMenu, setShowMobileAboutMenu] = useState(false)
   const [showMobileBlogMenu, setShowMobileBlogMenu] = useState(false)
-  const isAdmin = (session?.user as any)?.role === 'ADMIN' || (session?.user as any)?.role === 'STAFF'
+  const userRole = (session?.user as any)?.role
+  const isAdmin = userRole === 'ADMIN' || userRole === 'STAFF'
+  const isBoard = userRole === 'BOARD' || userRole === 'ADMIN'
+  const isAlumni = userRole === 'ALUMNI' || userRole === 'ADMIN'
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-brand-purple to-purple-900 border-b border-purple-700 backdrop-blur-sm shadow-lg">
@@ -94,7 +97,7 @@ export default function Navbar() {
             </Link>
             <Link href="/meetings" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
               <Users className="w-4 h-4" />
-              Meetings
+              Sessions
             </Link>
             
             {/* Blog Dropdown */}
@@ -137,6 +140,29 @@ export default function Navbar() {
               <DollarSign className="w-4 h-4" />
               Donate
             </Link>
+            
+            {/* Role-based Portal Links */}
+            {session && (
+              <>
+                {isBoard && (
+                  <Link 
+                    href="/board" 
+                    className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                  >
+                    Board Portal
+                  </Link>
+                )}
+                
+                {isAlumni && (
+                  <Link 
+                    href="/community" 
+                    className="flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  >
+                    Community
+                  </Link>
+                )}
+              </>
+            )}
           </div>
 
           {/* User Menu & Mobile Menu Button */}
@@ -299,7 +325,7 @@ export default function Navbar() {
                 onClick={() => setShowMobileMenu(false)}
               >
                 <Users className="w-5 h-5" />
-                <span className="font-medium">Meetings</span>
+                <span className="font-medium">Sessions & Classes</span>
               </Link>
               
               {/* Blog Dropdown for Mobile */}
@@ -360,31 +386,57 @@ export default function Navbar() {
               {/* User Section */}
               {session ? (
                 <>
-                  <div className="border-t border-blue-700 my-2 pt-2">
+                  <div className="border-t border-purple-700 my-2 pt-2">
                     <div className="px-4 py-2">
-                      <p className="text-xs text-blue-300 uppercase font-semibold mb-1">Signed in as</p>
+                      <p className="text-xs text-purple-300 uppercase font-semibold mb-1">Signed in as</p>
                       <p className="text-white font-medium">{session.user?.name}</p>
-                      <p className="text-sm text-blue-300">{session.user?.email}</p>
+                      <p className="text-sm text-purple-300">{session.user?.email}</p>
                     </div>
                   </div>
+                  
+                  {/* Role-based Portal Links */}
+                  {isBoard && (
+                    <Link
+                      href="/board"
+                      className="flex items-center gap-3 bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-3 rounded-lg transition-colors font-medium"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      <span>📋</span>
+                      <span>Board Portal</span>
+                    </Link>
+                  )}
+                  
+                  {isAlumni && (
+                    <Link
+                      href="/community"
+                      className="flex items-center gap-3 bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-lg transition-colors font-medium"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      <span>🤝</span>
+                      <span>Community</span>
+                    </Link>
+                  )}
+                  
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-3 bg-purple-700 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors font-medium"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      <Users className="w-5 h-5" />
+                      <span>Admin Panel</span>
+                    </Link>
+                  )}
+                  
                   <Link
                     href="/dashboard"
-                    className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
+                    className="flex items-center gap-3 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors"
                     onClick={() => setShowMobileMenu(false)}
                   >
                     <Settings className="w-5 h-5" />
                     <span className="font-medium">My Dashboard</span>
                   </Link>
-                  {isAdmin && (
-                    <Link
-                      href="/admin"
-                      className="flex items-center gap-3 text-white hover:bg-blue-800 px-4 py-3 rounded-lg transition-colors"
-                      onClick={() => setShowMobileMenu(false)}
-                    >
-                      <Users className="w-5 h-5" />
-                      <span className="font-medium">Admin Panel</span>
-                    </Link>
-                  )}
+                  
                   <button
                     onClick={() => {
                       setShowMobileMenu(false)

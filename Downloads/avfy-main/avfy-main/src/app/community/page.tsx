@@ -1,257 +1,254 @@
-"use client"
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import Link from "next/link";
 
-import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Calendar, Bell, BookOpen, Users } from "lucide-react"
+export default async function CommunityDashboardPage() {
+  const session = await getServerSession(authOptions);
 
-interface Announcement {
-  id: string
-  title: string
-  content: string
-  createdAt: string
-  author: {
-    name: string | null
-  }
-}
-
-interface Meeting {
-  id: string
-  title: string
-  description: string
-  startDate: string
-  endDate: string
-  location: string | null
-  format: string
-  link: string | null
-  program: {
-    name: string
-  }
-  userRsvpStatus: string | null
-}
-
-interface Stats {
-  attended: number
-  upcoming: number
-}
-
-export default function CommunityDashboard() {
-  const { data: session } = useSession()
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [upcomingMeetings, setUpcomingMeetings] = useState<Meeting[]>([])
-  const [stats, setStats] = useState<Stats>({ attended: 0, upcoming: 0 })
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  const fetchData = async () => {
-    try {
-      const [announcementsRes, meetingsRes, statsRes] = await Promise.all([
-        fetch("/api/community/announcements?limit=3"),
-        fetch("/api/community/meetings?upcoming=true&limit=5"),
-        fetch("/api/community/stats")
-      ])
-
-      if (announcementsRes.ok) {
-        const data = await announcementsRes.json()
-        setAnnouncements(data)
-      }
-
-      if (meetingsRes.ok) {
-        const data = await meetingsRes.json()
-        setUpcomingMeetings(data)
-      }
-
-      if (statsRes.ok) {
-        const data = await statsRes.json()
-        setStats(data)
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error)
-    } finally {
-      setLoading(false)
-    }
+  if (!session?.user?.email) {
+    redirect("/login");
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit"
-    })
+  const user = await db.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!user) {
+    redirect("/login");
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      </div>
-    )
+  if (user.role !== "ALUMNI" && user.role !== "ADMIN") {
+    redirect("/unauthorized");
   }
+
+  // Fetch user's upcoming RSVPs
+  const upcomingRsvps = await db.rSVP.findMany({
+    where: {
+      userId: user.id,
+      status: "CONFIRMED",
+      session: { startDate: { gte: new Date() } },
+    },
+    include: {
+      session: {
+        include: {
+          program: true,
+        },
+      },
+    },
+    orderBy: { session: { startDate: "asc" } },
+    take: 5,
+  });
+
+  // Fetch user's DUI registrations
+  const duiRegistrations = await db.dUIRegistration.findMany({
+    where: {
+      userId: user.id,
+      status: { not: "CANCELLED" },
+      class: { date: { gte: new Date() } },
+    },
+    include: {
+      class: true,
+    },
+    orderBy: { class: { date: "asc" } },
+    take: 5,
+  });
+
+  // Fetch active polls
+  const activePolls = await db.communityPoll.findMany({
+    where: { active: true },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    include: {
+      _count: { select: { votes: true } },
+      votes: {
+        where: { userId: user.id },
+        select: { vote: true },
+      },
+    },
+  });
+
+  // Fetch announcements
+  const announcements = await db.communityAnnouncement.findMany({
+    where: { published: true },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
+  });
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {session?.user?.name || "Community Member"}!
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Stay connected with the AVFY community
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-green-600 to-green-700 text-white py-8 shadow-lg">
+        <div className="max-w-7xl mx-auto px-6">
+          <h1 className="text-3xl font-bold">
+            Welcome to the Community Hub, {session.user.name || "Member"}!
+          </h1>
+          <p className="text-green-100 mt-2">
+            Connect, participate, and stay informed with the AVFY community.
+          </p>
+        </div>
+      </header>
 
-      {/* Stats Cards */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Users className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-gray-900">{stats.attended}</p>
-              <p className="text-gray-600">Meetings Attended</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-gray-900">{stats.upcoming}</p>
-              <p className="text-gray-600">Upcoming RSVPs</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Announcements */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Latest Announcements</h2>
-          <Link 
-            href="/community/announcements" 
-            className="text-green-600 hover:text-green-700 hover:underline font-medium"
-          >
-            View All
-          </Link>
-        </div>
-        <div className="bg-white rounded-lg shadow divide-y">
-          {announcements.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              No announcements yet. Check back soon!
-            </div>
-          ) : (
-            announcements.map((announcement) => (
-              <div key={announcement.id} className="p-6">
-                <div className="flex items-start gap-3">
-                  <Bell className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      {announcement.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                      {announcement.content}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {formatDate(announcement.createdAt)} • {announcement.author.name || "Admin"}
-                    </p>
-                  </div>
-                </div>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Sessions */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Upcoming Sessions */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">My Upcoming Sessions</h2>
+                <Link href="/meetings" className="text-green-600 hover:underline text-sm">
+                  Browse All →
+                </Link>
               </div>
-            ))
-          )}
-        </div>
-      </section>
 
-      {/* Upcoming Meetings */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Upcoming Meetings</h2>
-          <Link 
-            href="/community/meetings" 
-            className="text-green-600 hover:text-green-700 hover:underline font-medium"
-          >
-            View All
-          </Link>
-        </div>
-        <div className="bg-white rounded-lg shadow divide-y">
-          {upcomingMeetings.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              No upcoming meetings. Check back soon!
-            </div>
-          ) : (
-            upcomingMeetings.map((meeting) => (
-              <div key={meeting.id} className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-gray-900">{meeting.title}</h3>
-                      {meeting.userRsvpStatus && (
-                        <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
-                          RSVPed
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                      {meeting.description}
-                    </p>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {formatDate(meeting.startDate)}
+              {upcomingRsvps.length === 0 && duiRegistrations.length === 0 ? (
+                <div className="text-center py-6 text-gray-500">
+                  <p>No upcoming sessions</p>
+                  <Link href="/meetings" className="text-green-600 hover:underline mt-2 inline-block">
+                    Find sessions to join
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {upcomingRsvps.map((rsvp) => (
+                    <div
+                      key={rsvp.id}
+                      className="flex items-center justify-between p-3 bg-green-50 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium">{rsvp.session.title}</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(rsvp.session.startDate).toLocaleDateString()} •{" "}
+                          {new Date(rsvp.session.startDate).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">
+                        RSVP'd
                       </span>
-                      {meeting.location && (
-                        <span>{meeting.location}</span>
-                      )}
-                      {meeting.format === "ONLINE" && meeting.link && (
-                        <span className="text-green-600">Online</span>
-                      )}
                     </div>
-                  </div>
+                  ))}
+                  {duiRegistrations.map((reg) => (
+                    <div
+                      key={reg.id}
+                      className="flex items-center justify-between p-3 bg-purple-50 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium">{reg.class.title}</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(reg.class.date).toLocaleDateString()} • {reg.class.startTime}
+                        </p>
+                      </div>
+                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded">
+                        Registered
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
+              )}
+            </div>
 
-      {/* Quick Links */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Links</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            href="/community/meetings"
-            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
-          >
-            <Calendar className="w-8 h-8 text-green-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">All Meetings</h3>
-            <p className="text-sm text-gray-600">Browse and RSVP to upcoming sessions</p>
-          </Link>
-          <Link
-            href="/community/resources"
-            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
-          >
-            <BookOpen className="w-8 h-8 text-green-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Resources</h3>
-            <p className="text-sm text-gray-600">Access helpful resources and links</p>
-          </Link>
-          <Link
-            href="/community/my-rsvps"
-            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
-          >
-            <Users className="w-8 h-8 text-green-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">My RSVPs</h3>
-            <p className="text-sm text-gray-600">View and manage your RSVPs</p>
-          </Link>
+            {/* Announcements */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Announcements</h2>
+                <Link href="/community/announcements" className="text-green-600 hover:underline text-sm">
+                  View All →
+                </Link>
+              </div>
+
+              {announcements.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No announcements</p>
+              ) : (
+                <div className="space-y-4">
+                  {announcements.map((ann) => (
+                    <div key={ann.id} className="border-b pb-4 last:border-0">
+                      <h3 className="font-medium">{ann.title}</h3>
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{ann.content}</p>
+                      <p className="text-xs text-gray-400 mt-2">
+                        {new Date(ann.createdAt).toLocaleDateString()} • {ann.author.name || "Admin"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column - Polls & Quick Links */}
+          <div className="space-y-6">
+            {/* Active Polls */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">🗳️ Active Polls</h2>
+                <Link href="/community/polls" className="text-green-600 hover:underline text-sm">
+                  All Polls →
+                </Link>
+              </div>
+
+              {activePolls.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No active polls</p>
+              ) : (
+                <div className="space-y-3">
+                  {activePolls.map((poll) => {
+                    const hasVoted = poll.votes.length > 0;
+                    return (
+                      <Link
+                        key={poll.id}
+                        href="/community/polls"
+                        className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                      >
+                        <p className="font-medium text-sm">{poll.title}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {poll._count.votes} votes
+                          {hasVoted && " • You voted"}
+                        </p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Links */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">Quick Links</h2>
+              <div className="space-y-2">
+                <Link
+                  href="/meetings"
+                  className="flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition"
+                >
+                  <span>📅</span>
+                  <span>Browse Sessions</span>
+                </Link>
+                <Link
+                  href="/community/resources"
+                  className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+                >
+                  <span>📚</span>
+                  <span>Resources</span>
+                </Link>
+                <Link
+                  href="/community/my-rsvps"
+                  className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition"
+                >
+                  <span>✅</span>
+                  <span>My RSVPs</span>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
-  )
+  );
 }

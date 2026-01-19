@@ -36,6 +36,8 @@ model User {
   boardDocuments BoardDocument[]
   communityAnnouncements CommunityAnnouncement[]
   duiRegistrations DUIRegistration[]
+  createdPolls  CommunityPoll[] @relation("PollCreator")
+  pollVotes     CommunityPollVote[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -780,4 +782,38 @@ model CommunityResource {
   @@index([active])
   @@index([order])
   @@map("community_resources")
+}
+
+// Community Polls for Alumni Voting
+model CommunityPoll {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  active      Boolean  @default(true)
+  closesAt    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  createdBy   User     @relation("PollCreator", fields: [createdById], references: [id])
+  votes       CommunityPollVote[]
+
+  @@index([active])
+  @@index([createdAt])
+  @@index([createdById])
+  @@map("community_polls")
+}
+
+model CommunityPollVote {
+  id        String   @id @default(cuid())
+  pollId    String
+  poll      CommunityPoll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  vote      Boolean  // true = yes, false = no
+  createdAt DateTime @default(now())
+  
+  @@unique([pollId, userId])
+  @@index([pollId])
+  @@index([userId])
+  @@map("community_poll_votes")
 }

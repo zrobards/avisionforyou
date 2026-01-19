@@ -30,6 +30,7 @@ const boardMenuItems = [
 const communityMenuItems = [
   { href: '/admin/community/announcements', label: 'Announcements' },
   { href: '/admin/community/resources', label: 'Resources' },
+  { href: '/admin/community/polls', label: 'Polls & Voting' },
 ]
 
 export default function AdminLayout({
