@@ -4,7 +4,7 @@
  */
 
 import { getCurrentUser } from "@/lib/auth/requireRole";
-import { ROLE } from "@/lib/role";
+import { ROLE, isAdmin, isDeveloper } from "@/lib/role";
 import { redirect } from "next/navigation";
 import { AdminAppShell } from "@/components/admin/AdminAppShell";
 import { NotificationsProvider } from "@/providers/NotificationsProvider";
@@ -21,8 +21,8 @@ export default async function AdminLayout({
     redirect("/login");
   }
   
-  // Allow anyone who isn't a CLIENT (CEO, CFO, FRONTEND, BACKEND, OUTREACH)
-  const allowedRoles = [ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH];
+  // Only ADMIN, CEO, CFO, and developers (FRONTEND, BACKEND) can access admin routes
+  const allowedRoles = [ROLE.ADMIN, ROLE.CEO, ROLE.CFO, ROLE.FRONTEND, ROLE.BACKEND, ROLE.OUTREACH];
   if (!allowedRoles.includes(user.role as any)) {
     redirect("/no-access");
   }

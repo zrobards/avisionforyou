@@ -1257,7 +1257,6 @@ model AISuggestion {
 
 enum UserRole {
   ADMIN
-  STAFF
   CLIENT
   CEO
   CFO
@@ -1268,6 +1267,9 @@ enum UserRole {
   PARTNER
   FRONTEND
   BACKEND
+  BOARD
+  ALUMNI
+  COMMUNITY
 }
 
 enum OrgRole {
