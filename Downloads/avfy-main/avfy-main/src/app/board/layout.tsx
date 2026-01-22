@@ -2,6 +2,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import BoardSidebar from "@/components/board/BoardSidebar"
+import { BoardSidebarProvider } from "@/components/board/BoardSidebarContext"
+import BoardLayoutContent from "@/components/board/BoardLayoutContent"
 
 export default async function BoardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions)
@@ -11,11 +13,13 @@ export default async function BoardLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <BoardSidebar />
-        <main className="flex-1 ml-64 p-8">{children}</main>
+    <BoardSidebarProvider>
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex">
+          <BoardSidebar />
+          <BoardLayoutContent>{children}</BoardLayoutContent>
+        </div>
       </div>
-    </div>
+    </BoardSidebarProvider>
   )
 }
