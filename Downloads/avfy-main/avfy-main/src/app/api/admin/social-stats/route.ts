@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
-import { requireAdminAuth, requireAdminOrStaffAuth, errorResponse, validationErrorResponse, successResponse } from '@/lib/apiAuth'
+import { requireAdminAuth, errorResponse, validationErrorResponse, successResponse } from '@/lib/apiAuth'
 import { SocialStatsSchema, validateRequest, getValidationErrors } from '@/lib/validation'
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
 import { ZodError } from 'zod'
@@ -169,8 +169,8 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now()
 
   try {
-    // Require admin or staff authentication for read access
-    const session = await requireAdminOrStaffAuth(request)
+    // Require admin authentication for read access
+    const session = await requireAdminAuth(request)
     if (!session) {
       return errorResponse('Unauthorized', 'UNAUTHORIZED', 401)
     }
@@ -239,7 +239,7 @@ export async function GET(request: NextRequest) {
       tiktok: statsObj.tiktok
     })
   } catch (error) {
-    const userId = (await requireAdminOrStaffAuth(request))?.user?.id as string | undefined
+    const userId = (await requireAdminAuth(request))?.user?.id as string | undefined
     const errorInfo = handleApiError(error, 'admin/social-stats', requestId, userId)
 
     logApiRequest({

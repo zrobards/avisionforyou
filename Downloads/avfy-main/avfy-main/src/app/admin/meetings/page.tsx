@@ -61,8 +61,8 @@ export default function AdminMeetingsPage() {
 
     if (status === 'authenticated') {
       const userRole = (session?.user as any)?.role
-      if (userRole !== 'ADMIN' && userRole !== 'STAFF') {
-        showToast('Admin or Staff access required', 'error')
+      if (userRole !== 'ADMIN') {
+        showToast('Admin access required', 'error')
         router.push('/dashboard')
         return
       }

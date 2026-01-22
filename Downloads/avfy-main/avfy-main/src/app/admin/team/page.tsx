@@ -52,7 +52,7 @@ export default function AdminTeam() {
 
   const fetchMembers = async () => {
     try {
-      const response = await fetch('/api/team', { cache: 'no-store' })
+      const response = await fetch('/api/admin/team', { cache: 'no-store' })
       if (response.ok) {
         const data = await response.json()
         setMembers(data)
@@ -75,8 +75,8 @@ export default function AdminTeam() {
     
     try {
       if (editing) {
-        const response = await fetch(`/api/team/${editing}`, {
-          method: 'PATCH',
+        const response = await fetch(`/api/admin/team/${editing}`, {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         })
@@ -91,7 +91,7 @@ export default function AdminTeam() {
           showToast(error.error || 'Failed to update team member', 'error')
         }
       } else {
-        const response = await fetch('/api/team', {
+        const response = await fetch('/api/admin/team', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
@@ -131,7 +131,7 @@ export default function AdminTeam() {
     if (!confirm('Are you sure you want to remove this team member?')) return
 
     try {
-      const response = await fetch(`/api/team/${id}`, {
+      const response = await fetch(`/api/admin/team/${id}`, {
         method: 'DELETE'
       })
 

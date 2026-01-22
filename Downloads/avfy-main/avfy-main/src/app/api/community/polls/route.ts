@@ -7,12 +7,20 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session || (session.user.role !== "ALUMNI" && session.user.role !== "ADMIN")) {
+    if (!session || (session.user.role !== "ALUMNI" && session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const now = new Date();
+    
     const polls = await db.communityPoll.findMany({
-      where: { active: true },
+      where: { 
+        active: true,
+        OR: [
+          { closesAt: null }, // No expiration date
+          { closesAt: { gt: now } } // Or hasn't expired yet
+        ]
+      },
       orderBy: { createdAt: "desc" },
       include: {
         _count: { select: { votes: true } },

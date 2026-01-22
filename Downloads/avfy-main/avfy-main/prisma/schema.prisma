@@ -79,7 +79,6 @@ model Session {
 
 enum UserRole {
   USER
-  STAFF
   ADMIN
   BOARD
   ALUMNI

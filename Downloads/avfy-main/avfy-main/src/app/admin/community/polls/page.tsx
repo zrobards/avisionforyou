@@ -11,6 +11,8 @@ interface Poll {
   closesAt: string | null;
   createdAt: string;
   _count: { votes: number };
+  yesVotes: number;
+  noVotes: number;
 }
 
 export default function AdminPollsPage() {
@@ -199,10 +201,39 @@ export default function AdminPollsPage() {
                   {poll.description && (
                     <p className="text-gray-600 text-sm mt-1">{poll.description}</p>
                   )}
+                  
+                  {/* Vote Results Bar */}
+                  {poll._count.votes > 0 && (
+                    <div className="mt-3 mb-2">
+                      <div className="flex h-8 rounded-full overflow-hidden bg-gray-200">
+                        <div 
+                          className="bg-green-500 flex items-center justify-center text-white text-xs font-medium transition-all"
+                          style={{ width: `${poll._count.votes > 0 ? (poll.yesVotes / poll._count.votes) * 100 : 0}%` }}
+                        >
+                          {poll._count.votes > 0 && (poll.yesVotes / poll._count.votes) * 100 > 15 && 
+                            `${Math.round((poll.yesVotes / poll._count.votes) * 100)}%`
+                          }
+                        </div>
+                        <div 
+                          className="bg-red-500 flex items-center justify-center text-white text-xs font-medium transition-all"
+                          style={{ width: `${poll._count.votes > 0 ? (poll.noVotes / poll._count.votes) * 100 : 0}%` }}
+                        >
+                          {poll._count.votes > 0 && (poll.noVotes / poll._count.votes) * 100 > 15 && 
+                            `${Math.round((poll.noVotes / poll._count.votes) * 100)}%`
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
-                      <span className="font-medium">{poll._count.votes}</span> votes
+                      <span className="font-medium">{poll._count.votes}</span> total votes
                     </span>
+                    <span>•</span>
+                    <span className="text-green-600 font-medium">👍 {poll.yesVotes} Yes</span>
+                    <span>•</span>
+                    <span className="text-red-600 font-medium">👎 {poll.noVotes} No</span>
                     <span>•</span>
                     <span>Created {new Date(poll.createdAt).toLocaleDateString()}</span>
                     {poll.closesAt && (

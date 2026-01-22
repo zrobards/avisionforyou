@@ -154,7 +154,7 @@ export default function MyRSVPsPage() {
               <p className="text-gray-600">No upcoming RSVPs.</p>
               <p className="text-sm text-gray-500 mt-2">
                 <a href="/community/meetings" className="text-green-600 hover:underline">
-                  Browse meetings
+                  Browse sessions and classes
                 </a>{" "}
                 to RSVP
               </p>

@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     }
 
     const userRole = (session.user as any).role
-    if (userRole !== 'ADMIN' && userRole !== 'STAFF') {
+    if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     const userRole = (session.user as any).role
-    if (userRole !== 'ADMIN' && userRole !== 'STAFF') {
+    if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

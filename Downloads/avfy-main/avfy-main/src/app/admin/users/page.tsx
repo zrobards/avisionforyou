@@ -130,8 +130,6 @@ export default function AdminUsersPage() {
     switch (role) {
       case 'ADMIN':
         return 'bg-red-100 text-red-800'
-      case 'STAFF':
-        return 'bg-blue-100 text-blue-800'
       case 'BOARD':
         return 'bg-purple-100 text-purple-800'
       case 'ALUMNI':
@@ -187,7 +185,6 @@ export default function AdminUsersPage() {
               >
                 <option value="ALL">All Roles</option>
                 <option value="ADMIN">Admin</option>
-                <option value="STAFF">Staff</option>
                 <option value="BOARD">Board</option>
                 <option value="ALUMNI">Alumni</option>
                 <option value="USER">User</option>
@@ -228,7 +225,6 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-4">
                     <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
                       user.role === 'ADMIN' ? 'bg-red-100 text-red-700' :
-                      user.role === 'STAFF' ? 'bg-blue-100 text-blue-700' :
                       user.role === 'BOARD' ? 'bg-purple-100 text-purple-700' :
                       user.role === 'ALUMNI' ? 'bg-green-100 text-green-700' :
                       'bg-gray-100 text-gray-700'
@@ -254,7 +250,6 @@ export default function AdminUsersPage() {
                         className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent"
                       >
                         <option value="USER">User</option>
-                        <option value="STAFF">Staff</option>
                         <option value="BOARD">Board</option>
                         <option value="ALUMNI">Alumni</option>
                         <option value="ADMIN">Admin</option>

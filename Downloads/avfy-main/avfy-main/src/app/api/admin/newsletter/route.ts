@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { db as prisma } from '@/lib/db'
-import { requireAdminAuth, requireAdminOrStaffAuth, errorResponse, validationErrorResponse, successResponse } from '@/lib/apiAuth'
+import { requireAdminAuth, errorResponse, validationErrorResponse, successResponse } from '@/lib/apiAuth'
 import { NewsletterSchema, validateRequest, getValidationErrors } from '@/lib/validation'
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
 import { ZodError } from 'zod'
@@ -12,7 +12,7 @@ import { ZodError } from 'zod'
  * Fetch all newsletters with pagination
  * 
  * PHASE 1 HARDENING:
- * - Requires admin or staff authentication
+ * - Requires admin authentication
  * - Returns paginated results (limit 50)
  * - No PII exposed
  */
@@ -21,8 +21,8 @@ export async function GET(req: NextRequest) {
   const startTime = Date.now()
 
   try {
-    // Require admin or staff authentication
-    const session = await requireAdminOrStaffAuth(req)
+    // Require admin authentication
+    const session = await requireAdminAuth(req)
     if (!session) {
       return errorResponse('Unauthorized', 'UNAUTHORIZED', 401)
     }
@@ -107,7 +107,6 @@ export async function GET(req: NextRequest) {
  * PHASE 1 HARDENING:
  * - Requires admin authentication
  * - Validates all inputs with Zod
- * - STAFF role can only create DRAFT newsletters
  * - ADMIN role can create any status
  * - No sensitive data in responses
  */
@@ -123,7 +122,6 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = (session.user as any)?.id
-    const userRole = (session.user as any)?.role
 
     // Validate request body with Zod
     let validatedData
@@ -147,21 +145,7 @@ export async function POST(req: NextRequest) {
       throw error
     }
 
-    // STAFF role restriction: only allow DRAFT status
     let status = validatedData.status || 'DRAFT'
-    if (userRole === 'STAFF' && status !== 'DRAFT') {
-      logApiRequest({
-        timestamp: new Date(),
-        method: 'POST',
-        path: '/api/admin/newsletter',
-        userId,
-        statusCode: 403,
-        duration: Date.now() - startTime,
-        requestId,
-        error: 'FORBIDDEN'
-      })
-      return errorResponse('Staff can only create draft newsletters', 'FORBIDDEN', 403)
-    }
 
     // Generate slug from title with timestamp for uniqueness
     const baseSlug = validatedData.title

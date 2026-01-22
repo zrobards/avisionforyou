@@ -15,12 +15,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Community routes - only ALUMNI and ADMIN
+  // Community routes - ALUMNI, BOARD, and ADMIN
   if (pathname.startsWith("/community")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url))
     }
-    if (token.role !== "ALUMNI" && token.role !== "ADMIN") {
+    if (token.role !== "ALUMNI" && token.role !== "BOARD" && token.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/unauthorized", request.url))
     }
   }

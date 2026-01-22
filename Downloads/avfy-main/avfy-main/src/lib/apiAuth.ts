@@ -16,11 +16,6 @@ import { authOptions } from '@/lib/auth'
  * - Can create/publish newsletters
  * - Can manage all data
  * 
- * STAFF:
- * - Can create/edit newsletters (drafts only)
- * - Can create/edit meetings
- * - Cannot access sensitive data (donations, admissions)
- * 
  * USER:
  * - Can submit admissions
  * - Can donate
@@ -28,10 +23,9 @@ import { authOptions } from '@/lib/auth'
  */
 
 export const ADMIN_ONLY = ['ADMIN'] as const
-export const ADMIN_STAFF = ['ADMIN', 'STAFF'] as const
-export const ALL_AUTHENTICATED = ['ADMIN', 'STAFF', 'USER'] as const
+export const ALL_AUTHENTICATED = ['ADMIN', 'USER'] as const
 
-export type UserRole = 'ADMIN' | 'STAFF' | 'USER'
+export type UserRole = 'ADMIN' | 'USER'
 
 /**
  * Check if user has required role
@@ -78,30 +72,6 @@ export async function requireAdminAuth(req: NextRequest) {
   return session
 }
 
-/**
- * Verify request is from authenticated admin or staff user
- * 
- * Usage in API routes:
- * const session = await requireAdminOrStaffAuth(req)
- * 
- * @returns Session object if authorized
- * @throws If not authenticated or not admin/staff
- */
-export async function requireAdminOrStaffAuth(req: NextRequest) {
-  const session = await getSession()
-
-  if (!session || !session.user) {
-    return null
-  }
-
-  const userRole = (session.user as any)?.role
-
-  if (!hasRole(userRole, ADMIN_STAFF)) {
-    return null
-  }
-
-  return session
-}
 
 /**
  * Verify request is from authenticated user

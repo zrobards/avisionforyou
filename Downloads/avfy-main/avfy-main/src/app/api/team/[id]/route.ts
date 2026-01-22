@@ -22,7 +22,7 @@ export async function PATCH(
       where: { email: session.user.email }
     })
 
-    if (user?.role !== 'ADMIN' && user?.role !== 'STAFF') {
+    if (user?.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin only' },
         { status: 403 }

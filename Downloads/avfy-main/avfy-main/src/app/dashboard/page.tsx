@@ -71,7 +71,6 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-bold">Welcome back, {session.user.name || "User"}!</h1>
           <p className="text-purple-100 mt-2">
             {user.role === "ADMIN" && "Administrator Account"}
-            {user.role === "STAFF" && "Staff Account"}
             {user.role === "BOARD" && "Board Member Account"}
             {user.role === "ALUMNI" && "Alumni/Community Member"}
             {user.role === "USER" && "Member Account"}
@@ -81,7 +80,7 @@ export default async function DashboardPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Quick Access Cards for Special Roles */}
-        {(user.role === "BOARD" || user.role === "ALUMNI" || user.role === "ADMIN" || user.role === "STAFF") && (
+        {(user.role === "BOARD" || user.role === "ALUMNI" || user.role === "ADMIN") && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {(user.role === "BOARD" || user.role === "ADMIN") && (
               <Link
@@ -94,7 +93,7 @@ export default async function DashboardPage() {
               </Link>
             )}
 
-            {(user.role === "ALUMNI" || user.role === "ADMIN") && (
+            {(user.role === "ALUMNI" || user.role === "BOARD" || user.role === "ADMIN") && (
               <Link
                 href="/community"
                 className="block p-6 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition"
@@ -105,7 +104,7 @@ export default async function DashboardPage() {
               </Link>
             )}
 
-            {(user.role === "ADMIN" || user.role === "STAFF") && (
+            {user.role === "ADMIN" && (
               <Link
                 href="/admin"
                 className="block p-6 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition"

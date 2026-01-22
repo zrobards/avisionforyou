@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       const user = await db.user.findUnique({
         where: { email: session.user.email }
       })
-      isAdmin = user?.role === 'ADMIN' || user?.role === 'STAFF'
+      isAdmin = user?.role === 'ADMIN'
     }
 
     const posts = await db.blogPost.findMany({
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       where: { email: session.user.email }
     })
 
-    if (user?.role !== 'ADMIN' && user?.role !== 'STAFF') {
+    if (user?.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin only' },
         { status: 403 }

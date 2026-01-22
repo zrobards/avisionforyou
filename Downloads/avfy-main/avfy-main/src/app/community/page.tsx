@@ -19,7 +19,7 @@ export default async function CommunityDashboardPage() {
     redirect("/login");
   }
 
-  if (user.role !== "ALUMNI" && user.role !== "ADMIN") {
+  if (user.role !== "ALUMNI" && user.role !== "BOARD" && user.role !== "ADMIN") {
     redirect("/unauthorized");
   }
 
@@ -103,16 +103,16 @@ export default async function CommunityDashboardPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">My Upcoming Sessions</h2>
-                <Link href="/meetings" className="text-green-600 hover:underline text-sm">
+                <Link href="/community/meetings" className="text-green-600 hover:underline text-sm">
                   Browse All →
                 </Link>
               </div>
 
               {upcomingRsvps.length === 0 && duiRegistrations.length === 0 ? (
                 <div className="text-center py-6 text-gray-500">
-                  <p>No upcoming sessions</p>
-                  <Link href="/meetings" className="text-green-600 hover:underline mt-2 inline-block">
-                    Find sessions to join
+                  <p>No upcoming sessions or classes</p>
+                  <Link href="/community/meetings" className="text-green-600 hover:underline mt-2 inline-block">
+                    Find sessions and classes to join
                   </Link>
                 </div>
               ) : (
@@ -224,11 +224,11 @@ export default async function CommunityDashboardPage() {
               <h2 className="text-xl font-semibold mb-4">Quick Links</h2>
               <div className="space-y-2">
                 <Link
-                  href="/meetings"
+                  href="/community/meetings"
                   className="flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition"
                 >
                   <span>📅</span>
-                  <span>Browse Sessions</span>
+                  <span>Browse Sessions & Classes</span>
                 </Link>
                 <Link
                   href="/community/resources"

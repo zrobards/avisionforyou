@@ -7,7 +7,7 @@ import { db } from "@/lib/db"
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
   
-  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "ADMIN")) {
+  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const session = await getServerSession(authOptions)
   
-  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "ADMIN")) {
+  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

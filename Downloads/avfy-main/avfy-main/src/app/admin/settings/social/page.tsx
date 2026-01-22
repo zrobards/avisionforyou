@@ -38,7 +38,7 @@ export default function AdminSocialSettingsPage() {
 
     if (status === 'authenticated') {
       const userRole = (session?.user as any)?.role
-      if (userRole !== 'ADMIN' && userRole !== 'STAFF') {
+      if (userRole !== 'ADMIN') {
         router.push('/dashboard')
         return
       }

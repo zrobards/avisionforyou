@@ -16,7 +16,27 @@ export async function GET() {
       include: { _count: { select: { votes: true } } },
     });
 
-    return NextResponse.json(polls);
+    // Add yes/no vote counts for admin view
+    const pollsWithStats = await Promise.all(
+      polls.map(async (poll) => {
+        const [yesVotes, noVotes] = await Promise.all([
+          db.communityPollVote.count({
+            where: { pollId: poll.id, vote: true },
+          }),
+          db.communityPollVote.count({
+            where: { pollId: poll.id, vote: false },
+          }),
+        ]);
+
+        return {
+          ...poll,
+          yesVotes,
+          noVotes,
+        };
+      })
+    );
+
+    return NextResponse.json(pollsWithStats);
   } catch (error) {
     console.error("Error fetching polls:", error);
     return NextResponse.json(

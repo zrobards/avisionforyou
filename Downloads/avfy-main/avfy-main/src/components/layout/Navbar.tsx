@@ -15,9 +15,10 @@ export default function Navbar() {
   const [showMobileAboutMenu, setShowMobileAboutMenu] = useState(false)
   const [showMobileBlogMenu, setShowMobileBlogMenu] = useState(false)
   const userRole = (session?.user as any)?.role
-  const isAdmin = userRole === 'ADMIN' || userRole === 'STAFF'
+  const isAdmin = userRole === 'ADMIN'
   const isBoard = userRole === 'BOARD' || userRole === 'ADMIN'
   const isAlumni = userRole === 'ALUMNI' || userRole === 'ADMIN'
+  const canAccessCommunity = userRole === 'ALUMNI' || userRole === 'BOARD' || userRole === 'ADMIN'
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-brand-purple to-purple-900 border-b border-purple-700 backdrop-blur-sm shadow-lg">
@@ -38,10 +39,10 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6">
+            <Link href="/" className="flex items-center gap-1.5 text-white hover:text-brand-green transition-colors text-sm xl:text-base">
               <Home className="w-4 h-4" />
-              Home
+              <span className="hidden xl:inline">Home</span>
             </Link>
             
             {/* About Dropdown */}
@@ -50,9 +51,9 @@ export default function Navbar() {
               onMouseEnter={() => setShowAboutDropdown(true)}
               onMouseLeave={() => setShowAboutDropdown(false)}
             >
-              <button className="flex items-center gap-1 text-white hover:text-brand-green transition-colors py-2">
+              <button className="flex items-center gap-1 text-white hover:text-brand-green transition-colors py-2 text-sm xl:text-base">
                 About
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-3.5 h-3.5" />
               </button>
               
               {showAboutDropdown && (
@@ -60,28 +61,28 @@ export default function Navbar() {
                   <div className="bg-white rounded-lg shadow-xl border border-gray-200 py-2 w-48">
                     <Link
                       href="/about"
-                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors text-sm"
                       onClick={() => setShowAboutDropdown(false)}
                     >
                       About Us
                     </Link>
                     <Link
                       href="/team"
-                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors text-sm"
                       onClick={() => setShowAboutDropdown(false)}
                     >
                       Our Team
                     </Link>
                     <Link
                       href="/impact"
-                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors text-sm"
                       onClick={() => setShowAboutDropdown(false)}
                     >
                       Our Impact
                     </Link>
                     <Link
                       href="/social"
-                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors text-sm"
                       onClick={() => setShowAboutDropdown(false)}
                     >
                       Social Media
@@ -91,13 +92,13 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link href="/programs" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+            <Link href="/programs" className="flex items-center gap-1.5 text-white hover:text-brand-green transition-colors text-sm xl:text-base">
               <Calendar className="w-4 h-4" />
-              Programs
+              <span className="hidden xl:inline">Programs</span>
             </Link>
-            <Link href="/meetings" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+            <Link href="/meetings" className="flex items-center gap-1.5 text-white hover:text-brand-green transition-colors text-sm xl:text-base">
               <Users className="w-4 h-4" />
-              Sessions
+              <span className="hidden xl:inline">Sessions</span>
             </Link>
             
             {/* Blog Dropdown */}
@@ -106,10 +107,10 @@ export default function Navbar() {
               onMouseEnter={() => setShowBlogDropdown(true)}
               onMouseLeave={() => setShowBlogDropdown(false)}
             >
-              <button className="flex items-center gap-1 text-white hover:text-brand-green transition-colors py-2">
+              <button className="flex items-center gap-1 text-white hover:text-brand-green transition-colors py-2 text-sm xl:text-base">
                 <BookOpen className="w-4 h-4" />
-                Blog
-                <ChevronDown className="w-4 h-4" />
+                <span className="hidden xl:inline">Blog</span>
+                <ChevronDown className="w-3.5 h-3.5" />
               </button>
               
               {showBlogDropdown && (
@@ -117,14 +118,14 @@ export default function Navbar() {
                   <div className="bg-white rounded-lg shadow-xl border border-gray-200 py-2 w-48">
                     <Link
                       href="/blog"
-                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors text-sm"
                       onClick={() => setShowBlogDropdown(false)}
                     >
                       Blog Posts
                     </Link>
                     <Link
                       href="/newsletter"
-                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors"
+                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-brand-purple transition-colors text-sm"
                       onClick={() => setShowBlogDropdown(false)}
                     >
                       Newsletters
@@ -133,63 +134,67 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-            <Link href="/contact" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+            <Link href="/contact" className="text-white hover:text-brand-green transition-colors text-sm xl:text-base">
               Contact
             </Link>
-            <Link href="/donate" className="flex items-center gap-2 text-white hover:text-brand-green transition-colors">
+            <Link href="/donate" className="flex items-center gap-1.5 text-white hover:text-brand-green transition-colors text-sm xl:text-base">
               <DollarSign className="w-4 h-4" />
-              Donate
+              <span className="hidden xl:inline">Donate</span>
             </Link>
             
             {/* Role-based Portal Links */}
             {session && (
-              <>
+              <div className="flex items-center gap-2 ml-2 pl-2 border-l border-purple-600">
                 {isBoard && (
                   <Link 
                     href="/board" 
-                    className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-xs xl:text-sm"
+                    title="Board Portal"
                   >
-                    Board Portal
+                    <span className="hidden xl:inline">Board</span>
+                    <span className="xl:hidden">📋</span>
                   </Link>
                 )}
                 
-                {isAlumni && (
+                {canAccessCommunity && (
                   <Link 
                     href="/community" 
-                    className="flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs xl:text-sm"
+                    title="Community"
                   >
-                    Community
+                    <span className="hidden xl:inline">Community</span>
+                    <span className="xl:hidden">🤝</span>
                   </Link>
                 )}
-              </>
+              </div>
             )}
           </div>
 
           {/* User Menu & Mobile Menu Button */}
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {status === 'loading' ? (
-              <div className="animate-pulse bg-blue-700 rounded-full w-10 h-10"></div>
+              <div className="animate-pulse bg-blue-700 rounded-full w-9 h-9 sm:w-10 sm:h-10"></div>
             ) : session ? (
               <>
-                <div className="hidden sm:block relative">
+                <div className="hidden md:block relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 bg-purple-700 hover:bg-brand-green text-white px-4 py-2 rounded-lg transition-colors"
+                    className="flex items-center gap-2 bg-purple-700 hover:bg-brand-green text-white px-3 xl:px-4 py-2 rounded-lg transition-colors text-sm"
                   >
                     <User className="w-4 h-4" />
-                    <span className="hidden md:inline">{session.user?.name || 'Account'}</span>
+                    <span className="hidden lg:inline max-w-[120px] truncate">{session.user?.name || 'Account'}</span>
                   </button>
 
                   {showUserMenu && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
                       <div className="px-4 py-2 border-b border-gray-200">
-                        <p className="text-sm font-semibold text-gray-900">{session.user?.name}</p>
-                        <p className="text-xs text-gray-500">{session.user?.email}</p>
+                        <p className="text-sm font-semibold text-gray-900 truncate">{session.user?.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{session.user?.email}</p>
                       </div>
                       
                       <Link
                         href="/dashboard"
-                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-purple-50 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-purple-50 transition-colors text-sm"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-4 h-4" />
@@ -199,7 +204,7 @@ export default function Navbar() {
                       {isAdmin && (
                         <Link
                           href="/admin"
-                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-blue-50 transition-colors"
+                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-blue-50 transition-colors text-sm"
                           onClick={() => setShowUserMenu(false)}
                         >
                           <Users className="w-4 h-4" />
@@ -212,7 +217,7 @@ export default function Navbar() {
                           setShowUserMenu(false)
                           signOut({ callbackUrl: '/' })
                         }}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                        className="flex items-center gap-2 w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors text-sm"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -224,7 +229,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="hidden sm:block bg-brand-green text-brand-purple px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-green-400 transition-colors"
+                className="hidden md:block bg-brand-green text-brand-purple px-4 xl:px-6 py-2 rounded-lg font-semibold hover:bg-green-400 transition-colors text-sm xl:text-base"
               >
                 Sign In
               </Link>
@@ -233,8 +238,9 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="md:hidden flex items-center justify-center w-10 h-10 bg-purple-700 hover:bg-brand-green text-white rounded-lg transition-colors"
+              className="lg:hidden flex items-center justify-center w-10 h-10 bg-purple-700 hover:bg-brand-green text-white rounded-lg transition-colors"
               aria-label="Toggle menu"
+              aria-expanded={showMobileMenu}
             >
               {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -243,7 +249,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="md:hidden absolute left-0 right-0 top-full bg-brand-purple border-t border-purple-700 shadow-xl">
+          <div className="lg:hidden absolute left-0 right-0 top-full bg-brand-purple border-t border-purple-700 shadow-xl max-h-[calc(100vh-80px)] overflow-y-auto">
             <div className="px-4 py-4 space-y-2">
               {/* Navigation Links */}
               <Link
@@ -406,7 +412,7 @@ export default function Navbar() {
                     </Link>
                   )}
                   
-                  {isAlumni && (
+                  {canAccessCommunity && (
                     <Link
                       href="/community"
                       className="flex items-center gap-3 bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-lg transition-colors font-medium"

@@ -21,16 +21,15 @@ export async function GET(request: NextRequest) {
     })
 
     const isAdmin = user?.role === "ADMIN"
-    const isStaff = user?.role === "STAFF"
     const isDevBypass = process.env.NODE_ENV === 'development'
 
     // In development, if no admins exist yet, allow first authenticated user
     const adminCount = await db.user.count({ where: { role: "ADMIN" } })
     const allowDevFallback = isDevBypass && adminCount === 0
 
-    if (!isAdmin && !isStaff && !allowDevFallback) {
+    if (!isAdmin && !allowDevFallback) {
       return NextResponse.json(
-        { error: "Admin or staff access required" },
+        { error: "Admin access required" },
         { status: 403 }
       )
     }

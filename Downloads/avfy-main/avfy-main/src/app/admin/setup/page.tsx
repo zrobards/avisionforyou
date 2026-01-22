@@ -208,8 +208,6 @@ export default function AdminSetup() {
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
                           user.role === 'ADMIN'
                             ? 'bg-blue-100 text-blue-800'
-                            : user.role === 'STAFF'
-                            ? 'bg-purple-100 text-purple-800'
                             : 'bg-slate-100 text-slate-800'
                         }`}
                       >
