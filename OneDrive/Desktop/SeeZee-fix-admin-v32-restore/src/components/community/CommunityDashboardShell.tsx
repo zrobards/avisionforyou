@@ -61,7 +61,7 @@ export function CommunityDashboardShell({ user, children }: CommunityDashboardSh
         {/* Logo */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           {!isCollapsed && (
-            <LogoHeader size="sm" variant="dark" className="flex-1" />
+            <LogoHeader className="flex-1" />
           )}
           {/* Collapse button (desktop only) */}
           <button
@@ -112,7 +112,7 @@ export function CommunityDashboardShell({ user, children }: CommunityDashboardSh
           {!isCollapsed ? (
             <div className="space-y-2">
               <div className="flex items-center gap-3 px-3 py-2">
-                <Avatar name={user.name || user.email} size="sm" />
+                <Avatar name={user.name || user.email} size={32} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {user.name || user.email}
@@ -146,7 +146,7 @@ export function CommunityDashboardShell({ user, children }: CommunityDashboardSh
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar (mobile only) */}
         <header className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <LogoHeader size="sm" variant="dark" />
+          <LogoHeader />
           <button
             onClick={() => setIsSidebarOpen((prev) => !prev)}
             className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
