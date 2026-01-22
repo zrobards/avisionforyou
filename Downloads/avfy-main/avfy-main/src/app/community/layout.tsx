@@ -2,6 +2,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import CommunitySidebar from "@/components/community/CommunitySidebar"
+import { CommunitySidebarProvider } from "@/components/community/CommunitySidebarContext"
+import CommunityLayoutContent from "@/components/community/CommunityLayoutContent"
 
 export default async function CommunityLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions)
@@ -11,11 +13,13 @@ export default async function CommunityLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <CommunitySidebar />
-        <main className="flex-1 ml-64 p-8">{children}</main>
+    <CommunitySidebarProvider>
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex">
+          <CommunitySidebar />
+          <CommunityLayoutContent>{children}</CommunityLayoutContent>
+        </div>
       </div>
-    </div>
+    </CommunitySidebarProvider>
   )
 }
