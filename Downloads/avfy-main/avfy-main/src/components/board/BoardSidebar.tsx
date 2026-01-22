@@ -31,6 +31,7 @@ export default function BoardSidebar() {
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Load saved preference from localStorage
@@ -39,6 +40,7 @@ export default function BoardSidebar() {
     if (saved !== null && !isMobile) {
       setIsCollapsed(saved === 'true')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile])
 
   // Save preference to localStorage
