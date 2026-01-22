@@ -17,6 +17,7 @@ export interface CurrentUser {
 /**
  * Map Prisma UserRole to Role type
  * Handles legacy roles (ADMIN, STAFF, DEV, DESIGNER) and maps them appropriately
+ * Note: STAFF is deprecated and maps to ADMIN
  */
 function mapUserRoleToRole(userRole: string | null | undefined): Role {
   if (!userRole) return "CLIENT";
@@ -24,14 +25,20 @@ function mapUserRoleToRole(userRole: string | null | undefined): Role {
   const role = userRole.toUpperCase();
   
   // Direct matches - these roles can access admin dashboard
-  if (["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH"].includes(role)) {
+  if (["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH", "ADMIN"].includes(role)) {
+    return role as Role;
+  }
+  
+  // New role types
+  if (["BOARD", "ALUMNI", "COMMUNITY"].includes(role)) {
     return role as Role;
   }
   
   // Map legacy/admin roles to admin-capable roles
-  if (role === "ADMIN" || role === "STAFF") {
-    // ADMIN/STAFF can access admin dashboard - map to CEO for full access
-    return "CEO";
+  if (role === "STAFF") {
+    // STAFF is deprecated - map to ADMIN for backward compatibility
+    console.warn(`STAFF role is deprecated for user. Mapping to ADMIN.`);
+    return "ADMIN";
   }
   
   if (role === "DEV") {
@@ -110,15 +117,16 @@ export async function requireRole(
   
   if (isCEOEmail) {
     // If accessing admin routes, allow access
-    if (allowedRoles.includes("CEO") || 
+    if (allowedRoles.includes("ADMIN") ||
+        allowedRoles.includes("CEO") || 
         allowedRoles.includes("CFO") || 
         allowedRoles.includes("FRONTEND") || 
         allowedRoles.includes("BACKEND") || 
         allowedRoles.includes("OUTREACH")) {
-      // Return user with CEO role for admin access
+      // Return user with ADMIN role for full access
       return {
         ...user,
-        role: "CEO" as Role,
+        role: "ADMIN" as Role,
       };
     }
   }

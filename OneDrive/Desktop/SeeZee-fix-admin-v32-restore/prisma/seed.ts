@@ -50,7 +50,7 @@ async function main() {
 
   // Create staff users
   const staffUsers = [
-    { email: 'zach@seezee.studio', name: 'Zach Smith', role: UserRole.STAFF },
+    { email: 'zach@seezee.studio', name: 'Zach Smith', role: UserRole.FRONTEND },
     { email: 'seezee.enterprises@gmail.com', name: 'Admin User', role: UserRole.ADMIN },
     { email: 'designer@seezee.studio', name: 'Sarah Designer', role: UserRole.DESIGNER },
     { email: 'dev@seezee.studio', name: 'Mike Developer', role: UserRole.DEV },
@@ -860,7 +860,7 @@ async function main() {
         data: {
           trainingId: createdTraining.id,
           audienceType: 'ROLE',
-          role: UserRole.STAFF,
+          role: UserRole.FRONTEND,
           dueAt: randomFutureDate(30),
           createdById: owner.id,
           createdAt: randomPastDate(30),

@@ -39,27 +39,26 @@ export default async function ClientDashboardLayout({
   }
 
   // Check if user has appropriate role to access client dashboard
-  // Allow CLIENT, CEO, CFO, FRONTEND, BACKEND, OUTREACH to view client dashboard
+  // Per requirements: Everyone can access the "normal dashboard" (client dashboard)
+  // ADMIN, BOARD, ALUMNI, COMMUNITY, and CLIENT can all access this
   const allowedRoles = [
     ROLE.CLIENT,
+    ROLE.ADMIN,
     ROLE.CEO,
     ROLE.CFO,
     ROLE.FRONTEND,
     ROLE.BACKEND,
     ROLE.OUTREACH,
+    ROLE.BOARD,
+    ROLE.ALUMNI,
+    ROLE.COMMUNITY,
   ];
 
   // Allow access if role is in allowedRoles list
-  // If not in allowedRoles, redirect based on user type
+  // If not in allowedRoles, redirect to login (unknown role)
   if (!allowedRoles.includes(user.role)) {
-    // Staff/admin roles that aren't explicitly allowed - redirect to admin
-    const staffRoles = ["CEO", "CFO", "FRONTEND", "BACKEND", "OUTREACH", "ADMIN", "STAFF"];
-    if (staffRoles.includes(user.role)) {
-      redirect("/admin");
-    } else {
-      // Unknown role or no access - redirect to login
-      redirect("/login");
-    }
+    // Unknown role - redirect to login
+    redirect("/login");
   }
 
   return (

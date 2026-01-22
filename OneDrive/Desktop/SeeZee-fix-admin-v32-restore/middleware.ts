@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { getDashboardUrl } from './src/lib/role';
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -63,10 +64,12 @@ export async function middleware(req: NextRequest) {
     const isAdminRoute = pathname.startsWith('/admin');
     const isClientRoute = pathname.startsWith('/client');
     const isCEORoute = pathname.startsWith('/ceo');
+    const isBoardRoute = pathname.startsWith('/board');
+    const isCommunityRoute = pathname.startsWith('/community');
     const isPortalRoute = pathname.startsWith('/portal');
     const isOnboardingRoute = pathname.startsWith('/onboarding');
     
-    const isProtectedRoute = isAdminRoute || isClientRoute || isCEORoute || isPortalRoute || isOnboardingRoute;
+    const isProtectedRoute = isAdminRoute || isClientRoute || isCEORoute || isBoardRoute || isCommunityRoute || isPortalRoute || isOnboardingRoute;
     
     // Only check auth on protected routes
     if (!isProtectedRoute) {
@@ -254,7 +257,7 @@ export async function middleware(req: NextRequest) {
       // If token shows onboarding is complete, redirect to dashboard (handles case where token was refreshed)
       if (tosAccepted && profileDone) {
         const role = token.role as string;
-        const dashboardUrl = role === 'CEO' || role === 'ADMIN' ? '/admin' : '/client';
+        const dashboardUrl = getDashboardUrl(role);
         // #region agent log
         console.log('[MIDDLEWARE] Onboarding route but token shows complete - redirecting to dashboard', { 
           pathname, 
@@ -312,7 +315,7 @@ export async function middleware(req: NextRequest) {
         if (profileDone) {
           // Onboarding complete - redirect to dashboard
           const role = token.role as string;
-          const dashboardUrl = role === 'CEO' || role === 'ADMIN' ? '/admin' : '/client';
+          const dashboardUrl = getDashboardUrl(role);
           // #region agent log
           fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:165',message:'REDIRECTING from TOS to dashboard',data:{pathname:pathname,role,dashboardUrl,reason:'Onboarding complete'},sessionId:'debug-session',runId:'run1',hypothesisId:'H2'})}).catch(()=>{});
           // #endregion
@@ -337,7 +340,7 @@ export async function middleware(req: NextRequest) {
       // If user is on /onboarding/profile and has completed profile, redirect to dashboard
       if (pathname.startsWith('/onboarding/profile') && tosAccepted && profileDone) {
         const role = token.role as string;
-        const dashboardUrl = role === 'CEO' || role === 'ADMIN' ? '/admin' : '/client';
+        const dashboardUrl = getDashboardUrl(role);
         // #region agent log
         fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:186',message:'REDIRECTING from profile to dashboard',data:{pathname:pathname,role,dashboardUrl,reason:'Onboarding complete'},sessionId:'debug-session',runId:'run1',hypothesisId:'H2'})}).catch(()=>{});
         // #endregion
@@ -365,30 +368,58 @@ export async function middleware(req: NextRequest) {
     }
     
     // Role-based route protection
+    // ADMIN can access: admin routes, board routes, community routes, and normal dashboard (client)
+    // BOARD can access: board routes, community routes, and normal dashboard (client)
+    // ALUMNI/COMMUNITY can access: community routes and normal dashboard (client)
+    // All others are blocked
+    
+    const role = token.role as string;
+    
     if (isAdminRoute) {
-      const role = token.role as string;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:207',message:'Admin route role check',data:{pathname:pathname,role,isCEO:role==='CEO',isADMIN:role==='ADMIN',willAllow:role==='CEO'||role==='ADMIN'},sessionId:'debug-session',runId:'run1',hypothesisId:'H5'})}).catch(()=>{});
-      // #endregion
-      if (role !== 'CEO' && role !== 'ADMIN') {
+      // Only ADMIN, CEO, and CFO can access admin routes
+      if (role !== 'ADMIN' && role !== 'CEO' && role !== 'CFO') {
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:210',message:'REDIRECTING from admin to client - wrong role',data:{pathname:pathname,role,reason:'Not CEO or ADMIN'},sessionId:'debug-session',runId:'run1',hypothesisId:'H5'})}).catch(()=>{});
+        console.log('[MIDDLEWARE] REDIRECTING from admin - wrong role', { pathname, role });
+        // #endregion
+        // Redirect to appropriate dashboard based on role
+        if (role === 'BOARD') {
+          return NextResponse.redirect(new URL('/board', req.url));
+        } else if (role === 'ALUMNI' || role === 'COMMUNITY') {
+          return NextResponse.redirect(new URL('/community', req.url));
+        } else {
+          return NextResponse.redirect(new URL('/client', req.url));
+        }
+      }
+    }
+    
+    if (isBoardRoute) {
+      // ADMIN, CEO, CFO, and BOARD can access board routes
+      if (role !== 'ADMIN' && role !== 'CEO' && role !== 'CFO' && role !== 'BOARD') {
+        // #region agent log
+        console.log('[MIDDLEWARE] REDIRECTING from board - wrong role', { pathname, role });
+        // #endregion
+        // Redirect to appropriate dashboard based on role
+        if (role === 'ALUMNI' || role === 'COMMUNITY') {
+          return NextResponse.redirect(new URL('/community', req.url));
+        } else {
+          return NextResponse.redirect(new URL('/client', req.url));
+        }
+      }
+    }
+    
+    if (isCommunityRoute) {
+      // ADMIN, CEO, CFO, BOARD, ALUMNI, and COMMUNITY can access community routes
+      if (role !== 'ADMIN' && role !== 'CEO' && role !== 'CFO' && role !== 'BOARD' && role !== 'ALUMNI' && role !== 'COMMUNITY') {
+        // #region agent log
+        console.log('[MIDDLEWARE] REDIRECTING from community - wrong role', { pathname, role });
         // #endregion
         return NextResponse.redirect(new URL('/client', req.url));
       }
     }
     
     if (isClientRoute) {
-      const role = token.role as string;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:216',message:'Client route role check',data:{pathname:pathname,role,isCLIENT:role==='CLIENT',willAllow:role==='CLIENT'},sessionId:'debug-session',runId:'run1',hypothesisId:'H5'})}).catch(()=>{});
-      // #endregion
-      if (role !== 'CLIENT') {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/44a284b2-eeef-4d7c-adae-bec1bc572ac3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'middleware.ts:219',message:'REDIRECTING from client to admin - wrong role',data:{pathname:pathname,role,reason:'Not CLIENT'},sessionId:'debug-session',runId:'run1',hypothesisId:'H5'})}).catch(()=>{});
-        // #endregion
-        return NextResponse.redirect(new URL('/admin', req.url));
-      }
+      // All authenticated users can access client routes (normal dashboard)
+      // This is allowed for ADMIN, BOARD, ALUMNI, COMMUNITY, and CLIENT roles
     }
 
     // #region agent log
@@ -408,6 +439,8 @@ export const config = {
     '/admin/:path*',
     '/client/:path*',
     '/ceo/:path*',
+    '/board/:path*',
+    '/community/:path*',
     '/portal/:path*',
     '/onboarding/:path*',
     '/set-password',  // Allow access to set password page

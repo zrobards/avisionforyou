@@ -40,7 +40,7 @@ export default async function RevenueCalculatorPage() {
   const teamMembers = await prisma.user.findMany({
     where: {
       role: {
-        in: ['CEO', 'CFO', 'ADMIN', 'STAFF', 'FRONTEND', 'BACKEND', 'DESIGNER', 'DEV'],
+        in: ['CEO', 'CFO', 'ADMIN', 'FRONTEND', 'BACKEND', 'DESIGNER', 'DEV', 'OUTREACH'],
       },
     },
     select: {
