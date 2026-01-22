@@ -53,7 +53,7 @@ export default async function ProjectBoardPage({ params }: PageProps) {
   // Get team members for assignment
   const teamMembers = await db.user.findMany({
     where: {
-      role: { in: ["ADMIN", "STAFF", "CEO", "CFO", "DESIGNER", "DEV", "FRONTEND", "BACKEND"] },
+      role: { in: ["ADMIN", "CEO", "CFO", "DESIGNER", "DEV", "FRONTEND", "BACKEND", "OUTREACH"] },
     },
     select: { id: true, name: true, image: true, role: true },
   });

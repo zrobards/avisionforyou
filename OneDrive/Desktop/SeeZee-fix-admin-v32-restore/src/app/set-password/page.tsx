@@ -66,12 +66,15 @@ export default function SetPasswordPage() {
       await updateSession({ needsPassword: false });
       
       // Redirect after session update
-      // For new users setting password, redirect to /start to create their first project
-      // The /client page will also redirect to /start if no projects exist (safety net)
+      // For new users setting password, redirect appropriately based on role
       setTimeout(() => {
         const role = session?.user?.role;
-        if (role === "CEO" || role === "ADMIN" || role === "STAFF") {
+        if (role === "CEO" || role === "ADMIN" || role === "CFO" || role === "FRONTEND" || role === "BACKEND" || role === "OUTREACH") {
           window.location.href = "/admin";
+        } else if (role === "BOARD") {
+          window.location.href = "/board";
+        } else if (role === "ALUMNI" || role === "COMMUNITY") {
+          window.location.href = "/community";
         } else {
           // For client users, redirect to /start to create first project
           // If they already have projects, /start will detect and redirect to /client

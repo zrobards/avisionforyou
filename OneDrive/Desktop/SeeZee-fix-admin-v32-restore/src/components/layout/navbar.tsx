@@ -48,7 +48,7 @@ export function Navbar() {
 
   // Determine user context and role
   const isCEO = session?.user?.role === "CEO";
-  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "STAFF";
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "CFO" || session?.user?.role === "CEO";
   const isClient = session?.user?.role === "CLIENT" || !session?.user?.role;
   
   // Determine current context based on pathname
@@ -56,6 +56,10 @@ export function Navbar() {
     ? "CEO" 
     : pathname?.startsWith("/admin") 
     ? "Admin" 
+    : pathname?.startsWith("/board")
+    ? "Board"
+    : pathname?.startsWith("/community")
+    ? "Community"
     : "Client";
 
   return (
