@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "UserRole" ADD VALUE 'BOARD';
+ALTER TYPE "UserRole" ADD VALUE 'ALUMNI';

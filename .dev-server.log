@@ -1,0 +1,140 @@
+
+> avisionforyou@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1058ms
+ ✓ Compiled /src/middleware in 90ms (171 modules)
+ ✓ Compiled /api/contact in 348ms (261 modules)
+RESEND_API_KEY not configured - email not sent: {
+  to: 'info@avisionforyourecovery.org',
+  subject: 'New Contact Form: Test Contact'
+}
+RESEND_API_KEY not configured - email not sent: {
+  to: 'test@example.com',
+  subject: 'Thank you for contacting A Vision For You Recovery'
+}
+[2026-01-06T21:19:08.552Z] POST /api/contact userId=anonymous status=201 duration=39ms requestId=req_1767734348513_bis461cde
+ POST /api/contact 201 in 476ms
+ ○ Compiling /contact ...
+ ✓ Compiled /contact in 1357ms (982 modules)
+ GET /contact?id=4a50acf3-4790-470d-9d34-7ae6371cd9b4&vscodeBrowserReqId=1767734356609 200 in 1586ms
+ ✓ Compiled in 189ms (365 modules)
+ GET /contact 200 in 130ms
+ ✓ Compiled /api/auth/[...nextauth] in 101ms (619 modules)
+ ✓ Compiled (855 modules)
+ GET /api/public/social-stats 200 in 556ms
+ GET /api/public/social-stats 200 in 557ms
+ ✓ Compiled /api/admin/newsletter in 90ms (865 modules)
+ GET /api/auth/session 200 in 813ms
+[2026-01-06T21:19:22.049Z] GET /api/admin/newsletter userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=12ms requestId=req_1767734362037_qrjro8h0r
+ GET /api/admin/newsletter 200 in 167ms
+ GET /api/auth/session 200 in 5ms
+ GET /api/auth/session 200 in 9ms
+ GET /api/auth/session 200 in 4ms
+ GET /api/auth/session 200 in 10ms
+ ✓ Compiled /admin in 152ms (1247 modules)
+ ✓ Compiled /api/admin/data in 54ms (884 modules)
+ GET /api/admin/data 200 in 77ms
+ GET /api/admin/data 200 in 78ms
+ ✓ Compiled /admin/donations in 211ms (1265 modules)
+ ✓ Compiled /api/admin/donations in 59ms (895 modules)
+ GET /api/admin/donations 200 in 83ms
+ ✓ Compiled /admin/contact in 130ms (1281 modules)
+ ✓ Compiled /api/admin/contact in 63ms (905 modules)
+[2026-01-06T21:19:27.117Z] GET /api/admin/contact userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=2ms requestId=req_1767734367115_uignoj2q5
+ GET /api/admin/contact 200 in 72ms
+[2026-01-06T21:19:27.123Z] GET /api/admin/contact userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=8ms requestId=req_1767734367115_r9dirtljh
+ GET /api/admin/contact 200 in 83ms
+ ✓ Compiled /dashboard in 161ms (1291 modules)
+ ✓ Compiled /api/assessment in 71ms (912 modules)
+ ✓ Compiled (914 modules)
+ GET /api/public/social-stats 200 in 165ms
+ GET /api/public/social-stats 200 in 166ms
+ GET /api/assessment 200 in 174ms
+ GET /api/meetings 200 in 175ms
+ GET /api/meetings 200 in 5ms
+RESEND_API_KEY not configured - email not sent: {
+  to: 'info@avisionforyourecovery.org',
+  subject: 'New Contact Form: mamama'
+}
+RESEND_API_KEY not configured - email not sent: {
+  to: 'amama@gmail.com',
+  subject: 'Thank you for contacting A Vision For You Recovery'
+}
+[2026-01-06T21:19:40.195Z] POST /api/contact userId=anonymous status=201 duration=3ms requestId=req_1767734380192_8p6oou5ak
+ POST /api/contact 201 in 24ms
+ GET /api/admin/data 200 in 16ms
+ GET /api/admin/data 200 in 17ms
+[2026-01-06T21:19:43.198Z] GET /api/admin/contact userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=4ms requestId=req_1767734383193_1f96ccmb5
+ GET /api/admin/contact 200 in 19ms
+[2026-01-06T21:19:43.199Z] GET /api/admin/contact userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=5ms requestId=req_1767734383194_u6nrdlqpm
+ GET /api/admin/contact 200 in 19ms
+ ✓ Compiled /admin/team in 185ms (1311 modules)
+ ✓ Compiled /api/team in 78ms (925 modules)
+ GET /api/team 200 in 96ms
+ GET /api/team 200 in 97ms
+ ✓ Compiled /admin/blog in 119ms (1323 modules)
+ ✓ Compiled /api/blog in 74ms (933 modules)
+ GET /api/blog?drafts=true 200 in 91ms
+ GET /api/blog?drafts=true 200 in 93ms
+ ✓ Compiled /admin/newsletter in 265ms (1333 modules)
+[2026-01-06T21:19:45.319Z] GET /api/admin/newsletter userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=5ms requestId=req_1767734385314_6oq8rg4lr
+ GET /api/admin/newsletter 200 in 28ms
+[2026-01-06T21:19:45.321Z] GET /api/admin/newsletter userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=7ms requestId=req_1767734385314_jolt6ck0q
+ GET /api/admin/newsletter 200 in 30ms
+ ✓ Compiled /api/admin/newsletter/[id]/send in 171ms (940 modules)
+ POST /api/admin/newsletter/cmk2xnhum0001i9jt7rys9f32/send 200 in 441ms
+[2026-01-06T21:19:47.705Z] GET /api/admin/newsletter userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=1ms requestId=req_1767734387704_s1ogfa90n
+ GET /api/admin/newsletter 200 in 7ms
+[2026-01-06T21:19:48.293Z] GET /api/admin/newsletter userId=cmk2wijnc0000z8oex1u36mpe status=200 duration=1ms requestId=req_1767734388292_ok197ix2u
+ GET /api/admin/newsletter 200 in 4ms
+ GET /api/public/social-stats 200 in 9ms
+ GET /api/public/social-stats 200 in 14ms
+ GET /api/meetings 200 in 18ms
+ GET /api/meetings 200 in 5ms
+ ✓ Compiled /newsletter in 161ms (1345 modules)
+ ✓ Compiled /api/newsletter in 92ms (948 modules)
+Public newsletter API: Found 1 published newsletters
+Latest newsletter: {
+  id: 'cmk2xnhum0001i9jt7rys9f32',
+  title: 'abc',
+  status: 'PUBLISHED',
+  publishedAt: 2026-01-06T21:19:47.686Z
+}
+ GET /api/newsletter 200 in 111ms
+Public newsletter API: Found 1 published newsletters
+Latest newsletter: {
+  id: 'cmk2xnhum0001i9jt7rys9f32',
+  title: 'abc',
+  status: 'PUBLISHED',
+  publishedAt: 2026-01-06T21:19:47.686Z
+}
+ GET /api/newsletter 200 in 108ms
+ ✓ Compiled /meetings in 140ms (1353 modules)
+ GET /api/meetings?upcoming=true 200 in 11ms
+ GET /api/meetings?upcoming=true 200 in 11ms
+ ✓ Compiled /programs in 232ms (1361 modules)
+ GET /api/public/social-stats 200 in 9ms
+ GET /api/public/social-stats 200 in 9ms
+ GET /api/public/social-stats 200 in 40ms
+ GET /api/public/social-stats 200 in 7ms
+ GET /api/public/social-stats 200 in 10ms
+ GET /api/public/social-stats 200 in 17ms
+ GET /api/public/social-stats 200 in 7ms
+ GET /api/public/social-stats 200 in 8ms
+ GET /api/public/social-stats 200 in 7ms
+ GET /api/public/social-stats 200 in 73ms
+ GET /api/public/social-stats 200 in 7ms
+ GET /api/public/social-stats 200 in 13ms
+ GET /api/public/social-stats 200 in 13ms
+ GET /api/public/social-stats 200 in 12ms
+ GET /api/public/social-stats 200 in 12ms
+ GET /api/public/social-stats 200 in 12ms
+ GET /api/public/social-stats 200 in 5ms
+ GET /api/public/social-stats 200 in 13ms
+ GET /api/public/social-stats 200 in 13ms

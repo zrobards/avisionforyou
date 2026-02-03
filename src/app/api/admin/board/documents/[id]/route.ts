@@ -1,0 +1,32 @@
+import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { db } from "@/lib/db"
+
+// DELETE document
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions)
+  if (!session || (session.user as any).role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  try {
+    const document = await db.boardDocument.findUnique({
+      where: { id: params.id },
+    })
+
+    if (!document) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 })
+    }
+
+    // Delete from database (file is stored as base64 in database)
+    await db.boardDocument.delete({
+      where: { id: params.id },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Error deleting document:", error)
+    return NextResponse.json({ error: "Failed to delete document" }, { status: 500 })
+  }
+}
