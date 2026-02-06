@@ -10,11 +10,11 @@ import "./globals.css"
 export const metadata: Metadata = {
   metadataBase: new URL('https://avisionforyou.org'),
   title: {
-    default: "A Vision For You | Faith-Based Recovery in Louisville, KY",
+    default: "A Vision For You | Addiction Recovery & Treatment in Louisville, KY",
     template: "%s | A Vision For You"
   },
-  description: "A faith-based nonprofit providing comprehensive support for individuals seeking recovery in Louisville, Kentucky. We offer programs, peer support, and community resources.",
-  keywords: ["recovery", "addiction support", "mental health", "housing assistance", "Louisville Kentucky", "nonprofit", "faith-based", "peer support", "community resources"],
+  description: "A nonprofit providing comprehensive recovery support, treatment, and community services in Louisville, Kentucky.",
+  keywords: ["recovery", "addiction treatment", "mental health", "housing assistance", "Louisville Kentucky", "nonprofit", "peer support", "community resources"],
   authors: [{ name: "A Vision For You", url: "https://avisionforyou.org" }],
   creator: "A Vision For You",
   publisher: "A Vision For You",
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://avisionforyou.org',
     siteName: 'A Vision For You',
-    title: 'A Vision For You | Faith-Based Community Support in Louisville, KY',
-    description: 'Comprehensive recovery support for individuals and families. Join our community-based programs in Louisville, Kentucky.',
+    title: 'A Vision For You | Addiction Recovery & Treatment in Louisville, KY',
+    description: 'Comprehensive recovery support for individuals and families in Louisville, Kentucky.',
     images: [
       {
         url: '/AVFY%20LOGO.jpg',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'A Vision For You | Louisville, KY',
-    description: 'Faith-based community support center providing peer support and community resources.',
+    description: 'Recovery support, treatment, and community resources in Louisville, Kentucky.',
     images: ['/AVFY%20LOGO.jpg'],
   },
   manifest: '/manifest.json',

@@ -78,22 +78,22 @@ export default function AdmissionPage() {
           <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
             <Phone className="w-8 h-8 text-indigo-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">Call Us</h3>
-            <p className="text-gray-600">(555) 123-4567</p>
+            <p className="text-gray-600">(502) 749-6344</p>
             <p className="text-sm text-gray-500 mt-2">Available 24/7</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
             <Mail className="w-8 h-8 text-indigo-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-            <p className="text-gray-600">info@avisionforyou.com</p>
+            <p className="text-gray-600">info@avisionforyourecovery.org</p>
             <p className="text-sm text-gray-500 mt-2">Quick response</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
             <MapPin className="w-8 h-8 text-indigo-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">Location</h3>
-            <p className="text-gray-600">123 Main Street</p>
-            <p className="text-sm text-gray-500">City, State 12345</p>
+            <p className="text-gray-600">1675 Story Ave</p>
+            <p className="text-sm text-gray-500">Louisville, KY 40206</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
@@ -222,7 +222,7 @@ export default function AdmissionPage() {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="(555) 123-4567"
+                    placeholder="(502) 749-6344"
                   />
                 </div>
 
@@ -236,10 +236,12 @@ export default function AdmissionPage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   >
                     <option value="">Select a program</option>
-                    <option value="day-program">Day Program</option>
-                    <option value="evening-program">Evening Program</option>
-                    <option value="weekend-program">Weekend Program</option>
-                    <option value="intensive-program">Intensive Program</option>
+                    <option value="surrender-program">Surrender Program</option>
+                    <option value="mindbodysoul-iop">MindBodySoul IOP</option>
+                    <option value="housing-shelter">Housing & Shelter</option>
+                    <option value="meetings-groups">Meetings & Groups</option>
+                    <option value="food-nutrition">Food & Nutrition</option>
+                    <option value="career-reentry">Career Reentry</option>
                   </select>
                 </div>
 
@@ -279,7 +281,7 @@ export default function AdmissionPage() {
           <p className="text-red-700 mb-3">
             If you're in immediate danger or having thoughts of suicide, please call 911 or the National Suicide Prevention Lifeline:
           </p>
-          <p className="text-2xl font-bold text-red-600">1-800-273-8255</p>
+          <p className="text-2xl font-bold text-red-600">988</p>
         </div>
       </div>
     </div>

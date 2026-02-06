@@ -22,6 +22,8 @@ export default function Donate() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'square'>('square')
+  const isSandbox = process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === 'sandbox'
+  const ein = process.env.NEXT_PUBLIC_EIN?.trim()
 
   const stripeConfigured = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 
     !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.includes('placeholder')
@@ -120,7 +122,9 @@ export default function Donate() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Make an Impact Today</h1>
           <p className="text-lg sm:text-xl opacity-90 mb-4 sm:mb-6">Your donation directly transforms lives through recovery support, housing, and hope</p>
-          <p className="text-sm sm:text-lg opacity-75">A Vision For You is a 501(c)(3) nonprofit - EIN: XX-XXXXXXX</p>
+          {ein && (
+            <p className="text-sm sm:text-lg opacity-75">A Vision For You is a 501(c)(3) nonprofit - EIN: {ein}</p>
+          )}
         </div>
       </section>
 
@@ -141,7 +145,7 @@ export default function Donate() {
                       : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-600'
                   }`}
                 >
-                  Square (Sandbox Test)
+                  Square{isSandbox ? ' (Sandbox)' : ''}
                 </button>
                 {stripeConfigured && (
                   <button
@@ -156,7 +160,7 @@ export default function Donate() {
                   </button>
                 )}
               </div>
-              {paymentMethod === 'square' && (
+              {paymentMethod === 'square' && isSandbox && (
                 <p className="text-xs sm:text-sm text-blue-700 mt-2">
                   ✨ Sandbox mode - Use test card: 4532 0151 1283 0366
                 </p>
@@ -272,9 +276,11 @@ export default function Donate() {
                 <p className="text-xs text-gray-600 mt-2">
                   • Donations support recovery programs, housing, and community services
                 </p>
-                <p className="text-xs text-gray-600">
-                  • Federal Tax ID: [To be updated with actual EIN]
-                </p>
+                {ein && (
+                  <p className="text-xs text-gray-600">
+                    • Federal Tax ID: {ein}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -406,38 +412,6 @@ export default function Donate() {
         subtitle="Take our confidential assessment to understand your needs and explore your personalized recovery path"
       />
 
-      <footer className="bg-gray-900 text-gray-300 py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <h4 className="text-white font-bold mb-4">A Vision For You</h4>
-              <p className="text-sm">Supporting recovery and transformation for those facing homelessness, addiction, and mental health challenges.</p>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/programs" className="hover:text-white">Programs</Link></li>
-                <li><Link href="/about" className="hover:text-white">About</Link></li>
-                <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
-                <li><Link href="/donate" className="hover:text-white">Donate</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">Account</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/login" className="hover:text-white">Sign In</Link></li>
-                <li><Link href="/signup" className="hover:text-white">Create Account</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">Contact</h4>
-              <p className="text-sm mb-2"><strong>1675 Story Ave, Louisville, KY 40206</strong></p>
-              <p className="text-sm mb-2"><a href="tel:+15027496344" className="hover:text-white">(502) 749-6344</a></p>
-              <p className="text-sm"><a href="mailto:info@avisionforyourecovery.org" className="hover:text-white">info@avisionforyourecovery.org</a></p>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

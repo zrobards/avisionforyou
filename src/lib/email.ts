@@ -211,8 +211,8 @@ export async function sendAdmissionConfirmation(
             <div style="background-color: #eff6ff; padding: 20px; border-radius: 8px; margin-top: 25px;">
               <p style="color: #1e40af; font-weight: bold; margin: 0 0 10px 0;">Need Immediate Assistance?</p>
               <p style="color: #1e3a8a; margin: 0;">
-                📞 Call us: <a href="tel:5025551234" style="color: #3b82f6; text-decoration: none;">(502) 555-1234</a><br>
-                📧 Email: <a href="mailto:admissions@avisionforyou.org" style="color: #3b82f6; text-decoration: none;">admissions@avisionforyou.org</a>
+                📞 Call us: <a href="tel:5027496344" style="color: #3b82f6; text-decoration: none;">(502) 749-6344</a><br>
+                📧 Email: <a href="mailto:info@avisionforyourecovery.org" style="color: #3b82f6; text-decoration: none;">info@avisionforyourecovery.org</a>
               </p>
             </div>
           </div>

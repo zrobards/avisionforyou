@@ -22,7 +22,7 @@ export default function LeadCaptureCTA({
           </div>
           <p className="text-purple-100 mb-6 max-w-xl mx-auto">{subtitle}</p>
           <Link
-            href="/login?callbackUrl=/assessment"
+            href="/assessment"
             className="inline-block bg-brand-green text-brand-purple px-8 py-3 rounded-lg font-bold hover:bg-green-400 transition"
           >
             Start Assessment
@@ -39,7 +39,7 @@ export default function LeadCaptureCTA({
         <h3 className="text-2xl font-bold text-gray-900 mb-2">{title}</h3>
         <p className="text-gray-600 mb-6">{subtitle}</p>
         <Link
-          href="/login?callbackUrl=/assessment"
+          href="/assessment"
           className="inline-block bg-brand-purple text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-800 transition"
         >
           Take Assessment
@@ -56,7 +56,7 @@ export default function LeadCaptureCTA({
           <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
           <p className="text-gray-700 mb-4">{subtitle}</p>
           <Link
-            href="/login?callbackUrl=/assessment"
+            href="/assessment"
             className="inline-block bg-brand-purple text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-800 transition"
           >
             Start Now

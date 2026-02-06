@@ -18,7 +18,63 @@ export default async function Programs() {
     (p) => p.slug !== 'womens-program' && !/women/i.test(p.title)
   )
   const hasDui = filtered.some((p) => p.slug === 'dui-classes')
-  const programs = hasDui
+  const requiredPrograms = [
+    {
+      title: 'Housing & Shelter',
+      slug: 'housing',
+      category: 'Housing & Support',
+      description: 'Safe, supportive residential recovery spaces with community support',
+      fullDescription:
+        'We provide safe, structured housing with peer support, accountability, and access to recovery resources.',
+      details: [
+        'Structured recovery-focused housing',
+        'Peer accountability and community support',
+        'Access to treatment and case management',
+        'Essential needs support and life-skills coaching'
+      ]
+    },
+    {
+      title: 'Meetings & Groups',
+      slug: 'self-help',
+      category: 'Peer Support',
+      description: 'Peer-driven recovery meetings, support groups, and community building',
+      fullDescription:
+        'Regular meetings and groups that provide accountability, encouragement, and a sense of belonging.',
+      details: [
+        '12-step meetings and recovery groups',
+        'Peer-led support and accountability',
+        'Community connection and mentorship'
+      ]
+    },
+    {
+      title: 'Food & Nutrition',
+      slug: 'food',
+      category: 'Support Services',
+      description: 'Nutritious meals and dietary support to aid recovery',
+      fullDescription:
+        'Consistent, balanced meals that support physical healing and stability during recovery.',
+      details: [
+        'Daily meal service',
+        'Balanced nutrition support',
+        'Healthy habit education'
+      ]
+    },
+    {
+      title: 'Career Reentry',
+      slug: 'career',
+      category: 'Aftercare',
+      description: 'Employment support, coaching, and reentry resources',
+      fullDescription:
+        'Job readiness coaching and connections to community employment resources.',
+      details: [
+        'Resume and interview support',
+        'Career education and coaching',
+        'Community employer connections'
+      ]
+    }
+  ]
+
+  const basePrograms = hasDui
     ? filtered
     : [
         ...filtered,
@@ -41,6 +97,12 @@ export default async function Programs() {
         }
       ]
 
+  const existingSlugs = new Set(basePrograms.map((p) => p.slug))
+  const programs = [
+    ...basePrograms,
+    ...requiredPrograms.filter((p) => !existingSlugs.has(p.slug))
+  ]
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -61,7 +123,7 @@ export default async function Programs() {
           {/* Program CTAs */}
           <div className="mt-12 flex gap-4 flex-wrap justify-center">
             <a
-              href="/login?callbackUrl=/assessment"
+              href="/assessment"
               className="bg-brand-purple text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-800 transition"
             >
               Start Application
@@ -86,7 +148,7 @@ export default async function Programs() {
           <p className="text-purple-100 mb-6">Contact us today to learn more about how we can support your recovery journey.</p>
           <div className="flex gap-4 justify-center flex-wrap">
             <a
-              href="/login?callbackUrl=/assessment"
+              href="/assessment"
               className="bg-brand-green text-brand-purple px-8 py-3 rounded-lg font-bold hover:bg-green-400 transition"
             >
               Begin Your Journey

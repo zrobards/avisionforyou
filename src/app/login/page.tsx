@@ -103,6 +103,11 @@ function LoginContent() {
 
       {/* Main Content */}
       <div className="max-w-md mx-auto px-6 py-16">
+        <noscript>
+          <div className="bg-yellow-100 border border-yellow-300 text-yellow-900 rounded-lg p-4 mb-6 text-sm">
+            JavaScript is required to sign in. Please enable JavaScript and refresh this page.
+          </div>
+        </noscript>
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-purple-700">
           {/* Header */}
           <div className="text-center mb-8">

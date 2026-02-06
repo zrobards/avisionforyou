@@ -240,7 +240,7 @@ export default function ProgramDetailPage({ params }: { params: { slug: string }
             Start with a confidential assessment so we can guide you to the right program.
           </p>
           <Link
-            href="/login?callbackUrl=/assessment"
+            href="/assessment"
             className="inline-block bg-white text-brand-purple px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition"
           >
             Start Assessment
