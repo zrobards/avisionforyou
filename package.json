@@ -12,7 +12,8 @@
     "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate:blog": "ts-node scripts/migrate-wix-blog.ts",
-    "migrate:blog:links": "ts-node scripts/update-internal-links.ts"
+    "migrate:blog:links": "ts-node scripts/update-internal-links.ts",
+    "import:blog": "ts-node scripts/import-blog-json.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -32,6 +33,7 @@
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "lucide-react": "^0.555.0",
     "next": "^14.0.0",
     "next-auth": "^4.24.13",
