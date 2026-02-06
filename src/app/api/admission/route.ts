@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: name.trim(),
         email: email.toLowerCase().trim(),
-        phone: phone.trim(),
+        phone: phone?.trim() || null,
         program: (program || 'Not specified').trim(),
         message: (message || '').trim(),
         status: 'pending',
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     try {
       await Promise.all([
         sendAdmissionConfirmation(name, email, program || 'Not specified'),
-        sendAdmissionNotificationToAdmin(name, email, phone, program || 'Not specified', message || '')
+        sendAdmissionNotificationToAdmin(name, email, phone || '', program || 'Not specified', message || '')
       ])
     } catch (emailError) {
       // Log but don't fail - inquiry was already saved
