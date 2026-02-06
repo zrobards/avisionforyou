@@ -2,7 +2,20 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { buildPageMetadata } from '@/lib/metadata'
 
-const PROGRAM_DETAILS = {
+type ProgramDetail = {
+  title: string
+  subtitle: string
+  description: string
+  howItWorks: string[]
+  whoItsFor: string[]
+  getStarted: string[]
+  extraLink?: {
+    href: string
+    label: string
+  }
+}
+
+const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
   iop: {
     title: 'MindBodySoul IOP',
     subtitle: 'Intensive Outpatient Treatment',
@@ -136,7 +149,7 @@ const PROGRAM_DETAILS = {
       'Access career coaching and community employment resources.'
     ]
   }
-} as const
+}
 
 type ProgramSlug = keyof typeof PROGRAM_DETAILS
 
