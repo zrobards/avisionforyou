@@ -8,9 +8,9 @@ export async function GET() {
     if (!settings) {
       settings = await db.siteSettings.create({
         data: {
-          instagramUrl: "https://www.instagram.com/avfyorg",
-          facebookPageUrl: "https://www.facebook.com/AVFYorg",
-          tiktokUsername: "avfyorg",
+          instagramUrl: "https://www.instagram.com/avision_foryourecovery/",
+          facebookPageUrl: "https://www.facebook.com/avisionforyourecovery",
+          tiktokUsername: "avisionforyourecovery",
         },
       });
     }
@@ -20,9 +20,9 @@ export async function GET() {
     console.error("Error fetching social embed settings:", error);
     return NextResponse.json(
       { 
-        instagramUrl: "https://www.instagram.com/avfyorg",
-        facebookPageUrl: "https://www.facebook.com/AVFYorg",
-        tiktokUsername: "avfyorg",
+        instagramUrl: "https://www.instagram.com/avision_foryourecovery/",
+        facebookPageUrl: "https://www.facebook.com/avisionforyourecovery",
+        tiktokUsername: "avisionforyourecovery",
       },
       { status: 200 }
     );

@@ -17,9 +17,9 @@ export async function GET() {
       // Create default settings if they don't exist
       const defaultSettings = await db.siteSettings.create({
         data: {
-          instagramUrl: "https://www.instagram.com/avfyorg",
-          facebookPageUrl: "https://www.facebook.com/AVFYorg",
-          tiktokUsername: "avfyorg",
+          instagramUrl: "https://www.instagram.com/avision_foryourecovery/",
+          facebookPageUrl: "https://www.facebook.com/avisionforyourecovery",
+          tiktokUsername: "avisionforyourecovery",
         },
       });
       return NextResponse.json(defaultSettings);

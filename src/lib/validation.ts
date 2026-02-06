@@ -17,7 +17,6 @@ import { z } from 'zod'
 export const SocialStatsSchema = z.object({
   facebook: z.coerce.number().int().min(0).max(10000000),
   instagram: z.coerce.number().int().min(0).max(10000000),
-  twitter: z.coerce.number().int().min(0).max(10000000),
   linkedin: z.coerce.number().int().min(0).max(10000000),
   tiktok: z.coerce.number().int().min(0).max(10000000),
 })

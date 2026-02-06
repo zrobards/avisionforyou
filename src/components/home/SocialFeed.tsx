@@ -9,9 +9,9 @@ interface SocialFeedProps {
 }
 
 export default function SocialFeed({ 
-  instagramUrl = "https://www.instagram.com/avfyorg",
-  facebookPageUrl = "https://www.facebook.com/AVFYorg",
-  tiktokUsername = "avfyorg"
+  instagramUrl = "https://www.instagram.com/avision_foryourecovery/",
+  facebookPageUrl = "https://www.facebook.com/avisionforyourecovery",
+  tiktokUsername = "avisionforyourecovery"
 }: SocialFeedProps) {
   const [activeTab, setActiveTab] = useState<"instagram" | "facebook" | "tiktok">("instagram");
   const [loaded, setLoaded] = useState(false);

@@ -59,9 +59,8 @@ export async function POST(request: NextRequest) {
     const platforms = [
       { platform: 'facebook', followers: validatedData.facebook, url: 'https://www.facebook.com/avisionforyourecovery', handle: '@AVisionForYouRecovery' },
       { platform: 'instagram', followers: validatedData.instagram, url: 'https://www.instagram.com/avision_foryourecovery/', handle: '@avisionforyourecovery' },
-      { platform: 'twitter', followers: validatedData.twitter, url: 'https://twitter.com/search?q=avisionforyourecovery', handle: '@AVFYRecovery' },
       { platform: 'linkedin', followers: validatedData.linkedin, url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/', handle: 'A Vision For You' },
-      { platform: 'tiktok', followers: validatedData.tiktok, url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y', handle: '@avisionforyourecovery' }
+      { platform: 'tiktok', followers: validatedData.tiktok, url: 'https://www.tiktok.com/@avisionforyourecovery', handle: '@avisionforyourecovery' }
     ]
 
     // Check if table exists, create it if not
@@ -126,7 +125,6 @@ export async function POST(request: NextRequest) {
     return successResponse({
       facebook: validatedData.facebook,
       instagram: validatedData.instagram,
-      twitter: validatedData.twitter,
       linkedin: validatedData.linkedin,
       tiktok: validatedData.tiktok
     })
@@ -199,7 +197,6 @@ export async function GET(request: NextRequest) {
         return successResponse({
           facebook: 869,
           instagram: 112,
-          twitter: 70,
           linkedin: 23,
           tiktok: 41
         })
@@ -211,7 +208,6 @@ export async function GET(request: NextRequest) {
     const statsObj: Record<string, number> = {
       facebook: 869,
       instagram: 112,
-      twitter: 70,
       linkedin: 23,
       tiktok: 41
     }
@@ -234,7 +230,6 @@ export async function GET(request: NextRequest) {
     return successResponse({
       facebook: statsObj.facebook,
       instagram: statsObj.instagram,
-      twitter: statsObj.twitter,
       linkedin: statsObj.linkedin,
       tiktok: statsObj.tiktok
     })

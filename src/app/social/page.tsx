@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin, ExternalLink } from 'lucide-react'
+import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin, ExternalLink } from 'lucide-react'
 
 // TikTok Icon Component
 const TikTokIcon = () => (
@@ -20,9 +20,8 @@ export default function SocialMediaPage() {
   const [socialStats, setSocialStats] = useState<Record<string, SocialStat>>({
     facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avisionforyourecovery' },
     instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
-    twitter: { followers: 70, handle: '@AVFYRecovery', url: 'https://twitter.com/search?q=avisionforyourecovery' },
     linkedin: { followers: 23, handle: 'A Vision For You', url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/' },
-    tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y' }
+    tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery' }
   })
 
   const [loading, setLoading] = useState(true)
@@ -70,17 +69,6 @@ export default function SocialMediaPage() {
       borderColor: 'border-pink-200'
     },
     {
-      name: 'Twitter / X',
-      icon: Twitter,
-      handle: socialStats.twitter.handle,
-      url: socialStats.twitter.url,
-      description: 'Stay updated with recovery news, advocacy efforts, and community announcements',
-      followers: socialStats.twitter.followers.toString(),
-      color: 'from-sky-500 to-sky-600',
-      bgColor: 'bg-sky-50',
-      borderColor: 'border-sky-200'
-    },
-    {
       name: 'LinkedIn',
       icon: Linkedin,
       handle: socialStats.linkedin.handle,
@@ -113,12 +101,12 @@ export default function SocialMediaPage() {
     {
       title: 'Event Updates',
       description: 'Stay informed about community meetings, workshops, and fundraisers',
-      platforms: ['Facebook', 'Twitter', 'Instagram']
+      platforms: ['Facebook', 'Instagram']
     },
     {
       title: 'Quick Tips & Insights',
       description: 'Short-form recovery tips, resources, and evidence-based information',
-      platforms: ['TikTok', 'Instagram', 'Twitter']
+      platforms: ['TikTok', 'Instagram']
     },
     {
       title: 'Program Highlights',

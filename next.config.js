@@ -39,6 +39,11 @@ const nextConfig = {
   poweredByHeader: false,
   async redirects() {
     return [
+      {
+        source: '/donation',
+        destination: '/donate',
+        permanent: true,
+      },
       // Wix blog URL patterns - general redirects
       {
         source: '/post/:slug',

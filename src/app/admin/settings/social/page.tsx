@@ -24,10 +24,10 @@ export default function AdminSocialSettingsPage() {
   const [error, setError] = useState('')
   
   const [settings, setSettings] = useState<SocialSettings>({
-    instagramUrl: 'https://www.instagram.com/avfyorg',
-    facebookPageUrl: 'https://www.facebook.com/AVFYorg',
-    tiktokUsername: 'avfyorg',
-    snapWidgetId: '',
+    instagramUrl: 'https://www.instagram.com/avision_foryourecovery/',
+    facebookPageUrl: 'https://www.facebook.com/avisionforyourecovery',
+    tiktokUsername: 'avisionforyourecovery',
+    snapWidgetId: ''
   })
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function AdminSocialSettingsPage() {
                 type="url"
                 value={settings.instagramUrl || ''}
                 onChange={(e) => setSettings({ ...settings, instagramUrl: e.target.value })}
-                placeholder="https://www.instagram.com/avfyorg"
+                placeholder="https://www.instagram.com/avision_foryourecovery/"
               />
               <Input
                 label="SnapWidget ID (Optional)"
@@ -147,7 +147,7 @@ export default function AdminSocialSettingsPage() {
               type="url"
               value={settings.facebookPageUrl || ''}
               onChange={(e) => setSettings({ ...settings, facebookPageUrl: e.target.value })}
-              placeholder="https://www.facebook.com/AVFYorg"
+                placeholder="https://www.facebook.com/avisionforyourecovery"
             />
             <p className="text-sm text-gray-500 mt-2">
               Make sure your Facebook page is public for the embed to work.
@@ -162,7 +162,7 @@ export default function AdminSocialSettingsPage() {
               type="text"
               value={settings.tiktokUsername || ''}
               onChange={(e) => setSettings({ ...settings, tiktokUsername: e.target.value })}
-              placeholder="avfyorg"
+                placeholder="avisionforyourecovery"
             />
             <p className="text-sm text-gray-500 mt-2">
               Enter the username without the @ symbol. TikTok doesn't have a feed widget, so this will link to your profile.

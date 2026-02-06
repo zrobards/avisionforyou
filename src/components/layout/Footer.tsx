@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Heart, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Heart } from 'lucide-react';
 import NewsletterSignup from '@/components/shared/NewsletterSignup';
 
 interface SocialStat {
@@ -15,9 +15,8 @@ export default function Footer() {
   const [socialStats, setSocialStats] = useState<Record<string, SocialStat>>({
     facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avisionforyourecovery' },
     instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
-    twitter: { followers: 70, handle: '@AVFYRecovery', url: 'https://twitter.com/search?q=avisionforyourecovery' },
     linkedin: { followers: 23, handle: 'A Vision For You', url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/' },
-    tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y' }
+    tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery' }
   });
 
   useEffect(() => {
@@ -79,7 +78,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link href="/blog" className="text-gray-400 hover:text-white transition text-sm">
-                    Resources
+                    Blog
                   </Link>
                 </li>
                 <li>
@@ -105,7 +104,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/donation" className="text-gray-400 hover:text-white transition text-sm">
+                  <Link href="/donate" className="text-gray-400 hover:text-white transition text-sm">
                     Donate
                   </Link>
                 </li>
@@ -115,9 +114,9 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition text-sm">
+                  <Link href="/contact" className="text-gray-400 hover:text-white transition text-sm">
                     Contact Us
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -165,11 +164,6 @@ export default function Footer() {
                 <p className="text-white text-sm font-semibold">Instagram</p>
                 <p className="text-gray-400 text-xs">{socialStats.instagram.followers} followers</p>
               </a>
-              <a href={socialStats.twitter.url} target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-sky-500 transition rounded-lg p-4 text-center">
-                <Twitter className="w-6 h-6 mx-auto mb-2" />
-                <p className="text-white text-sm font-semibold">Twitter/X</p>
-                <p className="text-gray-400 text-xs">{socialStats.twitter.followers} followers</p>
-              </a>
               <a href={socialStats.linkedin.url} target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-blue-700 transition rounded-lg p-4 text-center">
                 <Linkedin className="w-6 h-6 mx-auto mb-2" />
                 <p className="text-white text-sm font-semibold">LinkedIn</p>
@@ -197,7 +191,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-gray-400 text-sm">
-              <p>© 2025 A Vision For You. All rights reserved.</p>
+              <p>© {new Date().getFullYear()} A Vision For You. All rights reserved.</p>
             </div>
             <div className="flex gap-6 text-sm text-gray-400">
               <Link href="/privacy" className="hover:text-white transition">
@@ -221,7 +215,7 @@ export default function Footer() {
           <div className="mt-6 pt-6 border-t border-gray-800 text-center">
             <p className="text-gray-400 text-sm mb-2">Need immediate help?</p>
             <p className="text-red-400 font-semibold text-lg">
-              National Suicide Prevention Lifeline: 1-800-273-8255 (Available 24/7)
+              Suicide & Crisis Lifeline: 988 (call or text, available 24/7)
             </p>
           </div>
         </div>

@@ -7,7 +7,6 @@ export default function SocialStatsAdmin() {
   const [stats, setStats] = useState({
     facebook: '869',
     instagram: '112',
-    twitter: '70',
     linkedin: '23',
     tiktok: '41'
   })
@@ -91,7 +90,6 @@ export default function SocialStatsAdmin() {
   const platforms = [
     { key: 'facebook', label: 'Facebook', color: 'text-blue-600' },
     { key: 'instagram', label: 'Instagram', color: 'text-pink-600' },
-    { key: 'twitter', label: 'Twitter / X', color: 'text-sky-500' },
     { key: 'linkedin', label: 'LinkedIn', color: 'text-blue-700' },
     { key: 'tiktok', label: 'TikTok', color: 'text-gray-800' }
   ]

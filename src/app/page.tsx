@@ -22,12 +22,12 @@ const TESTIMONIALS = [
 ]
 
 const PROGRAMS = [
-  { title: "MindBodySoul IOP", description: "Intensive Outpatient Treatment combining therapy, psychiatry, and evidence-based practices", type: "IOP" },
-  { title: "Surrender Program", description: "Voluntary, self-help, social model recovery program grounded in 12-step principles", type: "SHELTER" },
-  { title: "Housing & Shelter", description: "Safe, supportive residential recovery spaces with community support", type: "HOUSING" },
-  { title: "Self-Help Groups", description: "Peer-driven support groups and community building activities", type: "SELF_HELP" },
-  { title: "Food & Nutrition", description: "Nutritious meals and dietary support as part of holistic recovery", type: "FOOD" },
-  { title: "Career Reentry", description: "Job training, placement assistance, and employment support services", type: "CAREER" }
+  { title: "MindBodySoul IOP", description: "Intensive Outpatient Treatment combining therapy, psychiatry, and evidence-based practices", type: "IOP", href: "/programs/iop" },
+  { title: "Surrender Program", description: "Voluntary, self-help, social model recovery program grounded in 12-step principles", type: "SHELTER", href: "/programs/surrender" },
+  { title: "Housing & Shelter", description: "Safe, supportive residential recovery spaces with community support", type: "HOUSING", href: "/programs/housing" },
+  { title: "Self-Help Groups", description: "Peer-driven support groups and community building activities", type: "SELF_HELP", href: "/programs/self-help" },
+  { title: "Food & Nutrition", description: "Nutritious meals and dietary support as part of holistic recovery", type: "FOOD", href: "/programs/food" },
+  { title: "Career Reentry", description: "Job training, placement assistance, and employment support services", type: "CAREER", href: "/programs/career" }
 ]
 
 const HERO_VIDEO_SRC = process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/videos/cloud-background.mp4"
@@ -60,7 +60,7 @@ export default function Home() {
             <p className="text-xl mb-2 font-semibold drop-shadow-md">501(c)(3) Charity</p>
             <p className="text-lg md:text-xl mb-8 opacity-95 drop-shadow-md max-w-4xl mx-auto">"To empower the homeless, addicted, maladjusted, and mentally ill to lead productive lives through housing, education, self-help, treatment, or any other available resource"</p>
             <div className="flex justify-center gap-4 flex-wrap">
-              <Link href="/login?callbackUrl=/assessment" className="px-8 py-4 bg-white text-brand-purple rounded-lg font-bold hover:bg-brand-green hover:text-white transition shadow-lg hover:shadow-xl">Explore Programs</Link>
+              <Link href="/programs" className="px-8 py-4 bg-white text-brand-purple rounded-lg font-bold hover:bg-brand-green hover:text-white transition shadow-lg hover:shadow-xl">Explore Programs</Link>
               <Link href="/donate" className="px-8 py-4 bg-brand-green text-white rounded-lg font-bold hover:bg-green-500 transition shadow-lg hover:shadow-xl">Make a Donation</Link>
               <a href="tel:+15027496344" className="px-8 py-4 border-2 border-white bg-black/20 backdrop-blur-sm text-white rounded-lg font-bold hover:bg-brand-green hover:border-brand-green transition shadow-lg hover:shadow-xl">Call (502) 749-6344</a>
             </div>
@@ -93,7 +93,7 @@ export default function Home() {
               <div key={idx} className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-brand-purple">
                 <h3 className="text-2xl font-bold mb-3 text-gray-900">{program.title}</h3>
                 <p className="text-gray-600 mb-4">{program.description}</p>
-                <Link href="/login?callbackUrl=/assessment" className="text-brand-purple font-semibold hover:text-purple-700">Start Now →</Link>
+                <Link href={program.href} className="text-brand-purple font-semibold hover:text-purple-700">Start Now →</Link>
               </div>
             ))}
           </div>
@@ -207,9 +207,9 @@ export default function Home() {
 
       {/* Social Media Feed */}
       <SocialFeed 
-        instagramUrl="https://www.instagram.com/avfyorg"
-        facebookPageUrl="https://www.facebook.com/AVFYorg"
-        tiktokUsername="avfyorg"
+        instagramUrl="https://www.instagram.com/avision_foryourecovery/"
+        facebookPageUrl="https://www.facebook.com/avisionforyourecovery"
+        tiktokUsername="avisionforyourecovery"
       />
     </div>
   )

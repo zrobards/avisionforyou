@@ -59,9 +59,8 @@ export async function POST(request: NextRequest) {
           VALUES
             (gen_random_uuid()::text, 'facebook', 869, '@AVisionForYouRecovery', 'https://www.facebook.com/avisionforyourecovery', NOW(), NOW()),
             (gen_random_uuid()::text, 'instagram', 112, '@avisionforyourecovery', 'https://www.instagram.com/avision_foryourecovery/', NOW(), NOW()),
-            (gen_random_uuid()::text, 'twitter', 70, '@AVFYRecovery', 'https://twitter.com/search?q=avisionforyourecovery', NOW(), NOW()),
             (gen_random_uuid()::text, 'linkedin', 23, 'A Vision For You', 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/', NOW(), NOW()),
-            (gen_random_uuid()::text, 'tiktok', 41, '@avisionforyourecovery', 'https://www.tiktok.com/@avisionforyourecovery?_r=1&_t=ZP-92h34Bcel0Y', NOW(), NOW())
+            (gen_random_uuid()::text, 'tiktok', 41, '@avisionforyourecovery', 'https://www.tiktok.com/@avisionforyourecovery', NOW(), NOW())
           ON CONFLICT ("platform") DO NOTHING;
         `)
       }
