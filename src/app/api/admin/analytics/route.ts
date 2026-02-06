@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
     });
 
     // === PROGRAM INTEREST ===
-    const assessments = await db.programAssessment.findMany();
+    const assessments = await db.assessment.findMany();
     const programInterest = assessments.reduce((acc: any[], a) => {
       const program = a.recommendedProgram || 'Unknown';
       const existing = acc.find(p => p.program === program);
@@ -218,7 +218,7 @@ export async function GET(request: NextRequest) {
     const assessmentToRSVP = await db.user.count({
       where: {
         AND: [
-          { programAssessments: { some: {} } },
+          { assessment: { isNot: null } },
           { rsvps: { some: {} } }
         ]
       }
