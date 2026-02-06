@@ -189,8 +189,8 @@ export default function UnifiedScheduler({
                   isSession ? "border-l-4 border-l-brand-green" : "border-l-4 border-l-purple-500"
                 }`}
               >
-                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                        {isSession ? "Free Meeting" : "DUI Class"}
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+                  <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span
                         className={`px-2 py-0.5 text-xs font-medium rounded ${
