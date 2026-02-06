@@ -4,10 +4,13 @@ import { redirect } from "next/navigation"
 import CommunityShell from "@/components/community/CommunityShell"
 
 export default async function CommunityLayout({ children }: { children: React.ReactNode }) {
+  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true'
   const session = await getServerSession(authOptions)
-  
-  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
-    redirect("/unauthorized")
+
+  if (!bypassAuth) {
+    if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+      redirect("/unauthorized")
+    }
   }
 
   return <CommunityShell>{children}</CommunityShell>

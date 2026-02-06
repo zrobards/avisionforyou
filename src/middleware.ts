@@ -2,6 +2,10 @@ import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function middleware(request: NextRequest) {
+  if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+    return NextResponse.next()
+  }
+
   const token = await getToken({ req: request })
   const pathname = request.nextUrl.pathname
 
