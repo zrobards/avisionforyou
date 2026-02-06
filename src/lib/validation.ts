@@ -44,6 +44,7 @@ export const MeetingSchema = z.object({
   format: z.enum(['ONLINE', 'IN_PERSON']),
   location: z.string().min(1).max(500).optional(),
   link: z.string().url().optional(),
+  capacity: z.coerce.number().int().min(1).max(1000).optional(),
 }).refine(
   (data) => new Date(data.endTime) > new Date(data.startTime),
   { message: "End time must be after start time", path: ["endTime"] }
