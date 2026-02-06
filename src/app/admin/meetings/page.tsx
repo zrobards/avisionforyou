@@ -112,7 +112,7 @@ export default function AdminMeetingsPage() {
     } catch (err) {
       console.error(err)
       if (loading) {
-        showToast('Failed to load meetings', 'error')
+        showToast('error', 'Failed to load meetings')
       }
     } finally {
       setLoading(false)
@@ -201,10 +201,10 @@ export default function AdminMeetingsPage() {
         throw new Error(result.error || 'Failed to delete meeting')
       }
 
-      showToast('Meeting deleted successfully', 'success')
+      showToast('success', 'Meeting deleted successfully')
       await fetchMeetings()
     } catch (err: any) {
-      showToast(err.message || 'Failed to delete meeting', 'error')
+      showToast('error', err.message || 'Failed to delete meeting')
     }
   }
 
