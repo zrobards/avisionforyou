@@ -1,7 +1,9 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import ImpactMetrics from '@/components/shared/ImpactMetrics'
 import LeadCaptureCTA from '@/components/shared/LeadCaptureCTA'
 import SocialFeed from '@/components/home/SocialFeed'
+import { buildPageMetadata } from '@/lib/metadata'
 
 const TESTIMONIALS = [
   {
@@ -25,19 +27,68 @@ const PROGRAMS = [
   { title: "MindBodySoul IOP", description: "Intensive Outpatient Treatment combining therapy, psychiatry, and evidence-based practices", type: "IOP", href: "/programs/iop" },
   { title: "Surrender Program", description: "Voluntary, self-help, social model recovery program grounded in 12-step principles", type: "SHELTER", href: "/programs/surrender" },
   { title: "Housing & Shelter", description: "Safe, supportive residential recovery spaces with community support", type: "HOUSING", href: "/programs/housing" },
-  { title: "Self-Help Groups", description: "Peer-driven support groups and community building activities", type: "SELF_HELP", href: "/programs/self-help" },
+  { title: "Meetings & Groups", description: "Peer-driven recovery meetings, support groups, and community building activities", type: "SELF_HELP", href: "/programs/self-help" },
   { title: "Food & Nutrition", description: "Nutritious meals and dietary support as part of holistic recovery", type: "FOOD", href: "/programs/food" },
   { title: "Career Reentry", description: "Job training, placement assistance, and employment support services", type: "CAREER", href: "/programs/career" }
 ]
 
 const HERO_VIDEO_SRC = process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/videos/cloud-background.mp4"
 
+export const metadata = buildPageMetadata(
+  'A Vision For You | Addiction Recovery & Treatment in Louisville, KY',
+  'Comprehensive addiction recovery and treatment in Louisville, KY. Explore outpatient care, housing support, meetings & groups, food & nutrition, and career reentry services.'
+)
+
 export default function Home() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: "A Vision For You",
+        url: "https://avisionforyou.vercel.app",
+        logo: "https://avisionforyou.vercel.app/AVFY%20LOGO.jpg",
+        sameAs: [
+          "https://www.facebook.com/avisionforyourecovery",
+          "https://www.instagram.com/avision_foryourecovery/",
+          "https://www.tiktok.com/@avisionforyourecovery",
+          "https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/"
+        ]
+      },
+      {
+        "@type": "LocalBusiness",
+        name: "A Vision For You",
+        url: "https://avisionforyou.vercel.app",
+        image: "https://avisionforyou.vercel.app/AVFY%20LOGO.jpg",
+        telephone: "+1-502-749-6344",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "1675 Story Ave",
+          addressLocality: "Louisville",
+          addressRegion: "KY",
+          postalCode: "40206",
+          addressCountry: "US"
+        }
+      },
+      {
+        "@type": "ContactPoint",
+        telephone: "+1-502-749-6344",
+        contactType: "customer service",
+        areaServed: "US",
+        availableLanguage: ["English"]
+      }
+    ]
+  }
+
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* Hero Section with Video Background */}
       <section className="relative h-screen min-h-[600px] overflow-hidden">
-        {/* Video Background */}
+        {/* Video Background (desktop) */}
         <video
           autoPlay
           loop
@@ -45,10 +96,21 @@ export default function Home() {
           playsInline
           preload="auto"
           poster="/AVFY%20LOGO.jpg"
-          className="absolute top-0 left-0 w-full h-full object-cover"
+          className="absolute top-0 left-0 hidden h-full w-full object-cover md:block"
         >
           <source src={HERO_VIDEO_SRC} type="video/mp4" />
         </video>
+
+        {/* Fallback Image (mobile) */}
+        <div className="absolute inset-0 md:hidden">
+          <Image
+            src="/AVFY%20LOGO.jpg"
+            alt="A Vision For You"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
         
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />

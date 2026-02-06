@@ -1,4 +1,10 @@
 import Link from 'next/link'
+import { buildPageMetadata } from '@/lib/metadata'
+
+export const metadata = buildPageMetadata(
+  'About A Vision For You',
+  'Learn about our mission, leadership, and community-based addiction recovery programs in Louisville, KY.'
+)
 
 const CORE_VALUES = [
   "Compassion - We meet people where they are with unconditional love",

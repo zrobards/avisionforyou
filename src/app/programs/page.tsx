@@ -1,8 +1,14 @@
 import { getPrograms } from '@/lib/cms'
 import { ProgramView } from '@/components/programs/ProgramView'
 import LeadCaptureCTA from '@/components/shared/LeadCaptureCTA'
+import { buildPageMetadata } from '@/lib/metadata'
 
 export const revalidate = 60
+
+export const metadata = buildPageMetadata(
+  'Programs',
+  'Explore recovery programs including MindBodySoul IOP, Surrender Program, housing support, and community services in Louisville, KY.'
+)
 
 export default async function Programs() {
   const rawPrograms = await getPrograms()

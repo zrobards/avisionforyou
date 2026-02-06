@@ -98,7 +98,7 @@ export default function Navbar() {
             </Link>
             <Link href="/meetings" className="flex items-center gap-1.5 text-white hover:text-brand-green transition-colors text-sm xl:text-base">
               <Users className="w-4 h-4" />
-              <span className="hidden xl:inline">Sessions</span>
+              <span className="hidden xl:inline">Meetings & Groups</span>
             </Link>
             
             {/* Blog Dropdown */}
@@ -331,7 +331,7 @@ export default function Navbar() {
                 onClick={() => setShowMobileMenu(false)}
               >
                 <Users className="w-5 h-5" />
-                <span className="font-medium">Sessions & Classes</span>
+                <span className="font-medium">Meetings & Groups</span>
               </Link>
               
               {/* Blog Dropdown for Mobile */}

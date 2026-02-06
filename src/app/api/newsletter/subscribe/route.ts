@@ -8,7 +8,14 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json()
+    const { email, company } = await req.json()
+
+    if (company) {
+      return NextResponse.json(
+        { error: 'Invalid submission' },
+        { status: 400 }
+      )
+    }
 
     if (!email || !email.includes('@')) {
       return NextResponse.json(

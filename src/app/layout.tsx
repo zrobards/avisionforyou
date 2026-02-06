@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     description: 'Comprehensive recovery support for individuals and families. Join our community-based programs in Louisville, Kentucky.',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/AVFY%20LOGO.jpg',
         width: 1200,
         height: 630,
         alt: 'A Vision For You',
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'A Vision For You | Louisville, KY',
     description: 'Faith-based community support center providing peer support and community resources.',
-    images: ['/og-image.jpg'],
+    images: ['/AVFY%20LOGO.jpg'],
   },
   manifest: '/manifest.json',
   verification: {

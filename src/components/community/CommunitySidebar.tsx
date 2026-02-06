@@ -6,7 +6,7 @@ import { Home, Calendar, CheckCircle, Bell, BookOpen, ArrowLeft, Vote } from 'lu
 
 const communityMenuItems = [
   { href: '/community', label: 'Dashboard', icon: Home },
-  { href: '/community/meetings', label: 'Sessions & Classes', icon: Calendar },
+  { href: '/community/meetings', label: 'Meetings & Groups', icon: Calendar },
   { href: '/community/my-rsvps', label: 'My RSVPs', icon: CheckCircle },
   { href: '/community/polls', label: 'Polls & Voting', icon: Vote },
   { href: '/community/announcements', label: 'Announcements', icon: Bell },

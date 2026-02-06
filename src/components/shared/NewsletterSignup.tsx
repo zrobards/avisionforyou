@@ -5,6 +5,7 @@ import { Mail } from 'lucide-react'
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('')
+  const [company, setCompany] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
 
@@ -14,6 +15,12 @@ export default function NewsletterSignup() {
     if (!email || !email.includes('@')) {
       setStatus('error')
       setMessage('Please enter a valid email address')
+      return
+    }
+
+    if (company) {
+      setStatus('error')
+      setMessage('Something went wrong. Please try again.')
       return
     }
 
@@ -30,7 +37,7 @@ export default function NewsletterSignup() {
 
       if (res.ok) {
         setStatus('success')
-        setMessage('Thank you! Check your inbox to confirm your subscription.')
+        setMessage('Thanks for subscribing!')
         setEmail('')
         
         // Reset after 5 seconds
@@ -40,11 +47,11 @@ export default function NewsletterSignup() {
         }, 5000)
       } else {
         setStatus('error')
-        setMessage(data.error || 'Something went wrong. Please try again.')
+        setMessage('Something went wrong. Please try again.')
       }
     } catch (error) {
       setStatus('error')
-      setMessage('Network error. Please check your connection and try again.')
+      setMessage('Something went wrong. Please try again.')
     }
   }
 
@@ -62,6 +69,16 @@ export default function NewsletterSignup() {
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="flex gap-2">
+          <input
+            type="text"
+            name="company"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            autoComplete="off"
+            tabIndex={-1}
+            aria-hidden="true"
+            className="hidden"
+          />
           <input
             type="email"
             value={email}

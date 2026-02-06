@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { buildPageMetadata } from '@/lib/metadata'
 
 const PROGRAM_DETAILS = {
   iop: {
@@ -69,10 +70,10 @@ const PROGRAM_DETAILS = {
     ]
   },
   'self-help': {
-    title: 'Self-Help Groups',
+    title: 'Meetings & Groups',
     subtitle: 'Peer-Driven Recovery & Community',
     description:
-      'Explore our self-help resources through two distinct paths: 12 Step Meetings and the Surrender Program. These peer-driven groups provide accountability, encouragement, and a sense of belonging for individuals in recovery.',
+      'Explore our meetings and groups through two distinct paths: 12 Step Meetings and the Surrender Program. These peer-driven gatherings provide accountability, encouragement, and a sense of belonging for individuals in recovery.',
     howItWorks: [
       'Regular 12-step meetings focused on shared experience, strength, and hope.',
       'Peer-led recovery groups that emphasize accountability and mutual support.',
@@ -141,6 +142,19 @@ type ProgramSlug = keyof typeof PROGRAM_DETAILS
 
 export function generateStaticParams() {
   return Object.keys(PROGRAM_DETAILS).map((slug) => ({ slug }))
+}
+
+export function generateMetadata({ params }: { params: { slug: string } }) {
+  const program = PROGRAM_DETAILS[params.slug as ProgramSlug]
+
+  if (!program) {
+    return buildPageMetadata('Program Details', 'Learn more about our recovery programs and services.')
+  }
+
+  return buildPageMetadata(
+    `${program.title} | A Vision For You`,
+    program.description
+  )
 }
 
 export default function ProgramDetailPage({ params }: { params: { slug: string } }) {

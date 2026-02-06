@@ -2,6 +2,12 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import UnifiedScheduler from "@/components/meetings/UnifiedScheduler";
+import { buildPageMetadata } from "@/lib/metadata";
+
+export const metadata = buildPageMetadata(
+  'Meetings & Groups',
+  'Find upcoming meetings, recovery groups, and DUI education classes in Louisville, KY.'
+)
 
 export default async function MeetingsPage() {
   const session = await getServerSession(authOptions);
@@ -58,10 +64,10 @@ export default async function MeetingsPage() {
     <div className="min-h-screen bg-white">
       <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Sessions & Classes</h1>
+          <h1 className="text-5xl font-bold mb-4">Meetings & Groups</h1>
           <p className="text-xl text-purple-100">
-            Browse upcoming meetings, support sessions, and DUI education classes. 
-            RSVP to free sessions or register and pay for classes.
+            Browse upcoming meetings, support groups, and DUI education classes. 
+            RSVP to free groups or register and pay for classes.
           </p>
         </div>
       </section>

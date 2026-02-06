@@ -117,7 +117,7 @@ export default function UnifiedScheduler({
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
-          All Sessions
+          All Meetings & Groups
         </button>
         <button
           onClick={() => setFilter("free")}
@@ -127,7 +127,7 @@ export default function UnifiedScheduler({
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
-          Free Sessions
+          Free Meetings & Groups
         </button>
         <button
           onClick={() => setFilter("paid")}
@@ -145,7 +145,7 @@ export default function UnifiedScheduler({
       <div className="flex gap-4 mb-6 text-sm">
         <span className="flex items-center gap-2">
           <span className="w-3 h-3 bg-brand-green rounded-full"></span>
-          Free Sessions (RSVP)
+          Free Meetings & Groups (RSVP)
         </span>
         <span className="flex items-center gap-2">
           <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
@@ -156,7 +156,7 @@ export default function UnifiedScheduler({
       {/* Events List */}
       {filteredEvents.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">No upcoming sessions found.</p>
+          <p className="text-gray-500">No upcoming meetings found.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -190,7 +190,7 @@ export default function UnifiedScheduler({
                 }`}
               >
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                  <div className="flex-1">
+                        {isSession ? "Free Meeting" : "DUI Class"}
                     <div className="flex items-center gap-2 mb-1">
                       <span
                         className={`px-2 py-0.5 text-xs font-medium rounded ${
