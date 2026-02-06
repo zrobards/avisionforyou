@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import fs from 'fs'
+import path from 'path'
+
+const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
 
 // GET /api/blog - List all published posts (public) or all posts (admin)
 export async function GET(request: NextRequest) {
@@ -33,6 +37,15 @@ export async function GET(request: NextRequest) {
       orderBy: { publishedAt: 'desc' }
     })
 
+    if (!posts.length && fs.existsSync(BLOG_POSTS_PATH)) {
+      const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
+      return NextResponse.json(fallbackPosts, {
+        headers: {
+          'Cache-Control': 'no-store, max-age=0'
+        }
+      })
+    }
+
     return NextResponse.json(posts, {
       headers: {
         'Cache-Control': 'no-store, max-age=0'
@@ -40,6 +53,14 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching blog posts:', error)
+    if (fs.existsSync(BLOG_POSTS_PATH)) {
+      const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
+      return NextResponse.json(fallbackPosts, {
+        headers: {
+          'Cache-Control': 'no-store, max-age=0'
+        }
+      })
+    }
     return NextResponse.json(
       { error: 'Failed to fetch blog posts' },
       { status: 500 }

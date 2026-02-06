@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import fs from 'fs'
+import path from 'path'
+
+const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
 
 // GET /api/blog/[slug] - Get single post by slug
 export async function GET(
@@ -24,6 +28,13 @@ export async function GET(
     })
 
     if (!post) {
+      if (fs.existsSync(BLOG_POSTS_PATH)) {
+        const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
+        const fallback = fallbackPosts.find((p: any) => p.slug === params.slug)
+        if (fallback) {
+          return NextResponse.json(fallback)
+        }
+      }
       return NextResponse.json(
         { error: 'Post not found' },
         { status: 404 }
@@ -39,6 +50,13 @@ export async function GET(
     return NextResponse.json(post)
   } catch (error) {
     console.error('Error fetching blog post:', error)
+    if (fs.existsSync(BLOG_POSTS_PATH)) {
+      const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
+      const fallback = fallbackPosts.find((p: any) => p.slug === params.slug)
+      if (fallback) {
+        return NextResponse.json(fallback)
+      }
+    }
     return NextResponse.json(
       { error: 'Failed to fetch blog post' },
       { status: 500 }

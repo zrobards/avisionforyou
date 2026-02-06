@@ -106,7 +106,7 @@ export default function BlogPostPage() {
             <span className="text-gray-500">{post.readTimeMinutes} min read</span>
             <span className="flex items-center gap-1 text-gray-500">
               <Eye className="w-4 h-4" />
-              {post.views} views
+              {(post.views ?? 0)} views
             </span>
           </div>
           
@@ -186,11 +186,10 @@ export default function BlogPostPage() {
         )}
 
         {/* Content */}
-        <div className="prose prose-lg max-w-none">
-          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {post.content}
-          </div>
-        </div>
+        <div
+          className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
 
         {/* Call to Action */}
         <div className="mt-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-8 text-white text-center">
