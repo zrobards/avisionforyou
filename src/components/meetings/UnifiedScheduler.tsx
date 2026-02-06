@@ -7,8 +7,8 @@ interface ProgramSession {
   id: string;
   title: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  startDate: string | Date;
+  endDate: string | Date;
   location: string | null;
   format: string;
   link: string | null;
@@ -20,7 +20,7 @@ interface DUIClass {
   id: string;
   title: string;
   description: string | null;
-  date: string;
+  date: string | Date;
   startTime: string;
   endTime: string;
   location: string;

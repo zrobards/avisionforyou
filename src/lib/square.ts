@@ -1,15 +1,14 @@
-import { Client, Environment } from "square"
+import { SquareClient, SquareEnvironment } from "square"
 
 let squareClientInstance: any = null
 
 function initializeSquare() {
   if (!squareClientInstance) {
-    squareClientInstance = new Client({
-      accessToken: process.env.SQUARE_ACCESS_TOKEN,
+    squareClientInstance = new SquareClient({
+      token: process.env.SQUARE_ACCESS_TOKEN,
       environment: process.env.SQUARE_ENVIRONMENT === "production" 
-        ? Environment.Production 
-        : Environment.Sandbox,
-      userAgentDetail: "AVFY_Recovery_Donations"
+        ? SquareEnvironment.Production 
+        : SquareEnvironment.Sandbox,
     })
   }
   return squareClientInstance
@@ -17,10 +16,10 @@ function initializeSquare() {
 
 export const getCheckoutApi = () => {
   const client = initializeSquare()
-  return client.checkoutApi
+  return client.checkout
 }
 
 export const getCustomersApi = () => {
   const client = initializeSquare()
-  return client.customersApi
+  return client.customers
 }

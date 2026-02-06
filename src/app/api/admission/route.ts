@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: name.trim(),
         email: email.toLowerCase().trim(),
-        phone: phone?.trim() || null,
+        phone: phone?.trim() || '',
         program: (program || 'Not specified').trim(),
         message: (message || '').trim(),
         status: 'pending',

@@ -4,6 +4,14 @@ import { db } from './db'
 // Initialize Resend only if API key is provided
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
+const getResendClient = () => {
+  if (!resend) {
+    console.warn('RESEND_API_KEY not configured - email not sent')
+    return null
+  }
+  return resend
+}
+
 export async function sendEmail({
   to,
   subject,
@@ -43,6 +51,9 @@ export async function sendMeetingReminder(
   reminderType: ReminderType = { type: '24h', field: 'reminder24hSent' }
 ) {
   try {
+    const resendClient = getResendClient()
+    if (!resendClient) return false
+
     const rsvp = await db.rSVP.findUnique({
       where: { id: rsvpId },
       include: {
@@ -72,7 +83,7 @@ export async function sendMeetingReminder(
       ? 'tomorrow' 
       : 'in 1 hour'
 
-    const result = await resend.emails.send({
+    const result = await resendClient.emails.send({
       from: 'A Vision For You <noreply@avisionforyou.org>',
       to: rsvp.user.email,
       subject: `Reminder: ${rsvp.session.title} Meeting ${reminderType.type === '24h' ? 'Tomorrow' : 'Starting Soon'}`,
@@ -161,7 +172,10 @@ export async function sendAdmissionConfirmation(
   program: string
 ) {
   try {
-    const result = await resend.emails.send({
+    const resendClient = getResendClient()
+    if (!resendClient) return false
+
+    const result = await resendClient.emails.send({
       from: 'A Vision For You <noreply@avisionforyou.org>',
       to: email,
       subject: 'Thank You for Your Interest in A Vision For You',
@@ -234,9 +248,12 @@ export async function sendAdmissionNotificationToAdmin(
   message: string
 ) {
   try {
+    const resendClient = getResendClient()
+    if (!resendClient) return false
+
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@avisionforyou.org'
     
-    const result = await resend.emails.send({
+    const result = await resendClient.emails.send({
       from: 'A Vision For You <noreply@avisionforyou.org>',
       to: adminEmail,
       replyTo: email,
@@ -311,6 +328,9 @@ export async function sendDonationThankYou(
   frequency: string
 ) {
   try {
+    const resendClient = getResendClient()
+    if (!resendClient) return false
+
     const formattedAmount = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -318,7 +338,7 @@ export async function sendDonationThankYou(
 
     const isRecurring = frequency !== 'ONE_TIME'
     
-    const result = await resend.emails.send({
+    const result = await resendClient.emails.send({
       from: 'A Vision For You <noreply@avisionforyou.org>',
       to: email,
       subject: `Thank You for Your ${isRecurring ? 'Recurring ' : ''}Donation!`,

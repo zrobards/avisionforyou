@@ -8,7 +8,7 @@ import { rateLimitResponse, validationErrorResponse } from "@/lib/apiAuth"
 
 const rsvpSchema = z.object({
   sessionId: z.string().min(1),
-  status: z.string().min(1).optional()
+  status: z.enum(["CONFIRMED", "CANCELLED", "NO_SHOW"]).optional()
 })
 
 export async function POST(request: NextRequest) {

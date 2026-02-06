@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import type { PluginAPI } from 'tailwindcss/types/config'
 
 const config: Config = {
   content: [
@@ -58,10 +59,10 @@ const config: Config = {
     },
   },
   plugins: [
-    function({ matchUtilities, theme }) {
+    function({ matchUtilities, theme }: PluginAPI) {
       matchUtilities(
         {
-          'hover-scale': (value) => ({
+          'hover-scale': (_value: string) => ({
             '@apply hover:scale-105 transition-transform': {},
           }),
         },

@@ -1,5 +1,6 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import NextAuth, { type NextAuthOptions } from "next-auth"
+import type { Adapter } from "next-auth/adapters"
 import GoogleProvider from "next-auth/providers/google"
 import EmailProvider from "next-auth/providers/email"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -8,7 +9,7 @@ import { db } from "./db"
 
 export const authOptions: NextAuthOptions = {
   // Use PrismaAdapter for user/account creation, but JWT for sessions
-  adapter: PrismaAdapter(db),
+  adapter: PrismaAdapter(db) as Adapter,
   debug: process.env.NODE_ENV === 'development',
   providers: [
     // Google OAuth - requires credentials
@@ -212,7 +213,7 @@ export const authOptions: NextAuthOptions = {
         console.error('Critical error in JWT callback:', outerError)
         // Ensure token has minimum required fields
         if (!token.role) token.role = 'USER'
-        if (!token.sub && token.id) token.sub = token.id
+        if (!token.sub && token.id) token.sub = String(token.id)
       }
       
       // Always return token - never throw or return null/undefined

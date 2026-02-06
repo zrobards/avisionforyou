@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { Client, Environment } from "square"
+import { SquareClient, SquareEnvironment } from "square"
 
 /**
  * POST /api/donations/[donationId]/cancel
@@ -64,16 +64,16 @@ export async function POST(
     // Cancel with Square if it has a subscription ID
     if (donation.squareSubscriptionId) {
       try {
-        const client = new Client({
-          accessToken: process.env.SQUARE_ACCESS_TOKEN,
+        const client = new SquareClient({
+          token: process.env.SQUARE_ACCESS_TOKEN,
           environment: process.env.SQUARE_ENVIRONMENT === "production"
-            ? Environment.Production
-            : Environment.Sandbox,
+            ? SquareEnvironment.Production
+            : SquareEnvironment.Sandbox,
         })
 
-        await client.subscriptionsApi.cancelSubscription(
-          donation.squareSubscriptionId
-        )
+        await client.subscriptions.cancel({
+          subscriptionId: donation.squareSubscriptionId
+        })
 
         console.log("Square: Subscription cancelled", donation.squareSubscriptionId)
       } catch (squareError: any) {
