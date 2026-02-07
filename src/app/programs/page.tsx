@@ -17,8 +17,38 @@ export default async function Programs() {
   const filtered = rawPrograms.filter(
     (p) => p.slug !== 'womens-program' && !/women/i.test(p.title)
   )
-  const hasDui = filtered.some((p) => p.slug === 'dui-classes')
+  // All 6 core programs that must always appear on the programs page
   const requiredPrograms = [
+    {
+      title: 'Surrender Program',
+      slug: 'surrender-program',
+      category: 'Long-Term Residential',
+      description: 'A 6-9 month peer-driven recovery program',
+      fullDescription:
+        'Based on our original flagship model, the Surrender Program is a 6-9 month voluntary self-help social model recovery program. Participants are immersed in a community of peers who learn life skills and guide one another through the twelve steps.',
+      details: [
+        'Residential living (no cost to client)',
+        'Daily recovery oriented classes',
+        'Weekly behavioral modification programming',
+        'Peer and staff accountability',
+        'Three daily meals provided',
+        'Onsite Primary Care offered through partner physicians'
+      ]
+    },
+    {
+      title: 'MindBodySoul IOP',
+      slug: 'mindbodysoul-iop',
+      category: 'Intensive Outpatient Program (IOP)',
+      description: '90-day clinical outpatient treatment program',
+      fullDescription:
+        'A 90-day program with daily sessions, individual therapy, and peer support. Ideal for maintaining daily responsibilities while seeking recovery. Insurance accepting program.',
+      details: [
+        '90-day structured treatment program',
+        'Daily group counseling and educational workshops',
+        'Weekly one-on-one sessions with a licensed CADC',
+        'Insurance accepting - KY Medicaid and some private insurers'
+      ]
+    },
     {
       title: 'Housing & Shelter',
       slug: 'housing',
@@ -74,34 +104,15 @@ export default async function Programs() {
     }
   ]
 
-  const basePrograms = hasDui
-    ? filtered
-    : [
-        ...filtered,
-        {
-          title: 'DUI Education & Supervision',
-          slug: 'dui-classes',
-          category: 'Court-Ordered Programs',
-          description: 'Court-ordered DUI education, supervision, and support services',
-          fullDescription:
-            'Comprehensive DUI education program meeting court requirements with individualized supervision and support. We work with the legal system to provide evidence-based education and intervention.',
-          details: [
-            'Court-ordered DUI education classes',
-            'IDRC (Impaired Driving Resource Center) certified education',
-            'Individual and group supervision options',
-            'Urine drug screening services',
-            'Program documentation for court',
-            'Flexible scheduling for work and family',
-            'Legal referral networks and partnerships'
-          ]
-        }
-      ]
+  // Start with the 6 required programs, then append any extra DB programs
+  const requiredSlugs = new Set(requiredPrograms.map((p) => p.slug))
+  const extraFromDb = filtered.filter((p) => !requiredSlugs.has(p.slug))
 
-  const existingSlugs = new Set(basePrograms.map((p) => p.slug))
-  const programs = [
-    ...basePrograms,
-    ...requiredPrograms.filter((p) => !existingSlugs.has(p.slug))
-  ]
+  // Merge: use DB data for required programs when available, fall back to defaults
+  const programs = requiredPrograms.map((req) => {
+    const fromDb = filtered.find((p) => p.slug === req.slug)
+    return fromDb ?? req
+  }).concat(extraFromDb)
 
   return (
     <div className="min-h-screen bg-white">
