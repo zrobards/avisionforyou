@@ -23,8 +23,8 @@ export default function BlogPage() {
 
   useEffect(() => {
     fetchPosts()
-    // Poll for updates every 5 seconds
-    const interval = setInterval(fetchPosts, 5000)
+    // Poll for updates every 60 seconds
+    const interval = setInterval(fetchPosts, 60000)
     return () => clearInterval(interval)
   }, [])
 

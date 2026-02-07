@@ -1,10 +1,11 @@
-import { buildPageMetadata } from '@/lib/metadata'
+import { Metadata } from 'next'
 
-export const metadata = buildPageMetadata(
-  'Our Team',
-  'Meet the leadership, board, and clinical team supporting recovery at A Vision For You.'
-)
+export const metadata: Metadata = {
+  title: 'Our Team',
+  description:
+    'Meet the dedicated team at A Vision For You serving the Louisville, KY recovery community.',
+}
 
-export default function TeamLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children
 }

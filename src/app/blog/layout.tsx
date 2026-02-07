@@ -1,10 +1,11 @@
-import { buildPageMetadata } from '@/lib/metadata'
+import { Metadata } from 'next'
 
-export const metadata = buildPageMetadata(
-  'Blog',
-  'Recovery stories, resources, and insights from A Vision For You.'
-)
+export const metadata: Metadata = {
+  title: 'Blog',
+  description:
+    'Recovery stories, resources, and updates from A Vision For You in Louisville, Kentucky.',
+}
 
-export default function BlogLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children
 }

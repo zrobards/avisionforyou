@@ -26,8 +26,8 @@ export default function AdminContactPage() {
 
   useEffect(() => {
     fetchInquiries()
-    // Poll for updates every 3 seconds
-    const interval = setInterval(fetchInquiries, 3000)
+    // Poll for updates every 30 seconds
+    const interval = setInterval(fetchInquiries, 30000)
     return () => clearInterval(interval)
   }, [])
 

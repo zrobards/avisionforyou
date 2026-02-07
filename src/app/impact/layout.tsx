@@ -1,10 +1,11 @@
-import { buildPageMetadata } from '@/lib/metadata'
+import { Metadata } from 'next'
 
-export const metadata = buildPageMetadata(
-  'Our Impact',
-  'See the impact of A Vision For You programs, recovery outcomes, and community transformation in Louisville, KY.'
-)
+export const metadata: Metadata = {
+  title: 'Our Impact',
+  description:
+    "See the impact of A Vision For You's recovery programs in Louisville, KY. Lives changed, families reunited, and communities strengthened.",
+}
 
-export default function ImpactLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children
 }

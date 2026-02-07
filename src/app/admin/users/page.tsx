@@ -42,8 +42,8 @@ export default function AdminUsersPage() {
         return
       }
       fetchUsers()
-      // Poll for updates every 3 seconds
-      const interval = setInterval(fetchUsers, 3000)
+      // Poll for updates every 30 seconds
+      const interval = setInterval(fetchUsers, 30000)
       return () => clearInterval(interval)
     }
   }, [status, router, showToast])

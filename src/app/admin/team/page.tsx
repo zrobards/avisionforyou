@@ -44,8 +44,8 @@ export default function AdminTeam() {
 
     if (status === 'authenticated') {
       fetchMembers()
-      // Poll for updates every 3 seconds
-      const interval = setInterval(fetchMembers, 3000)
+      // Poll for updates every 30 seconds
+      const interval = setInterval(fetchMembers, 30000)
       return () => clearInterval(interval)
     }
   }, [status])

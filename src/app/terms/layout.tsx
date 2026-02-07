@@ -1,10 +1,11 @@
-import { buildPageMetadata } from '@/lib/metadata'
+import { Metadata } from 'next'
 
-export const metadata = buildPageMetadata(
-  'Terms of Use',
-  'Read the terms and conditions for using the A Vision For You website and services.'
-)
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description:
+    'Terms of service for A Vision For You, a 501(c)(3) nonprofit in Louisville, Kentucky.',
+}
 
-export default function TermsLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children
 }

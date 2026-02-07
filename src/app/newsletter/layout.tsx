@@ -1,10 +1,11 @@
-import { buildPageMetadata } from '@/lib/metadata'
+import { Metadata } from 'next'
 
-export const metadata = buildPageMetadata(
-  'Newsletter',
-  'Read community updates, recovery resources, and announcements from A Vision For You.'
-)
+export const metadata: Metadata = {
+  title: 'Newsletter',
+  description:
+    'Stay updated with recovery resources, community events, and program updates from A Vision For You.',
+}
 
-export default function NewsletterLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children
 }

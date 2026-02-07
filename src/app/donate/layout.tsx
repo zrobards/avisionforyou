@@ -1,10 +1,11 @@
-import { buildPageMetadata } from '@/lib/metadata'
+import { Metadata } from 'next'
 
-export const metadata = buildPageMetadata(
-  'Donate',
-  'Support A Vision For You with a tax-deductible donation that funds housing, meals, recovery support, and community programs.'
-)
+export const metadata: Metadata = {
+  title: 'Donate',
+  description:
+    'Support addiction recovery in Louisville, KY. Your tax-deductible donation to A Vision For You helps provide housing, treatment, and community support.',
+}
 
-export default function DonateLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children
 }

@@ -67,8 +67,8 @@ export default function AdminMeetingsPage() {
         return
       }
       fetchMeetings()
-      // Poll for updates every 3 seconds
-      const interval = setInterval(fetchMeetings, 3000)
+      // Poll for updates every 30 seconds
+      const interval = setInterval(fetchMeetings, 30000)
       return () => clearInterval(interval)
     }
   }, [status, router, showToast])

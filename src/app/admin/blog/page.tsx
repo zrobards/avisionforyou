@@ -53,8 +53,8 @@ export default function AdminBlog() {
 
     if (status === 'authenticated') {
       fetchPosts()
-      // Poll for updates every 3 seconds
-      const interval = setInterval(fetchPosts, 3000)
+      // Poll for updates every 30 seconds
+      const interval = setInterval(fetchPosts, 30000)
       return () => clearInterval(interval)
     }
   }, [status])

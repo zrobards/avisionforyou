@@ -22,8 +22,8 @@ export default function NewsletterPage() {
 
   useEffect(() => {
     fetchNewsletters()
-    // Poll for updates every 5 seconds
-    const interval = setInterval(fetchNewsletters, 5000)
+    // Poll for updates every 60 seconds
+    const interval = setInterval(fetchNewsletters, 60000)
     return () => clearInterval(interval)
   }, [])
 

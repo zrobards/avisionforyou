@@ -55,8 +55,8 @@ export default function MediaLibrary() {
     }
     if (status === 'authenticated') {
       fetchMedia()
-      // Poll for updates every 3 seconds
-      const interval = setInterval(fetchMedia, 3000)
+      // Poll for updates every 30 seconds
+      const interval = setInterval(fetchMedia, 30000)
       return () => clearInterval(interval)
     }
   }, [status])

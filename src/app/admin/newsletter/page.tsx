@@ -53,8 +53,8 @@ export default function AdminNewsletter() {
 
     if (status === 'authenticated') {
       fetchNewsletters()
-      // Poll for updates every 3 seconds
-      const interval = setInterval(fetchNewsletters, 3000)
+      // Poll for updates every 30 seconds
+      const interval = setInterval(fetchNewsletters, 30000)
       return () => clearInterval(interval)
     }
   }, [status])

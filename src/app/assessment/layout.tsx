@@ -1,10 +1,11 @@
-import { buildPageMetadata } from '@/lib/metadata'
+import { Metadata } from 'next'
 
-export const metadata = buildPageMetadata(
-  'Recovery Assessment',
-  'Complete a confidential assessment to find the right recovery program and support services.'
-)
+export const metadata: Metadata = {
+  title: 'Recovery Assessment',
+  description:
+    'Take a confidential recovery assessment to find the right program at A Vision For You in Louisville, KY.',
+}
 
-export default function AssessmentLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children
 }

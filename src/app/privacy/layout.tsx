@@ -1,10 +1,11 @@
-import { buildPageMetadata } from '@/lib/metadata'
+import { Metadata } from 'next'
 
-export const metadata = buildPageMetadata(
-  'Privacy Policy',
-  'Review how A Vision For You collects, uses, and protects your information.'
-)
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description:
+    'Privacy policy for A Vision For You, a 501(c)(3) nonprofit in Louisville, Kentucky.',
+}
 
-export default function PrivacyLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children
 }
