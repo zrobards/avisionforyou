@@ -242,7 +242,24 @@ function LoginContent() {
 
 export default function Login() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-brand-purple flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-brand-green"></div></div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-brand-purple via-purple-800 to-slate-900 flex items-center justify-center">
+        <div className="max-w-md w-full mx-6">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-purple-700">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-700 rounded-full mb-4 animate-pulse" />
+              <div className="h-8 bg-slate-700 rounded w-2/3 mx-auto mb-2 animate-pulse" />
+              <div className="h-4 bg-slate-700 rounded w-1/2 mx-auto animate-pulse" />
+            </div>
+            <div className="space-y-4">
+              <div className="h-12 bg-slate-700 rounded-lg animate-pulse" />
+              <div className="h-12 bg-slate-700 rounded-lg animate-pulse" />
+              <div className="h-12 bg-slate-700 rounded-lg animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
       <LoginContent />
     </Suspense>
   )
