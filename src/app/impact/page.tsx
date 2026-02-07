@@ -316,7 +316,8 @@ export default function ImpactPage() {
             </Link>
           </div>
           <p className="text-sm text-gray-500 mt-6">
-            EIN: XX-XXXXXXX | 501(c)(3) Nonprofit Organization
+{/* TODO: Replace with actual EIN */}
+            EIN: Available upon request | 501(c)(3) Nonprofit Organization
           </p>
         </div>
       </section>

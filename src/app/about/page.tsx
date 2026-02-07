@@ -131,7 +131,7 @@ export default function About() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900">501(c)(3) Nonprofit Status</h3>
               </div>
-              <p className="text-lg text-gray-700 leading-relaxed ml-16">A Vision For You is a registered 501(c)(3) nonprofit organization (EIN: [To be updated with actual EIN]). This status is granted by the IRS to organizations that operate exclusively for charitable, educational, or social purposes and reinvest all revenues back into our mission.</p>
+              <p className="text-lg text-gray-700 leading-relaxed ml-16">A Vision For You is a registered 501(c)(3) nonprofit organization (EIN available upon request). This status is granted by the IRS to organizations that operate exclusively for charitable, educational, or social purposes and reinvest all revenues back into our mission.</p>
             </div>
 
             <div className="mb-12">

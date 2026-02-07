@@ -393,7 +393,7 @@ export async function sendDonationThankYou(
               Tax-deductible receipt will be sent separately
             </p>
             <p style="color: #6b7280; font-size: 12px; margin: 0;">
-              A Vision For You | EIN: XX-XXXXXXX<br>
+              A Vision For You | 501(c)(3) Nonprofit<!-- TODO: Replace with actual EIN --><br>
               1675 Story Ave, Louisville, KY 40206
             </p>
           </div>
