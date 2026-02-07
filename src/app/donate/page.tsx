@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { AlertCircle, Heart, Home, Coffee, Bed, Users } from 'lucide-react'
-import LeadCaptureCTA from '@/components/shared/LeadCaptureCTA'
 
 const impactLevels = [
   { amount: 25, label: '$25', impact: 'Provides 10 meals', icon: Coffee, color: 'from-blue-500 to-blue-600' },
@@ -405,12 +404,6 @@ export default function Donate() {
           </div>
         </div>
       </section>
-
-      <LeadCaptureCTA 
-        variant="card"
-        title="Not Sure If Recovery is Right For You?"
-        subtitle="Take our confidential assessment to understand your needs and explore your personalized recovery path"
-      />
 
     </div>
   )
