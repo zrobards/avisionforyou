@@ -188,6 +188,22 @@ async function main() {
     programs[3].id  // DUI Classes
   ]
 
+  // Meeting templates with descriptive names
+  const meetingTemplates = [
+    { title: 'Morning Meditation & Recovery', description: 'Start your day with guided meditation, mindfulness exercises, and peer check-ins focused on building a strong foundation for recovery.' },
+    { title: 'Evening Step Study', description: 'An in-depth exploration of the twelve steps with group discussion, personal reflection, and practical application to daily life.' },
+    { title: 'Peer Support Circle', description: 'A safe, open space to share experiences, challenges, and victories with others who understand your recovery journey.' },
+    { title: 'Newcomers Welcome Meeting', description: 'Designed for those new to recovery or our community. Learn about our programs, meet staff, and connect with peers in a welcoming environment.' },
+    { title: "Women's Recovery Group", description: 'A supportive group for women addressing the unique challenges of addiction and recovery, including trauma, relationships, and self-care.' },
+    { title: "Men's Recovery Group", description: 'A group for men to openly discuss recovery challenges, build accountability partnerships, and develop healthy coping strategies.' },
+    { title: 'Family & Friends Support', description: 'For loved ones of those in recovery. Learn how to support your family member while taking care of your own well-being.' },
+    { title: 'Relapse Prevention Workshop', description: 'Practical strategies and coping skills to identify triggers, manage cravings, and build a sustainable recovery plan.' },
+    { title: 'Career & Life Skills', description: 'Resume building, interview preparation, financial literacy, and life skills coaching to support your reentry into the workforce.' },
+    { title: 'Spiritual Growth Discussion', description: 'Explore the role of spirituality in recovery through open discussion, reflection, and community connection.' },
+    { title: 'Weekend Recovery Rally', description: 'A weekend community gathering featuring guest speakers, recovery celebrations, and fellowship activities.' },
+    { title: 'Alumni Check-In', description: 'A monthly gathering for program alumni to reconnect, share progress, mentor newcomers, and celebrate milestones.' },
+  ]
+
   // Create meetings for next 30 days
   for (let i = 0; i < 12; i++) {
     const date = new Date(today)
@@ -196,12 +212,13 @@ async function main() {
 
     const programId = programIds[i % 4]
     const format = i % 3 === 0 ? 'ONLINE' : 'IN_PERSON'
+    const template = meetingTemplates[i]
 
     const session = await prisma.programSession.create({
       data: {
         programId,
-        title: `Recovery Session ${i + 1}`,
-        description: `Join us for our ${i % 2 === 0 ? 'morning' : 'evening'} recovery session covering spiritual growth and peer support.`,
+        title: template.title,
+        description: template.description,
         startDate: date,
         endDate: new Date(date.getTime() + 90 * 60000), // 90 minutes
         format,
