@@ -8,7 +8,10 @@ export function AuthProvider({
 }: {
   children: React.ReactNode
 }) {
-  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true'
+  // Auth bypass only works in development — never in production
+  const bypassAuth =
+    process.env.NODE_ENV === 'development' &&
+    process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true'
 
   const bypassSession = bypassAuth
     ? {
