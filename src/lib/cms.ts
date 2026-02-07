@@ -59,7 +59,7 @@ const fallbackPrograms: Record<string, ProgramInfo> = {
   'moving-mountains-ministry': {
     title: 'Moving Mountains Ministry',
     slug: 'moving-mountains-ministry',
-    category: 'Faith-Based Recovery',
+    category: 'Addiction Recovery & Treatment',
     description: 'Spiritual recovery and discipleship ministry - The MOOOOVEEEE-ment',
     fullDescription:
       'Spiritual arm of AVFY bridging clinical addiction treatment and spiritual renewal. Focused on leading individuals to a relationship with Christ and equipping them to serve others.',
