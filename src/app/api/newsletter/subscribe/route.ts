@@ -4,7 +4,7 @@ import { Resend } from 'resend'
 
 export const dynamic = 'force-dynamic'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     // Send welcome email
     try {
-      await resend.emails.send({
+      await resend?.emails.send({
         from: 'A Vision For You <noreply@avisionforyou.org>',
         to: email,
         subject: 'Welcome to A Vision For You Newsletter',
