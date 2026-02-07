@@ -8,6 +8,7 @@
  *  - Community polls titled "Poll" with 0 votes (empty test polls)
  */
 
+require('dotenv').config({ path: '.env.local' })
 const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
