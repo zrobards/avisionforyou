@@ -99,8 +99,8 @@ export default function AdmissionPage() {
           <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
             <Clock className="w-8 h-8 text-indigo-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">Hours</h3>
-            <p className="text-gray-600">Mon-Fri: 9am-5pm</p>
-            <p className="text-sm text-gray-500">Sat: 10am-3pm</p>
+            <p className="text-gray-600">Mon-Fri: 8am-6pm</p>
+            <p className="text-sm text-gray-500">Sat: 9am-2pm · Sun: Closed</p>
           </div>
         </div>
 
