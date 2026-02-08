@@ -1,88 +1,146 @@
-'use client'
-
 import Image from 'next/image'
-import { Mail, Linkedin, Heart, Award, Users, Shield } from 'lucide-react'
+import { Mail, Heart, Award, Users, Shield } from 'lucide-react'
+import { db } from '@/lib/db'
 
-interface TeamMember {
+export const revalidate = 60
+
+interface DisplayMember {
   name: string
   title: string
-  role: 'board' | 'leadership' | 'clinical'
   bio: string
-  credentials?: string
-  email?: string
-  linkedin?: string
-  image?: string
+  credentials?: string | null
+  email?: string | null
+  linkedin?: string | null
+  imageUrl?: string | null
 }
 
-export default function Team() {
-  const executiveLeadership: TeamMember[] = [
-    {
-      name: 'Lucas Bennett',
-      title: 'President & Executive Director',
-      role: 'board',
-      credentials: '',
-      bio: 'Lucas founded A Vision For You and leads the organization with passion and dedication to serving individuals and families.',
-      email: 'lucas@avisionforyourecovery.org',
-      image: '/team/lucas-bennett.png'
-    },
-    {
-      name: 'Dr. Evan Massey',
-      title: 'Vice President',
-      role: 'board',
-      credentials: '',
-      bio: 'Dr. Massey provides strategic leadership and oversight, ensuring the organization maintains its mission and vision while expanding services to meet community needs.',
-      email: 'evan.massey@avisionforyourecovery.org',
-      image: '/team/evan-massey.png'
-    },
-    {
-      name: 'Charles Moore',
-      title: 'Treasurer',
-      role: 'board',
-      credentials: '',
-      bio: 'Charles oversees the financial operations and ensures fiscal responsibility and transparency across all programs and services.',
-      email: 'charles.moore@avisionforyourecovery.org',
-      image: '/team/charles-moore.png'
-    }
-  ]
+const BOARD_ROLES = ['BOARD_PRESIDENT', 'BOARD_VP', 'BOARD_TREASURER', 'BOARD_SECRETARY', 'BOARD_MEMBER']
 
-  const staffMembers: TeamMember[] = [
-    {
-      name: 'Zach Wilbert',
-      title: 'Medical Director',
-      role: 'leadership',
-      credentials: 'APRN-FNP',
-      bio: 'As Medical Director, Zach provides comprehensive medical oversight and ensures quality healthcare services are integrated into all recovery programming.',
-      email: 'zach.wilbert@avisionforyourecovery.org',
-      image: '/team/zach-wilbert.png'
-    },
-    {
-      name: 'Henry Fuqua',
-      title: 'MindBodySoul IOP Program Director',
-      role: 'leadership',
-      credentials: 'CADC',
-      bio: 'Henry leads the MindBodySoul IOP program with expertise in addiction counseling and evidence-based treatment approaches.',
-      email: 'henry.fuqua@avisionforyourecovery.org',
-      image: '/team/henry-fuqua.png'
-    },
-    {
-      name: 'Gregory Haynes',
-      title: 'Director of Client Engagement',
-      role: 'leadership',
-      credentials: 'CADCA-1 PSS',
-      bio: 'Gregory builds meaningful connections with clients and ensures each individual receives personalized support throughout their recovery journey.',
-      email: 'gregory.haynes@avisionforyourecovery.org',
-      image: '/team/gregory-haynes.png'
-    },
-    {
-      name: 'Josh Altizer',
-      title: 'Surrender Program Director',
-      role: 'leadership',
-      credentials: '',
-      bio: 'Josh is an alumni who was originally criminal justice involved when he went through the program. He initially struggled to grasp recovery and even returned to the Surrender Program for a refocus. After Josh achieved recovery success, he knew he had to dedicate his life to walking alongside clients as they overcome the challenges of recovery.',
-      email: 'josh.altizer@avisionforyourecovery.org',
-      image: '/team/josh-altizer.png'
+const fallbackLeadership: DisplayMember[] = [
+  {
+    name: 'Lucas Bennett',
+    title: 'President & Executive Director',
+    bio: 'Lucas founded A Vision For You and leads the organization with passion and dedication to serving individuals and families.',
+    email: 'lucas@avisionforyourecovery.org',
+    imageUrl: '/team/lucas-bennett.png'
+  },
+  {
+    name: 'Dr. Evan Massey',
+    title: 'Vice President',
+    bio: 'Dr. Massey provides strategic leadership and oversight, ensuring the organization maintains its mission and vision while expanding services to meet community needs.',
+    email: 'evan.massey@avisionforyourecovery.org',
+    imageUrl: '/team/evan-massey.png'
+  },
+  {
+    name: 'Charles Moore',
+    title: 'Treasurer',
+    bio: 'Charles oversees the financial operations and ensures fiscal responsibility and transparency across all programs and services.',
+    email: 'charles.moore@avisionforyourecovery.org',
+    imageUrl: '/team/charles-moore.png'
+  }
+]
+
+const fallbackStaff: DisplayMember[] = [
+  {
+    name: 'Zach Wilbert',
+    title: 'Medical Director',
+    credentials: 'APRN-FNP',
+    bio: 'As Medical Director, Zach provides comprehensive medical oversight and ensures quality healthcare services are integrated into all recovery programming.',
+    email: 'zach.wilbert@avisionforyourecovery.org',
+    imageUrl: '/team/zach-wilbert.png'
+  },
+  {
+    name: 'Henry Fuqua',
+    title: 'MindBodySoul IOP Program Director',
+    credentials: 'CADC',
+    bio: 'Henry leads the MindBodySoul IOP program with expertise in addiction counseling and evidence-based treatment approaches.',
+    email: 'henry.fuqua@avisionforyourecovery.org',
+    imageUrl: '/team/henry-fuqua.png'
+  },
+  {
+    name: 'Gregory Haynes',
+    title: 'Director of Client Engagement',
+    credentials: 'CADCA-1 PSS',
+    bio: 'Gregory builds meaningful connections with clients and ensures each individual receives personalized support throughout their recovery journey.',
+    email: 'gregory.haynes@avisionforyourecovery.org',
+    imageUrl: '/team/gregory-haynes.png'
+  },
+  {
+    name: 'Josh Altizer',
+    title: 'Surrender Program Director',
+    bio: 'Josh is an alumni who was originally criminal justice involved when he went through the program. He initially struggled to grasp recovery and even returned to the Surrender Program for a refocus. After Josh achieved recovery success, he knew he had to dedicate his life to walking alongside clients as they overcome the challenges of recovery.',
+    email: 'josh.altizer@avisionforyourecovery.org',
+    imageUrl: '/team/josh-altizer.png'
+  }
+]
+
+async function getTeamMembers(): Promise<{ leadership: DisplayMember[]; staff: DisplayMember[] }> {
+  try {
+    const members = await db.teamMember.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
+    })
+
+    if (members.length === 0) {
+      return { leadership: fallbackLeadership, staff: fallbackStaff }
     }
-  ]
+
+    const leadership = members.filter(m => BOARD_ROLES.includes(m.role))
+    const staff = members.filter(m => !BOARD_ROLES.includes(m.role))
+
+    return {
+      leadership: leadership.length > 0 ? leadership : fallbackLeadership,
+      staff: staff.length > 0 ? staff : fallbackStaff,
+    }
+  } catch {
+    return { leadership: fallbackLeadership, staff: fallbackStaff }
+  }
+}
+
+function MemberCard({ member, variant }: { member: DisplayMember; variant: 'leadership' | 'staff' }) {
+  const isLeadership = variant === 'leadership'
+
+  return (
+    <div className={`${isLeadership ? 'bg-gradient-to-br from-purple-50 to-white border-t-4 border-brand-purple' : 'bg-white border-l-4 border-brand-green'} rounded-xl shadow-lg p-6 hover:shadow-xl transition`}>
+      <div className="flex items-center gap-4 mb-4">
+        {member.imageUrl ? (
+          <div className={`w-24 h-24 rounded-full overflow-hidden flex-shrink-0 ring-2 ${isLeadership ? 'ring-brand-purple' : 'ring-brand-green'}`}>
+            <Image
+              src={member.imageUrl}
+              alt={member.name}
+              width={96}
+              height={96}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className={`w-24 h-24 bg-gradient-to-br ${isLeadership ? 'from-brand-purple to-purple-600' : 'from-brand-green to-green-600'} rounded-full flex items-center justify-center flex-shrink-0`}>
+            <span className="text-white font-bold text-3xl">{member.name[0]}</span>
+          </div>
+        )}
+        <div>
+          <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
+          {member.credentials && (
+            <p className={`text-sm font-semibold ${isLeadership ? 'text-brand-purple' : 'text-brand-green'}`}>{member.credentials}</p>
+          )}
+        </div>
+      </div>
+      <div className="mb-4">
+        <p className="text-sm font-semibold text-gray-700 mb-2">{member.title}</p>
+        <p className="text-sm text-gray-600 leading-relaxed">{member.bio}</p>
+      </div>
+      {member.email && (
+        <div className={`flex items-center gap-2 text-sm ${isLeadership ? 'text-brand-purple hover:text-purple-700' : 'text-brand-green hover:text-green-700'}`}>
+          <Mail className="w-4 h-4" />
+          <a href={`mailto:${member.email}`}>{member.email}</a>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default async function Team() {
+  const { leadership, staff } = await getTeamMembers()
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -114,42 +172,8 @@ export default function Team() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {executiveLeadership.map((member, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-purple-50 to-white rounded-xl shadow-lg p-6 hover:shadow-xl transition border-t-4 border-brand-purple">
-                <div className="flex items-center gap-4 mb-4">
-                  {member.image ? (
-                    <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-brand-purple">
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        width={96}
-                        height={96}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-24 h-24 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-3xl">{member.name[0]}</span>
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
-                    {member.credentials && (
-                      <p className="text-sm text-brand-purple font-semibold">{member.credentials}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">{member.title}</p>
-                  <p className="text-sm text-gray-600 leading-relaxed">{member.bio}</p>
-                </div>
-                {member.email && (
-                  <div className="flex items-center gap-2 text-sm text-brand-purple hover:text-purple-700">
-                    <Mail className="w-4 h-4" />
-                    <a href={`mailto:${member.email}`}>{member.email}</a>
-                  </div>
-                )}
-              </div>
+            {leadership.map((member, idx) => (
+              <MemberCard key={idx} member={member} variant="leadership" />
             ))}
           </div>
         </div>
@@ -168,42 +192,8 @@ export default function Team() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {staffMembers.map((member, idx) => (
-              <div key={idx} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition border-l-4 border-brand-green">
-                <div className="flex items-center gap-4 mb-4">
-                  {member.image ? (
-                    <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-brand-green">
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        width={96}
-                        height={96}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-24 h-24 bg-gradient-to-br from-brand-green to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-3xl">{member.name[0]}</span>
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
-                    {member.credentials && (
-                      <p className="text-sm text-brand-green font-semibold">{member.credentials}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">{member.title}</p>
-                  <p className="text-sm text-gray-600 leading-relaxed">{member.bio}</p>
-                </div>
-                {member.email && (
-                  <div className="flex items-center gap-2 text-sm text-brand-green hover:text-green-700">
-                    <Mail className="w-4 h-4" />
-                    <a href={`mailto:${member.email}`}>{member.email}</a>
-                  </div>
-                )}
-              </div>
+            {staff.map((member, idx) => (
+              <MemberCard key={idx} member={member} variant="staff" />
             ))}
           </div>
         </div>
@@ -242,17 +232,17 @@ export default function Team() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Join Our Mission</h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            We're always looking for passionate professionals to join our team. Whether you're a clinician, administrator, or support staff, your skills can make a difference.
+            We&apos;re always looking for passionate professionals to join our team. Whether you&apos;re a clinician, administrator, or support staff, your skills can make a difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="/contact" 
+            <a
+              href="/contact"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-purple to-purple-700 text-white font-bold rounded-lg hover:shadow-xl transition"
             >
               Career Opportunities
             </a>
-            <a 
-              href="/donate" 
+            <a
+              href="/donate"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-green to-green-600 text-white font-bold rounded-lg hover:shadow-xl transition"
             >
               Support Our Work

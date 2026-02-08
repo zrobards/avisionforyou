@@ -4,14 +4,15 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 
 // GET single update
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   const update = await db.boardUpdate.findUnique({
-    where: { id: params.id },
+    where: { id },
   })
 
   if (!update) {
@@ -22,7 +23,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // PUT update
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -31,7 +33,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   const { title, content, category, priority } = await request.json()
 
   const update = await db.boardUpdate.update({
-    where: { id: params.id },
+    where: { id },
     data: { title, content, category, priority },
   })
 
@@ -39,14 +41,15 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 }
 
 // DELETE update
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   await db.boardUpdate.delete({
-    where: { id: params.id },
+    where: { id },
   })
 
   return NextResponse.json({ success: true })

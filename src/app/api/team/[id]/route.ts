@@ -6,9 +6,10 @@ import { db } from '@/lib/db'
 // PATCH /api/team/[id] - Update team member (admin only)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user?.email) {
@@ -32,8 +33,8 @@ export async function PATCH(
     const body = await request.json()
     const { name, title, bio, role, imageUrl, email, phone } = body
 
-    const member = await db.leadership.update({
-      where: { id: params.id },
+    const member = await db.teamMember.update({
+      where: { id },
       data: {
         name,
         title,
@@ -58,9 +59,10 @@ export async function PATCH(
 // DELETE /api/team/[id] - Delete team member (admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user?.email) {
@@ -81,8 +83,8 @@ export async function DELETE(
       )
     }
 
-    await db.leadership.delete({
-      where: { id: params.id }
+    await db.teamMember.delete({
+      where: { id }
     })
 
     return NextResponse.json({ success: true })

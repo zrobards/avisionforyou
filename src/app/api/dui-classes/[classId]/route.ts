@@ -3,11 +3,12 @@ import { db } from "@/lib/db";
 
 export async function GET(
   request: Request,
-  { params }: { params: { classId: string } }
+  { params }: { params: Promise<{ classId: string }> }
 ) {
   try {
+    const { classId } = await params;
     const duiClass = await db.dUIClass.findUnique({
-      where: { id: params.classId },
+      where: { id: classId },
       include: {
         _count: { select: { registrations: true } },
       },

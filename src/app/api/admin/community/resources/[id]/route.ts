@@ -6,15 +6,16 @@ import { db } from "@/lib/db"
 // GET single resource
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   const resource = await db.communityResource.findUnique({
-    where: { id: params.id }
+    where: { id }
   })
 
   if (!resource) {
@@ -27,8 +28,9 @@ export async function GET(
 // PUT update resource
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -37,7 +39,7 @@ export async function PUT(
   const { title, description, url, category, order, active } = await request.json()
 
   const resource = await db.communityResource.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       ...(title && { title }),
       ...(description !== undefined && { description }),
@@ -54,15 +56,16 @@ export async function PUT(
 // DELETE resource
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   await db.communityResource.delete({
-    where: { id: params.id }
+    where: { id }
   })
 
   return NextResponse.json({ success: true })

@@ -10,11 +10,12 @@ const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
 // GET /api/blog/[slug] - Get single post by slug
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  const { slug } = await params
   try {
     const post = await db.blogPost.findUnique({
-      where: { slug: params.slug },
+      where: { slug },
       include: {
         author: {
           select: {
@@ -30,7 +31,7 @@ export async function GET(
     if (!post) {
       if (fs.existsSync(BLOG_POSTS_PATH)) {
         const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-        const fallback = fallbackPosts.find((p: any) => p.slug === params.slug)
+        const fallback = fallbackPosts.find((p: any) => p.slug === slug)
         if (fallback) {
           return NextResponse.json(fallback)
         }
@@ -52,7 +53,7 @@ export async function GET(
     console.error('Error fetching blog post:', error)
     if (fs.existsSync(BLOG_POSTS_PATH)) {
       const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-      const fallback = fallbackPosts.find((p: any) => p.slug === params.slug)
+      const fallback = fallbackPosts.find((p: any) => p.slug === slug)
       if (fallback) {
         return NextResponse.json(fallback)
       }
@@ -67,9 +68,10 @@ export async function GET(
 // PATCH /api/blog/[slug] - Update post (admin only)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user?.email) {
@@ -119,7 +121,7 @@ export async function PATCH(
     // Set publishedAt if status changed to PUBLISHED
     if (status === 'PUBLISHED') {
       const existingPost = await db.blogPost.findUnique({
-        where: { slug: params.slug }
+        where: { slug }
       })
       if (existingPost && !existingPost.publishedAt) {
         updateData.publishedAt = new Date()
@@ -127,7 +129,7 @@ export async function PATCH(
     }
 
     const post = await db.blogPost.update({
-      where: { slug: params.slug },
+      where: { slug },
       data: updateData,
       include: {
         author: {
@@ -153,9 +155,10 @@ export async function PATCH(
 // DELETE /api/blog/[slug] - Delete post (admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user?.email) {
@@ -177,7 +180,7 @@ export async function DELETE(
     }
 
     await db.blogPost.delete({
-      where: { slug: params.slug }
+      where: { slug }
     })
 
     return NextResponse.json({ success: true })

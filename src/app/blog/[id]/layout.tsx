@@ -1,9 +1,10 @@
 import { buildPageMetadata } from '@/lib/metadata'
 import { db } from '@/lib/db'
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const post = await db.blogPost.findUnique({
-    where: { slug: params.id },
+    where: { slug: id },
     select: { title: true, excerpt: true, imageUrl: true }
   })
 

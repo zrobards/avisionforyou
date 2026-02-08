@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 
 interface DUIClass {
@@ -13,7 +13,8 @@ interface DUIClass {
   price: number;
 }
 
-export default function DUIRegisterPage({ params }: { params: { classId: string } }) {
+export default function DUIRegisterPage({ params }: { params: Promise<{ classId: string }> }) {
+  const { classId } = use(params);
   const router = useRouter();
   const [classInfo, setClassInfo] = useState<DUIClass | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ export default function DUIRegisterPage({ params }: { params: { classId: string 
   });
 
   useEffect(() => {
-    fetch(`/api/dui-classes/${params.classId}`)
+    fetch(`/api/dui-classes/${classId}`)
       .then(r => r.json())
       .then(data => {
         setClassInfo(data);
@@ -38,7 +39,7 @@ export default function DUIRegisterPage({ params }: { params: { classId: string 
         setError("Class not found");
         setLoading(false);
       });
-  }, [params.classId]);
+  }, [classId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +51,7 @@ export default function DUIRegisterPage({ params }: { params: { classId: string 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          classId: params.classId,
+          classId,
           ...form,
         }),
       });

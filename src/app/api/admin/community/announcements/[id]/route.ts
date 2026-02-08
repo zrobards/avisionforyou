@@ -6,15 +6,16 @@ import { db } from "@/lib/db"
 // GET single announcement
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   const announcement = await db.communityAnnouncement.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { author: { select: { name: true } } }
   })
 
@@ -28,8 +29,9 @@ export async function GET(
 // PUT update announcement
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -38,7 +40,7 @@ export async function PUT(
   const { title, content, published } = await request.json()
 
   const announcement = await db.communityAnnouncement.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       ...(title && { title }),
       ...(content !== undefined && { content }),
@@ -52,15 +54,16 @@ export async function PUT(
 // DELETE announcement
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   await db.communityAnnouncement.delete({
-    where: { id: params.id }
+    where: { id }
   })
 
   return NextResponse.json({ success: true })

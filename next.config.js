@@ -35,7 +35,6 @@ const nextConfig = {
   },
   compress: true,
   generateEtags: true,
-  optimizeFonts: true,
   poweredByHeader: false,
   async redirects() {
     return [

@@ -6,11 +6,12 @@ import { db as prisma } from '@/lib/db'
 // PATCH - Update media tags/usage
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -24,7 +25,7 @@ export async function PATCH(
     const { tags, usage } = body
 
     const mediaItem = await prisma.mediaItem.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         tags: tags !== undefined ? tags : undefined,
         usage: usage !== undefined ? usage : undefined
@@ -49,11 +50,12 @@ export async function PATCH(
 // DELETE - Delete media
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -64,7 +66,7 @@ export async function DELETE(
     }
 
     await prisma.mediaItem.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ success: true })

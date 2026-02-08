@@ -11,11 +11,12 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // POST - Send newsletter to all subscribers
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -26,7 +27,7 @@ export async function POST(
     }
 
     const newsletter = await prisma.newsletter.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!newsletter) {
@@ -36,7 +37,7 @@ export async function POST(
     // Update newsletter status to PUBLISHED immediately
     const now = new Date()
     await prisma.newsletter.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: 'PUBLISHED',
         publishedAt: now,
@@ -57,7 +58,7 @@ export async function POST(
     if (subscribers.length === 0) {
       // Still mark as published even with no subscribers
       await prisma.newsletter.update({
-        where: { id: params.id },
+        where: { id },
         data: { sentCount: 0 }
       })
       
@@ -65,7 +66,7 @@ export async function POST(
         success: true, 
         sentCount: 0,
         message: 'Newsletter published but no subscribers to send to',
-        newsletter: await prisma.newsletter.findUnique({ where: { id: params.id } })
+        newsletter: await prisma.newsletter.findUnique({ where: { id } })
       })
     }
 
@@ -73,7 +74,7 @@ export async function POST(
     if (!resend) {
       console.warn('RESEND_API_KEY not configured - newsletter marked as published but emails not sent')
       await prisma.newsletter.update({
-        where: { id: params.id },
+        where: { id },
         data: { sentCount: 0 }
       })
       
@@ -81,7 +82,7 @@ export async function POST(
         success: true, 
         sentCount: 0,
         message: 'Newsletter published (email sending disabled - RESEND_API_KEY not configured)',
-        newsletter: await prisma.newsletter.findUnique({ where: { id: params.id } })
+        newsletter: await prisma.newsletter.findUnique({ where: { id } })
       })
     }
 
@@ -203,7 +204,7 @@ export async function POST(
 
     // Update final sent count after all emails processed
     const updatedNewsletter = await prisma.newsletter.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         sentCount: successCount
       }

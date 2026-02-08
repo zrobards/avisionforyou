@@ -157,8 +157,9 @@ export function generateStaticParams() {
   return Object.keys(PROGRAM_DETAILS).map((slug) => ({ slug }))
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const program = PROGRAM_DETAILS[params.slug as ProgramSlug]
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const program = PROGRAM_DETAILS[slug as ProgramSlug]
 
   if (!program) {
     return buildPageMetadata('Program Details', 'Learn more about our recovery programs and services.')
@@ -170,8 +171,9 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   )
 }
 
-export default function ProgramDetailPage({ params }: { params: { slug: string } }) {
-  const program = PROGRAM_DETAILS[params.slug as ProgramSlug]
+export default async function ProgramDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const program = PROGRAM_DETAILS[slug as ProgramSlug]
 
   if (!program) {
     notFound()

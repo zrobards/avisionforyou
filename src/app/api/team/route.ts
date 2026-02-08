@@ -1,76 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
-// GET /api/team - List all team members
+// GET /api/team - List all active team members (public)
 export async function GET() {
   try {
-    const members = await db.leadership.findMany({
-      orderBy: { createdAt: 'asc' }
+    const members = await db.teamMember.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        role: true,
+        bio: true,
+        credentials: true,
+        email: true,
+        imageUrl: true,
+      }
     })
 
     return NextResponse.json(members, {
-      headers: { 'Cache-Control': 'no-store, max-age=0' }
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
     })
   } catch (error) {
     console.error('Error fetching team members:', error)
     return NextResponse.json(
       { error: 'Failed to fetch team members' },
-      { status: 500 }
-    )
-  }
-}
-
-// POST /api/team - Create new team member (admin only)
-export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-
-    if (!session || !session.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    const user = await db.user.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (user?.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized - Admin only' },
-        { status: 403 }
-      )
-    }
-
-    const { name, title, bio, role, imageUrl, email, phone } = await request.json()
-
-    if (!name || !title || !bio) {
-      return NextResponse.json(
-        { error: 'Name, title, and bio are required' },
-        { status: 400 }
-      )
-    }
-
-    const member = await db.leadership.create({
-      data: {
-        name,
-        title,
-        bio,
-        role,
-        imageUrl,
-        email,
-        phone
-      }
-    })
-
-    return NextResponse.json(member, { status: 201 })
-  } catch (error) {
-    console.error('Error creating team member:', error)
-    return NextResponse.json(
-      { error: 'Failed to create team member' },
       { status: 500 }
     )
   }

@@ -5,9 +5,10 @@ import { authOptions } from "@/lib/auth"
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user?.email) {
@@ -38,7 +39,7 @@ export async function PATCH(
     }
 
     const updatedUser = await db.user.update({
-      where: { id: params.id },
+      where: { id },
       data: { role },
       select: {
         id: true,
@@ -61,9 +62,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user?.email) {
@@ -85,7 +87,7 @@ export async function DELETE(
     }
 
     // Prevent self-deletion
-    if (currentUser.id === params.id) {
+    if (currentUser.id === id) {
       return NextResponse.json(
         { error: "Cannot delete your own account" },
         { status: 400 }
@@ -95,7 +97,7 @@ export async function DELETE(
     // Delete the user - cascade will handle related records automatically
     // (RSVPs, Donations, BlogPosts, MediaItems, Newsletters, etc.)
     await db.user.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ success: true })

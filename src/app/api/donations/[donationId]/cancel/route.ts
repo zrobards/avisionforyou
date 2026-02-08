@@ -10,9 +10,10 @@ import { SquareClient, SquareEnvironment } from "square"
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { donationId: string } }
+  { params }: { params: Promise<{ donationId: string }> }
 ) {
   try {
+    const { donationId } = await params
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.email) {
@@ -21,8 +22,6 @@ export async function POST(
         { status: 401 }
       )
     }
-
-    const donationId = params.donationId
 
     // Get the donation
     const donation = await db.donation.findUnique({

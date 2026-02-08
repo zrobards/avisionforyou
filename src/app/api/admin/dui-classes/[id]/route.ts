@@ -6,11 +6,12 @@ import { authOptions } from "@/lib/auth";
 // GET - Get single class
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -21,7 +22,7 @@ export async function GET(
     }
 
     const duiClass = await db.dUIClass.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         registrations: {
           orderBy: { createdAt: "desc" }
@@ -46,11 +47,12 @@ export async function GET(
 // PATCH - Update class
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -75,7 +77,7 @@ export async function PATCH(
     if (body.active !== undefined) updateData.active = body.active;
 
     const duiClass = await db.dUIClass.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData
     });
 
@@ -92,11 +94,12 @@ export async function PATCH(
 // DELETE - Delete class
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -108,19 +111,19 @@ export async function DELETE(
 
     // Check if there are any registrations
     const registrations = await db.dUIRegistration.count({
-      where: { classId: params.id }
+      where: { classId: id }
     });
 
     if (registrations > 0) {
       // Soft delete by setting active to false
       await db.dUIClass.update({
-        where: { id: params.id },
+        where: { id },
         data: { active: false }
       });
     } else {
       // Hard delete if no registrations
       await db.dUIClass.delete({
-        where: { id: params.id }
+        where: { id }
       });
     }
 

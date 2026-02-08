@@ -6,9 +6,10 @@ import { db } from '@/lib/db'
 // PATCH update inquiry status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !(session.user as any)?.role || (session.user as any).role !== 'ADMIN') {
@@ -22,7 +23,7 @@ export async function PATCH(
     const { status, notes, assignedTo } = body
 
     const inquiry = await db.contactInquiry.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(status && { status }),
         ...(notes !== undefined && { notes }),
@@ -43,9 +44,10 @@ export async function PATCH(
 // DELETE inquiry
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !(session.user as any)?.role || (session.user as any).role !== 'ADMIN') {
@@ -56,7 +58,7 @@ export async function DELETE(
     }
 
     await db.contactInquiry.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ success: true })

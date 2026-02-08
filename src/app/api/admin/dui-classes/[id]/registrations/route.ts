@@ -6,11 +6,12 @@ import { authOptions } from "@/lib/auth";
 // GET - Get registrations for a class
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -21,7 +22,7 @@ export async function GET(
     }
 
     const registrations = await db.dUIRegistration.findMany({
-      where: { classId: params.id },
+      where: { classId: id },
       include: {
         user: {
           select: {
@@ -53,11 +54,12 @@ export async function GET(
 // PATCH - Update registration (e.g., mark attendance)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

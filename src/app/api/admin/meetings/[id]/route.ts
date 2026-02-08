@@ -5,9 +5,10 @@ import { authOptions } from "@/lib/auth"
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user?.email) {
@@ -32,7 +33,7 @@ export async function PATCH(
     const { title, description, startTime, endTime, format, location, link } = body
 
     const updatedMeeting = await db.programSession.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(title && { title }),
         ...(description !== undefined && { description }),
@@ -70,9 +71,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user?.email) {
@@ -95,12 +97,12 @@ export async function DELETE(
 
     // Delete all RSVPs first
     await db.rSVP.deleteMany({
-      where: { sessionId: params.id }
+      where: { sessionId: id }
     })
 
     // Delete the meeting
     await db.programSession.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ success: true })

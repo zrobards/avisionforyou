@@ -7,17 +7,18 @@ import { revalidatePath } from 'next/cache'
 // GET - Fetch single newsletter
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const newsletter = await prisma.newsletter.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         author: {
           select: {
@@ -42,11 +43,12 @@ export async function GET(
 // PATCH - Update newsletter
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -79,7 +81,7 @@ export async function PATCH(
     // Set publishedAt if publishing
     if (status === 'PUBLISHED') {
       const existing = await prisma.newsletter.findUnique({
-        where: { id: params.id },
+        where: { id },
         select: { publishedAt: true }
       })
       if (!existing?.publishedAt) {
@@ -88,7 +90,7 @@ export async function PATCH(
     }
 
     const newsletter = await prisma.newsletter.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         author: {
@@ -115,11 +117,12 @@ export async function PATCH(
 // DELETE - Delete newsletter
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -130,7 +133,7 @@ export async function DELETE(
     }
 
     await prisma.newsletter.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     // Revalidate pages to remove deleted newsletter instantly

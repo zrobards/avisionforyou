@@ -4,12 +4,13 @@ import { db } from '@/lib/db'
 // GET - Fetch single published newsletter by slug (public)
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params
     const newsletter = await db.newsletter.findFirst({
       where: {
-        slug: params.slug,
+        slug,
         status: 'PUBLISHED'
       },
       include: {
