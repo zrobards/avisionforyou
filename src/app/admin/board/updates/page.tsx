@@ -37,6 +37,8 @@ export default function AdminBoardUpdatesPage() {
 
   useEffect(() => {
     fetchUpdates()
+    const interval = setInterval(fetchUpdates, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   async function fetchUpdates() {

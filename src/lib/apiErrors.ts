@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 
 /**
@@ -178,23 +177,3 @@ export function handleApiError(
   }
 }
 
-/**
- * Create error response
- */
-export function createErrorResponse(
-  statusCode: number,
-  code: string,
-  message: string,
-  details?: string[]
-) {
-  const response = NextResponse.json(
-    {
-      success: false,
-      error: message,
-      code,
-      ...(details && { details })
-    },
-    { status: statusCode }
-  )
-  return response
-}

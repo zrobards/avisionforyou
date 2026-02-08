@@ -38,6 +38,8 @@ export default function AdminBoardDocumentsPage() {
 
   useEffect(() => {
     fetchDocuments()
+    const interval = setInterval(fetchDocuments, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   async function fetchDocuments() {

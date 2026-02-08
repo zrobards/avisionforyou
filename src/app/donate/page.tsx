@@ -66,18 +66,13 @@ export default function Donate() {
         ? '/api/donate/square' 
         : '/api/donate/checkout'
 
-      console.log('Donation: Submitting to', endpoint, { amount, frequency, email, name, paymentMethod })
-
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, frequency, email, name })
       })
 
-      console.log('Donation: Response status', response.status)
-
       const data = await response.json()
-      console.log('Donation: Response data', data)
 
       if (!response.ok) {
         const errorMessage = data.error || `Failed to create checkout session (${response.status})`
@@ -87,7 +82,6 @@ export default function Donate() {
       }
 
       if (data.url) {
-        console.log('Donation: Redirecting to', data.url)
         if (typeof window !== 'undefined' && (window as any).gtag) {
           (window as any).gtag('event', 'donation', {
             value: amount,
@@ -97,11 +91,8 @@ export default function Donate() {
         }
         window.location.href = data.url
       } else if (data.sessionId) {
-        // For Stripe
-        console.log('Donation: Stripe session created', data.sessionId)
         window.location.href = data.url
       } else {
-        console.error('Donation: No URL or sessionId in response', data)
         setError('Failed to create payment session. Please try again.')
       }
     } catch (err: any) {

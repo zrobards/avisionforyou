@@ -12,7 +12,6 @@ const config: Config = {
       colors: {
         primary: '#7f3d8b',
         secondary: '#b6e41f',
-        recovery: '#b6e41f',
         cream: '#f5e6d3',
         'brand-green': '#b6e41f',
         'brand-purple': '#7f3d8b',

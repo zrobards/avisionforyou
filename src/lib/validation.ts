@@ -21,8 +21,6 @@ export const SocialStatsSchema = z.object({
   tiktok: z.coerce.number().int().min(0).max(10000000),
 })
 
-export type SocialStats = z.infer<typeof SocialStatsSchema>
-
 // Newsletter Schema
 export const NewsletterSchema = z.object({
   title: z.string().min(1).max(500),
@@ -31,8 +29,6 @@ export const NewsletterSchema = z.object({
   imageUrl: z.string().url().optional(),
   status: z.enum(['DRAFT', 'PUBLISHED']),
 })
-
-export type Newsletter = z.infer<typeof NewsletterSchema>
 
 // Meeting/Program Session Schema
 export const MeetingSchema = z.object({
@@ -56,8 +52,6 @@ export const MeetingSchema = z.object({
   { message: "Meeting link required for online meetings", path: ["link"] }
 )
 
-export type Meeting = z.infer<typeof MeetingSchema>
-
 // Donation Schema
 export const DonationSchema = z.object({
   amount: z.coerce.number().int().min(100).max(100000000), // cents: $1 to $1,000,000
@@ -65,8 +59,6 @@ export const DonationSchema = z.object({
   name: z.string().min(1).max(200),
   frequency: z.enum(['ONE_TIME', 'MONTHLY', 'YEARLY']),
 })
-
-export type Donation = z.infer<typeof DonationSchema>
 
 // Admission Application Schema
 export const AdmissionSchema = z.object({
@@ -77,8 +69,6 @@ export const AdmissionSchema = z.object({
   message: z.string().min(10).max(5000),
 })
 
-export type Admission = z.infer<typeof AdmissionSchema>
-
 // Contact Form Schema
 export const ContactSchema = z.object({
   name: z.string().min(1).max(200),
@@ -88,8 +78,6 @@ export const ContactSchema = z.object({
   subject: z.string().min(1).max(200),
   message: z.string().min(10).max(5000),
 })
-
-export type Contact = z.infer<typeof ContactSchema>
 
 /**
  * Validation Helper

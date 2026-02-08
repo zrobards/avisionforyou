@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import UnifiedScheduler from "@/components/meetings/UnifiedScheduler";
 import { buildPageMetadata } from "@/lib/metadata";
 
+export const revalidate = 60
+
 export const metadata = buildPageMetadata(
   'Meetings & Groups',
   'Find upcoming meetings, recovery groups, and DUI education classes in Louisville, KY.'

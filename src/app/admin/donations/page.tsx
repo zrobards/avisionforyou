@@ -67,6 +67,8 @@ export default function AdminDonations() {
 
     if (status === 'authenticated') {
       fetchDonations()
+      const interval = setInterval(fetchDonations, 30000)
+      return () => clearInterval(interval)
     }
   }, [status])
 

@@ -28,6 +28,8 @@ export default function AdminPollsPage() {
 
   useEffect(() => {
     fetchPolls();
+    const interval = setInterval(fetchPolls, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchPolls = async () => {

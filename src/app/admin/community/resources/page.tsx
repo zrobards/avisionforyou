@@ -31,6 +31,8 @@ export default function AdminCommunityResourcesPage() {
 
   useEffect(() => {
     fetchResources()
+    const interval = setInterval(fetchResources, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   async function fetchResources() {

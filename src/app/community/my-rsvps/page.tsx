@@ -31,6 +31,8 @@ export default function MyRSVPsPage() {
 
   useEffect(() => {
     fetchRSVPs()
+    const interval = setInterval(fetchRSVPs, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   const fetchRSVPs = async () => {

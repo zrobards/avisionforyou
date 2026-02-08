@@ -148,7 +148,7 @@ export default function Navbar() {
                 {isBoard && (
                   <Link 
                     href="/board" 
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-xs xl:text-sm"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors font-medium text-xs xl:text-sm"
                     title="Board Portal"
                   >
                     <span className="hidden xl:inline">Board</span>
@@ -159,7 +159,7 @@ export default function Navbar() {
                 {canAccessCommunity && (
                   <Link 
                     href="/community" 
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs xl:text-sm"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-brand-green text-brand-purple rounded-lg hover:bg-green-400 transition-colors font-medium text-xs xl:text-sm"
                     title="Community"
                   >
                     <span className="hidden xl:inline">Community</span>
@@ -173,7 +173,7 @@ export default function Navbar() {
           {/* User Menu & Mobile Menu Button */}
           <div className="flex items-center gap-2 sm:gap-3">
             {status === 'loading' ? (
-              <div className="animate-pulse bg-blue-700 rounded-full w-9 h-9 sm:w-10 sm:h-10"></div>
+              <div className="animate-pulse bg-purple-700 rounded-full w-9 h-9 sm:w-10 sm:h-10"></div>
             ) : session ? (
               <>
                 <div className="hidden md:block relative">
@@ -404,7 +404,7 @@ export default function Navbar() {
                   {isBoard && (
                     <Link
                       href="/board"
-                      className="flex items-center gap-3 bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-3 rounded-lg transition-colors font-medium"
+                      className="flex items-center gap-3 bg-purple-700 text-white hover:bg-purple-800 px-4 py-3 rounded-lg transition-colors font-medium"
                       onClick={() => setShowMobileMenu(false)}
                     >
                       <span>📋</span>
@@ -415,7 +415,7 @@ export default function Navbar() {
                   {canAccessCommunity && (
                     <Link
                       href="/community"
-                      className="flex items-center gap-3 bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-lg transition-colors font-medium"
+                      className="flex items-center gap-3 bg-brand-green text-brand-purple hover:bg-green-400 px-4 py-3 rounded-lg transition-colors font-medium"
                       onClick={() => setShowMobileMenu(false)}
                     >
                       <span>🤝</span>
@@ -457,7 +457,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="flex items-center justify-center gap-2 bg-white text-blue-900 px-4 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors mt-2"
+                  className="flex items-center justify-center gap-2 bg-brand-green text-brand-purple px-4 py-3 rounded-lg font-semibold hover:bg-green-400 transition-colors mt-2"
                   onClick={() => setShowMobileMenu(false)}
                 >
                   <User className="w-5 h-5" />

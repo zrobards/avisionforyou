@@ -67,6 +67,8 @@ export default function AdminDUIClassesPage() {
 
     if (status === 'authenticated') {
       fetchClasses()
+      const interval = setInterval(fetchClasses, 30000)
+      return () => clearInterval(interval)
     }
   }, [status])
 

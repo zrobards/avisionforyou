@@ -19,6 +19,8 @@ export default function CommunityResourcesPage() {
 
   useEffect(() => {
     fetchResources()
+    const interval = setInterval(fetchResources, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   const fetchResources = async () => {

@@ -37,6 +37,8 @@ export default function CommunityMeetingsPage() {
 
   useEffect(() => {
     fetchItems()
+    const interval = setInterval(fetchItems, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   const fetchItems = async () => {

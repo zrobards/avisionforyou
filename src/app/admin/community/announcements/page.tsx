@@ -28,6 +28,8 @@ export default function AdminCommunityAnnouncementsPage() {
 
   useEffect(() => {
     fetchAnnouncements()
+    const interval = setInterval(fetchAnnouncements, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   async function fetchAnnouncements() {

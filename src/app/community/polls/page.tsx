@@ -24,6 +24,8 @@ export default function CommunityPollsPage() {
 
   useEffect(() => {
     fetchPolls();
+    const interval = setInterval(fetchPolls, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchPolls = async () => {

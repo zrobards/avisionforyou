@@ -61,6 +61,8 @@ export default function BoardDocumentsPage() {
 
   useEffect(() => {
     fetchDocuments()
+    const interval = setInterval(fetchDocuments, 60000)
+    return () => clearInterval(interval)
   }, [selectedCategory])
 
   useEffect(() => {
