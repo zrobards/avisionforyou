@@ -19,7 +19,7 @@ export default function Privacy() {
           <div className="space-y-12">
             {/* Last Updated */}
             <div className="text-gray-600 mb-8 pb-8 border-b border-gray-200">
-              <p className="text-sm">Last Updated: January 2026</p>
+              <p className="text-sm">Last Updated: February 2026</p>
               <p className="text-sm mt-2">A Vision For You ("we," "us," "our," or "the Organization") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.</p>
             </div>
 
@@ -120,24 +120,87 @@ export default function Privacy() {
               </div>
             </div>
 
-            {/* 6. Third-Party Services */}
+            {/* 6. Data Retention */}
             <div>
-              <h2 className="text-3xl font-bold text-brand-purple mb-4">6. Third-Party Services</h2>
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">6. Data Retention</h2>
               <div className="space-y-3 text-gray-700">
-                <p className="leading-relaxed">Our website uses third-party services that may collect information about you:</p>
+                <p className="leading-relaxed">We retain personal data only as long as necessary for the purposes outlined in this policy or as required by law. Below are our standard retention periods:</p>
                 <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Email Providers:</strong> For newsletters and communications (Gmail, custom mail services)</li>
-                  <li><strong>Analytics Services:</strong> Google Analytics and similar tools</li>
-                  <li><strong>Hosting & Infrastructure:</strong> Vercel, AWS, and other CDN providers</li>
-                  <li><strong>Social Media Platforms:</strong> Buttons and feeds may collect data</li>
+                  <li><strong>Contact form submissions:</strong> Retained for 2 years from the date of submission</li>
+                  <li><strong>Assessment data:</strong> Encrypted and retained for 1 year</li>
+                  <li><strong>Donation records:</strong> Retained for 7 years as required by IRS regulations for nonprofit organizations</li>
+                  <li><strong>Newsletter subscriptions:</strong> Retained until you unsubscribe</li>
+                  <li><strong>Account data:</strong> Retained until account deletion is requested</li>
+                  <li><strong>Server logs:</strong> Retained for 90 days</li>
                 </ul>
+                <p className="leading-relaxed mt-3">After the applicable retention period, data is securely deleted or anonymized in accordance with our data management procedures.</p>
+              </div>
+            </div>
+
+            {/* 7. Data Deletion */}
+            <div>
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">7. Data Deletion</h2>
+              <div className="space-y-3 text-gray-700">
+                <p className="leading-relaxed">You have the right to request deletion of your personal data. To submit a deletion request, please email us at <a href="mailto:info@avisionforyourecovery.org" className="text-blue-600 hover:underline">info@avisionforyourecovery.org</a> with the subject line "Data Deletion Request."</p>
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li>Deletion requests will be processed within <strong>30 days</strong> of receipt</li>
+                  <li>You will receive a confirmation email once your data has been deleted</li>
+                  <li>Some data may be retained where required for legal or tax compliance (e.g., donation records must be kept for 7 years per IRS requirements)</li>
+                </ul>
+                <p className="leading-relaxed mt-3">If you have any questions about the deletion process, please do not hesitate to contact us.</p>
+              </div>
+            </div>
+
+            {/* 8. Third-Party Services */}
+            <div>
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">8. Third-Party Services</h2>
+              <div className="space-y-3 text-gray-700">
+                <p className="leading-relaxed">Our website uses the following third-party services that may collect or process information about you:</p>
+                <div className="bg-blue-50 p-6 rounded-lg mt-4 space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Square (Payment Processing)</h4>
+                    <p className="text-sm">Processes donations and class payments securely in compliance with PCI DSS standards. For Square's privacy practices, visit <a href="https://squareup.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">squareup.com/privacy</a></p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Resend (Email Delivery)</h4>
+                    <p className="text-sm">Handles transactional email delivery such as donation receipts, contact form confirmations, and account notifications. For Resend's privacy practices, visit <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">resend.com/legal/privacy-policy</a></p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Vercel (Hosting)</h4>
+                    <p className="text-sm">Provides website hosting and analytics infrastructure. For Vercel's privacy practices, visit <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">vercel.com/legal/privacy-policy</a></p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Google (Authentication & Analytics)</h4>
+                    <p className="text-sm">Provides sign-in authentication and site analytics to help us understand visitor behavior and improve our services. For Google's privacy practices, visit <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">policies.google.com/privacy</a></p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Neon (Database)</h4>
+                    <p className="text-sm">Provides secure cloud database storage for application data. For Neon's privacy practices, visit <a href="https://neon.tech/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">neon.tech/privacy</a></p>
+                  </div>
+                </div>
                 <p className="leading-relaxed mt-3">We encourage you to review the privacy policies of these third-party services. We are not responsible for their privacy practices.</p>
               </div>
             </div>
 
-            {/* 7. Your Privacy Rights */}
+            {/* 9. Data Breach Notification */}
             <div>
-              <h2 className="text-3xl font-bold text-brand-purple mb-4">7. Your Privacy Rights</h2>
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">9. Data Breach Notification</h2>
+              <div className="space-y-3 text-gray-700">
+                <p className="leading-relaxed">In the event of a data breach affecting your personal information, A Vision For You is committed to notifying affected users within <strong>72 hours</strong> via email. The notification will include:</p>
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li>A description of the nature of the breach</li>
+                  <li>The types of personal data affected</li>
+                  <li>Steps we are taking to address and mitigate the breach</li>
+                  <li>Recommended actions you can take to protect yourself</li>
+                  <li>Contact information for further questions or concerns</li>
+                </ul>
+                <p className="leading-relaxed mt-3">We will also notify applicable regulatory authorities as required by law.</p>
+              </div>
+            </div>
+
+            {/* 10. Your Privacy Rights */}
+            <div>
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">10. Your Privacy Rights</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">You have the right to:</p>
                 <ul className="list-disc list-inside space-y-2 ml-2">
@@ -151,25 +214,25 @@ export default function Privacy() {
               </div>
             </div>
 
-            {/* 8. Children's Privacy */}
+            {/* 11. Children's Privacy */}
             <div>
-              <h2 className="text-3xl font-bold text-brand-purple mb-4">8. Children's Privacy</h2>
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">11. Children's Privacy</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">Our website is not directed to children under 13. We do not knowingly collect personal information from children. If we become aware that we have collected information from a child under 13, we will take steps to delete such information and terminate the child's account promptly.</p>
               </div>
             </div>
 
-            {/* 9. Changes to This Privacy Policy */}
+            {/* 12. Changes to This Privacy Policy */}
             <div>
-              <h2 className="text-3xl font-bold text-brand-purple mb-4">9. Changes to This Privacy Policy</h2>
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">12. Changes to This Privacy Policy</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. We will notify you of material changes by updating the "Last Updated" date at the top of this page. Your continued use of our website following such modifications constitutes your acceptance of the updated Privacy Policy.</p>
               </div>
             </div>
 
-            {/* 10. Contact Information */}
+            {/* 13. Contact Information */}
             <div className="bg-purple-50 p-8 rounded-lg">
-              <h2 className="text-3xl font-bold text-brand-purple mb-4">10. Questions & Contact Information</h2>
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">13. Questions & Contact Information</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">If you have questions about this Privacy Policy or our privacy practices, please contact us:</p>
                 <div className="mt-6 space-y-2 text-gray-900 font-semibold">

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { Resend } from 'resend'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { sanitizeEmail } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +19,17 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!email || !email.includes('@')) {
+    const ip = getClientIp(req)
+    const rl = checkRateLimit(`newsletter:${ip}`, 3, 60)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
+    const cleanEmail = sanitizeEmail(email)
+    if (!cleanEmail) {
       return NextResponse.json(
         { error: 'Valid email is required' },
         { status: 400 }
@@ -26,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     // Check if already subscribed
     const existing = await db.newsletterSubscriber.findUnique({
-      where: { email }
+      where: { email: cleanEmail }
     })
 
     if (existing) {
@@ -38,7 +50,7 @@ export async function POST(req: NextRequest) {
       } else {
         // Re-subscribe if previously unsubscribed
         await db.newsletterSubscriber.update({
-          where: { email },
+          where: { email: cleanEmail },
           data: { subscribed: true, subscribedAt: new Date() }
         })
       }
@@ -46,7 +58,7 @@ export async function POST(req: NextRequest) {
       // Create new subscriber
       await db.newsletterSubscriber.create({
         data: {
-          email,
+          email: cleanEmail,
           subscribed: true,
           subscribedAt: new Date()
         }
@@ -57,7 +69,7 @@ export async function POST(req: NextRequest) {
     try {
       await resend?.emails.send({
         from: 'A Vision For You <noreply@avisionforyou.org>',
-        to: email,
+        to: cleanEmail,
         subject: 'Welcome to A Vision For You Newsletter',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -103,7 +115,7 @@ export async function POST(req: NextRequest) {
             <div style="padding: 20px; text-align: center; background-color: #1f2937; color: #9ca3af; font-size: 12px;">
               <p style="margin: 0 0 10px;">A Vision For You | 501(c)(3) Nonprofit</p>
               <p style="margin: 0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://avisionforyourecovery.org'}/api/newsletter/unsubscribe?email=${encodeURIComponent(email)}" 
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://avisionforyourecovery.org'}/api/newsletter/unsubscribe?email=${encodeURIComponent(cleanEmail)}" 
                    style="color: #9ca3af; text-decoration: underline;">
                   Unsubscribe
                 </a>

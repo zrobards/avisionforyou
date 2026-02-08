@@ -2,7 +2,7 @@ import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function middleware(request: NextRequest) {
-  if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+  if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
     return NextResponse.next()
   }
 
@@ -56,18 +56,39 @@ export async function middleware(request: NextRequest) {
     )
   }
 
-  // Add caching headers for API routes (5 minutes)
+  // Prevent caching on API routes (may return user-specific data)
   if (pathname.startsWith("/api/")) {
     response.headers.set(
       'Cache-Control',
-      'public, max-age=300, s-maxage=300'
+      'no-store, no-cache, must-revalidate'
     )
   }
 
-  // Add security headers
+  // Security headers
   response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+  response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+  response.headers.set(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains'
+  )
+  response.headers.set(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.squareup.com https://sandbox.web.squarecdn.com https://www.googletagmanager.com https://va.vercel-scripts.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: https: blob:",
+      "connect-src 'self' https://*.squareup.com https://*.squarecdn.com https://*.google-analytics.com https://*.vercel-insights.com",
+      "frame-src https://*.squareup.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; ')
+  )
 
   return response
 }

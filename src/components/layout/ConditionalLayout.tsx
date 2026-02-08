@@ -18,7 +18,9 @@ export default function ConditionalLayout({
   return (
     <>
       {!isAdminPage && <Navbar />}
-      {children}
+      <main id="main-content">
+        {children}
+      </main>
       {!hideFooter && <Footer />}
     </>
   )

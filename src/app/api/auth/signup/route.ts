@@ -1,10 +1,24 @@
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { NextRequest, NextResponse } from "next/server"
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit"
+import { sanitizeString, sanitizeEmail } from "@/lib/sanitize"
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request)
+    const rl = checkRateLimit(`signup:${ip}`, 5, 900) // 5 per 15 minutes
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: "Too many signup attempts. Please try again later." },
+        { status: 429 }
+      )
+    }
+
     const { email, name, password } = await request.json()
+
+    const cleanEmail = sanitizeEmail(email)
+    const cleanName = sanitizeString(name, 100)
 
     // Validation
     if (!email || !name || !password) {
@@ -21,9 +35,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (!/\d/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return NextResponse.json(
+        { error: "Password must include at least 1 number and 1 special character" },
+        { status: 400 }
+      )
+    }
+
     // Check if user exists
     const existingUser = await db.user.findUnique({
-      where: { email }
+      where: { email: cleanEmail }
     })
 
     if (existingUser) {
@@ -40,8 +61,8 @@ export async function POST(request: NextRequest) {
     // Create user
     const user = await db.user.create({
       data: {
-        email,
-        name,
+        email: cleanEmail,
+        name: cleanName,
         passwordHash,
         role: "USER"
       }

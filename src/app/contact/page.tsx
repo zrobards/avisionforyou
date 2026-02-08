@@ -193,25 +193,27 @@ export default function ContactPage() {
             <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-brand-purple">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
               
-              {status === 'success' && (
-                <div className="mb-6 p-4 bg-green-50 border-2 border-green-200 rounded-lg flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-green-800 font-semibold">Message sent successfully!</p>
-                    <p className="text-sm text-green-700 mt-1">We'll get back to you within 24 hours.</p>
+              <div aria-live="polite" role="status">
+                {status === 'success' && (
+                  <div className="mb-6 p-4 bg-green-50 border-2 border-green-200 rounded-lg flex items-start gap-3">
+                    <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-green-800 font-semibold">Message sent successfully!</p>
+                      <p className="text-sm text-green-700 mt-1">We'll get back to you within 24 hours.</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {status === 'error' && (
-                <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg flex items-start gap-3">
-                  <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-red-800 font-semibold">Failed to send message</p>
-                    <p className="text-sm text-red-700 mt-1">{errorMessage}</p>
+                {status === 'error' && (
+                  <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg flex items-start gap-3" role="alert">
+                    <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-red-800 font-semibold">Failed to send message</p>
+                      <p className="text-sm text-red-700 mt-1">{errorMessage}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -238,6 +238,12 @@ input, textarea, select {
   opacity: 1;
 }
 
+/* Focus-visible styles for keyboard navigation */
+*:focus-visible {
+  @apply outline-2 outline-offset-2 outline-brand-purple;
+  outline-style: solid;
+}
+
 /* Loading skeleton animation */
 .animate-skeleton {
   background: linear-gradient(

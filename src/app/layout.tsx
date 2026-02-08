@@ -5,6 +5,7 @@ import ConditionalLayout from "@/components/layout/ConditionalLayout"
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics"
 import { ServiceWorkerRegister } from "@/components/shared/ServiceWorkerRegister"
 import { Analytics } from "@vercel/analytics/react"
+import CookieConsent from "@/components/shared/CookieConsent"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -72,6 +73,12 @@ export default function RootLayout({
         <GoogleAnalytics />
       </head>
       <body>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-brand-purple focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold"
+        >
+          Skip to main content
+        </a>
         <AuthProvider>
           <ToastProvider>
             <ConditionalLayout>
@@ -81,6 +88,7 @@ export default function RootLayout({
         </AuthProvider>
         <ServiceWorkerRegister />
         <Analytics />
+        <CookieConsent />
       </body>
     </html>
   )

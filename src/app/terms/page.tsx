@@ -19,7 +19,7 @@ export default function Terms() {
           <div className="space-y-12">
             {/* Last Updated */}
             <div className="text-gray-600 mb-8 pb-8 border-b border-gray-200">
-              <p className="text-sm">Last Updated: January 2026</p>
+              <p className="text-sm">Last Updated: February 2026</p>
               <p className="text-sm mt-2">These Terms of Use govern your access to and use of the A Vision For You website and services. By accessing or using our website, you agree to be bound by these terms. If you do not agree with any part of these terms, please do not use our website.</p>
             </div>
 
@@ -78,6 +78,10 @@ export default function Terms() {
                   <li>Security or absence of viruses</li>
                 </ul>
                 <p className="leading-relaxed mt-3"><strong>Medical & Professional Disclaimer:</strong> Content on this website is not a substitute for professional medical diagnosis, treatment, or advice. Recovery is complex and individualized. We do not guarantee specific outcomes or results. Always consult qualified professionals for medical, mental health, or legal matters.</p>
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mt-4">
+                  <p className="text-red-800 font-semibold">If you are experiencing a medical emergency, call 911.</p>
+                  <p className="text-red-700 mt-1">If you or someone you know is in crisis, call or text <strong>988</strong> (Suicide &amp; Crisis Lifeline) for immediate support, available 24/7.</p>
+                </div>
               </div>
             </div>
 
@@ -124,7 +128,7 @@ export default function Terms() {
                   <li>Comply with all payment processor terms and conditions</li>
                   <li>Acknowledge that donations are generally non-refundable</li>
                 </ul>
-                <p className="leading-relaxed mt-3">A Vision For You is a registered 501(c)(3) nonprofit. Donations are tax-deductible to the extent permitted by law. For tax records and receipts, contact our office. We do not sell or share donor information.</p>
+                <p className="leading-relaxed mt-3">A Vision For You Inc. is a 501(c)(3) tax-exempt nonprofit organization. Contributions are tax-deductible to the extent permitted by law. No goods or services were provided in exchange for your contribution. For tax records and receipts, contact our office. We do not sell or share donor information.</p>
               </div>
             </div>
 

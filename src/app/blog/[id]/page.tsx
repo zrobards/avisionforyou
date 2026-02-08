@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Share2, Twitter, Facebook, Linkedin, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface BlogPost {
   id: string
@@ -188,7 +189,7 @@ export default function BlogPostPage() {
         {/* Content */}
         <div
           className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
 
         {/* Call to Action */}

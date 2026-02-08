@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, User, ArrowLeft, Mail } from 'lucide-react'
+import DOMPurify from 'isomorphic-dompurify'
 
 interface Newsletter {
   id: string
@@ -92,6 +93,8 @@ export default function NewsletterDetailPage() {
                 src={newsletter.imageUrl}
                 alt={newsletter.title}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                referrerPolicy="no-referrer"
               />
             </div>
           )}
@@ -130,7 +133,7 @@ export default function NewsletterDetailPage() {
             {/* Content */}
             <div 
               className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-a:text-brand-purple hover:prose-a:text-purple-800 prose-img:rounded-lg"
-              dangerouslySetInnerHTML={{ __html: newsletter.content.replace(/\n/g, '<br />') }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(newsletter.content.replace(/\n/g, '<br />')) }}
             />
           </div>
         </article>
