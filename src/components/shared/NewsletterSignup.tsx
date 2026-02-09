@@ -30,16 +30,16 @@ export default function NewsletterSignup() {
       const res = await fetch('/api/newsletter/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, company })
       })
 
       const data = await res.json()
 
       if (res.ok) {
         setStatus('success')
-        setMessage('Thanks for subscribing!')
+        setMessage(data.message || 'Thanks for subscribing!')
         setEmail('')
-        
+
         // Reset after 5 seconds
         setTimeout(() => {
           setStatus('idle')
@@ -47,11 +47,11 @@ export default function NewsletterSignup() {
         }, 5000)
       } else {
         setStatus('error')
-        setMessage('Something went wrong. Please try again.')
+        setMessage(data.error || 'Something went wrong. Please try again.')
       }
     } catch (error) {
       setStatus('error')
-      setMessage('Something went wrong. Please try again.')
+      setMessage('Network error. Please check your connection and try again.')
     }
   }
 
