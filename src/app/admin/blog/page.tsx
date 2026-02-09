@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Edit, Trash2, Eye, EyeOff, Save } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, EyeOff, Save, Upload, X, ImageIcon } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
 interface BlogPost {
@@ -35,6 +35,7 @@ export default function AdminBlog() {
   const [editing, setEditing] = useState<string | null>(null)
   const [currentSlug, setCurrentSlug] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -271,14 +272,67 @@ export default function AdminBlog() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-300 font-semibold mb-2">Image URL (optional)</label>
-                  <input
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                    placeholder="https://..."
-                  />
+                  <label className="block text-gray-300 font-semibold mb-2">Featured Image (optional)</label>
+                  {formData.imageUrl ? (
+                    <div className="relative">
+                      <img
+                        src={formData.imageUrl}
+                        alt="Preview"
+                        className="w-full h-40 object-cover rounded border border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-32 bg-gray-700 border-2 border-dashed border-gray-500 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-gray-600 transition">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+                          if (file.size > 10 * 1024 * 1024) {
+                            showToast('Image must be under 10MB', 'error')
+                            return
+                          }
+                          setUploading(true)
+                          try {
+                            const upload = new FormData()
+                            upload.append('file', file)
+                            upload.append('tags', JSON.stringify(['blog']))
+                            upload.append('usage', JSON.stringify(['blog-featured']))
+                            const res = await fetch('/api/admin/media', { method: 'POST', body: upload })
+                            if (res.ok) {
+                              const media = await res.json()
+                              setFormData(prev => ({ ...prev, imageUrl: media.url }))
+                              showToast('Image uploaded', 'success')
+                            } else {
+                              showToast('Upload failed', 'error')
+                            }
+                          } catch {
+                            showToast('Upload failed', 'error')
+                          } finally {
+                            setUploading(false)
+                          }
+                        }}
+                      />
+                      {uploading ? (
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                          <span className="text-gray-400 text-sm">Click to upload image</span>
+                          <span className="text-gray-500 text-xs mt-1">JPG, PNG, WebP, GIF up to 10MB</span>
+                        </>
+                      )}
+                    </label>
+                  )}
                 </div>
                 <div>
                   <label className="block text-gray-300 font-semibold mb-2">Tags (comma-separated)</label>
