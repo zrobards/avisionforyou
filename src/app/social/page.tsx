@@ -118,13 +118,13 @@ export default function SocialMediaPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-green rounded-full mb-6">
               <Instagram className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold mb-4">Connect With Us</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Connect With Us</h1>
             <p className="text-xl text-purple-100 max-w-3xl mx-auto">
               Join our online community for daily inspiration, recovery resources, and stories of hope
             </p>
@@ -133,16 +133,16 @@ export default function SocialMediaPage() {
       </section>
 
       {/* Social Media Channels */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Follow Us</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Follow Us</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Stay connected across all your favorite platforms
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {socialChannels.map((channel, idx) => {
               const Icon = channel.icon
               return (
@@ -151,7 +151,7 @@ export default function SocialMediaPage() {
                   href={channel.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`${channel.bgColor} border-2 ${channel.borderColor} rounded-xl p-6 hover:shadow-xl transition-all duration-300 group`}
+                  className={`${channel.bgColor} border-2 ${channel.borderColor} rounded-xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 group`}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className={`w-14 h-14 bg-gradient-to-br ${channel.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
@@ -176,18 +176,18 @@ export default function SocialMediaPage() {
       </section>
 
       {/* Content Highlights */}
-      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
+      <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What We Share</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">What We Share</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Discover the type of content you'll find on our social channels
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {contentHighlights.map((content, idx) => (
-              <div key={idx} className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-brand-purple">
+              <div key={idx} className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-brand-purple">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{content.title}</h3>
                 <p className="text-gray-600 mb-4">{content.description}</p>
                 <div className="flex flex-wrap gap-2">
@@ -204,7 +204,7 @@ export default function SocialMediaPage() {
       </section>
 
       {/* Hashtags Section */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">Join the Conversation</h2>
           <p className="text-lg text-gray-600 mb-8">
@@ -221,7 +221,7 @@ export default function SocialMediaPage() {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="py-16 bg-gradient-to-r from-brand-purple to-purple-900 text-white">
+      <section className="py-10 sm:py-16 bg-gradient-to-r from-brand-purple to-purple-900 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Mail className="w-12 h-12 mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
@@ -242,11 +242,11 @@ export default function SocialMediaPage() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-purple-50 to-green-50 rounded-2xl p-8 text-center">
+          <div className="bg-gradient-to-br from-purple-50 to-green-50 rounded-2xl p-4 sm:p-6 md:p-8 text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Prefer Direct Contact?</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               <a href="tel:(502)749-6344" className="flex flex-col items-center gap-2 text-brand-purple hover:text-purple-700 transition-colors">
                 <div className="w-12 h-12 bg-brand-purple rounded-full flex items-center justify-center">
                   <Phone className="w-6 h-6 text-white" />

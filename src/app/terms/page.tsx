@@ -6,15 +6,15 @@ export default function Terms() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Terms of Use</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Terms of Use</h1>
           <p className="text-xl opacity-95">Please read these terms carefully before using our website</p>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4">
           <div className="space-y-12">
             {/* Last Updated */}
@@ -162,7 +162,7 @@ export default function Terms() {
             </div>
 
             {/* 12. Contact Information */}
-            <div className="bg-purple-50 p-8 rounded-lg">
+            <div className="bg-purple-50 p-4 sm:p-6 md:p-8 rounded-lg">
               <h2 className="text-3xl font-bold text-brand-purple mb-4">12. Questions & Contact Information</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">If you have questions about these Terms of Use, please contact us:</p>
@@ -179,7 +179,7 @@ export default function Terms() {
       </section>
 
       {/* Footer CTA */}
-      <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-12">
+      <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-8 sm:py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h3 className="text-2xl font-bold mb-4">Questions About Our Policies?</h3>
           <p className="mb-6 opacity-95">We're committed to transparency. Contact us if you need clarification on any of our terms.</p>

@@ -53,13 +53,13 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-green rounded-full mb-6">
               <Mail className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold mb-4">Get in Touch</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
             <p className="text-xl text-purple-100 max-w-3xl mx-auto">
               We're here to answer your questions and connect you with the resources you need
             </p>
@@ -67,7 +67,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Information */}
           <div className="lg:col-span-1 space-y-6">
@@ -190,7 +190,7 @@ export default function ContactPage() {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-brand-purple">
+            <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border-t-4 border-brand-purple">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
               
               <div aria-live="polite" role="status">
@@ -355,7 +355,7 @@ export default function ContactPage() {
       {/* Map Section (Placeholder) */}
       <section className="bg-gray-100 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gray-300 rounded-xl h-96 flex items-center justify-center text-gray-500">
+          <div className="bg-gray-300 rounded-xl h-64 sm:h-80 md:h-96 flex items-center justify-center text-gray-500">
             <div className="text-center">
               <MapPin className="w-12 h-12 mx-auto mb-4" />
               <p className="font-semibold">Interactive Map</p>

@@ -112,7 +112,7 @@ export default async function CommunityDashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
       {/* Header */}
       <header className="bg-gradient-to-r from-green-600 to-green-700 text-white py-8 shadow-lg">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h1 className="text-3xl font-bold">
             Welcome to the Community Hub, {session?.user?.name || "Member"}!
           </h1>
@@ -122,12 +122,12 @@ export default async function CommunityDashboardPage() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {/* Left Column - Sessions */}
           <div className="lg:col-span-2 space-y-6">
             {/* Upcoming Sessions */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">My Upcoming Sessions</h2>
                 <Link href="/community/meetings" className="text-green-600 hover:underline text-sm">
@@ -185,7 +185,7 @@ export default async function CommunityDashboardPage() {
             </div>
 
             {/* Announcements */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Announcements</h2>
                 <Link href="/community/announcements" className="text-green-600 hover:underline text-sm">
@@ -214,7 +214,7 @@ export default async function CommunityDashboardPage() {
           {/* Right Column - Polls & Quick Links */}
           <div className="space-y-6">
             {/* Active Polls */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">🗳️ Active Polls</h2>
                 <Link href="/community/polls" className="text-green-600 hover:underline text-sm">
@@ -247,7 +247,7 @@ export default async function CommunityDashboardPage() {
             </div>
 
             {/* Quick Links */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-xl font-semibold mb-4">Quick Links</h2>
               <div className="space-y-2">
                 <Link

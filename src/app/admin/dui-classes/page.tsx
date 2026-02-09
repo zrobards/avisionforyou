@@ -237,16 +237,17 @@ export default function AdminDUIClassesPage() {
         </div>
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registrations</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registrations</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -256,21 +257,21 @@ export default function AdminDUIClassesPage() {
 
                 return (
                   <tr key={cls.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <div className="font-medium text-gray-900">{cls.title}</div>
                       {cls.instructor && (
                         <div className="text-sm text-gray-500">Instructor: {cls.instructor}</div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 text-sm text-gray-900">
                       <div>{new Date(cls.date).toLocaleDateString()}</div>
                       <div className="text-gray-500">{cls.startTime} - {cls.endTime}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{cls.location}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 text-sm text-gray-900">{cls.location}</td>
+                    <td className="px-3 sm:px-6 py-4 text-sm font-medium text-gray-900">
                       ${(cls.price / 100).toFixed(2)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <button
                         onClick={() => fetchRegistrations(cls.id)}
                         className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700"
@@ -279,7 +280,7 @@ export default function AdminDUIClassesPage() {
                         {cls._count?.registrations || 0} / {cls.capacity}
                       </button>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         !cls.active ? 'bg-gray-100 text-gray-800' :
                         isFull ? 'bg-red-100 text-red-800' :
@@ -288,7 +289,7 @@ export default function AdminDUIClassesPage() {
                         {!cls.active ? 'Inactive' : isFull ? 'Full' : 'Active'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-3 sm:px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEditModal(cls)}
@@ -309,14 +310,15 @@ export default function AdminDUIClassesPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
       {/* Create/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b">
+          <div className="bg-white rounded-lg max-w-[calc(100vw-2rem)] sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b">
               <h2 className="text-xl font-bold">
                 {editingClass ? 'Edit Class' : 'Create New Class'}
               </h2>
@@ -327,7 +329,7 @@ export default function AdminDUIClassesPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Title *</label>
                 <input
@@ -347,7 +349,7 @@ export default function AdminDUIClassesPage() {
                   rows={3}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Date *</label>
                   <input
@@ -368,7 +370,7 @@ export default function AdminDUIClassesPage() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Start Time *</label>
                   <input
@@ -402,7 +404,7 @@ export default function AdminDUIClassesPage() {
                   className="w-full px-3 py-2 border rounded-lg"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Price ($) *</label>
                   <input
@@ -459,8 +461,8 @@ export default function AdminDUIClassesPage() {
       {/* Registrations Modal */}
       {showRegistrations && selectedClass && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b">
+          <div className="bg-white rounded-lg max-w-[calc(100vw-2rem)] sm:max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b">
               <h2 className="text-xl font-bold">Registrations</h2>
               <button
                 onClick={() => {
@@ -472,10 +474,11 @@ export default function AdminDUIClassesPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {registrations.length === 0 ? (
                 <p className="text-gray-600 text-center py-8">No registrations yet</p>
               ) : (
+                <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b">
                     <tr>
@@ -538,6 +541,7 @@ export default function AdminDUIClassesPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>

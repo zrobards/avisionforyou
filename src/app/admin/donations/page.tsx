@@ -170,9 +170,9 @@ export default function AdminDonations() {
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Stats Grid */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 animate-stagger">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 animate-stagger">
             {/* Total Amount */}
-            <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 transform hover:scale-105">
+            <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 transform hover:scale-105">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-blue-500/10 transition-all duration-300"></div>
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
@@ -185,7 +185,7 @@ export default function AdminDonations() {
             </div>
 
             {/* Average Donation */}
-            <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 hover:border-purple-500 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 transform hover:scale-105">
+            <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-700 hover:border-purple-500 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 transform hover:scale-105">
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-purple-500/10 transition-all duration-300"></div>
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
@@ -198,7 +198,7 @@ export default function AdminDonations() {
             </div>
 
             {/* Recurring Revenue */}
-            <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 transform hover:scale-105">
+            <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-700 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 transform hover:scale-105">
               <div className="absolute inset-0 bg-gradient-to-r from-green-500/0 to-green-500/0 group-hover:from-green-500/5 group-hover:to-green-500/10 transition-all duration-300"></div>
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
@@ -211,7 +211,7 @@ export default function AdminDonations() {
             </div>
 
             {/* Completion Rate */}
-            <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 transform hover:scale-105">
+            <div className="group relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-700 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 transform hover:scale-105">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 to-orange-500/0 group-hover:from-orange-500/5 group-hover:to-orange-500/10 transition-all duration-300"></div>
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
@@ -231,7 +231,7 @@ export default function AdminDonations() {
 
         {/* Secondary Stats */}
         {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12 animate-stagger">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-12 animate-stagger">
             <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 hover:border-slate-600 transition-all">
               <p className="text-slate-400 text-xs font-semibold mb-2">One-Time</p>
               <p className="text-2xl font-bold text-white">{stats.oneTimeDonations}</p>
@@ -256,7 +256,7 @@ export default function AdminDonations() {
         )}
 
         {/* Filters and Search */}
-        <div className="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6 backdrop-blur-sm animate-slide-up">
+        <div className="mb-8 bg-slate-800/50 border border-slate-700 rounded-xl p-4 sm:p-6 backdrop-blur-sm animate-slide-up">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2">
               <Search className="w-5 h-5 text-slate-500" />
@@ -308,12 +308,12 @@ export default function AdminDonations() {
             <table className="w-full">
               <thead className="bg-slate-900 border-b border-slate-700">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Donor</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Comment</th>
+                  <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Date</th>
+                  <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Donor</th>
+                  <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Amount</th>
+                  <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Type</th>
+                  <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Comment</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700">
@@ -324,19 +324,19 @@ export default function AdminDonations() {
                       className="hover:bg-slate-800/50 transition-colors duration-200 animate-fade-in"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <td className="px-6 py-4 text-sm text-slate-300">
+                      <td className="px-3 sm:px-6 py-4 text-sm text-slate-300">
                         {new Date(donation.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-3 sm:px-6 py-4 text-sm">
                         <div>
                           <p className="font-medium text-white">{donation.name || 'Anonymous'}</p>
                           <p className="text-xs text-slate-500">{donation.email || 'N/A'}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-white">
+                      <td className="px-3 sm:px-6 py-4 text-sm font-semibold text-white">
                         ${donation.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-3 sm:px-6 py-4 text-sm">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           donation.frequency === 'ONE_TIME'
                             ? 'bg-blue-500/20 text-blue-300'
@@ -345,7 +345,7 @@ export default function AdminDonations() {
                           {donation.frequency === 'ONE_TIME' ? 'One-Time' : donation.frequency}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-3 sm:px-6 py-4 text-sm">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 w-fit ${
                           donation.status === 'COMPLETED'
                             ? 'bg-green-500/20 text-green-300'
@@ -359,14 +359,14 @@ export default function AdminDonations() {
                           {donation.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-400 max-w-xs truncate">
+                      <td className="px-3 sm:px-6 py-4 text-sm text-slate-400 max-w-xs truncate">
                         {donation.comment || '—'}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-slate-400">
+                    <td colSpan={6} className="px-3 sm:px-6 py-8 text-center text-slate-400">
                       No donations found matching your filters
                     </td>
                   </tr>

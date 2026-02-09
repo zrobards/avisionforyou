@@ -469,10 +469,10 @@ export default function MediaLibrary() {
           onClick={() => setSelectedMedia(null)}
         >
           <div
-            className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg max-w-[calc(100vw-2rem)] sm:max-w-3xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-bold text-gray-900">{selectedMedia.filename}</h3>
                 <button
@@ -512,7 +512,7 @@ export default function MediaLibrary() {
 
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Suitable for:</h4>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {usageOptions.map(usage => (
                       <label key={usage} className="flex items-center gap-2 text-sm text-gray-700">
                         <input
@@ -554,8 +554,8 @@ export default function MediaLibrary() {
       {/* Upload Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
+          <div className="bg-white rounded-xl max-w-[calc(100vw-2rem)] sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Upload Media Files</h2>
               
               {/* Files to upload */}
@@ -600,7 +600,7 @@ export default function MediaLibrary() {
                 <label className="text-sm font-semibold text-gray-700 mb-3 block">
                   Where will this be used? (select all that apply)
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {usageOptions.map(usage => (
                     <label key={usage} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                       <input

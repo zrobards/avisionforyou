@@ -213,7 +213,7 @@ export default function AdminBlog() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {creating && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-8 border border-gray-700">
             <h2 className="text-2xl font-bold text-white mb-6">
               {editing ? 'Edit Post' : 'Create New Post'}
             </h2>
@@ -262,7 +262,7 @@ export default function AdminBlog() {
                 <textarea
                   value={formData.content}
                   onChange={e => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white font-mono text-sm"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white font-mono text-sm max-h-[40vh] sm:max-h-none"
                   rows={15}
                   required
                   placeholder="Write your blog post content here..."
@@ -330,7 +330,7 @@ export default function AdminBlog() {
           <h2 className="text-2xl font-bold text-white mb-6">All Posts ({posts.length})</h2>
           
           {posts.map(post => (
-            <div key={post.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <div key={post.id} className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">

@@ -39,16 +39,16 @@ const LEADERSHIP = [
 export default function About() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">About A Vision For You</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">About A Vision For You</h1>
           <p className="text-xl opacity-95">Our story, our mission, and the people transforming lives every day</p>
         </div>
       </section>
 
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 sm:py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-8 text-center">Our Story</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 text-center">Our Story</h2>
           <div className="space-y-8">
             <div className="bg-white p-10 rounded-lg shadow-lg">
               <h3 className="text-2xl font-bold text-brand-purple mb-4">Founded with Compassion</h3>
@@ -65,12 +65,12 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-16 text-center">Our Leadership</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-16 text-center">Our Leadership</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {LEADERSHIP.map((leader, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-purple-50 to-green-50 p-8 rounded-lg shadow-lg">
+              <div key={idx} className="bg-gradient-to-br from-purple-50 to-green-50 p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
                 <div className="w-24 h-24 bg-gradient-to-r from-blue-400 to-green-400 rounded-full mx-auto mb-6"></div>
                 <h3 className="text-2xl font-bold text-center mb-2">{leader.name}</h3>
                 <p className="text-center text-blue-600 font-semibold mb-4">{leader.title}</p>
@@ -81,9 +81,9 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-20 bg-blue-50">
+      <section className="py-12 sm:py-20 bg-blue-50">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-12 text-center">Our Core Values</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-12 text-center">Our Core Values</h2>
           <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-lg">These 14 values guide everything we do and everyone we serve:</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
             {CORE_VALUES.map((value, idx) => {
@@ -99,30 +99,30 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-12 text-center">Our Impact</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-12 text-center">Our Impact</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="text-center">
-              <div className="text-6xl font-bold text-blue-600 mb-3">500+</div>
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-600 mb-3">500+</div>
               <p className="text-xl text-gray-700">People in active recovery</p>
             </div>
             <div className="text-center">
-              <div className="text-6xl font-bold text-green-600 mb-3">7</div>
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-green-600 mb-3">7</div>
               <p className="text-xl text-gray-700">Recovery residences throughout Kentucky</p>
             </div>
             <div className="text-center">
-              <div className="text-6xl font-bold text-blue-600 mb-3">95%</div>
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-600 mb-3">95%</div>
               <p className="text-xl text-gray-700">Success rate for program completion</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-r from-indigo-50 to-purple-50">
+      <section className="py-12 sm:py-20 bg-gradient-to-r from-indigo-50 to-purple-50">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white p-12 rounded-lg shadow-lg border-l-4 border-purple-600">
-            <h2 className="text-4xl font-bold mb-8 text-center text-gray-900">Our Commitment to Transparency & Trust</h2>
+          <div className="bg-white p-6 sm:p-8 md:p-12 rounded-lg shadow-lg border-l-4 border-purple-600">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 text-center text-gray-900">Our Commitment to Transparency & Trust</h2>
             
             <div className="mb-12">
               <div className="flex items-center mb-6">
@@ -131,7 +131,7 @@ export default function About() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900">501(c)(3) Nonprofit Status</h3>
               </div>
-              <p className="text-lg text-gray-700 leading-relaxed ml-16">A Vision For You is a registered 501(c)(3) nonprofit organization (EIN available upon request). This status is granted by the IRS to organizations that operate exclusively for charitable, educational, or social purposes and reinvest all revenues back into our mission.</p>
+              <p className="text-lg text-gray-700 leading-relaxed sm:ml-16">A Vision For You is a registered 501(c)(3) nonprofit organization (EIN available upon request). This status is granted by the IRS to organizations that operate exclusively for charitable, educational, or social purposes and reinvest all revenues back into our mission.</p>
             </div>
 
             <div className="mb-12">
@@ -141,7 +141,7 @@ export default function About() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900">Tax-Deductible Giving</h3>
               </div>
-              <p className="text-lg text-gray-700 leading-relaxed ml-16">Your donations to A Vision For You are fully tax-deductible. We encourage you to consult with your tax advisor about the tax implications of your charitable contribution. All donations support our core mission of providing housing, treatment, education, and support services to those in recovery.</p>
+              <p className="text-lg text-gray-700 leading-relaxed sm:ml-16">Your donations to A Vision For You are fully tax-deductible. We encourage you to consult with your tax advisor about the tax implications of your charitable contribution. All donations support our core mission of providing housing, treatment, education, and support services to those in recovery.</p>
             </div>
 
             <div className="mb-12">
@@ -151,7 +151,7 @@ export default function About() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900">Financial Accountability</h3>
               </div>
-              <p className="text-lg text-gray-700 leading-relaxed ml-16">As a nonprofit organization, A Vision For You operates with complete transparency. Our financial statements and annual 990 forms are available to the public through the IRS and charity databases. We maintain rigorous accounting practices and are accountable to our donors, clients, and community.</p>
+              <p className="text-lg text-gray-700 leading-relaxed sm:ml-16">As a nonprofit organization, A Vision For You operates with complete transparency. Our financial statements and annual 990 forms are available to the public through the IRS and charity databases. We maintain rigorous accounting practices and are accountable to our donors, clients, and community.</p>
             </div>
 
             <div className="mb-8">
@@ -161,10 +161,10 @@ export default function About() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900">Mission-Driven Operations</h3>
               </div>
-              <p className="text-lg text-gray-700 leading-relaxed ml-16">Every donation goes directly to supporting our mission. Our leadership, board members, and staff are committed to the vision that everyone deserves a second chance. We maintain the highest ethical standards and operate with integrity in all dealings.</p>
+              <p className="text-lg text-gray-700 leading-relaxed sm:ml-16">Every donation goes directly to supporting our mission. Our leadership, board members, and staff are committed to the vision that everyone deserves a second chance. We maintain the highest ethical standards and operate with integrity in all dealings.</p>
             </div>
 
-            <div className="mt-12 p-8 bg-purple-50 rounded-lg border border-purple-200">
+            <div className="mt-12 p-4 sm:p-6 md:p-8 bg-purple-50 rounded-lg border border-purple-200">
               <p className="text-center text-gray-700 mb-4">
                 <span className="font-semibold text-purple-900">Questions about our nonprofit status or financial practices?</span>
               </p>
@@ -183,9 +183,9 @@ export default function About() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-20">
+      <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-12 sm:py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Join the Community?</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">Ready to Join the Community?</h2>
           <p className="text-xl mb-8 opacity-95">Whether you're seeking recovery for yourself or wanting to support others on their journey, we welcome you.</p>
           <div className="flex gap-6 justify-center flex-wrap">
             <Link href="/programs" className="px-8 py-4 bg-white text-blue-600 rounded-lg font-bold hover:bg-gray-50 transition">Explore Our Programs</Link>

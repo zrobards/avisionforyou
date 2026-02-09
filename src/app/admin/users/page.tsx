@@ -157,9 +157,9 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Search & Filters */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 animate-slide-up">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3 sm:p-4 animate-slide-up">
           <div className="flex gap-4 flex-wrap items-end">
-            <div className="flex-1 min-w-64">
+            <div className="flex-1 w-full sm:min-w-64">
               <label htmlFor="user-search" className="block text-sm font-semibold text-gray-700 mb-1">Search</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -198,20 +198,21 @@ export default function AdminUsersPage() {
 
         {/* Users Table */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden animate-slide-up">
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">User</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Role</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Activity</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Joined</th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600">Actions</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600">User</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600">Role</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600">Activity</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600">Joined</th>
+                <th className="px-3 sm:px-6 py-3 text-right text-xs font-semibold text-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredUsers.map((user, index) => (
                 <tr key={user.id} className="hover:bg-gray-50 transition-smooth hover-scale animate-fade-in" style={{animationDelay: `${index * 30}ms`}}>
-                  <td className="px-6 py-4">
+                  <td className="px-3 sm:px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-brand-purple to-purple-700 rounded-full flex items-center justify-center flex-shrink-0">
                         <User className="w-5 h-5 text-white" />
@@ -222,7 +223,7 @@ export default function AdminUsersPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 sm:px-6 py-4">
                     <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
                       user.role === 'ADMIN' ? 'bg-red-100 text-red-700' :
                       user.role === 'BOARD' ? 'bg-purple-100 text-purple-700' :
@@ -232,17 +233,17 @@ export default function AdminUsersPage() {
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-3 sm:px-6 py-4 text-sm text-gray-600">
                     {user._count ? (
                       <span>{user._count.rsvps} RSVPs · {user._count.donations} Donations</span>
                     ) : (
                       <span className="text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-3 sm:px-6 py-4 text-sm text-gray-600">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-3 sm:px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <select
                         value={user.role}
@@ -267,6 +268,7 @@ export default function AdminUsersPage() {
               ))}
             </tbody>
           </table>
+          </div>
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-12 text-gray-500 animate-fade-in">

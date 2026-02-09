@@ -138,7 +138,7 @@ export default function CommunityMeetingsPage() {
           <p className="text-sm text-gray-500 mt-2">Check back soon for new opportunities!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {items.map((item) => {
             const isRsvped = item.userRsvpStatus === "CONFIRMED" || item.userRsvpStatus === "PAID"
             const isProcessing = actionId === item.id
@@ -152,7 +152,7 @@ export default function CommunityMeetingsPage() {
                   isClass ? 'border-l-4 border-purple-500' : 'border-l-4 border-green-500'
                 }`}
               >
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">

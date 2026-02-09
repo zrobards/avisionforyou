@@ -310,7 +310,7 @@ export default function Donate() {
             <div className="bg-gradient-to-r from-purple-50 to-green-50 rounded-lg p-6 mb-8 border-2 border-brand-green">
               <div className="text-center">
                 <p className="text-sm font-semibold text-gray-600 mb-2">Your Total Impact</p>
-                <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-green mb-3">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-green mb-3">
                   ${(finalAmount || 0).toFixed(2)}
                 </p>
                 <p className="text-gray-700 leading-relaxed">
@@ -363,32 +363,32 @@ export default function Donate() {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-b from-white to-purple-50">
+      <section className="py-12 sm:py-20 bg-gradient-to-b from-white to-purple-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4 text-gray-900">Your Donations Change Lives</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-gray-900">Your Donations Change Lives</h2>
           <p className="text-xl text-gray-600 mb-12">See the real impact of your generosity</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full flex items-center justify-center">
                 <Coffee className="w-8 h-8 text-white" />
               </div>
-              <p className="text-4xl font-bold text-brand-purple mb-2">$25</p>
+              <p className="text-3xl sm:text-4xl font-bold text-brand-purple mb-2">$25</p>
               <p className="text-gray-700 font-semibold mb-2">Daily Essentials</p>
               <p className="text-sm text-gray-600">Provides 10 nutritious meals and basic necessities</p>
             </div>
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+            <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
                 <Home className="w-8 h-8 text-white" />
               </div>
-              <p className="text-4xl font-bold text-green-600 mb-2">$100</p>
+              <p className="text-3xl sm:text-4xl font-bold text-green-600 mb-2">$100</p>
               <p className="text-gray-700 font-semibold mb-2">Safe Housing</p>
               <p className="text-sm text-gray-600">Funds 1 week of shelter and intensive support services</p>
             </div>
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+            <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
                 <Heart className="w-8 h-8 text-white" />
               </div>
-              <p className="text-4xl font-bold text-purple-600 mb-2">$500</p>
+              <p className="text-3xl sm:text-4xl font-bold text-purple-600 mb-2">$500</p>
               <p className="text-gray-700 font-semibold mb-2">Full Recovery Program</p>
               <p className="text-sm text-gray-600">Provides 1 month of comprehensive treatment and housing</p>
             </div>

@@ -6,15 +6,15 @@ export default function Privacy() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Privacy Policy</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Privacy Policy</h1>
           <p className="text-xl opacity-95">How we protect and use your information</p>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4">
           <div className="space-y-12">
             {/* Last Updated */}
@@ -76,7 +76,7 @@ export default function Privacy() {
               <h2 className="text-3xl font-bold text-brand-purple mb-4">3. Payment Processing & Financial Data</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">A Vision For You uses third-party payment processors for secure donation and payment handling:</p>
-                <div className="bg-blue-50 p-6 rounded-lg mt-4 space-y-3">
+                <div className="bg-blue-50 p-4 sm:p-6 rounded-lg mt-4 space-y-3">
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Stripe</h4>
                     <p className="text-sm">Credit card payments are processed through Stripe. We do not store full credit card information on our servers. Stripe handles Payment Card Industry (PCI) compliance and data security. For Stripe's privacy practices, visit <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">stripe.com/privacy</a></p>
@@ -156,7 +156,7 @@ export default function Privacy() {
               <h2 className="text-3xl font-bold text-brand-purple mb-4">8. Third-Party Services</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">Our website uses the following third-party services that may collect or process information about you:</p>
-                <div className="bg-blue-50 p-6 rounded-lg mt-4 space-y-3">
+                <div className="bg-blue-50 p-4 sm:p-6 rounded-lg mt-4 space-y-3">
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Square (Payment Processing)</h4>
                     <p className="text-sm">Processes donations and class payments securely in compliance with PCI DSS standards. For Square's privacy practices, visit <a href="https://squareup.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">squareup.com/privacy</a></p>
@@ -231,7 +231,7 @@ export default function Privacy() {
             </div>
 
             {/* 13. Contact Information */}
-            <div className="bg-purple-50 p-8 rounded-lg">
+            <div className="bg-purple-50 p-4 sm:p-6 md:p-8 rounded-lg">
               <h2 className="text-3xl font-bold text-brand-purple mb-4">13. Questions & Contact Information</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">If you have questions about this Privacy Policy or our privacy practices, please contact us:</p>
@@ -248,7 +248,7 @@ export default function Privacy() {
       </section>
 
       {/* Footer CTA */}
-      <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-12">
+      <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-8 sm:py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h3 className="text-2xl font-bold mb-4">Your Privacy Matters to Us</h3>
           <p className="mb-6 opacity-95">Questions? We're here to help and ensure you understand how we protect your information.</p>

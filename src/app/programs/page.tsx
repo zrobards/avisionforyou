@@ -154,7 +154,7 @@ export default async function Programs() {
 
       {/* Call to Action */}
       <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-12 mt-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-2xl font-bold mb-4">Ready to Take the Next Step?</h2>
           <p className="text-purple-100 mb-6">Contact us today to learn more about how we can support your recovery journey.</p>
           <div className="flex gap-4 justify-center flex-wrap">

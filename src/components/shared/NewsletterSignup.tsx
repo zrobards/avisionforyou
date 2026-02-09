@@ -56,7 +56,7 @@ export default function NewsletterSignup() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-brand-purple to-brand-green rounded-lg p-8 text-white">
+    <div className="bg-gradient-to-r from-brand-purple to-brand-green rounded-lg p-4 sm:p-6 md:p-8 text-white">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
           <Mail className="w-6 h-6" />
@@ -68,7 +68,7 @@ export default function NewsletterSignup() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             name="company"
@@ -90,7 +90,7 @@ export default function NewsletterSignup() {
           <button
             type="submit"
             disabled={status === 'loading' || status === 'success'}
-            className="px-6 py-3 bg-white text-brand-purple font-bold rounded-lg hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-6 py-3 bg-white text-brand-purple font-bold rounded-lg hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === 'loading' ? 'Subscribing...' : status === 'success' ? '✓ Subscribed' : 'Subscribe'}
           </button>

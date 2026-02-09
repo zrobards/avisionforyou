@@ -241,7 +241,7 @@ export default function AdminNewsletter() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {creating && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-8 border border-gray-700">
             <h2 className="text-2xl font-bold text-white mb-6">
               {editing ? 'Edit Newsletter' : 'Create New Newsletter'}
             </h2>
@@ -281,7 +281,7 @@ export default function AdminNewsletter() {
                   name="content"
                   value={formData.content}
                   onChange={e => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white font-mono text-sm"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white font-mono text-sm max-h-[40vh] sm:max-h-none"
                   rows={20}
                   required
                   placeholder="Write your newsletter content here..."
@@ -340,7 +340,7 @@ export default function AdminNewsletter() {
           <h2 className="text-2xl font-bold text-white mb-6">All Newsletters ({displayNewsletters.length})</h2>
           
           {displayNewsletters.map(newsletter => (
-            <div key={newsletter.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <div key={newsletter.id} className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">

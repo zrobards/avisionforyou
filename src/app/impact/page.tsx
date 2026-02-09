@@ -131,13 +131,13 @@ export default function ImpactPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-green rounded-full mb-6">
               <TrendingUp className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold mb-4">Our Impact</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Our Impact</h1>
             <p className="text-xl text-purple-100 max-w-3xl mx-auto">
               Measuring what matters: Real outcomes, real lives transformed through evidence-based recovery programs
             </p>
@@ -146,9 +146,9 @@ export default function ImpactPage() {
       </section>
 
       {/* Live Metrics Dashboard */}
-      <section className="py-12 bg-white">
+      <section className="py-8 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">Real-Time Community Impact</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 text-gray-900">Real-Time Community Impact</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
               { label: 'Community Members', value: metrics.livesImpacted, icon: Users },
@@ -169,10 +169,10 @@ export default function ImpactPage() {
       </section>
 
       {/* Key Outcome Metrics */}
-      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
+      <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Measurable Outcomes</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Measurable Outcomes</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Our commitment to transparency: Data-driven results that demonstrate program effectiveness
             </p>
@@ -193,9 +193,9 @@ export default function ImpactPage() {
       </section>
 
       {/* Program-Specific Outcomes */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">Program Effectiveness</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">Program Effectiveness</h2>
           <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
             Each program is evaluated on completion rates, retention, and long-term outcomes
           </p>
@@ -233,9 +233,9 @@ export default function ImpactPage() {
       </section>
 
       {/* Success Stories */}
-      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
+      <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">Success Stories</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">Success Stories</h2>
           <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
             Real people, real transformation: Hear from graduates who rebuilt their lives
           </p>
@@ -276,10 +276,10 @@ export default function ImpactPage() {
       </section>
 
       {/* Grant Narrative Section */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-brand-purple to-purple-900 text-white rounded-2xl shadow-2xl p-8 md:p-12">
-            <h2 className="text-3xl font-bold mb-6">Our Approach to Measurable Impact</h2>
+          <div className="bg-gradient-to-r from-brand-purple to-purple-900 text-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-6">Our Approach to Measurable Impact</h2>
             <div className="space-y-4 text-purple-100 leading-relaxed">
               <p>
                 A Vision For You operates with a commitment to evidence-based practices and transparent outcome measurement. Our comprehensive programs address the full spectrum of community needs—from immediate crisis intervention to long-term support planning.
@@ -299,10 +299,10 @@ export default function ImpactPage() {
       </section>
 
       {/* Annual Report CTA */}
-      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
+      <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Target className="w-16 h-16 mx-auto mb-6 text-brand-purple" />
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Comprehensive Impact Reporting</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Comprehensive Impact Reporting</h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             For foundations, grant reviewers, and institutional donors: Download our detailed annual impact report with full financial statements, program evaluations, and longitudinal outcome data.
           </p>

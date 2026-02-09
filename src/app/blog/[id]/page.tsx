@@ -88,7 +88,7 @@ export default function BlogPostPage() {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       {/* Header */}
       <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-8">
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <Link href="/blog" className="inline-flex items-center text-purple-200 hover:text-white mb-6">
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Blog
@@ -97,7 +97,7 @@ export default function BlogPostPage() {
       </header>
 
       {/* Article */}
-      <article className="max-w-4xl mx-auto px-6 py-12">
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Post Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
@@ -111,7 +111,7 @@ export default function BlogPostPage() {
             </span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
             {post.title}
           </h1>
 
@@ -181,19 +181,19 @@ export default function BlogPostPage() {
             <img 
               src={post.imageUrl} 
               alt={post.title}
-              className="w-full h-96 object-cover"
+              className="w-full h-48 sm:h-64 md:h-96 object-cover"
             />
           </div>
         )}
 
         {/* Content */}
         <div
-          className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
+          className="prose prose-base sm:prose-lg max-w-none text-gray-700 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
 
         {/* Call to Action */}
-        <div className="mt-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-8 text-white text-center">
+        <div className="mt-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 sm:p-6 md:p-8 text-white text-center">
           <h3 className="text-2xl font-bold mb-4">Start Your Recovery Journey Today</h3>
           <p className="mb-6 text-blue-100">
             Connect with our supportive community and discover the programs that can help you thrive.

@@ -51,12 +51,12 @@ export default function NewsletterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Mail className="w-12 h-12 text-brand-purple" />
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">Newsletters</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">Newsletters</h1>
           </div>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Stay updated with our latest news, stories, and community updates
@@ -71,7 +71,7 @@ export default function NewsletterPage() {
             <p className="text-gray-500 text-sm mt-2">Check back soon for updates!</p>
           </div>
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-2 lg:grid-cols-3">
             {newsletters.map((newsletter) => (
               <Link
                 key={newsletter.id}
@@ -88,7 +88,7 @@ export default function NewsletterPage() {
                   </div>
                 )}
                 
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand-purple transition-colors line-clamp-2">
                     {newsletter.title}
                   </h2>

@@ -91,7 +91,7 @@ export default function BoardDashboard() {
 
       {/* High Priority Updates */}
       {priorityUpdates.length > 0 && (
-        <div className="mb-8 bg-amber-50 border-l-4 border-amber-500 p-6 rounded-lg">
+        <div className="mb-8 bg-amber-50 border-l-4 border-amber-500 p-4 sm:p-6 rounded-lg">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
@@ -116,8 +116,8 @@ export default function BoardDashboard() {
       )}
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Donations This Month</p>
@@ -132,7 +132,7 @@ export default function BoardDashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Meetings This Month</p>
@@ -145,7 +145,7 @@ export default function BoardDashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Newsletter Subscribers</p>
@@ -158,7 +158,7 @@ export default function BoardDashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Pending Inquiries</p>
@@ -173,7 +173,7 @@ export default function BoardDashboard() {
       </div>
 
       {/* Recent Updates */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Recent Updates</h2>
           <Link 
@@ -216,10 +216,10 @@ export default function BoardDashboard() {
       </div>
 
       {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <Link 
           href="/board/updates" 
-          className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
           <h3 className="text-xl font-semibold mb-2">Board Updates</h3>
           <p className="text-indigo-100">View all board communications and announcements</p>
@@ -227,7 +227,7 @@ export default function BoardDashboard() {
 
         <Link 
           href="/board/documents" 
-          className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
           <h3 className="text-xl font-semibold mb-2">Documents</h3>
           <p className="text-purple-100">Access board documents and resources</p>

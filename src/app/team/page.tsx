@@ -101,7 +101,7 @@ function MemberCard({ member, variant }: { member: DisplayMember; variant: 'lead
   const isLeadership = variant === 'leadership'
 
   return (
-    <div className={`${isLeadership ? 'bg-gradient-to-br from-purple-50 to-white border-t-4 border-brand-purple' : 'bg-white border-l-4 border-brand-green'} rounded-xl shadow-lg p-6 hover:shadow-xl transition`}>
+    <div className={`${isLeadership ? 'bg-gradient-to-br from-purple-50 to-white border-t-4 border-brand-purple' : 'bg-white border-l-4 border-brand-green'} rounded-xl shadow-lg px-4 sm:px-6 py-6 hover:shadow-xl transition`}>
       <div className="flex items-center gap-4 mb-4">
         {member.imageUrl ? (
           <div className={`w-24 h-24 rounded-full overflow-hidden flex-shrink-0 ring-2 ${isLeadership ? 'ring-brand-purple' : 'ring-brand-green'}`}>
@@ -145,13 +145,13 @@ export default async function Team() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Hero Section */}
-      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-6">
+      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-green rounded-full mb-6">
               <Users className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold mb-4">Our Leadership</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Our Leadership</h1>
             <p className="text-xl text-purple-100 max-w-3xl mx-auto">
               Experienced professionals dedicated to transparency, accountability, and measurable outcomes in recovery services
             </p>
@@ -160,18 +160,18 @@ export default async function Team() {
       </header>
 
       {/* Executive Leadership */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-10 sm:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-purple rounded-full mb-4">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Executive Leadership</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Executive Leadership</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Our leadership team provides strategic direction, governance oversight, and ensures we fulfill our mission to serve those in recovery
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {leadership.map((member, idx) => (
               <MemberCard key={idx} member={member} variant="leadership" />
             ))}
@@ -180,18 +180,18 @@ export default async function Team() {
       </section>
 
       {/* Staff Team */}
-      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-green rounded-full mb-4">
               <Award className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Staff</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Staff</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Dedicated professionals committed to providing exceptional care and support for individuals in recovery
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             {staff.map((member, idx) => (
               <MemberCard key={idx} member={member} variant="staff" />
             ))}
@@ -200,13 +200,13 @@ export default async function Team() {
       </section>
 
       {/* Governance Statement */}
-      <section className="py-16 bg-white">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="bg-gradient-to-r from-brand-purple to-purple-900 text-white rounded-2xl shadow-2xl p-8 md:p-12">
+      <section className="py-10 sm:py-16 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="bg-gradient-to-r from-brand-purple to-purple-900 text-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-12">
             <div className="flex items-start gap-4 mb-6">
               <Heart className="w-8 h-8 text-brand-green flex-shrink-0" />
               <div>
-                <h2 className="text-3xl font-bold mb-4">Our Commitment to Governance</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-4">Our Commitment to Governance</h2>
                 <div className="space-y-4 text-purple-100 leading-relaxed">
                   <p>
                     A Vision For You operates with full transparency and accountability as a 501(c)(3) nonprofit organization. Our Board of Directors meets quarterly to review program outcomes, financial performance, and strategic direction.
@@ -228,9 +228,9 @@ export default async function Team() {
       </section>
 
       {/* Join Our Team CTA */}
-      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Join Our Mission</h2>
+      <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Join Our Mission</h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             We&apos;re always looking for passionate professionals to join our team. Whether you&apos;re a clinician, administrator, or support staff, your skills can make a difference.
           </p>

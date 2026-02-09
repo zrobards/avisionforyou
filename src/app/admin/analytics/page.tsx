@@ -268,7 +268,7 @@ export default function AdminAnalyticsPage() {
       )}
 
       {/* Key Metrics Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Revenue"
           value={`$${data.donations.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
@@ -302,9 +302,9 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Donation & User Trends */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Donation Trend */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-1">Donation Trend</h2>
           <p className="text-xs text-gray-500 mb-4">Monthly revenue over last 6 months</p>
           <SimpleBarChart
@@ -331,7 +331,7 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* User Growth Trend */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-1">User Growth</h2>
           <p className="text-xs text-gray-500 mb-4">New users per month over last 6 months</p>
           <SimpleBarChart
@@ -358,9 +358,9 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Donation Breakdown & Top Donors */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Donation Methods */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Donation Breakdown</h2>
           {data.donations.donationMethods.length > 0 ? (
             <div className="space-y-4">
@@ -382,7 +382,7 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Top Donors */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Top Donors</h2>
           {data.donations.topDonors.length > 0 ? (
             <div className="space-y-3">
@@ -410,9 +410,9 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Engagement & Programs */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Engagement Metrics */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-brand-purple" />
             <h2 className="text-lg font-bold text-gray-900">Engagement</h2>
@@ -442,7 +442,7 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Program Interest */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-brand-purple" />
             <h2 className="text-lg font-bold text-gray-900">Program Interest</h2>
@@ -469,7 +469,7 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Admissions & Content */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Mail className="w-5 h-5 text-brand-purple" />
             <h2 className="text-lg font-bold text-gray-900">Outreach</h2>
@@ -496,7 +496,7 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Conversion Funnel */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+      <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
           <BarChart3 className="w-5 h-5 text-brand-purple" />
           <h2 className="text-lg font-bold text-gray-900">Conversion Funnel</h2>
@@ -524,7 +524,7 @@ export default function AdminAnalyticsPage() {
 
       {/* Popular Meetings */}
       {data.engagement.popularMeetings.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Most Popular Meetings</h2>
           <div className="space-y-3">
             {data.engagement.popularMeetings.map((meeting, i) => (

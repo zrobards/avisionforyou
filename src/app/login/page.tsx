@@ -84,15 +84,15 @@ function LoginContent() {
     <div className="min-h-screen bg-gradient-to-br from-brand-purple via-purple-800 to-slate-900">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-gradient-to-r from-brand-purple to-purple-900 border-b border-purple-700 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
             <Heart className="w-6 h-6 text-brand-green" />
             <span className="text-white">A Vision For You</span>
           </Link>
           <div className="flex items-center gap-4">
-            <p className="text-purple-200 text-sm">New to our community?</p>
-            <Link 
-              href="/" 
+            <p className="text-purple-200 text-sm hidden sm:block">New to our community?</p>
+            <Link
+              href="/"
               className="text-brand-green hover:text-green-300 font-medium transition-colors flex items-center gap-1"
             >
               Learn More <ArrowRight className="w-4 h-4" />
@@ -102,13 +102,13 @@ function LoginContent() {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-6 py-16">
+      <div className="max-w-md mx-auto px-4 sm:px-6 py-16">
         <noscript>
           <div className="bg-yellow-100 border border-yellow-300 text-yellow-900 rounded-lg p-4 mb-6 text-sm">
             JavaScript is required to sign in. Please enable JavaScript and refresh this page.
           </div>
         </noscript>
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-purple-700">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-purple-700">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full mb-4 shadow-lg">
@@ -223,7 +223,7 @@ function LoginContent() {
         </div>
 
         {/* Trust Badges */}
-        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-brand-green">100%</div>
             <p className="text-xs text-purple-200 mt-1">Secure</p>

@@ -64,9 +64,9 @@ export default async function MeetingsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Meetings & Groups</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Meetings & Groups</h1>
           <p className="text-xl text-purple-100">
             Browse upcoming meetings, support groups, and DUI education classes. 
             RSVP to free groups or register and pay for classes.
@@ -74,7 +74,7 @@ export default async function MeetingsPage() {
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <UnifiedScheduler
             sessions={sessions}
@@ -87,7 +87,7 @@ export default async function MeetingsPage() {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-br from-purple-50 to-green-50">
+      <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Join?</h2>
           <p className="text-lg text-gray-700 mb-8">

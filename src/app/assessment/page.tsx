@@ -139,12 +139,12 @@ export default function Assessment() {
     
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12">
-        <div className="max-w-2xl mx-auto px-6">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Application Submitted!</h1>
             
-            <div className="bg-blue-50 rounded-lg p-6 mb-8 text-left">
+            <div className="bg-blue-50 rounded-lg p-4 sm:p-6 mb-8 text-left">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Your Recommended Program:</h2>
               <h3 className="text-2xl font-bold text-blue-600 mb-2">{program?.name}</h3>
               <p className="text-gray-600 mb-4">{program?.description}</p>
@@ -173,12 +173,12 @@ export default function Assessment() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12">
-      <div className="max-w-2xl mx-auto px-6">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6">
         <Link href="/" className="text-blue-600 font-semibold mb-8 inline-block hover:text-blue-700">
           ← Back to Home
         </Link>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
@@ -207,7 +207,7 @@ export default function Assessment() {
             {question.type === 'number' && (
               <div className="space-y-3">
                 {question.options?.map((option: any) => (
-                  <label key={option.value} className="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition" style={{borderColor: answers[question.id] === option.value ? '#2563eb' : '#e5e7eb'}}>
+                  <label key={option.value} className="flex items-center p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition" style={{borderColor: answers[question.id] === option.value ? '#2563eb' : '#e5e7eb'}}>
                     <input
                       type="radio"
                       name={question.id}
@@ -228,7 +228,7 @@ export default function Assessment() {
                   <button
                     key={option.value}
                     onClick={() => handleAnswer(question.id, option.value)}
-                    className={`p-6 rounded-lg font-semibold transition ${
+                    className={`p-4 sm:p-6 rounded-lg font-semibold transition ${
                       answers[question.id] === option.value
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 text-gray-900 hover:bg-gray-200'

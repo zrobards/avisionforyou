@@ -122,24 +122,24 @@ export default function AdminAdmissions() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Stats */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700">
             <p className="text-gray-400 mb-2">Total Inquiries</p>
             <p className="text-3xl font-bold text-white">{inquiries.length}</p>
           </div>
-          <div className="bg-yellow-600/20 border border-yellow-600/50 rounded-lg p-6">
+          <div className="bg-yellow-600/20 border border-yellow-600/50 rounded-lg p-4 sm:p-6">
             <p className="text-yellow-200 mb-2">Pending</p>
             <p className="text-3xl font-bold text-yellow-400">
               {inquiries.filter(i => i.status === 'pending').length}
             </p>
           </div>
-          <div className="bg-blue-600/20 border border-blue-600/50 rounded-lg p-6">
+          <div className="bg-blue-600/20 border border-blue-600/50 rounded-lg p-4 sm:p-6">
             <p className="text-blue-200 mb-2">Contacted</p>
             <p className="text-3xl font-bold text-blue-400">
               {inquiries.filter(i => i.status === 'contacted').length}
             </p>
           </div>
-          <div className="bg-green-600/20 border border-green-600/50 rounded-lg p-6">
+          <div className="bg-green-600/20 border border-green-600/50 rounded-lg p-4 sm:p-6">
             <p className="text-green-200 mb-2">Accepted</p>
             <p className="text-3xl font-bold text-green-400">
               {inquiries.filter(i => i.status === 'accepted').length}
@@ -175,7 +175,7 @@ export default function AdminAdmissions() {
             </div>
           ) : (
             filteredInquiries.map(inquiry => (
-              <div key={inquiry.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div key={inquiry.id} className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -206,7 +206,7 @@ export default function AdminAdmissions() {
                     {inquiry.status !== 'contacted' && (
                       <button
                         onClick={() => updateStatus(inquiry.id, 'contacted')}
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded"
+                        className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded"
                       >
                         Mark Contacted
                       </button>
@@ -214,7 +214,7 @@ export default function AdminAdmissions() {
                     {inquiry.status !== 'accepted' && (
                       <button
                         onClick={() => updateStatus(inquiry.id, 'accepted')}
-                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
+                        className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
                       >
                         Accept
                       </button>
@@ -222,7 +222,7 @@ export default function AdminAdmissions() {
                     {inquiry.status !== 'rejected' && (
                       <button
                         onClick={() => updateStatus(inquiry.id, 'rejected')}
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded"
+                        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded"
                       >
                         Reject
                       </button>

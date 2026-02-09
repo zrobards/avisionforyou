@@ -118,7 +118,7 @@ export default function Home() {
         {/* Content */}
         <div className="relative z-10 h-full flex items-center justify-center text-white py-24">
           <div className="max-w-7xl mx-auto px-4 text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">A Vision For You</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">A Vision For You</h1>
             <p className="text-xl mb-2 font-semibold drop-shadow-md">501(c)(3) Charity</p>
             <p className="text-lg md:text-xl mb-8 opacity-95 drop-shadow-md max-w-4xl mx-auto">"To empower the homeless, addicted, maladjusted, and mentally ill to lead productive lives through housing, education, self-help, treatment, or any other available resource"</p>
             <div className="flex justify-center gap-4 flex-wrap">
@@ -130,7 +130,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      <section className="py-10 sm:py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-6 text-center">Our Approach</h2>
           <p className="text-lg text-gray-700 mb-4">There is hope for recovery and treatment is possible. We combine multiple proven methods including:</p>
@@ -146,13 +146,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-4">Our Programs</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">Our Programs</h2>
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">As a 501(c)(3) Charity, we offer multiple programs to support your recovery journey.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {PROGRAMS.map((program, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-brand-purple">
+              <div key={idx} className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg hover:shadow-xl transition border-l-4 border-brand-purple">
                 <h3 className="text-2xl font-bold mb-3 text-gray-900">{program.title}</h3>
                 <p className="text-gray-600 mb-4">{program.description}</p>
                 <Link href={program.href} className="text-brand-purple font-semibold hover:text-purple-700">Start Now →</Link>
@@ -168,12 +168,12 @@ export default function Home() {
       {/* Impact Metrics */}
       <ImpactMetrics />
 
-      <section className="py-20 bg-purple-50">
+      <section className="py-12 sm:py-20 bg-purple-50">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">Success Stories</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-16">Success Stories</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {TESTIMONIALS.map((testimonial, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+              <div key={idx} className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg hover:shadow-xl transition">
                 <p className="text-gray-600 italic mb-4 leading-relaxed">"{testimonial.quote}"</p>
                 <hr className="my-4" />
                 <p className="font-bold text-gray-900">{testimonial.name}</p>
@@ -184,22 +184,22 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-16">
+      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            <div><div className="text-5xl font-bold mb-2">500+</div><p className="text-brand-green">Lives Transformed</p></div>
-            <div><div className="text-5xl font-bold mb-2">7</div><p className="text-brand-green">Recovery Residences</p></div>
-            <div><div className="text-5xl font-bold mb-2">6</div><p className="text-brand-green">Program Types</p></div>
-            <div><div className="text-5xl font-bold mb-2">100%</div><p className="text-brand-green">Tax-Deductible</p></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 text-center">
+            <div><div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">500+</div><p className="text-brand-green">Lives Transformed</p></div>
+            <div><div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">7</div><p className="text-brand-green">Recovery Residences</p></div>
+            <div><div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">6</div><p className="text-brand-green">Program Types</p></div>
+            <div><div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">100%</div><p className="text-brand-green">Tax-Deductible</p></div>
           </div>
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-purple-50 to-green-50 py-20">
+      <section className="bg-gradient-to-br from-purple-50 to-green-50 py-12 sm:py-20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Join Our Recovery Community</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Join Our Recovery Community</h2>
               <p className="text-xl text-gray-700 mb-6">Connect with thousands of people on their recovery journey. Share experiences, celebrate milestones, and find support from people who truly understand.</p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center gap-3 text-gray-700">
@@ -223,7 +223,7 @@ export default function Home() {
                 Explore Our Community
               </Link>
             </div>
-            <div className="bg-white rounded-lg shadow-xl p-8 border-l-4 border-brand-purple">
+            <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 md:p-8 border-l-4 border-brand-purple">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Why Join?</h3>
               <div className="space-y-4">
                 <div className="flex gap-3">
@@ -259,9 +259,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 bg-green-50">
+      <section className="py-12 sm:py-20 bg-green-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6">Your Impact Matters</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">Your Impact Matters</h2>
           <p className="text-xl text-gray-700 mb-8">Every donation supports safe shelter, meals, recovery beds, and vital services for people facing homelessness and addiction.</p>
           <Link href="/donate" className="px-12 py-4 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 inline-block text-lg">Make a Donation Today</Link>
         </div>

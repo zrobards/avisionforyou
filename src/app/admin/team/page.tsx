@@ -197,7 +197,7 @@ export default function AdminTeam() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {creating && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-8 border border-gray-700">
             <h2 className="text-2xl font-bold text-white mb-6">
               {editing ? 'Edit Team Member' : 'Add Team Member'}
             </h2>
@@ -313,10 +313,10 @@ export default function AdminTeam() {
               <p className="text-gray-400">No team members yet. Add your first member to get started!</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
               {members.map(member => (
-                <div key={member.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                  <div className="flex gap-4">
+                <div key={member.id} className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     {member.imageUrl ? (
                       <img 
                         src={member.imageUrl} 

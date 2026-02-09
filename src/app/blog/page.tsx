@@ -53,15 +53,15 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-6">
-          <h1 className="text-4xl font-bold">Recovery Stories & Resources</h1>
+      <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <h1 className="text-3xl sm:text-4xl font-bold">Recovery Stories & Resources</h1>
           <p className="text-purple-100 mt-2">Insights, experiences, and guidance for your recovery journey</p>
         </div>
       </header>
 
       {/* Blog Posts */}
-      <section className="max-w-7xl mx-auto px-6 py-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         {posts.length === 0 ? (
           <div className="text-center py-16 max-w-2xl mx-auto">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-100 mb-6">
@@ -93,7 +93,7 @@ export default function BlogPage() {
             </div>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {posts.map(post => (
               <Link key={post.id} href={`/blog/${post.slug}`} className="group">
                 <article className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -106,7 +106,7 @@ export default function BlogPage() {
                       />
                     </div>
                   )}
-                  <div className="p-6">
+                  <div className="p-4 sm:p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="bg-gradient-to-r from-brand-purple to-brand-green text-white px-3 py-1 rounded-full text-sm font-medium">
                         {post.category}

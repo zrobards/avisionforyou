@@ -101,7 +101,7 @@ export default function CommunityPollsPage() {
             const isClosed = !poll.active || (poll.closesAt && new Date(poll.closesAt) < new Date());
 
             return (
-              <div key={poll.id} className="border rounded-lg p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
+              <div key={poll.id} className="border rounded-lg p-4 sm:p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h2 className="text-xl font-semibold text-gray-900">{poll.title}</h2>
@@ -121,13 +121,13 @@ export default function CommunityPollsPage() {
                   <div className="mb-4">
                     <div className="flex h-10 rounded-full overflow-hidden bg-gray-200">
                       <div 
-                        className="bg-green-500 flex items-center justify-center text-white text-sm font-medium transition-all"
+                        className="bg-green-500 flex items-center justify-center text-white text-xs sm:text-sm font-medium transition-all"
                         style={{ width: `${yesPercent}%` }}
                       >
                         {yesPercent > 15 && `${yesPercent}%`}
                       </div>
                       <div 
-                        className="bg-red-500 flex items-center justify-center text-white text-sm font-medium transition-all"
+                        className="bg-red-500 flex items-center justify-center text-white text-xs sm:text-sm font-medium transition-all"
                         style={{ width: `${noPercent}%` }}
                       >
                         {noPercent > 15 && `${noPercent}%`}

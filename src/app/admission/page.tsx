@@ -63,9 +63,9 @@ export default function AdmissionPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-indigo-50">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-12 px-4">
+      <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-8 sm:py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Start Your Journey to Recovery</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Start Your Journey to Recovery</h1>
           <p className="text-xl text-indigo-100">
             Take the first step. We're here to support you every step of the way.
           </p>
@@ -73,30 +73,30 @@ export default function AdmissionPage() {
       </div>
 
       {/* Contact Info Cards */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
-          <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-16">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition">
             <Phone className="w-8 h-8 text-indigo-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">Call Us</h3>
             <p className="text-gray-600">(502) 749-6344</p>
             <p className="text-sm text-gray-500 mt-2">Available 24/7</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition">
             <Mail className="w-8 h-8 text-indigo-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
             <p className="text-gray-600">info@avisionforyourecovery.org</p>
             <p className="text-sm text-gray-500 mt-2">Quick response</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition">
             <MapPin className="w-8 h-8 text-indigo-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">Location</h3>
             <p className="text-gray-600">1675 Story Ave</p>
             <p className="text-sm text-gray-500">Louisville, KY 40206</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition">
             <Clock className="w-8 h-8 text-indigo-600 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">Hours</h3>
             <p className="text-gray-600">Mon-Fri: 8am-6pm</p>
@@ -105,7 +105,7 @@ export default function AdmissionPage() {
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-12">
           {/* Left Column - Process & What to Expect */}
           <div className="lg:col-span-2">
             {/* Admission Process */}
@@ -174,7 +174,7 @@ export default function AdmissionPage() {
 
           {/* Right Column - Form */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-white rounded-2xl shadow-2xl p-6">
+            <div className="static lg:sticky lg:top-24 bg-white rounded-2xl shadow-2xl p-4 sm:p-6">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Start Now</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
@@ -275,7 +275,7 @@ export default function AdmissionPage() {
         </div>
 
         {/* Crisis Section */}
-        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 text-center">
+        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 sm:p-6 text-center">
           <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
           <h3 className="text-lg font-bold text-red-900 mb-2">In Crisis?</h3>
           <p className="text-red-700 mb-3">

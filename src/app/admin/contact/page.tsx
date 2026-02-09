@@ -166,7 +166,7 @@ export default function AdminContactPage() {
       ) : (
         <div className="space-y-4">
           {filteredInquiries.map(inquiry => (
-            <Card key={inquiry.id} className="p-6 hover:shadow-lg transition-shadow">
+            <Card key={inquiry.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div className="flex-1 space-y-3">
                   {/* Header */}

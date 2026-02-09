@@ -214,7 +214,7 @@ export default function Footer() {
           {/* Crisis Line */}
           <div className="mt-6 pt-6 border-t border-gray-800 text-center">
             <p className="text-gray-400 text-sm mb-2">Need immediate help?</p>
-            <p className="text-red-400 font-semibold text-lg">
+            <p className="text-red-400 font-semibold text-base sm:text-lg">
               Suicide & Crisis Lifeline: 988 (call or text, available 24/7)
             </p>
           </div>

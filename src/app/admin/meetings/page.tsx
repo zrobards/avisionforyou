@@ -232,7 +232,7 @@ export default function AdminMeetingsPage() {
 
         {/* Create Meeting Form */}
         {showCreateForm && (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 animate-slide-down">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6 animate-slide-down">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-gray-900">Create New Meeting</h2>
               <button onClick={() => setShowCreateForm(false)} className="text-gray-500 hover:text-gray-700 transition-smooth">
@@ -372,7 +372,7 @@ export default function AdminMeetingsPage() {
         {/* Search & Filters */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 space-y-4 animate-slide-up">
           <div className="flex gap-4 flex-wrap items-end">
-            <div className="flex-1 min-w-64">
+            <div className="flex-1 w-full sm:min-w-64">
               <label className="block text-sm font-semibold text-gray-700 mb-1">Search</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

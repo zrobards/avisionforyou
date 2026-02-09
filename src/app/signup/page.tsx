@@ -76,13 +76,13 @@ export default function SignUp() {
     <div className="min-h-screen bg-gradient-to-br from-brand-purple via-purple-800 to-slate-900">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-gradient-to-r from-brand-purple to-purple-900 border-b border-purple-700 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
             <Heart className="w-6 h-6 text-brand-green" />
             <span className="text-white">A Vision For You</span>
           </Link>
           <div className="flex items-center gap-4">
-            <p className="text-purple-200 text-sm">Already a member?</p>
+            <p className="text-purple-200 text-sm hidden sm:block">Already a member?</p>
             <Link
               href="/login"
               className="text-brand-green hover:text-green-300 font-medium transition-colors flex items-center gap-1"
@@ -94,9 +94,9 @@ export default function SignUp() {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-6 py-16">
+      <div className="max-w-md mx-auto px-4 sm:px-6 py-16">
         {/* Card */}
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-purple-700">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-purple-700">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full mb-4 shadow-lg">
