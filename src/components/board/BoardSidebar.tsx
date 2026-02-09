@@ -23,9 +23,7 @@ export default function BoardSidebar({ collapsed = false, mobileOpen = false }: 
   return (
     <aside className={`${
       collapsed ? 'w-20' : 'w-64'
-    } bg-gradient-to-b from-indigo-600 via-indigo-700 to-indigo-800 text-white h-screen shadow-lg overflow-y-auto fixed lg:sticky top-0 z-40 transition-all duration-300 ${
-      mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-    }`}>
+    } bg-gradient-to-b from-indigo-600 via-indigo-700 to-indigo-800 text-white h-full shadow-lg overflow-y-auto transition-all duration-300`}>
       <div className="px-4 py-6 h-full flex flex-col">
         {!collapsed && (
           <div className="mb-8">

@@ -12,8 +12,8 @@ export default function BoardShell({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        {/* Sidebar - Hidden on mobile, fixed on desktop */}
-        <div className={`hidden lg:block fixed top-0 left-0 h-screen z-50 transition-all duration-300 ${
+        {/* Sidebar - Hidden on mobile, fixed on desktop, below navbar */}
+        <div className={`hidden lg:block fixed top-[80px] left-0 h-[calc(100vh-80px)] z-30 transition-all duration-300 ${
           isCollapsed ? 'w-20' : 'w-64'
         }`}>
           <BoardSidebar
@@ -27,7 +27,7 @@ export default function BoardShell({ children }: { children: React.ReactNode }) 
         {/* Desktop Collapse Toggle - Positioned to avoid sidebar overlap */}
         <button
           onClick={() => setIsCollapsed((prev) => !prev)}
-          className={`hidden lg:flex fixed top-4 z-50 items-center gap-2 rounded-lg p-2 bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-all duration-300`}
+          className={`hidden lg:flex fixed top-[88px] z-30 items-center gap-2 rounded-lg p-2 bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-all duration-300`}
           aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
           style={{ left: isCollapsed ? '24px' : '272px' }}
         >
@@ -79,7 +79,7 @@ export default function BoardShell({ children }: { children: React.ReactNode }) 
         )}
 
         {/* Mobile Sidebar */}
-        <div className={`lg:hidden fixed top-0 left-0 h-screen z-40 transition-transform duration-300 ${
+        <div className={`lg:hidden fixed top-[80px] left-0 h-[calc(100vh-80px)] z-40 transition-transform duration-300 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <BoardSidebar

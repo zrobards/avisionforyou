@@ -17,7 +17,7 @@ export default function CommunitySidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-green-600 via-green-700 to-green-800 text-white h-screen shadow-lg overflow-y-auto">
+    <aside className="w-64 bg-gradient-to-b from-green-600 via-green-700 to-green-800 text-white h-full shadow-lg overflow-y-auto">
       <div className="px-4 py-6 h-full flex flex-col">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-white">Community Portal</h2>

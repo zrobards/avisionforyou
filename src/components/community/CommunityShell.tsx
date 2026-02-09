@@ -11,8 +11,8 @@ export default function CommunityShell({ children }: { children: React.ReactNode
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        {/* Desktop Sidebar - Fixed position */}
-        <div className={`hidden lg:block fixed top-0 left-0 h-screen z-40 transition-all duration-300 ${
+        {/* Desktop Sidebar - Fixed position, below navbar */}
+        <div className={`hidden lg:block fixed top-[80px] left-0 h-[calc(100vh-80px)] z-30 transition-all duration-300 ${
           sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
         }`}>
           <CommunitySidebar />
@@ -21,7 +21,7 @@ export default function CommunityShell({ children }: { children: React.ReactNode
         {/* Desktop toggle button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="hidden lg:block fixed top-4 z-50 p-2 rounded-lg bg-green-600 text-white shadow-lg hover:bg-green-700 transition-all duration-300"
+          className="hidden lg:block fixed top-[88px] z-30 p-2 rounded-lg bg-green-600 text-white shadow-lg hover:bg-green-700 transition-all duration-300"
           aria-label="Toggle sidebar"
           style={{ left: sidebarOpen ? '16px' : '16px' }}
         >
@@ -59,7 +59,7 @@ export default function CommunityShell({ children }: { children: React.ReactNode
         </div>
 
         {/* Mobile Sidebar */}
-        <div className={`lg:hidden fixed top-0 left-0 h-screen z-40 transition-transform duration-300 ${
+        <div className={`lg:hidden fixed top-[80px] left-0 h-[calc(100vh-80px)] z-40 transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <CommunitySidebar />
