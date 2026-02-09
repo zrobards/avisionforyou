@@ -272,7 +272,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to process donation',
+          error: 'Payment processing failed. Please check your details and try again.',
           code: 'PAYMENT_ERROR'
         },
         { status: 500 }

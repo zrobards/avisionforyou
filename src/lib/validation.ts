@@ -52,9 +52,9 @@ export const MeetingSchema = z.object({
   { message: "Meeting link required for online meetings", path: ["link"] }
 )
 
-// Donation Schema
+// Donation Schema (amount in dollars, not cents)
 export const DonationSchema = z.object({
-  amount: z.coerce.number().int().min(100).max(100000000), // cents: $1 to $1,000,000
+  amount: z.coerce.number().min(1).max(1000000),
   email: z.string().email(),
   name: z.string().min(1).max(200),
   frequency: z.enum(['ONE_TIME', 'MONTHLY', 'YEARLY']),
