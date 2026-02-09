@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { DollarSign, Calendar, Users, Mail, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import ActivityFeed from '@/components/shared/ActivityFeed'
 
 interface Metrics {
   donations: {
@@ -215,22 +216,67 @@ export default function BoardDashboard() {
         )}
       </div>
 
+      {/* Activity Feed */}
+      <div className="mb-8">
+        <ActivityFeed />
+      </div>
+
       {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        <Link 
-          href="/board/updates" 
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <Link
+          href="/board/updates"
           className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
           <h3 className="text-xl font-semibold mb-2">Board Updates</h3>
           <p className="text-indigo-100">View all board communications and announcements</p>
         </Link>
 
-        <Link 
-          href="/board/documents" 
+        <Link
+          href="/board/documents"
           className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
           <h3 className="text-xl font-semibold mb-2">Documents</h3>
           <p className="text-purple-100">Access board documents and resources</p>
+        </Link>
+
+        <Link
+          href="/board/team"
+          className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+        >
+          <h3 className="text-xl font-semibold mb-2">Team Directory</h3>
+          <p className="text-blue-100">Connect with leadership and staff members</p>
+        </Link>
+
+        <Link
+          href="/board/media"
+          className="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+        >
+          <h3 className="text-xl font-semibold mb-2">Media Library</h3>
+          <p className="text-pink-100">Browse photos, documents, and marketing materials</p>
+        </Link>
+
+        <Link
+          href="/board/donations"
+          className="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+        >
+          <h3 className="text-xl font-semibold mb-2">Donation Reports</h3>
+          <p className="text-green-100">View comprehensive donation analytics</p>
+        </Link>
+
+        <Link
+          href="/board/campaigns"
+          className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+        >
+          <h3 className="text-xl font-semibold mb-2">Campaign Hub</h3>
+          <p className="text-orange-100">Manage fundraising campaigns</p>
+        </Link>
+
+        <Link
+          href="/board/minutes"
+          className="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+        >
+          <h3 className="text-xl font-semibold mb-2">Meeting Minutes</h3>
+          <p className="text-teal-100">Access board meeting records</p>
         </Link>
       </div>
     </div>

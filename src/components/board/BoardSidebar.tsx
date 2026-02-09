@@ -2,12 +2,17 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, FileText, FolderOpen, ArrowLeft } from 'lucide-react'
+import { Home, FileText, FolderOpen, Users, Image, DollarSign, Target, ClipboardList, ArrowLeft } from 'lucide-react'
 
 const boardMenuItems = [
-  { href: '/board', label: 'Board Home', icon: Home },
+  { href: '/board', label: 'Dashboard', icon: Home },
   { href: '/board/updates', label: 'Updates', icon: FileText },
   { href: '/board/documents', label: 'Documents', icon: FolderOpen },
+  { href: '/board/team', label: 'Team Directory', icon: Users },
+  { href: '/board/media', label: 'Media Library', icon: Image },
+  { href: '/board/donations', label: 'Donation Reports', icon: DollarSign },
+  { href: '/board/campaigns', label: 'Campaign Hub', icon: Target },
+  { href: '/board/minutes', label: 'Meeting Minutes', icon: ClipboardList },
 ]
 
 interface BoardSidebarProps {

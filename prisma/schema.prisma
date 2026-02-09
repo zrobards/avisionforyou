@@ -38,7 +38,11 @@ model User {
   duiRegistrations DUIRegistration[]
   createdPolls  CommunityPoll[] @relation("PollCreator")
   pollVotes     CommunityPollVote[]
-  
+  campaigns     Campaign[] @relation("CampaignCreator")
+  campaignNotes CampaignNote[] @relation("CampaignNoteAuthor")
+  meetingMinutes MeetingMinutes[] @relation("MinutesUploader")
+  notifications Notification[]
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -815,4 +819,100 @@ model CommunityPollVote {
   @@index([pollId])
   @@index([userId])
   @@map("community_poll_votes")
+}
+
+// Campaign model for fundraising campaigns
+model Campaign {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  description   String    @db.Text
+  goalAmount    Float
+  raisedAmount  Float     @default(0)
+  donorCount    Int       @default(0)
+  status        CampaignStatus @default(DRAFT)
+  startDate     DateTime
+  endDate       DateTime
+  targetAudience String?
+  createdById   String
+  createdBy     User      @relation("CampaignCreator", fields: [createdById], references: [id])
+  notes         CampaignNote[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status])
+  @@index([slug])
+  @@index([createdById])
+  @@map("campaigns")
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// Campaign notes/comments for board + admin discussion
+model CampaignNote {
+  id          String   @id @default(cuid())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User     @relation("CampaignNoteAuthor", fields: [authorId], references: [id])
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([campaignId])
+  @@map("campaign_notes")
+}
+
+// Meeting Minutes for board meetings
+model MeetingMinutes {
+  id          String   @id @default(cuid())
+  title       String
+  meetingDate DateTime
+  fileUrl     String
+  fileName    String
+  attendees   String?  @db.Text
+  uploadedById String
+  uploadedBy  User     @relation("MinutesUploader", fields: [uploadedById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([meetingDate])
+  @@index([uploadedById])
+  @@map("meeting_minutes")
+}
+
+// Notifications for board and admin
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "donation", "campaign", "user_registration", "document"
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// Activity log for shared feed
+model ActivityLog {
+  id        String   @id @default(cuid())
+  type      String   // "donation", "user_registered", "campaign_milestone", "document_uploaded", "meeting_rsvp"
+  title     String
+  detail    String?
+  link      String?
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt])
+  @@map("activity_logs")
 }
