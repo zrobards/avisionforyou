@@ -96,21 +96,12 @@ export default function Home() {
           playsInline
           preload="auto"
           poster="/AVFY%20LOGO.jpg"
-          className="absolute top-0 left-0 hidden h-full w-full object-cover md:block"
+          className="absolute top-0 left-0 h-full w-full object-cover"
         >
           <source src={HERO_VIDEO_SRC} type="video/mp4" />
         </video>
 
-        {/* Fallback Image (mobile) */}
-        <div className="absolute inset-0 md:hidden">
-          <Image
-            src="/AVFY%20LOGO.jpg"
-            alt="A Vision For You"
-            fill
-            priority
-            className="object-cover"
-          />
-        </div>
+        {/* Fallback poster shown while video loads */}
         
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
