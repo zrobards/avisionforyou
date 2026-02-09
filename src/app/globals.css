@@ -255,3 +255,33 @@ input, textarea, select {
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+
+/* Donate button glow */
+@keyframes donateGlow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(182, 228, 31, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(182, 228, 31, 0.6);
+  }
+}
+
+/* Gradient text animation */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-gradient-text {
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+}
+
+/* Progress bar fill */
+@keyframes fillBar {
+  from { width: 0%; }
+}
+
+.animate-fill-bar {
+  animation: fillBar 2s ease-out forwards;
+}

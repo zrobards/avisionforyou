@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Heart } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Heart, Shield, ExternalLink } from 'lucide-react';
 import NewsletterSignup from '@/components/shared/NewsletterSignup';
 
 interface SocialStat {
@@ -20,7 +20,6 @@ export default function Footer() {
   });
 
   useEffect(() => {
-    // Fetch social stats from database on mount
     const fetchStats = async () => {
       try {
         const response = await fetch('/api/public/social-stats', { cache: 'no-store' });
@@ -29,194 +28,185 @@ export default function Footer() {
           setSocialStats(data);
         }
       } catch (error) {
-        console.error('Failed to fetch social stats:', error);
+        // silently fail - use defaults
       }
     };
-    
     fetchStats();
-    
-    // Refresh stats every 30 seconds to catch updates
-    const interval = setInterval(fetchStats, 30000);
+    const interval = setInterval(fetchStats, 60000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      {/* Main Footer */}
-      <div className="border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 py-16">
+    <footer className="bg-slate-950 text-white/70">
+      {/* Social Media Banner */}
+      <div className="border-t border-white/10 bg-slate-900/50">
+        <div className="max-w-7xl mx-auto px-4 py-10">
+          <h3 className="text-white font-bold text-xl mb-2 text-center">Follow Our Journey</h3>
+          <p className="text-white/40 text-sm text-center mb-8">Every follow helps us reach someone in need</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+            <a href={socialStats.facebook.url} target="_blank" rel="noopener noreferrer" className="group bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-600/20">
+              <Facebook className="w-7 h-7 mx-auto mb-2 text-white" />
+              <p className="text-white font-bold text-sm">Facebook</p>
+              <p className="text-white/70 text-xs">{socialStats.facebook.followers} followers</p>
+              <span className="inline-flex items-center gap-1 text-white/50 text-xs mt-2 group-hover:text-white/80 transition-colors">Follow <ExternalLink className="w-3 h-3" /></span>
+            </a>
+            <a href={socialStats.instagram.url} target="_blank" rel="noopener noreferrer" className="group bg-gradient-to-br from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/20">
+              <Instagram className="w-7 h-7 mx-auto mb-2 text-white" />
+              <p className="text-white font-bold text-sm">Instagram</p>
+              <p className="text-white/70 text-xs">{socialStats.instagram.followers} followers</p>
+              <span className="inline-flex items-center gap-1 text-white/50 text-xs mt-2 group-hover:text-white/80 transition-colors">Follow <ExternalLink className="w-3 h-3" /></span>
+            </a>
+            <a href={socialStats.tiktok.url} target="_blank" rel="noopener noreferrer" className="group bg-gradient-to-br from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-gray-600/20">
+              <svg className="w-7 h-7 mx-auto mb-2 fill-white" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.74 2.89 2.89 0 0 1 2.31-4.64 2.86 2.86 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.54-.05z" />
+              </svg>
+              <p className="text-white font-bold text-sm">TikTok</p>
+              <p className="text-white/70 text-xs">{socialStats.tiktok.followers} followers</p>
+              <span className="inline-flex items-center gap-1 text-white/50 text-xs mt-2 group-hover:text-white/80 transition-colors">Follow <ExternalLink className="w-3 h-3" /></span>
+            </a>
+            <a href={socialStats.linkedin.url} target="_blank" rel="noopener noreferrer" className="group bg-gradient-to-br from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-700/20">
+              <Linkedin className="w-7 h-7 mx-auto mb-2 text-white" />
+              <p className="text-white font-bold text-sm">LinkedIn</p>
+              <p className="text-white/70 text-xs">{socialStats.linkedin.followers} followers</p>
+              <span className="inline-flex items-center gap-1 text-white/50 text-xs mt-2 group-hover:text-white/80 transition-colors">Follow <ExternalLink className="w-3 h-3" /></span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Footer Content */}
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {/* About Section */}
+            {/* About */}
             <div>
               <h3 className="text-white font-bold text-lg mb-4">A Vision For You</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Empowering individuals and communities through recovery, hope, and transformation. Building a world where everyone has a vision for their future.
+              <p className="text-white/50 text-sm leading-relaxed mb-4">
+                Empowering the homeless, addicted, and mentally ill to lead productive lives through housing, treatment, education, and community support.
               </p>
-              <p className="text-gray-400 text-sm leading-relaxed mt-3 pt-3 border-t border-gray-700">
-                <span className="text-indigo-400 font-semibold">501(c)(3) Nonprofit Organization</span> • Donations are tax-deductible
-              </p>
+              <div className="flex items-center gap-2 bg-brand-green/10 border border-brand-green/20 rounded-lg px-3 py-2">
+                <Shield className="w-4 h-4 text-brand-green flex-shrink-0" />
+                <span className="text-brand-green text-xs font-semibold">501(c)(3) Tax-Exempt Organization</span>
+              </div>
             </div>
 
             {/* Quick Links */}
             <div>
               <h3 className="text-white font-bold text-lg mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/" className="text-gray-400 hover:text-white transition text-sm">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/programs" className="text-gray-400 hover:text-white transition text-sm">
-                    Programs
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/team" className="text-gray-400 hover:text-white transition text-sm">
-                    Our Team
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/blog" className="text-gray-400 hover:text-white transition text-sm">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/about" className="text-gray-400 hover:text-white transition text-sm">
-                    About Us
-                  </Link>
-                </li>
+              <ul className="space-y-2.5">
+                {[
+                  { href: '/', label: 'Home' },
+                  { href: '/programs', label: 'Programs' },
+                  { href: '/about', label: 'About Us' },
+                  { href: '/impact', label: 'Our Impact' },
+                  { href: '/blog', label: 'Blog' },
+                  { href: '/team', label: 'Our Team' },
+                ].map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-white/50 hover:text-white transition text-sm">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            {/* Services */}
+            {/* Get Involved */}
             <div>
-              <h3 className="text-white font-bold text-lg mb-4">Services</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/assessment" className="text-gray-400 hover:text-white transition text-sm">
-                    Recovery Assessment
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/meetings" className="text-gray-400 hover:text-white transition text-sm">
-                    Meetings & Groups
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/donate" className="text-gray-400 hover:text-white transition text-sm">
-                    Donate
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/admission" className="text-gray-400 hover:text-white transition text-sm">
-                    Get Help
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-gray-400 hover:text-white transition text-sm">
-                    Contact Us
-                  </Link>
-                </li>
+              <h3 className="text-white font-bold text-lg mb-4">Get Involved</h3>
+              <ul className="space-y-2.5">
+                {[
+                  { href: '/donate', label: 'Donate' },
+                  { href: '/assessment', label: 'Recovery Assessment' },
+                  { href: '/meetings', label: 'Meetings & Groups' },
+                  { href: '/admission', label: 'Apply for Help' },
+                  { href: '/contact', label: 'Contact Us' },
+                  { href: '/contact?department=volunteer', label: 'Volunteer' },
+                ].map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-white/50 hover:text-white transition text-sm">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            {/* Contact Info */}
+            {/* Contact */}
             <div>
               <h3 className="text-white font-bold text-lg mb-4">Contact</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Phone className="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" />
+                  <Phone className="w-5 h-5 text-brand-green mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-gray-400">Call us anytime</p>
-                    <p className="text-white font-semibold">(502) 749-6344</p>
+                    <p className="text-xs text-white/40">Call us anytime</p>
+                    <a href="tel:+15027496344" className="text-white font-semibold hover:text-brand-green transition">(502) 749-6344</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Mail className="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" />
+                  <Mail className="w-5 h-5 text-brand-green mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-gray-400">Email</p>
-                    <p className="text-white font-semibold">info@avisionforyourecovery.org</p>
+                    <p className="text-xs text-white/40">Email</p>
+                    <a href="mailto:info@avisionforyourecovery.org" className="text-white font-semibold hover:text-brand-green transition text-sm break-all">info@avisionforyourecovery.org</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-5 h-5 text-brand-green mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-gray-400">Address</p>
-                    <p className="text-white font-semibold">1675 Story Ave<br />Louisville, KY 40206</p>
+                    <p className="text-xs text-white/40">Visit us</p>
+                    <p className="text-white font-semibold text-sm">1675 Story Ave<br />Louisville, KY 40206</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Ways to Give */}
+              <div className="mt-6 pt-4 border-t border-white/10">
+                <p className="text-xs text-white/40 font-semibold uppercase mb-2">Ways to Give</p>
+                <p className="text-white/50 text-xs leading-relaxed">
+                  Online, By Phone, or By Mail. Send checks to: A Vision For You Inc., 1675 Story Ave, Louisville, KY 40206
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Social Media Boxes */}
-          <div className="mt-12 pt-8 border-t border-gray-800">
-            <h3 className="text-white font-bold text-lg mb-6">Connect With Us On Social Media</h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <a href={socialStats.facebook.url} target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-blue-600 transition rounded-lg p-4 text-center">
-                <Facebook className="w-6 h-6 mx-auto mb-2" />
-                <p className="text-white text-sm font-semibold">Facebook</p>
-                <p className="text-gray-400 text-xs">{socialStats.facebook.followers} followers</p>
-              </a>
-              <a href={socialStats.instagram.url} target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-pink-600 transition rounded-lg p-4 text-center">
-                <Instagram className="w-6 h-6 mx-auto mb-2" />
-                <p className="text-white text-sm font-semibold">Instagram</p>
-                <p className="text-gray-400 text-xs">{socialStats.instagram.followers} followers</p>
-              </a>
-              <a href={socialStats.linkedin.url} target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-blue-700 transition rounded-lg p-4 text-center">
-                <Linkedin className="w-6 h-6 mx-auto mb-2" />
-                <p className="text-white text-sm font-semibold">LinkedIn</p>
-                <p className="text-gray-400 text-xs">{socialStats.linkedin.followers} followers</p>
-              </a>
-              <a href={socialStats.tiktok.url} target="_blank" rel="noopener noreferrer" className="bg-gray-800 hover:bg-black transition rounded-lg p-4 text-center">
-                <svg className="w-6 h-6 mx-auto mb-2 fill-current" viewBox="0 0 24 24">
-                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.74 2.89 2.89 0 0 1 2.31-4.64 2.86 2.86 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.54-.05z" />
-                </svg>
-                <p className="text-white text-sm font-semibold">TikTok</p>
-                <p className="text-gray-400 text-xs">{socialStats.tiktok.followers} followers</p>
-              </a>
-            </div>
-          </div>
-
-          {/* Newsletter Section */}
-          <div className="mt-12">
+          {/* Newsletter */}
+          <div className="border-t border-white/10 pt-8 mb-8">
             <NewsletterSignup />
           </div>
         </div>
       </div>
 
       {/* Bottom Footer */}
-      <div className="border-t border-gray-800 bg-gray-950 px-4 py-8">
+      <div className="border-t border-white/10 bg-black/30 px-4 py-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-gray-400 text-sm">
-              <p>© {new Date().getFullYear()} A Vision For You. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+            <div className="text-white/40 text-sm text-center md:text-left">
+              <p>&copy; {new Date().getFullYear()} A Vision For You Inc. All rights reserved.</p>
             </div>
-            <div className="flex gap-6 text-sm text-gray-400">
-              <Link href="/privacy" className="hover:text-white transition">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="hover:text-white transition">
-                Terms of Use
-              </Link>
-              <Link href="/donate" className="hover:text-white transition">
-                Donate
-              </Link>
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-white/40">
+              <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-white transition">Terms of Use</Link>
+              <Link href="/donate" className="hover:text-white transition">Donate</Link>
             </div>
-            <div className="flex items-center gap-2 text-gray-400">
+            <div className="flex items-center gap-2 text-white/30 text-sm">
               <span>Made with</span>
               <Heart className="w-4 h-4 text-red-500 fill-current" />
               <span>for recovery</span>
             </div>
           </div>
 
-          {/* Crisis Line */}
-          <div className="mt-6 pt-6 border-t border-gray-800 text-center">
-            <p className="text-gray-400 text-sm mb-2">Need immediate help?</p>
-            <p className="text-red-400 font-semibold text-base sm:text-lg">
-              Suicide & Crisis Lifeline: 988 (call or text, available 24/7)
-            </p>
+          {/* Emergency Resources */}
+          <div className="pt-4 border-t border-white/10 space-y-2">
+            <p className="text-white/30 text-xs text-center font-semibold uppercase tracking-wider">Emergency Resources</p>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-6 text-center">
+              <p className="text-red-400 font-semibold text-sm">
+                Suicide & Crisis Lifeline: <a href="tel:988" className="underline hover:text-red-300">988</a> (call or text 24/7)
+              </p>
+              <span className="hidden sm:inline text-white/20">|</span>
+              <p className="text-amber-400 font-semibold text-sm">
+                SAMHSA Helpline: <a href="tel:18006624357" className="underline hover:text-amber-300">1-800-662-4357</a>
+              </p>
+            </div>
           </div>
         </div>
       </div>

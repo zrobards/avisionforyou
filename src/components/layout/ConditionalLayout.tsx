@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Navbar from './Navbar'
 import Footer from './Footer'
+import StickyDonateButton from '@/components/shared/StickyDonateButton'
 
 export default function ConditionalLayout({
   children,
@@ -22,6 +23,7 @@ export default function ConditionalLayout({
         {children}
       </main>
       {!hideFooter && <Footer />}
+      <StickyDonateButton />
     </>
   )
 }

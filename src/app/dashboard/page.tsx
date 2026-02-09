@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
@@ -11,57 +13,68 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const user = await db.user.findUnique({
-    where: { email: session.user.email },
-  });
+  let user;
+  try {
+    user = await db.user.findUnique({
+      where: { email: session.user.email },
+    });
+  } catch (error) {
+    console.error("Dashboard: Error fetching user:", error);
+    redirect("/login");
+  }
 
   if (!user) {
     redirect("/login");
   }
 
-  // Fetch user's upcoming RSVPs
-  const upcomingRsvps = await db.rSVP.findMany({
-    where: {
-      userId: user.id,
-      status: "CONFIRMED",
-      session: { startDate: { gte: new Date() } },
-    },
-    include: {
-      session: {
-        include: {
-          program: true,
+  // Fetch dashboard data with graceful fallbacks
+  let upcomingRsvps: any[] = [];
+  let duiRegistrations: any[] = [];
+  let recentDonations: any[] = [];
+  let assessment: any = null;
+
+  try {
+    [upcomingRsvps, duiRegistrations, recentDonations, assessment] = await Promise.all([
+      db.rSVP.findMany({
+        where: {
+          userId: user.id,
+          status: "CONFIRMED",
+          session: { startDate: { gte: new Date() } },
         },
-      },
-    },
-    orderBy: { session: { startDate: "asc" } },
-    take: 5,
-  });
-
-  // Fetch user's DUI registrations
-  const duiRegistrations = await db.dUIRegistration.findMany({
-    where: {
-      userId: user.id,
-      status: { not: "CANCELLED" },
-      class: { date: { gte: new Date() } },
-    },
-    include: {
-      class: true,
-    },
-    orderBy: { class: { date: "asc" } },
-    take: 5,
-  });
-
-  // Fetch user's donations
-  const recentDonations = await db.donation.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-  });
-
-  // Fetch user's assessment
-  const assessment = await db.assessment.findUnique({
-    where: { userId: user.id },
-  });
+        include: {
+          session: {
+            include: {
+              program: true,
+            },
+          },
+        },
+        orderBy: { session: { startDate: "asc" } },
+        take: 5,
+      }),
+      db.dUIRegistration.findMany({
+        where: {
+          userId: user.id,
+          status: { not: "CANCELLED" },
+          class: { date: { gte: new Date() } },
+        },
+        include: {
+          class: true,
+        },
+        orderBy: { class: { date: "asc" } },
+        take: 5,
+      }),
+      db.donation.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+      db.assessment.findUnique({
+        where: { userId: user.id },
+      }),
+    ]);
+  } catch (error) {
+    console.error("Dashboard: Error fetching dashboard data:", error);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">

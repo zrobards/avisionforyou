@@ -1,7 +1,10 @@
 import { getPrograms } from '@/lib/cms'
-import { ProgramView } from '@/components/programs/ProgramView'
-import LeadCaptureCTA from '@/components/shared/LeadCaptureCTA'
 import { buildPageMetadata } from '@/lib/metadata'
+import Link from 'next/link'
+import {
+  HandHeart, Brain, Home, Users, Utensils, Briefcase,
+  ArrowRight, Heart, CheckCircle, Phone, Sparkles
+} from 'lucide-react'
 
 export const revalidate = 60
 
@@ -9,6 +12,61 @@ export const metadata = buildPageMetadata(
   'Programs',
   'Explore recovery programs including MindBodySoul IOP, Surrender Program, housing support, and community services in Louisville, KY.'
 )
+
+// Icon and badge config for each core program
+const programMeta: Record<string, {
+  icon: string
+  badge: string
+  badgeColor: string
+  oneLiner: string
+}> = {
+  'surrender-program': {
+    icon: 'HandHeart',
+    badge: 'FREE',
+    badgeColor: 'bg-[#b6e41f] text-slate-950',
+    oneLiner: 'A 6-9 month peer-driven residential recovery program at no cost to the client.'
+  },
+  'mindbodysoul-iop': {
+    icon: 'Brain',
+    badge: 'Insurance Accepted',
+    badgeColor: 'bg-[#7f3d8b] text-white',
+    oneLiner: '90-day clinical outpatient treatment with daily group and individual therapy.'
+  },
+  'housing': {
+    icon: 'Home',
+    badge: '7 Residences',
+    badgeColor: 'bg-[#b6e41f] text-slate-950',
+    oneLiner: 'Safe, structured recovery housing with peer accountability and community support.'
+  },
+  'self-help': {
+    icon: 'Users',
+    badge: 'Open to All',
+    badgeColor: 'bg-[#7f3d8b] text-white',
+    oneLiner: 'Peer-driven recovery meetings, 12-step groups, and community connection.'
+  },
+  'food': {
+    icon: 'Utensils',
+    badge: 'Daily Meals',
+    badgeColor: 'bg-[#b6e41f] text-slate-950',
+    oneLiner: 'Nutritious daily meals supporting physical healing and stability in recovery.'
+  },
+  'career': {
+    icon: 'Briefcase',
+    badge: 'Job Placement',
+    badgeColor: 'bg-[#7f3d8b] text-white',
+    oneLiner: 'Resume coaching, interview prep, and employer connections for reentry success.'
+  }
+}
+
+// Map icon names to components (server component can't use dynamic imports easily)
+const iconComponents: Record<string, typeof HandHeart> = {
+  HandHeart,
+  Brain,
+  Home,
+  Users,
+  Utensils,
+  Briefcase
+}
 
 export default async function Programs() {
   const rawPrograms = await getPrograms()
@@ -115,61 +173,188 @@ export default async function Programs() {
   }).concat(extraFromDb)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-950">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-brand-purple to-brand-green text-white py-16 sm:py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">Our Programs</h1>
-          <p className="text-lg sm:text-xl opacity-90 max-w-2xl mx-auto">
-            Multiple pathways to recovery, tailored to meet you where you are
-          </p>
+      <section className="relative bg-slate-950 overflow-hidden">
+        {/* Background glow effects */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#7f3d8b]/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-[#b6e41f]/10 rounded-full blur-3xl" />
         </div>
-      </section>
-
-      {/* Programs Grid */}
-      <section className="py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <ProgramView programs={programs} />
-
-          {/* Program CTAs */}
-          <div className="mt-12 flex gap-4 flex-wrap justify-center">
-            <a
-              href="/assessment"
-              className="bg-brand-purple text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-800 transition"
-            >
-              Start Application
-            </a>
-            <a
-              href="tel:(502)749-6344"
-              className="bg-white text-brand-purple border-2 border-brand-purple px-8 py-3 rounded-lg font-bold hover:bg-purple-50 transition"
-            >
-              Call for Info
-            </a>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#b6e41f]/10 border border-[#b6e41f]/20 rounded-full text-[#b6e41f] text-sm font-semibold mb-6">
+              <Sparkles className="w-4 h-4" />
+              A Comprehensive Recovery Ecosystem
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+              Our Programs
+            </h1>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
+              From residential treatment and clinical outpatient care to housing, peer support, nutrition, and career reentry, our integrated programs meet you where you are and walk with you every step forward.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link
+                href="/assessment"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-[#b6e41f] text-slate-950 font-bold rounded-lg hover:bg-[#c9f24d] hover:shadow-lg hover:shadow-[#b6e41f]/20 transition"
+              >
+                Apply Now
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+              <a
+                href="tel:+15027496344"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-lg hover:bg-white/20 transition"
+              >
+                <Phone className="w-5 h-5" />
+                Call (502) 749-6344
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Lead Capture CTA */}
-      <LeadCaptureCTA variant="banner" />
+      {/* Programs Grid */}
+      <section className="bg-slate-900 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Six Pillars of Recovery
+            </h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Each program is designed to address a critical dimension of the recovery journey. Together, they form a complete support system.
+            </p>
+          </div>
 
-      {/* Call to Action */}
-      <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-12 mt-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-2xl font-bold mb-4">Ready to Take the Next Step?</h2>
-          <p className="text-purple-100 mb-6">Contact us today to learn more about how we can support your recovery journey.</p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <a
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {programs.map((program) => {
+              const meta = programMeta[program.slug]
+              const IconComponent = meta ? iconComponents[meta.icon] : Home
+              const badge = meta?.badge
+              const badgeColor = meta?.badgeColor || 'bg-[#7f3d8b] text-white'
+              const oneLiner = meta?.oneLiner || program.description
+
+              return (
+                <div
+                  key={program.slug}
+                  className="group bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300"
+                >
+                  {/* Header: Icon + Badge */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-14 h-14 bg-[#7f3d8b]/20 border border-[#7f3d8b]/30 rounded-xl flex items-center justify-center group-hover:bg-[#7f3d8b]/30 transition">
+                      <IconComponent className="w-7 h-7 text-[#b6e41f]" />
+                    </div>
+                    {badge && (
+                      <span className={`${badgeColor} text-xs font-bold px-3 py-1 rounded-full`}>
+                        {badge}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Category */}
+                  <p className="text-xs font-semibold text-[#b6e41f]/80 uppercase tracking-wider mb-2">
+                    {program.category}
+                  </p>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-white mb-3">
+                    {program.title}
+                  </h3>
+
+                  {/* One-liner */}
+                  <p className="text-slate-400 text-sm mb-5 leading-relaxed">
+                    {oneLiner}
+                  </p>
+
+                  {/* Key features (show first 3 details) */}
+                  {program.details && program.details.length > 0 && (
+                    <ul className="space-y-2 mb-6">
+                      {program.details.slice(0, 3).map((detail, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                          <CheckCircle className="w-4 h-4 text-[#b6e41f] flex-shrink-0 mt-0.5" />
+                          <span>{detail}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Action links */}
+                  <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                    <Link
+                      href={`/programs/${program.slug}`}
+                      className="inline-flex items-center gap-1 text-[#b6e41f] hover:text-[#c9f24d] font-semibold text-sm transition group-hover:gap-2"
+                    >
+                      Learn More
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                    <Link
+                      href={`/donate?program=${encodeURIComponent(program.title)}`}
+                      className="inline-flex items-center gap-1 text-slate-500 hover:text-[#c9a0d0] text-sm transition"
+                    >
+                      <Heart className="w-4 h-4" />
+                      Support
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works / Journey */}
+      <section className="bg-slate-950 py-16 sm:py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Your Path Forward</h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Recovery is not one-size-fits-all. Our team works with you to build a personalized plan that addresses your unique needs.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { step: '01', title: 'Reach Out', desc: 'Call us or complete a confidential assessment. Our team will listen and help you explore your options.' },
+              { step: '02', title: 'Build Your Plan', desc: 'Work one-on-one with a counselor to identify the right combination of programs for your situation.' },
+              { step: '03', title: 'Begin Recovery', desc: 'Enter a supportive community with the structure, mentorship, and resources you need to thrive.' }
+            ].map((item) => (
+              <div key={item.step} className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#b6e41f]/10 border border-[#b6e41f]/20 rounded-full mb-4">
+                  <span className="text-[#b6e41f] text-xl font-bold">{item.step}</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="relative bg-slate-900 overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7f3d8b]/15 rounded-full blur-3xl" />
+        </div>
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Ready to Take the Next Step?
+          </h2>
+          <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
+            Contact us today to learn more about how we can support your recovery journey. No judgment, no pressure -- just honest conversation about your future.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link
               href="/assessment"
-              className="bg-brand-green text-brand-purple px-8 py-3 rounded-lg font-bold hover:bg-green-400 transition"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#b6e41f] text-slate-950 font-bold rounded-lg hover:bg-[#c9f24d] hover:shadow-lg hover:shadow-[#b6e41f]/20 transition"
             >
               Begin Your Journey
-            </a>
-            <a
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
               href="/donate"
-              className="bg-white text-brand-purple px-8 py-3 rounded-lg font-bold hover:bg-purple-50 transition"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-lg hover:bg-white/20 transition"
             >
+              <Heart className="w-5 h-5" />
               Support Our Mission
-            </a>
+            </Link>
           </div>
         </div>
       </section>
