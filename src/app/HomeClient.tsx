@@ -85,7 +85,7 @@ export default function HomeClient() {
   }, [nextTestimonial])
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-white">
       {/* ==================== HERO SECTION ==================== */}
       <section className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden">
         <video
@@ -176,14 +176,14 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== IMPACT SECTION ==================== */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-950 to-slate-900">
+      <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 Real Impact. Real Lives. <span className="text-brand-green">Real Change.</span>
               </h2>
-              <p className="text-lg text-white/60 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 Since our founding, we've built a comprehensive recovery ecosystem that transforms lives every single day.
               </p>
             </div>
@@ -199,11 +199,11 @@ export default function HomeClient() {
               { number: 24, suffix: "/7", label: "Support Available", desc: "Someone is always here when you need help", icon: Clock, color: "from-teal-500 to-cyan-500" },
             ].map((item, idx) => (
               <AnimateOnScroll key={idx} delay={idx * 0.1} variant="scaleUp">
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 sm:p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group">
+                <div className="bg-white shadow-md border border-gray-100 rounded-2xl p-5 sm:p-6 hover:shadow-lg hover:border-gray-200 transition-all duration-300 group">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                     <item.icon className="w-6 h-6 text-white" />
                   </div>
-                  <div className="text-3xl sm:text-4xl font-bold text-white mb-1">
+                  <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">
                     {item.number > 0 ? (
                       <CountUpNumber end={item.number} suffix={item.suffix} />
                     ) : (
@@ -212,7 +212,7 @@ export default function HomeClient() {
                   </div>
                   {item.number > 0 && <p className="text-brand-green font-semibold text-sm mb-1">{item.label}</p>}
                   {item.number === 0 && <p className="text-brand-green font-semibold text-sm mb-1">Free to All</p>}
-                  <p className="text-white/50 text-xs sm:text-sm">{item.desc}</p>
+                  <p className="text-gray-500 text-xs sm:text-sm">{item.desc}</p>
                 </div>
               </AnimateOnScroll>
             ))}
@@ -220,11 +220,11 @@ export default function HomeClient() {
 
           <AnimateOnScroll>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/impact" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all">
+              <Link href="/impact" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 border border-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all">
                 <TrendingUp className="w-5 h-5" />
                 View Full Impact Report
               </Link>
-              <Link href="/about" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/5 border border-white/10 text-white/70 rounded-xl font-semibold hover:bg-white/10 hover:text-white transition-all">
+              <Link href="/about" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-600 rounded-xl font-semibold hover:bg-gray-50 hover:text-gray-900 transition-all">
                 View Our Financials
               </Link>
             </div>
@@ -233,14 +233,14 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== PROGRAMS SECTION ==================== */}
-      <section className="py-16 sm:py-24 bg-slate-900">
+      <section className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 6 Programs. <span className="text-brand-green">One Mission.</span>
               </h2>
-              <p className="text-lg text-white/60 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 A comprehensive recovery ecosystem that addresses every aspect of rebuilding a life.
               </p>
             </div>
@@ -249,7 +249,7 @@ export default function HomeClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {PROGRAMS.map((program, idx) => (
               <AnimateOnScroll key={idx} delay={idx * 0.08} variant="fadeUp">
-                <Link href={program.href} className="group block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-brand-green/30 transition-all duration-300 h-full">
+                <Link href={program.href} className="group block bg-white shadow-md border border-gray-100 rounded-2xl p-6 hover:shadow-lg hover:border-brand-green/30 transition-all duration-300 h-full">
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-purple to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <program.icon className="w-7 h-7 text-white" />
@@ -258,8 +258,8 @@ export default function HomeClient() {
                       {program.badge}
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-brand-green transition-colors">{program.title}</h3>
-                  <p className="text-white/60 text-sm mb-4 leading-relaxed">{program.description}</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand-green transition-colors">{program.title}</h3>
+                  <p className="text-gray-600 text-sm mb-4 leading-relaxed">{program.description}</p>
                   <span className="text-brand-green font-semibold text-sm inline-flex items-center gap-1 group-hover:gap-2 transition-all">
                     Learn More <ArrowRight className="w-4 h-4" />
                   </span>
@@ -280,22 +280,22 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== TESTIMONIALS / SOCIAL PROOF ==================== */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-900 to-slate-950">
+      <section className="py-16 sm:py-24 bg-[#f5e6d3]/20">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 Stories of <span className="text-brand-green">Transformation</span>
               </h2>
-              <p className="text-lg text-white/60">Real people. Real recovery. Real hope.</p>
+              <p className="text-lg text-gray-600">Real people. Real recovery. Real hope.</p>
             </div>
           </AnimateOnScroll>
 
           {/* Testimonial Carousel */}
           <div className="relative">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6 sm:p-10 min-h-[280px] flex flex-col justify-center">
+            <div className="bg-white shadow-md border border-gray-100 rounded-3xl p-6 sm:p-10 min-h-[280px] flex flex-col justify-center">
               <div className="text-brand-green text-5xl sm:text-6xl font-serif leading-none mb-4">&ldquo;</div>
-              <p className="text-lg sm:text-xl md:text-2xl text-white/90 leading-relaxed mb-8 italic">
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-800 leading-relaxed mb-8 italic">
                 {TESTIMONIALS[currentTestimonial].quote}
               </p>
               <div className="flex items-center gap-4">
@@ -303,8 +303,8 @@ export default function HomeClient() {
                   {TESTIMONIALS[currentTestimonial].initials}
                 </div>
                 <div>
-                  <p className="font-bold text-white text-lg">{TESTIMONIALS[currentTestimonial].name}</p>
-                  <p className="text-white/50">{TESTIMONIALS[currentTestimonial].role}</p>
+                  <p className="font-bold text-gray-900 text-lg">{TESTIMONIALS[currentTestimonial].name}</p>
+                  <p className="text-gray-500">{TESTIMONIALS[currentTestimonial].role}</p>
                 </div>
               </div>
             </div>
@@ -313,7 +313,7 @@ export default function HomeClient() {
             <div className="flex items-center justify-between mt-6">
               <button
                 onClick={prevTestimonial}
-                className="p-3 bg-white/10 border border-white/20 rounded-full hover:bg-white/20 transition text-white"
+                className="p-3 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition text-gray-700 shadow-sm"
                 aria-label="Previous testimonial"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -325,7 +325,7 @@ export default function HomeClient() {
                     key={idx}
                     onClick={() => setCurrentTestimonial(idx)}
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      idx === currentTestimonial ? 'w-8 bg-brand-green' : 'w-2 bg-white/30 hover:bg-white/50'
+                      idx === currentTestimonial ? 'w-8 bg-brand-green' : 'w-2 bg-gray-300 hover:bg-gray-400'
                     }`}
                     aria-label={`Go to testimonial ${idx + 1}`}
                   />
@@ -334,7 +334,7 @@ export default function HomeClient() {
 
               <button
                 onClick={nextTestimonial}
-                className="p-3 bg-white/10 border border-white/20 rounded-full hover:bg-white/20 transition text-white"
+                className="p-3 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition text-gray-700 shadow-sm"
                 aria-label="Next testimonial"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -351,10 +351,10 @@ export default function HomeClient() {
                 { label: "Evidence-Based", sub: "Clinical Best Practices" },
                 { label: "Peer Accredited", sub: "Recovery Community" },
               ].map((badge, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+                <div key={idx} className="bg-white shadow-sm border border-gray-200 rounded-xl p-4 text-center">
                   <CheckCircle className="w-6 h-6 text-brand-green mx-auto mb-2" />
-                  <p className="text-white font-semibold text-sm">{badge.label}</p>
-                  <p className="text-white/40 text-xs">{badge.sub}</p>
+                  <p className="text-gray-900 font-semibold text-sm">{badge.label}</p>
+                  <p className="text-gray-400 text-xs">{badge.sub}</p>
                 </div>
               ))}
             </div>
@@ -363,14 +363,14 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== SOCIAL MEDIA FEED ==================== */}
-      <section className="py-16 sm:py-24 bg-slate-950">
+      <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 See Recovery <span className="text-brand-green">in Action</span>
               </h2>
-              <p className="text-lg text-white/60">Follow our journey and share our mission</p>
+              <p className="text-lg text-gray-600">Follow our journey and share our mission</p>
             </div>
           </AnimateOnScroll>
 
@@ -417,7 +417,7 @@ export default function HomeClient() {
           </div>
 
           <AnimateOnScroll>
-            <p className="text-center text-white/40 text-sm">
+            <p className="text-center text-gray-400 text-sm">
               Share our mission — every follow helps us reach someone in need
             </p>
           </AnimateOnScroll>
@@ -425,17 +425,17 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== DONATION APPEAL ==================== */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(127,61,139,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(182,228,31,0.08),transparent_50%)]" />
+      <section className="py-16 sm:py-24 bg-gray-50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(127,61,139,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(182,228,31,0.06),transparent_50%)]" />
 
         <div className="relative max-w-5xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 Your Donation <span className="text-brand-green">Changes Everything</span>
               </h2>
-              <p className="text-lg text-white/60 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 Every dollar goes directly to providing housing, meals, treatment, and hope to people rebuilding their lives.
               </p>
             </div>
@@ -449,12 +449,12 @@ export default function HomeClient() {
               { amount: "$500", impact: "Sponsors one full month of comprehensive treatment", icon: Heart, color: "from-brand-purple to-purple-600" },
             ].map((tier, idx) => (
               <AnimateOnScroll key={idx} delay={idx * 0.15} variant="fadeUp">
-                <Link href={`/donate?amount=${tier.amount.replace('$', '')}`} className="group block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 text-center hover:bg-white/10 hover:border-brand-green/30 transition-all duration-300">
+                <Link href={`/donate?amount=${tier.amount.replace('$', '')}`} className="group block bg-white shadow-md border border-gray-100 rounded-2xl p-6 sm:p-8 text-center hover:shadow-lg hover:border-brand-green/30 transition-all duration-300">
                   <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tier.color} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
                     <tier.icon className="w-8 h-8 text-white" />
                   </div>
-                  <p className="text-4xl font-bold text-white mb-3">{tier.amount}</p>
-                  <p className="text-white/70 leading-relaxed">{tier.impact}</p>
+                  <p className="text-4xl font-bold text-gray-900 mb-3">{tier.amount}</p>
+                  <p className="text-gray-600 leading-relaxed">{tier.impact}</p>
                 </Link>
               </AnimateOnScroll>
             ))}
@@ -471,7 +471,7 @@ export default function HomeClient() {
               </Link>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
-                <p className="text-white/40 text-sm">
+                <p className="text-gray-400 text-sm">
                   A Vision For You is a 501(c)(3). Your donation is 100% tax-deductible.
                 </p>
               </div>
@@ -489,14 +489,14 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== WHY FUND US ==================== */}
-      <section className="py-16 sm:py-24 bg-slate-900">
+      <section className="py-16 sm:py-24 bg-[#f5e6d3]/20">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 Why <span className="text-brand-green">A Vision For You?</span>
               </h2>
-              <p className="text-lg text-white/60 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 For grant funders, institutional donors, and partners who want to make the biggest impact.
               </p>
             </div>
@@ -512,10 +512,10 @@ export default function HomeClient() {
               { title: "Local Impact", desc: "Serving Louisville's most vulnerable with 7 residences and 6 comprehensive programs.", icon: Home },
             ].map((item, idx) => (
               <AnimateOnScroll key={idx} delay={idx * 0.1} variant="fadeUp">
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
+                <div className="bg-white shadow-md border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
                   <item.icon className="w-8 h-8 text-brand-green mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                  <p className="text-white/60 leading-relaxed">{item.desc}</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{item.desc}</p>
                 </div>
               </AnimateOnScroll>
             ))}
@@ -525,7 +525,7 @@ export default function HomeClient() {
             <div className="text-center mt-12">
               <Link
                 href="/contact?department=donate&subject=Partnership%20Inquiry"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white rounded-xl font-bold hover:bg-white/20 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 border border-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all duration-300"
               >
                 <HandHeart className="w-5 h-5" />
                 Partner With Us
