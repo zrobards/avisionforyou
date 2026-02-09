@@ -173,8 +173,8 @@ export default async function Programs() {
   }).concat(extraFromDb)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section - KEEP DARK */}
+    <div className="min-h-screen bg-slate-950">
+      {/* Hero Section */}
       <section className="relative bg-slate-950 overflow-hidden">
         {/* Background glow effects */}
         <div className="absolute inset-0">
@@ -213,14 +213,14 @@ export default async function Programs() {
         </div>
       </section>
 
-      {/* Programs Grid - LIGHTENED */}
-      <section className="bg-white py-16 sm:py-20">
+      {/* Programs Grid */}
+      <section className="bg-slate-900 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Six Pillars of Recovery
             </h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">
+            <p className="text-slate-400 max-w-2xl mx-auto">
               Each program is designed to address a critical dimension of the recovery journey. Together, they form a complete support system.
             </p>
           </div>
@@ -236,12 +236,12 @@ export default async function Programs() {
               return (
                 <div
                   key={program.slug}
-                  className="group bg-white shadow-md border border-gray-100 rounded-2xl p-6 hover:shadow-lg hover:border-gray-200 transition-all duration-300"
+                  className="group bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300"
                 >
                   {/* Header: Icon + Badge */}
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-14 h-14 bg-[#7f3d8b]/10 border border-[#7f3d8b]/20 rounded-xl flex items-center justify-center group-hover:bg-[#7f3d8b]/15 transition">
-                      <IconComponent className="w-7 h-7 text-[#7f3d8b]" />
+                    <div className="w-14 h-14 bg-[#7f3d8b]/20 border border-[#7f3d8b]/30 rounded-xl flex items-center justify-center group-hover:bg-[#7f3d8b]/30 transition">
+                      <IconComponent className="w-7 h-7 text-[#b6e41f]" />
                     </div>
                     {badge && (
                       <span className={`${badgeColor} text-xs font-bold px-3 py-1 rounded-full`}>
@@ -251,17 +251,17 @@ export default async function Programs() {
                   </div>
 
                   {/* Category */}
-                  <p className="text-xs font-semibold text-[#6a9a10] uppercase tracking-wider mb-2">
+                  <p className="text-xs font-semibold text-[#b6e41f]/80 uppercase tracking-wider mb-2">
                     {program.category}
                   </p>
 
                   {/* Title */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  <h3 className="text-xl font-bold text-white mb-3">
                     {program.title}
                   </h3>
 
                   {/* One-liner */}
-                  <p className="text-gray-500 text-sm mb-5 leading-relaxed">
+                  <p className="text-slate-400 text-sm mb-5 leading-relaxed">
                     {oneLiner}
                   </p>
 
@@ -269,8 +269,8 @@ export default async function Programs() {
                   {program.details && program.details.length > 0 && (
                     <ul className="space-y-2 mb-6">
                       {program.details.slice(0, 3).map((detail, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-                          <CheckCircle className="w-4 h-4 text-[#6a9a10] flex-shrink-0 mt-0.5" />
+                        <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                          <CheckCircle className="w-4 h-4 text-[#b6e41f] flex-shrink-0 mt-0.5" />
                           <span>{detail}</span>
                         </li>
                       ))}
@@ -278,17 +278,17 @@ export default async function Programs() {
                   )}
 
                   {/* Action links */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between pt-4 border-t border-white/10">
                     <Link
                       href={`/programs/${program.slug}`}
-                      className="inline-flex items-center gap-1 text-[#7f3d8b] hover:text-[#6a3275] font-semibold text-sm transition group-hover:gap-2"
+                      className="inline-flex items-center gap-1 text-[#b6e41f] hover:text-[#c9f24d] font-semibold text-sm transition group-hover:gap-2"
                     >
                       Learn More
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                     <Link
                       href={`/donate?program=${encodeURIComponent(program.title)}`}
-                      className="inline-flex items-center gap-1 text-gray-400 hover:text-[#7f3d8b] text-sm transition"
+                      className="inline-flex items-center gap-1 text-slate-500 hover:text-[#c9a0d0] text-sm transition"
                     >
                       <Heart className="w-4 h-4" />
                       Support
@@ -301,12 +301,12 @@ export default async function Programs() {
         </div>
       </section>
 
-      {/* How It Works / Journey - LIGHTENED */}
-      <section className="bg-[#f5e6d3]/20 py-16 sm:py-20">
+      {/* How It Works / Journey */}
+      <section className="bg-slate-950 py-16 sm:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Your Path Forward</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Your Path Forward</h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
               Recovery is not one-size-fits-all. Our team works with you to build a personalized plan that addresses your unique needs.
             </p>
           </div>
@@ -317,18 +317,18 @@ export default async function Programs() {
               { step: '03', title: 'Begin Recovery', desc: 'Enter a supportive community with the structure, mentorship, and resources you need to thrive.' }
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#7f3d8b]/10 border border-[#7f3d8b]/20 rounded-full mb-4">
-                  <span className="text-[#7f3d8b] text-xl font-bold">{item.step}</span>
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#b6e41f]/10 border border-[#b6e41f]/20 rounded-full mb-4">
+                  <span className="text-[#b6e41f] text-xl font-bold">{item.step}</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Bottom CTA - KEEP DARK/PURPLE */}
+      {/* Bottom CTA */}
       <section className="relative bg-slate-900 overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7f3d8b]/15 rounded-full blur-3xl" />

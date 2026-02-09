@@ -171,8 +171,8 @@ export default function Donate() {
 
   /* ──────────────────────── RENDER ──────────────────────── */
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* ═══════════ 1. EMOTIONAL HERO HEADER (stays dark) ═══════════ */}
+    <div className="min-h-screen bg-slate-950 text-white">
+      {/* ═══════════ 1. EMOTIONAL HERO HEADER ═══════════ */}
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-20 sm:py-28">
         {/* Decorative glow */}
         <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[500px] w-[700px] rounded-full bg-[#b6e41f]/10 blur-[120px]" />
@@ -186,7 +186,7 @@ export default function Donate() {
           </AnimateOnScroll>
 
           <AnimateOnScroll variant="fadeUp" delay={0.1}>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight text-white">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
               Your Generosity{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#b6e41f] to-emerald-400">
                 Saves Lives
@@ -221,18 +221,18 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 2. SOCIAL PROOF ═══════════ */}
-      <section className="bg-white border-y border-gray-200 py-14 sm:py-20">
+      <section className="bg-slate-900 border-y border-white/5 py-14 sm:py-20">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll variant="fade">
-            <p className="text-center text-sm uppercase tracking-widest text-[#5a8a00] font-semibold mb-2">
+            <p className="text-center text-sm uppercase tracking-widest text-[#b6e41f]/80 font-semibold mb-2">
               Community of Changemakers
             </p>
-            <h2 className="text-center text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-center text-2xl sm:text-3xl font-bold mb-4">
               Join{' '}
-              <CountUpNumber end={200} suffix="+" className="text-[#5a8a00]" />
+              <CountUpNumber end={200} suffix="+" className="text-[#b6e41f]" />
               {' '}donors who believe in recovery
             </h2>
-            <p className="text-center text-gray-500 mb-12 max-w-xl mx-auto">
+            <p className="text-center text-white/50 mb-12 max-w-xl mx-auto">
               Real supporters. Real impact. Here is what they have to say.
             </p>
           </AnimateOnScroll>
@@ -240,18 +240,18 @@ export default function Donate() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {donorQuotes.map((d, i) => (
               <AnimateOnScroll key={i} variant="fadeUp" delay={i * 0.15}>
-                <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 h-full flex flex-col">
+                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6 h-full flex flex-col">
                   <div className="flex gap-1 mb-4">
                     {[...Array(5)].map((_, s) => (
                       <Star key={s} className="w-4 h-4 fill-[#b6e41f] text-[#b6e41f]" />
                     ))}
                   </div>
-                  <p className="text-gray-600 text-sm leading-relaxed flex-1 italic">
+                  <p className="text-white/80 text-sm leading-relaxed flex-1 italic">
                     &ldquo;{d.quote}&rdquo;
                   </p>
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <p className="font-semibold text-gray-900">{d.name}</p>
-                    <p className="text-xs text-gray-500">{d.role}</p>
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <p className="font-semibold text-white">{d.name}</p>
+                    <p className="text-xs text-white/40">{d.role}</p>
                   </div>
                 </div>
               </AnimateOnScroll>
@@ -261,16 +261,16 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 3. FUNDRAISING PROGRESS BAR ═══════════ */}
-      <section className="bg-[#f5e6d3]/20 py-14 sm:py-20">
+      <section className="bg-slate-950 py-14 sm:py-20">
         <div className="max-w-3xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 sm:p-8">
               <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-[#5a8a00]" />
-                <h3 className="text-lg font-bold text-gray-900">Spring 2026 Campaign Goal: $50,000</h3>
+                <TrendingUp className="w-5 h-5 text-[#b6e41f]" />
+                <h3 className="text-lg font-bold">Spring 2026 Campaign Goal: $50,000</h3>
               </div>
 
-              <div className="relative w-full h-5 rounded-full bg-gray-200 overflow-hidden mb-3">
+              <div className="relative w-full h-5 rounded-full bg-slate-800 overflow-hidden mb-3">
                 <div
                   className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#b6e41f] to-emerald-400 transition-all duration-[2000ms] ease-out"
                   style={{ width: `${CAMPAIGN_PERCENT}%` }}
@@ -282,10 +282,10 @@ export default function Donate() {
               </div>
 
               <div className="flex justify-between text-sm">
-                <span className="text-[#5a8a00] font-bold">
+                <span className="text-[#b6e41f] font-bold">
                   $<CountUpNumber end={CAMPAIGN_RAISED} /> raised
                 </span>
-                <span className="text-gray-500">
+                <span className="text-white/50">
                   {CAMPAIGN_PERCENT}% of ${CAMPAIGN_GOAL.toLocaleString()} goal
                 </span>
               </div>
@@ -295,25 +295,25 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 4. ENHANCED DONATION FORM ═══════════ */}
-      <section className="bg-gray-50 pb-20 sm:pb-28">
+      <section className="bg-slate-950 pb-20 sm:pb-28">
         <div className="max-w-3xl mx-auto px-4">
           <AnimateOnScroll variant="scaleUp">
-            <div className="rounded-3xl border border-gray-200 bg-white shadow-lg p-6 sm:p-8 md:p-10">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-center text-gray-900">Choose Your Impact</h2>
-              <p className="text-gray-500 text-center mb-8">
+            <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-slate-900/80 shadow-2xl shadow-[#b6e41f]/5 p-6 sm:p-8 md:p-10">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-center">Choose Your Impact</h2>
+              <p className="text-white/50 text-center mb-8">
                 Every donation directly transforms lives in our community
               </p>
 
               {/* ── Payment Method ── */}
-              <div className="mb-8 rounded-xl border border-gray-200 bg-gray-50 p-5">
-                <label className="block text-sm font-semibold text-gray-600 mb-3">Payment Method</label>
+              <div className="mb-8 rounded-xl border border-white/10 bg-slate-800/50 p-5">
+                <label className="block text-sm font-semibold text-white/70 mb-3">Payment Method</label>
                 <div className="flex gap-3 sm:gap-4">
                   <button
                     onClick={() => setPaymentMethod('square')}
                     className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all ${
                       paymentMethod === 'square'
                         ? 'bg-[#b6e41f] text-slate-950 shadow-lg shadow-[#b6e41f]/20'
-                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                        : 'bg-slate-700 text-white/70 hover:bg-slate-600'
                     }`}
                   >
                     Square{isSandbox ? ' (Sandbox)' : ''}
@@ -324,7 +324,7 @@ export default function Donate() {
                       className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all ${
                         paymentMethod === 'stripe'
                           ? 'bg-[#b6e41f] text-slate-950 shadow-lg shadow-[#b6e41f]/20'
-                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                          : 'bg-slate-700 text-white/70 hover:bg-slate-600'
                       }`}
                     >
                       Stripe
@@ -332,7 +332,7 @@ export default function Donate() {
                   )}
                 </div>
                 {paymentMethod === 'square' && isSandbox && (
-                  <p className="text-xs sm:text-sm text-[#5a8a00] mt-2">
+                  <p className="text-xs sm:text-sm text-[#b6e41f]/80 mt-2">
                     Sandbox mode - Use test card: 4532 0151 1283 0366
                   </p>
                 )}
@@ -340,14 +340,14 @@ export default function Donate() {
 
               {/* ── Frequency ── */}
               <div className="mb-8">
-                <label className="block text-sm font-semibold text-gray-600 mb-3">Donation Frequency</label>
+                <label className="block text-sm font-semibold text-white/70 mb-3">Donation Frequency</label>
                 <div className="flex gap-3 sm:gap-4">
                   <button
                     onClick={() => setFrequency('ONE_TIME')}
                     className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all ${
                       frequency === 'ONE_TIME'
-                        ? 'bg-[#7f3d8b] text-white shadow-lg'
-                        : 'bg-white text-gray-600 border border-gray-300 hover:border-gray-400'
+                        ? 'bg-white text-slate-950 shadow-lg'
+                        : 'bg-slate-800 text-white/70 border border-white/10 hover:border-white/30'
                     }`}
                   >
                     One-Time
@@ -357,7 +357,7 @@ export default function Donate() {
                     className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all relative ${
                       frequency === 'MONTHLY'
                         ? 'bg-[#b6e41f] text-slate-950 shadow-lg shadow-[#b6e41f]/20'
-                        : 'bg-white text-gray-600 border border-[#b6e41f]/40 hover:border-[#b6e41f]/70'
+                        : 'bg-slate-800 text-white/70 border border-[#b6e41f]/30 hover:border-[#b6e41f]/60'
                     }`}
                   >
                     Monthly
@@ -369,8 +369,8 @@ export default function Donate() {
                     onClick={() => setFrequency('YEARLY')}
                     className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all relative ${
                       frequency === 'YEARLY'
-                        ? 'bg-[#7f3d8b] text-white shadow-lg'
-                        : 'bg-white text-gray-600 border border-gray-300 hover:border-gray-400'
+                        ? 'bg-white text-slate-950 shadow-lg'
+                        : 'bg-slate-800 text-white/70 border border-white/10 hover:border-white/30'
                     }`}
                   >
                     Yearly
@@ -380,12 +380,12 @@ export default function Donate() {
                   </button>
                 </div>
                 {frequency === 'MONTHLY' && (
-                  <p className="text-xs sm:text-sm text-[#5a8a00] mt-3">
+                  <p className="text-xs sm:text-sm text-[#b6e41f]/80 mt-3">
                     Monthly giving provides sustainable support and helps us plan long-term programs.
                   </p>
                 )}
                 {frequency === 'YEARLY' && (
-                  <p className="text-xs sm:text-sm text-gray-500 mt-3">
+                  <p className="text-xs sm:text-sm text-white/50 mt-3">
                     Annual giving ensures we can plan and execute our best programs year-round.
                   </p>
                 )}
@@ -393,7 +393,7 @@ export default function Donate() {
 
               {/* ── Amount Preset Buttons ── */}
               <div className="mb-6 sm:mb-8">
-                <label className="block text-sm font-semibold text-gray-600 mb-3">Select Impact Level</label>
+                <label className="block text-sm font-semibold text-white/70 mb-3">Select Impact Level</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   {impactLevels.map(({ amount, label, impact, icon: Icon, color }) => (
                     <button
@@ -405,7 +405,7 @@ export default function Donate() {
                       className={`p-3 sm:p-4 rounded-xl border-2 transition-all transform active:scale-95 sm:hover:scale-105 ${
                         selectedAmount === amount && !customAmount
                           ? 'border-[#b6e41f] bg-[#b6e41f]/10 shadow-lg shadow-[#b6e41f]/10'
-                          : 'border-gray-200 bg-gray-50 hover:border-[#b6e41f]/40'
+                          : 'border-white/10 bg-slate-800/50 hover:border-[#b6e41f]/40'
                       }`}
                     >
                       <div
@@ -413,8 +413,8 @@ export default function Donate() {
                       >
                         <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
-                      <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{label}</p>
-                      <p className="text-xs text-gray-500">{impact}</p>
+                      <p className="text-xl sm:text-2xl font-bold text-white mb-1">{label}</p>
+                      <p className="text-xs text-white/50">{impact}</p>
                     </button>
                   ))}
                 </div>
@@ -422,9 +422,9 @@ export default function Donate() {
 
               {/* ── Custom Amount ── */}
               <div className="mb-8">
-                <label className="block text-sm font-semibold text-gray-600 mb-2">Or Enter Custom Amount</label>
+                <label className="block text-sm font-semibold text-white/70 mb-2">Or Enter Custom Amount</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg font-semibold">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-lg font-semibold">
                     $
                   </span>
                   <input
@@ -436,24 +436,24 @@ export default function Donate() {
                     }}
                     placeholder="Enter amount"
                     min="1"
-                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 text-lg placeholder:text-gray-400 focus:ring-2 focus:ring-[#b6e41f] focus:border-transparent outline-none transition"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white text-lg placeholder:text-white/30 focus:ring-2 focus:ring-[#b6e41f] focus:border-transparent outline-none transition"
                   />
                 </div>
               </div>
 
               {/* ── Dynamic Impact Statement ── */}
-              <div className="rounded-xl border border-[#b6e41f]/30 bg-[#b6e41f]/5 p-5 sm:p-6 mb-8">
+              <div className="rounded-xl border border-[#b6e41f]/20 bg-[#b6e41f]/5 p-5 sm:p-6 mb-8">
                 <div className="text-center">
-                  <p className="text-xs uppercase tracking-widest text-[#5a8a00] font-semibold mb-2">
+                  <p className="text-xs uppercase tracking-widest text-[#b6e41f]/70 font-semibold mb-2">
                     Your Total Impact
                   </p>
-                  <p className="text-4xl sm:text-5xl font-extrabold text-[#5a8a00] mb-3">
+                  <p className="text-4xl sm:text-5xl font-extrabold text-[#b6e41f] mb-3">
                     ${(finalAmount || 0).toFixed(2)}
                   </p>
-                  <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{dynamicImpact}</p>
+                  <p className="text-white/60 leading-relaxed text-sm sm:text-base">{dynamicImpact}</p>
                   {frequency === 'MONTHLY' && (finalAmount || 0) > 0 && (
-                    <div className="mt-4 inline-block bg-[#b6e41f]/15 border border-[#b6e41f]/25 px-4 py-2 rounded-full">
-                      <p className="text-sm font-semibold text-[#5a8a00]">
+                    <div className="mt-4 inline-block bg-[#b6e41f]/15 border border-[#b6e41f]/20 px-4 py-2 rounded-full">
+                      <p className="text-sm font-semibold text-[#b6e41f]">
                         Annual Impact: ${((finalAmount || 0) * 12).toFixed(2)}
                       </p>
                     </div>
@@ -462,18 +462,18 @@ export default function Donate() {
               </div>
 
               {/* ── Tax Deductible Disclosure ── */}
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 mb-8">
+              <div className="rounded-xl border border-white/10 bg-slate-800/40 p-5 mb-8">
                 <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-[#5a8a00] flex-shrink-0 mt-0.5" />
+                  <Shield className="w-5 h-5 text-[#b6e41f] flex-shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="text-sm font-bold text-gray-900 mb-1">Tax-Deductible Giving</h3>
-                    <p className="text-xs text-gray-500 leading-relaxed">
+                    <h3 className="text-sm font-bold text-white mb-1">Tax-Deductible Giving</h3>
+                    <p className="text-xs text-white/50 leading-relaxed">
                       A Vision For You is a registered 501(c)(3) nonprofit organization. Contributions are
                       tax-deductible to the extent permitted by law. No goods or services are provided in exchange for
                       your donation. You will receive a tax receipt via email within 24 hours.
                     </p>
                     {ein && (
-                      <p className="text-xs text-gray-400 mt-1">Federal Tax ID: {ein}</p>
+                      <p className="text-xs text-white/40 mt-1">Federal Tax ID: {ein}</p>
                     )}
                   </div>
                 </div>
@@ -481,7 +481,7 @@ export default function Donate() {
 
               {/* ── Error ── */}
               {error && (
-                <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-xl mb-6 flex gap-2">
+                <div className="bg-red-900/30 border border-red-500/40 text-red-300 px-4 py-3 rounded-xl mb-6 flex gap-2">
                   <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                   <p className="text-sm">{error}</p>
                 </div>
@@ -489,7 +489,7 @@ export default function Donate() {
 
               {/* ── Donor Info ── */}
               <div className="mb-8">
-                <label className="block text-sm font-semibold text-gray-600 mb-4">Your Information</label>
+                <label className="block text-sm font-semibold text-white/70 mb-4">Your Information</label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input
                     type="text"
@@ -497,7 +497,7 @@ export default function Donate() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Full Name"
                     required
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#b6e41f] focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:ring-2 focus:ring-[#b6e41f] focus:border-transparent outline-none transition"
                   />
                   <input
                     type="email"
@@ -505,12 +505,12 @@ export default function Donate() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email Address"
                     required
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#b6e41f] focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:ring-2 focus:ring-[#b6e41f] focus:border-transparent outline-none transition"
                   />
                 </div>
               </div>
 
-              {/* ── Submit Button (kept green) ── */}
+              {/* ── Submit Button ── */}
               <button
                 onClick={handleDonate}
                 disabled={loading || !finalAmount || !name || !email}
@@ -546,11 +546,11 @@ export default function Donate() {
 
               {/* ── Trust Signals ── */}
               <div className="mt-6 flex flex-col items-center gap-2.5 text-center">
-                <p className="text-sm text-gray-400 flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-[#5a8a00]" />
+                <p className="text-sm text-white/40 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-[#b6e41f]" />
                   Secure payment powered by {paymentMethod === 'square' ? 'Square' : 'Stripe'}
                 </p>
-                <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-400">
+                <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/30">
                   <span className="flex items-center gap-1">
                     <Shield className="w-3.5 h-3.5" />
                     501(c)(3) Verified
@@ -571,16 +571,16 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 5. IMPACT TIERS ═══════════ */}
-      <section className="bg-white py-16 sm:py-24">
+      <section className="bg-slate-900 py-16 sm:py-24">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
               See Where Your{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#b6e41f] to-emerald-400">
                 Money Goes
               </span>
             </h2>
-            <p className="text-center text-gray-500 mb-12 max-w-xl mx-auto">
+            <p className="text-center text-white/50 mb-12 max-w-xl mx-auto">
               Transparent impact. Every cent is accounted for.
             </p>
           </AnimateOnScroll>
@@ -588,13 +588,13 @@ export default function Donate() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {/* Tier 1 */}
             <AnimateOnScroll variant="fadeUp" delay={0}>
-              <div className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/30 hover:shadow-lg hover:shadow-[#b6e41f]/5">
+              <div className="group relative rounded-2xl border border-white/10 bg-gradient-to-b from-slate-800/80 to-slate-800/40 p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/30 hover:shadow-lg hover:shadow-[#b6e41f]/5">
                 <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                   <Utensils className="w-8 h-8 text-white" />
                 </div>
-                <p className="text-3xl sm:text-4xl font-extrabold text-[#5a8a00] mb-2">$25</p>
-                <p className="font-semibold text-gray-900 mb-2">Daily Essentials</p>
-                <p className="text-sm text-gray-500 leading-relaxed">
+                <p className="text-3xl sm:text-4xl font-extrabold text-[#b6e41f] mb-2">$25</p>
+                <p className="font-semibold text-white mb-2">Daily Essentials</p>
+                <p className="text-sm text-white/50 leading-relaxed">
                   Provides 10 nutritious meals and basic necessities for someone taking their first steps in recovery.
                 </p>
               </div>
@@ -602,13 +602,13 @@ export default function Donate() {
 
             {/* Tier 2 */}
             <AnimateOnScroll variant="fadeUp" delay={0.15}>
-              <div className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/30 hover:shadow-lg hover:shadow-[#b6e41f]/5">
+              <div className="group relative rounded-2xl border border-white/10 bg-gradient-to-b from-slate-800/80 to-slate-800/40 p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/30 hover:shadow-lg hover:shadow-[#b6e41f]/5">
                 <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
                   <Home className="w-8 h-8 text-white" />
                 </div>
-                <p className="text-3xl sm:text-4xl font-extrabold text-[#5a8a00] mb-2">$100</p>
-                <p className="font-semibold text-gray-900 mb-2">Safe Housing</p>
-                <p className="text-sm text-gray-500 leading-relaxed">
+                <p className="text-3xl sm:text-4xl font-extrabold text-[#b6e41f] mb-2">$100</p>
+                <p className="font-semibold text-white mb-2">Safe Housing</p>
+                <p className="text-sm text-white/50 leading-relaxed">
                   Covers one full week of safe, stable housing and intensive daily support services.
                 </p>
               </div>
@@ -616,16 +616,16 @@ export default function Donate() {
 
             {/* Tier 3 */}
             <AnimateOnScroll variant="fadeUp" delay={0.3}>
-              <div className="group relative rounded-2xl border border-[#b6e41f]/30 bg-[#b6e41f]/5 shadow-sm p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/50 hover:shadow-lg hover:shadow-[#b6e41f]/10">
+              <div className="group relative rounded-2xl border border-[#b6e41f]/20 bg-gradient-to-b from-[#b6e41f]/10 to-slate-800/40 p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/40 hover:shadow-lg hover:shadow-[#b6e41f]/10">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#b6e41f] to-emerald-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">
                   Greatest Need
                 </div>
                 <div className="w-16 h-16 mx-auto mb-5 mt-2 rounded-2xl bg-gradient-to-br from-[#b6e41f] to-emerald-500 flex items-center justify-center shadow-lg shadow-[#b6e41f]/20">
                   <Heart className="w-8 h-8 text-slate-950" />
                 </div>
-                <p className="text-3xl sm:text-4xl font-extrabold text-[#5a8a00] mb-2">$500</p>
-                <p className="font-semibold text-gray-900 mb-2">Full Month of Treatment</p>
-                <p className="text-sm text-gray-500 leading-relaxed">
+                <p className="text-3xl sm:text-4xl font-extrabold text-[#b6e41f] mb-2">$500</p>
+                <p className="font-semibold text-white mb-2">Full Month of Treatment</p>
+                <p className="text-sm text-white/50 leading-relaxed">
                   Sponsors one complete month of comprehensive treatment, housing, counseling, and wraparound care.
                 </p>
               </div>
@@ -635,21 +635,21 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 6. SOCIAL SHARING ═══════════ */}
-      <section className="bg-[#f5e6d3]/20 border-t border-gray-200 py-16 sm:py-20">
+      <section className="bg-slate-950 border-t border-white/5 py-16 sm:py-20">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <AnimateOnScroll variant="fadeUp">
-            <Share2 className="w-8 h-8 text-[#5a8a00] mx-auto mb-4" />
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+            <Share2 className="w-8 h-8 text-[#b6e41f] mx-auto mb-4" />
+            <h2 className="text-xl sm:text-2xl font-bold mb-3">
               Help Us Reach More People
             </h2>
-            <p className="text-gray-500 mb-6 text-sm sm:text-base">
+            <p className="text-white/50 mb-6 text-sm sm:text-base">
               Even if you cannot donate today, sharing our mission multiplies the impact. Let your network know you stand
               with recovery.
             </p>
 
             {/* Pre-written post preview */}
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-5 mb-6 text-left">
-              <p className="text-sm text-gray-600 leading-relaxed italic">
+            <div className="rounded-xl border border-white/10 bg-slate-900/60 p-5 mb-6 text-left">
+              <p className="text-sm text-white/70 leading-relaxed italic">
                 &ldquo;I just donated to @avisionforyourecovery to support addiction recovery in Louisville. Join me:
                 avfy-main.vercel.app/donate&rdquo;
               </p>
@@ -670,7 +670,7 @@ export default function Donate() {
                 href={TWITTER_SHARE}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-slate-950 text-sm font-semibold hover:bg-white/80 transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
                 X / Twitter
@@ -690,14 +690,14 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 7. FINAL CTA / FOOTER NOTE ═══════════ */}
-      <section className="bg-white border-t border-gray-200 py-10">
+      <section className="bg-slate-900 border-t border-white/5 py-10">
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <p className="text-gray-400 text-xs leading-relaxed">
+          <p className="text-white/30 text-xs leading-relaxed">
             A Vision For You Inc. is a 501(c)(3) tax-exempt organization{ein ? ` (EIN: ${ein})` : ''}. All donations are
             tax-deductible to the fullest extent of the law. No goods or services are provided in exchange for your
             contribution. A tax receipt will be emailed to you within 24 hours.
           </p>
-          <p className="text-gray-300 text-xs mt-3">
+          <p className="text-white/20 text-xs mt-3">
             1675 Story Ave, Louisville, KY 40206 &middot; (502) 749-6344 &middot; info@avisionforyourecovery.org
           </p>
         </div>

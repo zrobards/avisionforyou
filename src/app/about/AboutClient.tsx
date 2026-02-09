@@ -73,10 +73,10 @@ const LEADERSHIP = [
 ]
 
 const OUTCOMES = [
-  { value: 85, suffix: '%', label: 'Program Completion Rate', color: 'text-[#5a8a00]' },
-  { value: 78, suffix: '%', label: 'Housing Placement Rate', color: 'text-blue-600' },
-  { value: 72, suffix: '%', label: 'Employment Rate After Program', color: 'text-[#7f3d8b]' },
-  { value: 89, suffix: '%', label: 'Client Retention Rate', color: 'text-amber-600' },
+  { value: 85, suffix: '%', label: 'Program Completion Rate', color: 'text-[#b6e41f]' },
+  { value: 78, suffix: '%', label: 'Housing Placement Rate', color: 'text-blue-400' },
+  { value: 72, suffix: '%', label: 'Employment Rate After Program', color: 'text-purple-400' },
+  { value: 89, suffix: '%', label: 'Client Retention Rate', color: 'text-amber-400' },
 ]
 
 const PIE_SLICES = [
@@ -158,7 +158,7 @@ function DonutChart() {
           y={size / 2 - 6}
           textAnchor="middle"
           dominantBaseline="middle"
-          className="fill-gray-900 text-sm font-bold"
+          className="fill-white text-sm font-bold"
         >
           100%
         </text>
@@ -167,7 +167,7 @@ function DonutChart() {
           y={size / 2 + 12}
           textAnchor="middle"
           dominantBaseline="middle"
-          className="fill-gray-500 text-[10px]"
+          className="fill-white/60 text-[10px]"
         >
           of every dollar
         </text>
@@ -181,8 +181,8 @@ function DonutChart() {
               className="inline-block w-4 h-4 rounded-sm shrink-0"
               style={{ backgroundColor: slice.color }}
             />
-            <span className="text-gray-600 text-sm">
-              <span className="font-bold text-gray-900">{slice.percent}%</span> {slice.label}
+            <span className="text-white/80 text-sm">
+              <span className="font-bold text-white">{slice.percent}%</span> {slice.label}
             </span>
           </div>
         ))}
@@ -197,7 +197,7 @@ function DonutChart() {
 
 export default function AboutClient() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-950">
       {/* ================================================================== */}
       {/* HERO */}
       {/* ================================================================== */}
@@ -226,23 +226,23 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* OUR STORY */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-white">
+      <section className="py-16 sm:py-24 bg-slate-900">
         <div className="max-w-4xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-12">Our Story</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-12">Our Story</h2>
           </AnimateOnScroll>
 
           <div className="space-y-8">
             <AnimateOnScroll variant="fadeUp" delay={0.1}>
-              <div className="bg-white shadow-sm border border-gray-200 p-8 sm:p-10 rounded-2xl">
-                <h3 className="text-2xl font-bold text-[#7f3d8b] mb-4">Founded with Compassion</h3>
-                <p className="text-lg text-gray-600 leading-relaxed">
+              <div className="bg-slate-800/60 border border-slate-700/50 p-8 sm:p-10 rounded-2xl">
+                <h3 className="text-2xl font-bold text-[#b6e41f] mb-4">Founded with Compassion</h3>
+                <p className="text-lg text-white/70 leading-relaxed">
                   A Vision For You was founded on the belief that everyone deserves a second chance. Walking the streets
                   of Louisville, Kentucky, our founder Lucas Bennett witnessed the pain of homelessness and addiction
                   firsthand. He realized that what was missing wasn&apos;t the desire for recovery&mdash;it was the
                   support system to make it possible.
                 </p>
-                <p className="text-lg text-gray-600 leading-relaxed mt-4">
+                <p className="text-lg text-white/70 leading-relaxed mt-4">
                   From those beginnings, A Vision For You has grown into a comprehensive recovery and support network,
                   serving hundreds of people each year. We&apos;re not just a treatment center; we&apos;re a community
                   of recovery.
@@ -251,13 +251,13 @@ export default function AboutClient() {
             </AnimateOnScroll>
 
             <AnimateOnScroll variant="fadeUp" delay={0.2}>
-              <div className="bg-white shadow-sm border border-gray-200 p-8 sm:p-10 rounded-2xl">
-                <h3 className="text-2xl font-bold text-[#7f3d8b] mb-4">Our Mission</h3>
-                <blockquote className="text-xl sm:text-2xl font-semibold text-gray-900 text-center mb-6 italic border-l-4 border-[#b6e41f] pl-6">
+              <div className="bg-slate-800/60 border border-slate-700/50 p-8 sm:p-10 rounded-2xl">
+                <h3 className="text-2xl font-bold text-[#b6e41f] mb-4">Our Mission</h3>
+                <blockquote className="text-xl sm:text-2xl font-semibold text-white text-center mb-6 italic border-l-4 border-[#b6e41f] pl-6">
                   &ldquo;To empower the homeless, addicted, maladjusted, and mentally ill to lead productive lives
                   through housing, education, self-help, treatment, or any other available resource.&rdquo;
                 </blockquote>
-                <p className="text-lg text-gray-600 leading-relaxed">
+                <p className="text-lg text-white/70 leading-relaxed">
                   This isn&apos;t just words on a page&mdash;it&apos;s what drives us every single day. We combine
                   evidence-based treatment, peer support, housing stability, education, and vocational training to
                   create pathways to lasting recovery.
@@ -271,11 +271,11 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* BOARD OF DIRECTORS / LEADERSHIP */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-gray-50">
+      <section className="py-16 sm:py-24 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-4">Board of Directors</h2>
-            <p className="text-center text-gray-500 mb-16 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">Board of Directors</h2>
+            <p className="text-center text-white/50 mb-16 max-w-2xl mx-auto">
               Our leadership team brings together diverse expertise in healthcare, community development, and nonprofit
               management to guide our mission forward.
             </p>
@@ -284,16 +284,16 @@ export default function AboutClient() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {LEADERSHIP.map((leader, idx) => (
               <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.15}>
-                <div className="bg-white shadow-md border border-gray-100 rounded-2xl p-8 hover:border-gray-300 transition-colors h-full">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 hover:border-slate-700 transition-colors h-full">
                   {/* Initials circle */}
                   <div
                     className={`w-20 h-20 bg-gradient-to-br ${leader.gradient} rounded-full mx-auto mb-6 flex items-center justify-center`}
                   >
                     <span className="text-white font-bold text-xl">{leader.initials}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 text-center mb-1">{leader.name}</h3>
-                  <p className="text-center text-[#7f3d8b] font-semibold text-sm mb-4">{leader.title}</p>
-                  <p className="text-gray-500 text-center leading-relaxed text-sm">{leader.bio}</p>
+                  <h3 className="text-xl font-bold text-white text-center mb-1">{leader.name}</h3>
+                  <p className="text-center text-[#b6e41f] font-semibold text-sm mb-4">{leader.title}</p>
+                  <p className="text-white/60 text-center leading-relaxed text-sm">{leader.bio}</p>
                 </div>
               </AnimateOnScroll>
             ))}
@@ -304,13 +304,13 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* FINANCIAL TRANSPARENCY - PIE CHART */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-white">
+      <section className="py-16 sm:py-24 bg-slate-900">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">
               How We Use Your Donations
             </h2>
-            <p className="text-center text-gray-500 mb-16 max-w-2xl mx-auto">
+            <p className="text-center text-white/50 mb-16 max-w-2xl mx-auto">
               Financial stewardship is at the heart of our operations. Every dollar is allocated with purpose and
               accountability.
             </p>
@@ -330,17 +330,17 @@ export default function AboutClient() {
                 {PIE_SLICES.map((slice, i) => (
                   <div
                     key={i}
-                    className="flex items-start gap-4 bg-white shadow-sm border border-gray-200 rounded-xl p-4"
+                    className="flex items-start gap-4 bg-slate-800/50 border border-slate-700/40 rounded-xl p-4"
                   >
                     <div
-                      className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0 font-bold text-lg"
+                      className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0 text-white font-bold text-lg"
                       style={{ backgroundColor: slice.color + '22', color: slice.color }}
                     >
                       {slice.percent}%
                     </div>
                     <div>
-                      <p className="text-gray-900 font-semibold">{slice.label}</p>
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-white font-semibold">{slice.label}</p>
+                      <p className="text-white/50 text-sm">
                         {i === 0 && 'Direct client services including treatment, counseling, peer support, and vocational training.'}
                         {i === 1 && 'Recovery residences, maintenance, utilities, and safe living environments.'}
                         {i === 2 && 'Essential organizational operations, compliance, and staff support.'}
@@ -354,11 +354,11 @@ export default function AboutClient() {
           </div>
 
           <AnimateOnScroll variant="fade" delay={0.3}>
-            <p className="text-center text-gray-400 text-sm mt-12 italic">
+            <p className="text-center text-white/40 text-sm mt-12 italic">
               Based on nonprofit sector best practices. Detailed financials available upon request. Contact{' '}
               <a
                 href="mailto:info@avisionforyourecovery.org"
-                className="text-[#7f3d8b]/70 hover:text-[#7f3d8b] underline"
+                className="text-[#b6e41f]/70 hover:text-[#b6e41f] underline"
               >
                 info@avisionforyourecovery.org
               </a>{' '}
@@ -371,11 +371,11 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* MEASURABLE OUTCOMES */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-gray-50">
+      <section className="py-16 sm:py-24 bg-slate-950">
         <div className="max-w-6xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-4">Measurable Outcomes</h2>
-            <p className="text-center text-gray-500 mb-16 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">Measurable Outcomes</h2>
+            <p className="text-center text-white/50 mb-16 max-w-2xl mx-auto">
               We track real results to ensure our programs are making a lasting difference in the lives of those we
               serve.
             </p>
@@ -384,18 +384,18 @@ export default function AboutClient() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {OUTCOMES.map((stat, idx) => (
               <AnimateOnScroll key={idx} variant="scaleUp" delay={idx * 0.1}>
-                <div className="bg-white shadow-md border border-gray-100 rounded-2xl p-8 text-center hover:border-gray-300 transition-colors">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center hover:border-slate-700 transition-colors">
                   <div className={`text-5xl sm:text-6xl font-extrabold mb-3 ${stat.color}`}>
                     <CountUpNumber end={stat.value} suffix={stat.suffix} duration={2.5} />
                   </div>
-                  <p className="text-gray-500 font-medium">{stat.label}</p>
+                  <p className="text-white/60 font-medium">{stat.label}</p>
                 </div>
               </AnimateOnScroll>
             ))}
           </div>
 
           <AnimateOnScroll variant="fade" delay={0.5}>
-            <p className="text-center text-gray-400 text-sm mt-10 italic">
+            <p className="text-center text-white/40 text-sm mt-10 italic">
               Based on internal program data. Independent audit forthcoming.
             </p>
           </AnimateOnScroll>
@@ -405,11 +405,11 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* PARTNERS & SUPPORTERS */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-white">
+      <section className="py-16 sm:py-24 bg-slate-900">
         <div className="max-w-6xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-4">Partners & Supporters</h2>
-            <p className="text-center text-gray-500 mb-16 max-w-3xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">Partners & Supporters</h2>
+            <p className="text-center text-white/50 mb-16 max-w-3xl mx-auto">
               We partner with local healthcare providers, courts, community organizations, and government agencies to
               deliver comprehensive support and create pathways to recovery.
             </p>
@@ -420,12 +420,12 @@ export default function AboutClient() {
               const Icon = cat.icon
               return (
                 <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.1}>
-                  <div className="bg-white shadow-sm border border-gray-200 rounded-2xl p-6 hover:border-[#b6e41f]/50 transition-colors h-full">
+                  <div className="bg-slate-800/50 border border-slate-700/40 rounded-2xl p-6 hover:border-[#b6e41f]/30 transition-colors h-full">
                     <div className="w-12 h-12 bg-[#b6e41f]/10 rounded-xl flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-[#5a8a00]" />
+                      <Icon className="w-6 h-6 text-[#b6e41f]" />
                     </div>
-                    <h3 className="text-gray-900 font-bold mb-2">{cat.title}</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">{cat.description}</p>
+                    <h3 className="text-white font-bold mb-2">{cat.title}</h3>
+                    <p className="text-white/50 text-sm leading-relaxed">{cat.description}</p>
                   </div>
                 </AnimateOnScroll>
               )
@@ -437,11 +437,11 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* CORE VALUES */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-gray-50">
+      <section className="py-16 sm:py-24 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-4">Our Core Values</h2>
-            <p className="text-center text-gray-500 mb-14 max-w-3xl mx-auto text-lg">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">Our Core Values</h2>
+            <p className="text-center text-white/50 mb-14 max-w-3xl mx-auto text-lg">
               These 14 values guide everything we do and everyone we serve.
             </p>
           </AnimateOnScroll>
@@ -451,14 +451,14 @@ export default function AboutClient() {
               const Icon = value.icon
               return (
                 <AnimateOnScroll key={idx} variant="fadeUp" delay={(idx % 4) * 0.08}>
-                  <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-5 hover:border-[#7f3d8b]/40 transition-colors h-full group">
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-[#7f3d8b]/40 transition-colors h-full group">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 bg-[#7f3d8b]/10 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-[#7f3d8b]/20 transition-colors">
-                        <Icon className="w-4 h-4 text-[#7f3d8b]" />
+                      <div className="w-8 h-8 bg-[#7f3d8b]/20 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-[#7f3d8b]/30 transition-colors">
+                        <Icon className="w-4 h-4 text-[#b6e41f]" />
                       </div>
-                      <h3 className="text-gray-900 font-bold text-sm">{value.title}</h3>
+                      <h3 className="text-white font-bold text-sm">{value.title}</h3>
                     </div>
-                    <p className="text-gray-500 text-xs leading-relaxed">{value.description}</p>
+                    <p className="text-white/50 text-xs leading-relaxed">{value.description}</p>
                   </div>
                 </AnimateOnScroll>
               )
@@ -470,11 +470,11 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* TRANSPARENCY & TRUST (condensed) */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-[#f5e6d3]/20">
+      <section className="py-16 sm:py-24 bg-slate-900">
         <div className="max-w-4xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <div className="bg-white shadow-md border border-gray-100 rounded-2xl p-8 sm:p-12">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-10">
+            <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 sm:p-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-10">
                 Our Commitment to Transparency
               </h2>
 
@@ -499,29 +499,29 @@ export default function AboutClient() {
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-[#b6e41f]/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                      <ChevronRight className="w-3.5 h-3.5 text-[#5a8a00]" />
+                      <ChevronRight className="w-3.5 h-3.5 text-[#b6e41f]" />
                     </div>
                     <div>
-                      <p className="text-gray-900 font-semibold text-sm mb-1">{item.title}</p>
-                      <p className="text-gray-500 text-sm leading-relaxed">{item.text}</p>
+                      <p className="text-white font-semibold text-sm mb-1">{item.title}</p>
+                      <p className="text-white/50 text-sm leading-relaxed">{item.text}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-10 pt-8 border-t border-gray-200 text-center">
-                <p className="text-gray-500 text-sm mb-2">
-                  <span className="font-semibold text-gray-600">Questions about our nonprofit status or financials?</span>
+              <div className="mt-10 pt-8 border-t border-slate-700/50 text-center">
+                <p className="text-white/50 text-sm mb-2">
+                  <span className="font-semibold text-white/70">Questions about our nonprofit status or financials?</span>
                 </p>
-                <p className="text-gray-400 text-sm">
+                <p className="text-white/40 text-sm">
                   <a
                     href="mailto:info@avisionforyourecovery.org"
-                    className="text-[#7f3d8b] hover:text-[#7f3d8b]/80 underline"
+                    className="text-[#b6e41f] hover:text-[#b6e41f]/80 underline"
                   >
                     info@avisionforyourecovery.org
                   </a>
                   {' '}&middot;{' '}
-                  <a href="tel:+15027496344" className="text-[#7f3d8b] hover:text-[#7f3d8b]/80 underline">
+                  <a href="tel:+15027496344" className="text-[#b6e41f] hover:text-[#b6e41f]/80 underline">
                     (502) 749-6344
                   </a>
                 </p>
