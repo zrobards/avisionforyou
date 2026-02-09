@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession, signOut } from 'next-auth/react'
-import { Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Menu, X, ChevronDown, Bell } from 'lucide-react'
+import { Home, Calendar, BookOpen, Users, DollarSign, LogOut, User, Settings, Menu, X, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import NotificationBell from '@/components/shared/NotificationBell'
 
 export default function Navbar() {
   const { data: session, status } = useSession()
@@ -145,6 +146,7 @@ export default function Navbar() {
             {/* Role-based Portal Links */}
             {session && (
               <div className="flex items-center gap-2 ml-2 pl-2 border-l border-purple-600">
+                {isBoard && <NotificationBell />}
                 {isBoard && (
                   <Link 
                     href="/board" 

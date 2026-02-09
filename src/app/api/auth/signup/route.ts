@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import { NextRequest, NextResponse } from "next/server"
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit"
 import { sanitizeString, sanitizeEmail } from "@/lib/sanitize"
+import { logActivity, notifyByRole } from "@/lib/notifications"
 
 export async function POST(request: NextRequest) {
   try {
@@ -67,6 +68,10 @@ export async function POST(request: NextRequest) {
         role: "USER"
       }
     })
+
+    // Log activity and notify admins (non-blocking)
+    logActivity("user_registration", `New user registered: ${cleanName}`, cleanEmail)
+    notifyByRole(["ADMIN"], "user_registration", "New User Registration", `${cleanName} (${cleanEmail}) created an account`)
 
     return NextResponse.json(
       {

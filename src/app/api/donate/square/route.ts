@@ -7,6 +7,7 @@ import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiError
 import { checkRateLimit } from '@/lib/rateLimit'
 import { ZodError } from 'zod'
 import { rateLimitResponse, errorResponse } from '@/lib/apiAuth'
+import { logActivity, notifyByRole } from '@/lib/notifications'
 
 // Get Square API base URL
 function getSquareBaseUrl() {
@@ -234,6 +235,11 @@ export async function POST(request: NextRequest) {
         // Log but don't fail - donation was already saved
         console.error("Email send failed for donation:", donation.id)
       }
+
+      // Log activity and notify board (non-blocking)
+      const freqLabel = frequency === "ONE_TIME" ? "one-time" : frequency === "MONTHLY" ? "monthly" : "annual"
+      logActivity("donation", `New $${amount} ${freqLabel} donation`, name || "Anonymous", `/admin/donations`)
+      notifyByRole(["BOARD", "ADMIN"], "donation", "New Donation Received", `$${amount} ${freqLabel} donation from ${name || "Anonymous"}`, `/admin/donations`)
 
       logApiRequest({
         timestamp: new Date(),
