@@ -98,14 +98,14 @@ export async function POST(request: NextRequest) {
 
       // Create Square order
       const orderBody = {
-        idempotencyKey: registrationId,
+        idempotency_key: registrationId,
         order: {
-          locationId: locationId,
-          lineItems: [
+          location_id: locationId,
+          line_items: [
             {
               name: `DUI Class: ${duiClass.title}`,
               quantity: "1",
-              basePriceMoney: {
+              base_price_money: {
                 amount: duiClass.price,
                 currency: "USD",
               },
@@ -135,12 +135,12 @@ export async function POST(request: NextRequest) {
 
       // Create checkout link from the order
       const checkoutBody = {
-        idempotencyKey: `${registrationId}-checkout`,
+        idempotency_key: `${registrationId}-checkout`,
         order: {
           id: orderId,
         },
-        redirectUrl: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/programs/dui-classes/success`,
-        askForShippingAddress: false,
+        redirect_url: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/programs/dui-classes/success`,
+        ask_for_shipping_address: false,
       };
 
       const checkoutResponse = await fetch(

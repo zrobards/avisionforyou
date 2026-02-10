@@ -140,14 +140,14 @@ export async function POST(request: NextRequest) {
 
       // First create an order
       const orderBody = {
-        idempotencyKey: donationSessionId,
+        idempotency_key: donationSessionId,
         order: {
-          locationId: locationId,
-          lineItems: [
+          location_id: locationId,
+          line_items: [
             {
               name: `A Vision For You - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
               quantity: "1",
-              basePriceMoney: {
+              base_price_money: {
                 amount: amountInCents,
                 currency: "USD"
               }
@@ -177,12 +177,12 @@ export async function POST(request: NextRequest) {
 
       // Now create a checkout link from the order
       const checkoutBody = {
-        idempotencyKey: `${donationSessionId}-checkout`,
+        idempotency_key: `${donationSessionId}-checkout`,
         order: {
           id: orderId
         },
-        redirectUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`,
-        askForShippingAddress: false
+        redirect_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`,
+        ask_for_shipping_address: false
       }
 
       const response = await fetch(`${getSquareBaseUrl()}/v2/checkouts`, {
