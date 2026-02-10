@@ -5,14 +5,14 @@ import { authOptions } from "@/lib/auth";
 
 // Get Square API base URL
 function getSquareBaseUrl() {
-  return process.env.SQUARE_ENVIRONMENT === "production"
+  return process.env.SQUARE_ENVIRONMENT?.trim() === "production"
     ? "https://connect.squareup.com"
     : "https://connect.squareupsandbox.com";
 }
 
 // Get Square Location ID from environment
 function getSquareLocationId() {
-  const locationId = process.env.SQUARE_LOCATION_ID;
+  const locationId = process.env.SQUARE_LOCATION_ID?.trim();
   if (!locationId) {
     throw new Error("SQUARE_LOCATION_ID environment variable is required");
   }
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
+            Authorization: `Bearer ${process.env.SQUARE_ACCESS_TOKEN?.trim()}`,
             "Content-Type": "application/json",
             "Square-Version": "2024-12-18",
           },
