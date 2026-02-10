@@ -197,11 +197,11 @@ function DonutChart() {
 
 export default function AboutClient() {
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-brand-dark">
       {/* ================================================================== */}
       {/* HERO */}
       {/* ================================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-[#7f3d8b]/30 to-slate-950 py-20 sm:py-28">
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark via-[#7f3d8b]/30 to-brand-dark py-20 sm:py-28">
         {/* Decorative glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7f3d8b]/10 rounded-full blur-3xl" />
@@ -226,7 +226,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* OUR STORY */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-slate-900">
+      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
         <div className="max-w-4xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-12">Our Story</h2>
@@ -271,7 +271,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* BOARD OF DIRECTORS / LEADERSHIP */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-slate-950">
+      <section className="py-16 sm:py-24 bg-brand-dark">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">Board of Directors</h2>
@@ -284,7 +284,7 @@ export default function AboutClient() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {LEADERSHIP.map((leader, idx) => (
               <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.15}>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 hover:border-slate-700 transition-colors h-full">
+                <div className="bg-brand-dark-lighter border border-slate-800 rounded-2xl p-8 hover:border-slate-700 transition-colors h-full">
                   {/* Initials circle */}
                   <div
                     className={`w-20 h-20 bg-gradient-to-br ${leader.gradient} rounded-full mx-auto mb-6 flex items-center justify-center`}
@@ -304,7 +304,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* FINANCIAL TRANSPARENCY - PIE CHART */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-slate-900">
+      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">
@@ -371,7 +371,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* MEASURABLE OUTCOMES */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-slate-950">
+      <section className="py-16 sm:py-24 bg-brand-dark">
         <div className="max-w-6xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">Measurable Outcomes</h2>
@@ -384,7 +384,7 @@ export default function AboutClient() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {OUTCOMES.map((stat, idx) => (
               <AnimateOnScroll key={idx} variant="scaleUp" delay={idx * 0.1}>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center hover:border-slate-700 transition-colors">
+                <div className="bg-brand-dark-lighter border border-slate-800 rounded-2xl p-8 text-center hover:border-slate-700 transition-colors">
                   <div className={`text-5xl sm:text-6xl font-extrabold mb-3 ${stat.color}`}>
                     <CountUpNumber end={stat.value} suffix={stat.suffix} duration={2.5} />
                   </div>
@@ -405,7 +405,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* PARTNERS & SUPPORTERS */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-slate-900">
+      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
         <div className="max-w-6xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">Partners & Supporters</h2>
@@ -437,7 +437,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* CORE VALUES */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-slate-950">
+      <section className="py-16 sm:py-24 bg-brand-dark">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">Our Core Values</h2>
@@ -451,7 +451,7 @@ export default function AboutClient() {
               const Icon = value.icon
               return (
                 <AnimateOnScroll key={idx} variant="fadeUp" delay={(idx % 4) * 0.08}>
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-[#7f3d8b]/40 transition-colors h-full group">
+                  <div className="bg-brand-dark-lighter border border-slate-800 rounded-xl p-5 hover:border-[#7f3d8b]/40 transition-colors h-full group">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-8 h-8 bg-[#7f3d8b]/20 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-[#7f3d8b]/30 transition-colors">
                         <Icon className="w-4 h-4 text-[#b6e41f]" />
@@ -470,7 +470,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* TRANSPARENCY & TRUST (condensed) */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-slate-900">
+      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
         <div className="max-w-4xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 sm:p-12">
@@ -534,7 +534,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* CTA - PARTNER WITH US */}
       {/* ================================================================== */}
-      <section className="relative py-20 sm:py-28 bg-gradient-to-br from-[#7f3d8b] via-[#7f3d8b]/90 to-slate-950 overflow-hidden">
+      <section className="relative py-20 sm:py-28 bg-gradient-to-br from-[#7f3d8b] via-[#7f3d8b]/90 to-brand-dark overflow-hidden">
         {/* Decorative glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#b6e41f]/5 rounded-full blur-3xl" />

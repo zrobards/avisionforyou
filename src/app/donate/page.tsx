@@ -171,9 +171,9 @@ export default function Donate() {
 
   /* ──────────────────────── RENDER ──────────────────────── */
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-brand-dark text-white">
       {/* ═══════════ 1. EMOTIONAL HERO HEADER ═══════════ */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-20 sm:py-28">
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark via-brand-dark-lighter to-brand-dark py-20 sm:py-28">
         {/* Decorative glow */}
         <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[500px] w-[700px] rounded-full bg-[#b6e41f]/10 blur-[120px]" />
 
@@ -221,7 +221,7 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 2. SOCIAL PROOF ═══════════ */}
-      <section className="bg-slate-900 border-y border-white/5 py-14 sm:py-20">
+      <section className="bg-brand-dark-lighter border-y border-white/5 py-14 sm:py-20">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll variant="fade">
             <p className="text-center text-sm uppercase tracking-widest text-[#b6e41f]/80 font-semibold mb-2">
@@ -261,10 +261,10 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 3. FUNDRAISING PROGRESS BAR ═══════════ */}
-      <section className="bg-slate-950 py-14 sm:py-20">
+      <section className="bg-brand-dark py-14 sm:py-20">
         <div className="max-w-3xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
-            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 sm:p-8">
+            <div className="rounded-2xl border border-white/10 bg-brand-dark-lighter/80 p-6 sm:p-8">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="w-5 h-5 text-[#b6e41f]" />
                 <h3 className="text-lg font-bold">Spring 2026 Campaign Goal: $50,000</h3>
@@ -295,10 +295,10 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 4. ENHANCED DONATION FORM ═══════════ */}
-      <section className="bg-slate-950 pb-20 sm:pb-28">
+      <section className="bg-brand-dark pb-20 sm:pb-28">
         <div className="max-w-3xl mx-auto px-4">
           <AnimateOnScroll variant="scaleUp">
-            <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-slate-900/80 shadow-2xl shadow-[#b6e41f]/5 p-6 sm:p-8 md:p-10">
+            <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-brand-dark-lighter to-brand-dark-lighter/80 shadow-2xl shadow-[#b6e41f]/5 p-6 sm:p-8 md:p-10">
               <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-center">Choose Your Impact</h2>
               <p className="text-white/50 text-center mb-8">
                 Every donation directly transforms lives in our community
@@ -571,7 +571,7 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 5. IMPACT TIERS ═══════════ */}
-      <section className="bg-slate-900 py-16 sm:py-24">
+      <section className="bg-brand-dark-lighter py-16 sm:py-24">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
@@ -635,7 +635,7 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 6. SOCIAL SHARING ═══════════ */}
-      <section className="bg-slate-950 border-t border-white/5 py-16 sm:py-20">
+      <section className="bg-brand-dark border-t border-white/5 py-16 sm:py-20">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <AnimateOnScroll variant="fadeUp">
             <Share2 className="w-8 h-8 text-[#b6e41f] mx-auto mb-4" />
@@ -648,7 +648,7 @@ export default function Donate() {
             </p>
 
             {/* Pre-written post preview */}
-            <div className="rounded-xl border border-white/10 bg-slate-900/60 p-5 mb-6 text-left">
+            <div className="rounded-xl border border-white/10 bg-brand-dark-lighter/60 p-5 mb-6 text-left">
               <p className="text-sm text-white/70 leading-relaxed italic">
                 &ldquo;I just donated to @avisionforyourecovery to support addiction recovery in Louisville. Join me:
                 avfy-main.vercel.app/donate&rdquo;
@@ -690,7 +690,7 @@ export default function Donate() {
       </section>
 
       {/* ═══════════ 7. FINAL CTA / FOOTER NOTE ═══════════ */}
-      <section className="bg-slate-900 border-t border-white/5 py-10">
+      <section className="bg-brand-dark-lighter border-t border-white/5 py-10">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <p className="text-white/30 text-xs leading-relaxed">
             A Vision For You Inc. is a 501(c)(3) tax-exempt organization{ein ? ` (EIN: ${ein})` : ''}. All donations are

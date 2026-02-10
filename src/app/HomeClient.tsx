@@ -85,7 +85,7 @@ export default function HomeClient() {
   }, [nextTestimonial])
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-brand-dark">
       {/* ==================== HERO SECTION ==================== */}
       <section className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden">
         <video
@@ -100,7 +100,7 @@ export default function HomeClient() {
           <source src={HERO_VIDEO_SRC} type="video/mp4" />
         </video>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-slate-950/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-brand-dark/90" />
 
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white px-4">
           <div className="max-w-5xl mx-auto text-center">
@@ -146,7 +146,7 @@ export default function HomeClient() {
           </div>
 
           {/* Animated Impact Ticker */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-slate-950/95 via-slate-900/95 to-slate-950/95 backdrop-blur-sm border-t border-white/10">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-brand-dark/95 via-brand-dark-lighter/95 to-brand-dark/95 backdrop-blur-sm border-t border-white/10">
             <div className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
                 <div className="text-2xl sm:text-3xl font-bold text-brand-green">
@@ -176,7 +176,7 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== IMPACT SECTION ==================== */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-950 to-slate-900">
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-brand-dark to-brand-dark-lighter">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-16">
@@ -233,7 +233,7 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== PROGRAMS SECTION ==================== */}
-      <section className="py-16 sm:py-24 bg-slate-900">
+      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-16">
@@ -280,7 +280,7 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== TESTIMONIALS / SOCIAL PROOF ==================== */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-900 to-slate-950">
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-brand-dark-lighter to-brand-dark">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-12">
@@ -363,7 +363,7 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== SOCIAL MEDIA FEED ==================== */}
-      <section className="py-16 sm:py-24 bg-slate-950">
+      <section className="py-16 sm:py-24 bg-brand-dark">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-12">
@@ -425,7 +425,7 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== DONATION APPEAL ==================== */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-brand-dark to-brand-dark-lighter relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(127,61,139,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(182,228,31,0.08),transparent_50%)]" />
 
@@ -489,7 +489,7 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== WHY FUND US ==================== */}
-      <section className="py-16 sm:py-24 bg-slate-900">
+      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-16">

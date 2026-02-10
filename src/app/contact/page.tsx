@@ -60,9 +60,9 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-brand-dark">
       {/* Hero Section */}
-      <section className="relative bg-slate-950 overflow-hidden">
+      <section className="relative bg-brand-dark overflow-hidden">
         {/* Background glow effects */}
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#7f3d8b]/20 rounded-full blur-3xl" />
@@ -221,7 +221,7 @@ export default function ContactPage() {
           {/* Contact Form Column */}
           <div className="lg:col-span-2">
             <AnimateOnScroll variant="fadeUp">
-              <div id="contact-form" className="bg-slate-900 border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8">
+              <div id="contact-form" className="bg-brand-dark-lighter border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8">
                 <h2 className="text-3xl font-bold text-white mb-6">Send Us a Message</h2>
 
                 <div aria-live="polite" role="status">
@@ -302,7 +302,7 @@ export default function ContactPage() {
                         className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-[#b6e41f] focus:border-transparent transition"
                       >
                         {departments.map(dept => (
-                          <option key={dept.value} value={dept.value} className="bg-slate-900 text-white">{dept.label}</option>
+                          <option key={dept.value} value={dept.value} className="bg-brand-dark-lighter text-white">{dept.label}</option>
                         ))}
                       </select>
                     </div>
@@ -386,7 +386,7 @@ export default function ContactPage() {
       </div>
 
       {/* Grant Funders & Institutional Giving */}
-      <section className="bg-slate-900 py-16 sm:py-20">
+      <section className="bg-brand-dark-lighter py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimateOnScroll variant="fadeUp">
             <div className="text-center mb-12">
@@ -493,10 +493,10 @@ export default function ContactPage() {
       </section>
 
       {/* Map Section */}
-      <section className="bg-slate-950 py-12">
+      <section className="bg-brand-dark py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimateOnScroll variant="fadeUp">
-            <div className="bg-slate-900 border border-white/10 rounded-xl h-64 sm:h-80 md:h-96 flex items-center justify-center">
+            <div className="bg-brand-dark-lighter border border-white/10 rounded-xl h-64 sm:h-80 md:h-96 flex items-center justify-center">
               <div className="text-center">
                 <MapPin className="w-12 h-12 mx-auto mb-4 text-[#b6e41f]" />
                 <p className="font-semibold text-white text-lg">Interactive Map</p>

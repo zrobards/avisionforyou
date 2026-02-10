@@ -37,9 +37,9 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-slate-950 text-white/70">
+    <footer className="bg-brand-dark text-white/70">
       {/* Social Media Banner */}
-      <div className="border-t border-white/10 bg-slate-900/50">
+      <div className="border-t border-white/10 bg-brand-dark-lighter/50">
         <div className="max-w-7xl mx-auto px-4 py-10">
           <h3 className="text-white font-bold text-xl mb-2 text-center">Follow Our Journey</h3>
           <p className="text-white/40 text-sm text-center mb-8">Every follow helps us reach someone in need</p>

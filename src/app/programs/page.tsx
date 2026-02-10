@@ -173,9 +173,9 @@ export default async function Programs() {
   }).concat(extraFromDb)
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-brand-dark">
       {/* Hero Section */}
-      <section className="relative bg-slate-950 overflow-hidden">
+      <section className="relative bg-brand-dark overflow-hidden">
         {/* Background glow effects */}
         <div className="absolute inset-0">
           <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#7f3d8b]/20 rounded-full blur-3xl" />
@@ -214,7 +214,7 @@ export default async function Programs() {
       </section>
 
       {/* Programs Grid */}
-      <section className="bg-slate-900 py-16 sm:py-20">
+      <section className="bg-brand-dark-lighter py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -302,7 +302,7 @@ export default async function Programs() {
       </section>
 
       {/* How It Works / Journey */}
-      <section className="bg-slate-950 py-16 sm:py-20">
+      <section className="bg-brand-dark py-16 sm:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Your Path Forward</h2>
@@ -329,7 +329,7 @@ export default async function Programs() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="relative bg-slate-900 overflow-hidden">
+      <section className="relative bg-brand-dark-lighter overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7f3d8b]/15 rounded-full blur-3xl" />
         </div>
