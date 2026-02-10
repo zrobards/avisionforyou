@@ -16,10 +16,13 @@ export async function GET(request: NextRequest) {
         environment: process.env.NODE_ENV
       },
       square: {
-        configured: !!(process.env.SQUARE_ACCESS_TOKEN),
+        configured: !!(process.env.SQUARE_ACCESS_TOKEN && process.env.SQUARE_LOCATION_ID),
         environment: process.env.SQUARE_ENVIRONMENT || "not-configured",
         accessTokenExists: !!process.env.SQUARE_ACCESS_TOKEN,
-        accessTokenLength: process.env.SQUARE_ACCESS_TOKEN?.length || 0
+        accessTokenLength: process.env.SQUARE_ACCESS_TOKEN?.length || 0,
+        locationIdExists: !!process.env.SQUARE_LOCATION_ID,
+        locationIdLength: process.env.SQUARE_LOCATION_ID?.length || 0,
+        locationIdPreview: process.env.SQUARE_LOCATION_ID ? `${process.env.SQUARE_LOCATION_ID.slice(0, 4)}...` : "MISSING"
       }
     }
   })
