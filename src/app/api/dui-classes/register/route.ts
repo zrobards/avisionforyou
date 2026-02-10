@@ -96,55 +96,25 @@ export async function POST(request: NextRequest) {
       // Get location ID
       const locationId = getSquareLocationId();
 
-      // Create Square order
-      const orderBody = {
+      // Create payment link via Square Payment Links API (replaces deprecated /v2/checkouts)
+      const paymentLinkBody = {
         idempotency_key: registrationId,
-        order: {
+        quick_pay: {
+          name: `DUI Class: ${duiClass.title}`,
+          price_money: {
+            amount: duiClass.price,
+            currency: "USD",
+          },
           location_id: locationId,
-          line_items: [
-            {
-              name: `DUI Class: ${duiClass.title}`,
-              quantity: "1",
-              base_price_money: {
-                amount: duiClass.price,
-                currency: "USD",
-              },
-            },
-          ],
+        },
+        checkout_options: {
+          redirect_url: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/programs/dui-classes/success`,
+          ask_for_shipping_address: false,
         },
       };
 
-      const orderResponse = await fetch(`${getSquareBaseUrl()}/v2/orders`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
-          "Square-Version": "2024-12-18",
-        },
-        body: JSON.stringify(orderBody),
-      });
-
-      if (!orderResponse.ok) {
-        const errorData = await orderResponse.json();
-        console.error("Square order error:", errorData);
-        throw new Error(`Failed to create order: ${orderResponse.status}`);
-      }
-
-      const orderData = await orderResponse.json();
-      const orderId = orderData.order.id;
-
-      // Create checkout link from the order
-      const checkoutBody = {
-        idempotency_key: `${registrationId}-checkout`,
-        order: {
-          id: orderId,
-        },
-        redirect_url: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/programs/dui-classes/success`,
-        ask_for_shipping_address: false,
-      };
-
-      const checkoutResponse = await fetch(
-        `${getSquareBaseUrl()}/v2/checkouts`,
+      const response = await fetch(
+        `${getSquareBaseUrl()}/v2/online-checkout/payment-links`,
         {
           method: "POST",
           headers: {
@@ -152,21 +122,24 @@ export async function POST(request: NextRequest) {
             "Content-Type": "application/json",
             "Square-Version": "2024-12-18",
           },
-          body: JSON.stringify(checkoutBody),
+          body: JSON.stringify(paymentLinkBody),
         }
       );
 
-      if (!checkoutResponse.ok) {
-        const errorData = await checkoutResponse.json();
-        console.error("Square checkout error:", errorData);
-        throw new Error(`Square API error: ${checkoutResponse.status}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Square payment link error:", errorData);
+        throw new Error(`Square API error: ${response.status}`);
       }
 
-      const checkout = await checkoutResponse.json();
+      const paymentLinkData = await response.json();
 
-      if (!checkout.checkout?.checkout_page_url) {
-        throw new Error("Checkout URL not returned from Square");
+      if (!paymentLinkData.payment_link?.url) {
+        throw new Error("Payment link URL not returned from Square");
       }
+
+      const paymentUrl = paymentLinkData.payment_link.url;
+      const orderId = paymentLinkData.payment_link.order_id;
 
       // Create registration record
       const registration = await db.dUIRegistration.create({
@@ -178,8 +151,8 @@ export async function POST(request: NextRequest) {
           email,
           phone: phone || null,
           amount: duiClass.price,
-          paymentUrl: checkout.checkout.checkout_page_url,
-          paymentId: orderId, // Store order ID for webhook matching (will be updated with payment ID)
+          paymentUrl: paymentUrl,
+          paymentId: orderId,
           paymentStatus: "PENDING",
           status: "PENDING",
         },
@@ -187,7 +160,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         registrationId: registration.id,
-        paymentUrl: checkout.checkout.checkout_page_url,
+        paymentUrl: paymentUrl,
       });
     } catch (squareError: any) {
       console.error("Square payment error:", squareError);

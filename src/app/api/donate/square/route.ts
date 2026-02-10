@@ -138,73 +138,46 @@ export async function POST(request: NextRequest) {
       // Get location ID
       const locationId = getSquareLocationId()
 
-      // First create an order
-      const orderBody = {
+      // Create payment link via Square Payment Links API (replaces deprecated /v2/checkouts)
+      const paymentLinkBody = {
         idempotency_key: donationSessionId,
-        order: {
-          location_id: locationId,
-          line_items: [
-            {
-              name: `A Vision For You - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
-              quantity: "1",
-              base_price_money: {
-                amount: amountInCents,
-                currency: "USD"
-              }
-            }
-          ]
+        quick_pay: {
+          name: `A Vision For You - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
+          price_money: {
+            amount: amountInCents,
+            currency: "USD"
+          },
+          location_id: locationId
+        },
+        checkout_options: {
+          redirect_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`,
+          ask_for_shipping_address: false
         }
       }
 
-      const orderResponse = await fetch(`${getSquareBaseUrl()}/v2/orders`, {
+      const response = await fetch(`${getSquareBaseUrl()}/v2/online-checkout/payment-links`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
           "Content-Type": "application/json",
           "Square-Version": "2024-12-18"
         },
-        body: JSON.stringify(orderBody)
-      })
-
-      if (!orderResponse.ok) {
-        const errorData = await orderResponse.json()
-        console.error("Square order error:", JSON.stringify(errorData))
-        throw new Error(`Failed to create order: ${orderResponse.status}`)
-      }
-
-      const orderData = await orderResponse.json()
-      const orderId = orderData.order.id
-
-      // Now create a checkout link from the order
-      const checkoutBody = {
-        idempotency_key: `${donationSessionId}-checkout`,
-        order: {
-          id: orderId
-        },
-        redirect_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`,
-        ask_for_shipping_address: false
-      }
-
-      const response = await fetch(`${getSquareBaseUrl()}/v2/checkouts`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
-          "Square-Version": "2024-12-18"
-        },
-        body: JSON.stringify(checkoutBody)
+        body: JSON.stringify(paymentLinkBody)
       })
 
       if (!response.ok) {
         const errorData = await response.json()
+        console.error("Square payment link error:", JSON.stringify(errorData))
         throw new Error(`Square API error: ${response.status}`)
       }
 
-      const checkout = await response.json()
+      const paymentLinkData = await response.json()
 
-      if (!checkout.checkout?.checkout_page_url) {
-        throw new Error("Checkout URL not returned from Square")
+      if (!paymentLinkData.payment_link?.url) {
+        throw new Error("Payment link URL not returned from Square")
       }
+
+      const paymentUrl = paymentLinkData.payment_link.url
 
       // Send confirmation email (non-blocking)
       try {
@@ -239,7 +212,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: true,
-          url: checkout.checkout.checkout_page_url,
+          url: paymentUrl,
           donationId: donation.id,
           isRecurring: frequency !== "ONE_TIME"
         },
