@@ -201,7 +201,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* HERO */}
       {/* ================================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark via-[#7f3d8b]/30 to-brand-dark py-20 sm:py-28">
+      <section className="relative overflow-hidden bg-brand-dark py-20 sm:py-28">
         {/* Decorative glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7f3d8b]/10 rounded-full blur-3xl" />
@@ -534,7 +534,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* CTA - PARTNER WITH US */}
       {/* ================================================================== */}
-      <section className="relative py-20 sm:py-28 bg-gradient-to-br from-[#7f3d8b] via-[#7f3d8b]/90 to-brand-dark overflow-hidden">
+      <section className="relative py-20 sm:py-28 bg-brand-purple overflow-hidden">
         {/* Decorative glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#b6e41f]/5 rounded-full blur-3xl" />

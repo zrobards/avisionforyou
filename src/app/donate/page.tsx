@@ -173,7 +173,7 @@ export default function Donate() {
   return (
     <div className="min-h-screen bg-brand-dark text-white">
       {/* ═══════════ 1. EMOTIONAL HERO HEADER ═══════════ */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark via-brand-dark-lighter to-brand-dark py-20 sm:py-28">
+      <section className="relative overflow-hidden bg-brand-dark py-20 sm:py-28">
         {/* Decorative glow */}
         <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[500px] w-[700px] rounded-full bg-[#b6e41f]/10 blur-[120px]" />
 
@@ -298,7 +298,7 @@ export default function Donate() {
       <section className="bg-brand-dark pb-20 sm:pb-28">
         <div className="max-w-3xl mx-auto px-4">
           <AnimateOnScroll variant="scaleUp">
-            <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-brand-dark-lighter to-brand-dark-lighter/80 shadow-2xl shadow-[#b6e41f]/5 p-6 sm:p-8 md:p-10">
+            <div className="rounded-3xl border border-white/10 bg-brand-dark-lighter shadow-2xl shadow-[#b6e41f]/5 p-6 sm:p-8 md:p-10">
               <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-center">Choose Your Impact</h2>
               <p className="text-white/50 text-center mb-8">
                 Every donation directly transforms lives in our community
@@ -588,7 +588,7 @@ export default function Donate() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {/* Tier 1 */}
             <AnimateOnScroll variant="fadeUp" delay={0}>
-              <div className="group relative rounded-2xl border border-white/10 bg-gradient-to-b from-slate-800/80 to-slate-800/40 p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/30 hover:shadow-lg hover:shadow-[#b6e41f]/5">
+              <div className="group relative rounded-2xl border border-white/10 bg-brand-dark-lighter p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/30 hover:shadow-lg hover:shadow-[#b6e41f]/5">
                 <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                   <Utensils className="w-8 h-8 text-white" />
                 </div>
@@ -602,7 +602,7 @@ export default function Donate() {
 
             {/* Tier 2 */}
             <AnimateOnScroll variant="fadeUp" delay={0.15}>
-              <div className="group relative rounded-2xl border border-white/10 bg-gradient-to-b from-slate-800/80 to-slate-800/40 p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/30 hover:shadow-lg hover:shadow-[#b6e41f]/5">
+              <div className="group relative rounded-2xl border border-white/10 bg-brand-dark-lighter p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/30 hover:shadow-lg hover:shadow-[#b6e41f]/5">
                 <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
                   <Home className="w-8 h-8 text-white" />
                 </div>
@@ -616,7 +616,7 @@ export default function Donate() {
 
             {/* Tier 3 */}
             <AnimateOnScroll variant="fadeUp" delay={0.3}>
-              <div className="group relative rounded-2xl border border-[#b6e41f]/20 bg-gradient-to-b from-[#b6e41f]/10 to-slate-800/40 p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/40 hover:shadow-lg hover:shadow-[#b6e41f]/10">
+              <div className="group relative rounded-2xl border border-[#b6e41f]/20 bg-brand-dark-lighter p-6 sm:p-8 text-center transition-all hover:border-[#b6e41f]/40 hover:shadow-lg hover:shadow-[#b6e41f]/10">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#b6e41f] to-emerald-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">
                   Greatest Need
                 </div>

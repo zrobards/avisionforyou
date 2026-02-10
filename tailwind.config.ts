@@ -15,9 +15,9 @@ const config: Config = {
         cream: '#f5e6d3',
         'brand-green': '#b6e41f',
         'brand-purple': '#7f3d8b',
-        'brand-dark': '#1e1025',
-        'brand-dark-lighter': '#2a1835',
-        'brand-dark-card': '#362045',
+        'brand-dark': '#6b3575',
+        'brand-dark-lighter': '#7f3d8b',
+        'brand-dark-card': '#8b4a97',
       },
       animation: {
         'slide-down': 'slideDown 0.4s ease-out',
