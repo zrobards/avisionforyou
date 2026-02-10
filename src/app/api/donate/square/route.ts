@@ -147,24 +147,7 @@ export async function POST(request: NextRequest) {
             {
               name: `A Vision For You - ${frequency === "ONE_TIME" ? "One-Time" : frequency === "MONTHLY" ? "Monthly" : "Annual"} Donation`,
               quantity: "1",
-              catalogObjectId: undefined,
               basePriceMoney: {
-                amount: amountInCents,
-                currency: "USD"
-              },
-              grossSalesMoney: {
-                amount: amountInCents,
-                currency: "USD"
-              },
-              totalTaxMoney: {
-                amount: 0,
-                currency: "USD"
-              },
-              totalDiscountMoney: {
-                amount: 0,
-                currency: "USD"
-              },
-              totalMoney: {
                 amount: amountInCents,
                 currency: "USD"
               }
@@ -185,6 +168,7 @@ export async function POST(request: NextRequest) {
 
       if (!orderResponse.ok) {
         const errorData = await orderResponse.json()
+        console.error("Square order error:", JSON.stringify(errorData))
         throw new Error(`Failed to create order: ${orderResponse.status}`)
       }
 

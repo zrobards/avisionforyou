@@ -109,22 +109,6 @@ export async function POST(request: NextRequest) {
                 amount: duiClass.price,
                 currency: "USD",
               },
-              grossSalesMoney: {
-                amount: duiClass.price,
-                currency: "USD",
-              },
-              totalTaxMoney: {
-                amount: 0,
-                currency: "USD",
-              },
-              totalDiscountMoney: {
-                amount: 0,
-                currency: "USD",
-              },
-              totalMoney: {
-                amount: duiClass.price,
-                currency: "USD",
-              },
             },
           ],
         },
