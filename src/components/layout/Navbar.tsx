@@ -21,7 +21,7 @@ export default function Navbar() {
   const canAccessCommunity = userRole === 'ALUMNI' || userRole === 'BOARD' || userRole === 'ADMIN'
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20">
+    <nav className="sticky top-0 z-50 bg-slate-950 border-b border-white/10 shadow-lg shadow-black/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
         <div className="flex justify-between items-center">
           {/* Logo */}
@@ -249,7 +249,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="lg:hidden absolute left-0 right-0 top-full bg-slate-950/98 backdrop-blur-md border-t border-white/10 shadow-xl max-h-[calc(100vh-80px)] overflow-y-auto">
+          <div className="lg:hidden absolute left-0 right-0 top-full bg-slate-950 border-t border-white/10 shadow-xl max-h-[calc(100vh-80px)] overflow-y-auto">
             <div className="px-4 py-4 space-y-1">
               {/* Prominent CTAs at top */}
               <div className="grid grid-cols-2 gap-3 mb-4 pb-4 border-b border-white/10">
