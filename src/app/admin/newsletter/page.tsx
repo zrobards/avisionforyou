@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Edit, Trash2, Eye, Save, Mail } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Save, Mail, Upload, X } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
 interface Newsletter {
@@ -36,6 +36,8 @@ export default function AdminNewsletter() {
   const [editing, setEditing] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [sending, setSending] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [dragging, setDragging] = useState(false)
   const displayNewsletters = Array.isArray(newsletters) ? newsletters : []
   const [formData, setFormData] = useState({
     title: '',
@@ -194,6 +196,36 @@ export default function AdminNewsletter() {
     }
   }
 
+  const handleImageUpload = async (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Image must be under 10MB', 'error')
+      return
+    }
+    if (!file.type.startsWith('image/')) {
+      showToast('File must be an image', 'error')
+      return
+    }
+    setUploading(true)
+    try {
+      const upload = new FormData()
+      upload.append('file', file)
+      upload.append('tags', JSON.stringify(['newsletter']))
+      upload.append('usage', JSON.stringify(['newsletter-featured']))
+      const res = await fetch('/api/admin/media', { method: 'POST', body: upload })
+      if (res.ok) {
+        const media = await res.json()
+        setFormData(prev => ({ ...prev, imageUrl: media.url }))
+        showToast('Image uploaded', 'success')
+      } else {
+        showToast('Upload failed', 'error')
+      }
+    } catch {
+      showToast('Upload failed', 'error')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const resetForm = () => {
     setFormData({
       title: '',
@@ -289,16 +321,58 @@ export default function AdminNewsletter() {
               </div>
 
               <div>
-                <label htmlFor="newsletter-image" className="block text-gray-300 font-semibold mb-2">Image URL (optional)</label>
-                <input
-                  id="newsletter-image"
-                  name="imageUrl"
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                  placeholder="https://..."
-                />
+                <label className="block text-gray-300 font-semibold mb-2">Image (optional)</label>
+                {formData.imageUrl ? (
+                  <div className="relative">
+                    <img
+                      src={formData.imageUrl}
+                      alt="Preview"
+                      className="w-full h-40 object-cover rounded border border-gray-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    className={`flex flex-col items-center justify-center w-full h-32 bg-gray-700 border-2 border-dashed rounded-lg cursor-pointer transition ${
+                      dragging ? 'border-blue-400 bg-gray-600' : 'border-gray-500 hover:border-blue-500 hover:bg-gray-600'
+                    }`}
+                    onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+                    onDragLeave={() => setDragging(false)}
+                    onDrop={(e) => {
+                      e.preventDefault()
+                      setDragging(false)
+                      const file = e.dataTransfer.files?.[0]
+                      if (file) handleImageUpload(file)
+                    }}
+                  >
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleImageUpload(file)
+                      }}
+                    />
+                    {uploading ? (
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                        <span className="text-gray-400 text-sm">
+                          {dragging ? 'Drop image here' : 'Click or drag & drop image'}
+                        </span>
+                        <span className="text-gray-500 text-xs mt-1">JPG, PNG, WebP, GIF up to 10MB</span>
+                      </>
+                    )}
+                  </label>
+                )}
               </div>
 
               <div>
