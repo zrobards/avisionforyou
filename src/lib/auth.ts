@@ -13,10 +13,10 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',
   providers: [
     // Google OAuth - requires credentials
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+    ...(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim() ? [
       GoogleProvider({
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        clientId: process.env.GOOGLE_CLIENT_ID.trim(),
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET.trim(),
         allowDangerousEmailAccountLinking: true,
         authorization: {
           params: {
@@ -28,17 +28,17 @@ export const authOptions: NextAuthOptions = {
       })
     ] : []),
     // Email magic link - requires Resend API key
-    ...(process.env.RESEND_API_KEY ? [
+    ...(process.env.RESEND_API_KEY?.trim() ? [
       EmailProvider({
         server: {
           host: 'smtp.resend.com',
           port: 465,
           auth: {
             user: 'resend',
-            pass: process.env.RESEND_API_KEY,
+            pass: process.env.RESEND_API_KEY.trim(),
           },
         },
-        from: process.env.EMAIL_FROM || 'noreply@avisionforyou.org',
+        from: process.env.EMAIL_FROM?.trim() || 'noreply@avisionforyou.org',
       })
     ] : []),
     // Credentials provider - proper password validation
