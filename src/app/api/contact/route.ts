@@ -5,6 +5,7 @@ import { ContactSchema, validateRequest, getValidationErrors } from '@/lib/valid
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { ZodError } from 'zod'
+import { escapeHtml } from '@/lib/sanitize'
 
 /**
  * POST /api/contact
@@ -118,12 +119,12 @@ export async function POST(request: NextRequest) {
           subject: `New Contact Form: ${subject}`,
           html: `
             <h2>New Contact Form Submission</h2>
-            <p><strong>From:</strong> ${name} (${email})</p>
-            ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
-            <p><strong>Department:</strong> ${department || 'general'}</p>
-            <p><strong>Subject:</strong> ${subject}</p>
+            <p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
+            ${phone ? `<p><strong>Phone:</strong> ${escapeHtml(phone)}</p>` : ''}
+            <p><strong>Department:</strong> ${escapeHtml(department || 'general')}</p>
+            <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
             <p><strong>Message:</strong></p>
-            <p>${message.replace(/\n/g, '<br>')}</p>
+            <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
             <hr>
             <p><small>Inquiry ID: ${inquiry.id}</small></p>
           `
@@ -134,10 +135,10 @@ export async function POST(request: NextRequest) {
           subject: 'Thank you for contacting A Vision For You',
           html: `
             <h2>Thank you for reaching out</h2>
-            <p>Hi ${name},</p>
+            <p>Hi ${escapeHtml(name)},</p>
             <p>We've received your message and will respond within 24-48 hours. A member of our team will be in touch soon.</p>
             <p><strong>Your message:</strong></p>
-            <p>${message.replace(/\n/g, '<br>')}</p>
+            <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
             <hr>
             <p>If you need immediate assistance, please call us at <strong>(502) 749-6344</strong>.</p>
             <p>Warm regards,<br>A Vision For You Team</p>

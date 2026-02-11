@@ -1,18 +1,24 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { requireAdminAuth } from '@/lib/apiAuth'
 
-export async function GET() {
+/**
+ * GET /api/donate/test
+ *
+ * Check payment provider configuration (admin only)
+ */
+export async function GET(request: NextRequest) {
+  const session = await requireAdminAuth(request)
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   return NextResponse.json({
     square: {
-      configured: !!process.env.SQUARE_ACCESS_TOKEN,
-      environment: process.env.SQUARE_ENVIRONMENT,
-      publicEnvironment: process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT,
-      accessTokenLength: process.env.SQUARE_ACCESS_TOKEN?.length || 0,
-      applicationId: process.env.SQUARE_APPLICATION_ID ? "configured" : "missing"
+      configured: !!process.env.SQUARE_ACCESS_TOKEN?.trim(),
+      environment: process.env.SQUARE_ENVIRONMENT?.trim() || "not-configured",
     },
     stripe: {
       configured: !!process.env.STRIPE_SECRET_KEY,
-      publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ? "configured" : "missing",
-      webhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET
     }
   })
 }

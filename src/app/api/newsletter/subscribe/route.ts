@@ -6,7 +6,7 @@ import { sanitizeEmail } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+const resend = process.env.RESEND_API_KEY?.trim() ? new Resend(process.env.RESEND_API_KEY.trim()) : null
 
 export async function POST(req: NextRequest) {
   try {

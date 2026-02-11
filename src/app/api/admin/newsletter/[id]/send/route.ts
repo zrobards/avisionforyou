@@ -6,7 +6,7 @@ import { Resend } from 'resend'
 import { revalidatePath } from 'next/cache'
 
 // Initialize Resend only if API key is provided
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+const resend = process.env.RESEND_API_KEY?.trim() ? new Resend(process.env.RESEND_API_KEY.trim()) : null
 
 // POST - Send newsletter to all subscribers
 export async function POST(

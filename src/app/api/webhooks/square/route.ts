@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import crypto from "crypto"
+import { escapeHtml } from "@/lib/sanitize"
 
 /**
  * Square Webhook Handler
@@ -210,7 +211,7 @@ async function handlePaymentEvent(event: any) {
                 </div>
                 <div style="background-color: #f9fafb; padding: 30px;">
                   <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-                    Hi ${duiRegistration.firstName || "there"},
+                    Hi ${escapeHtml(duiRegistration.firstName || "there")},
                   </p>
                   <p style="color: #374151; font-size: 16px; line-height: 1.6;">
                     Your payment has been received and your DUI class registration is confirmed.

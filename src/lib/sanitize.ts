@@ -44,6 +44,18 @@ export function sanitizePhone(input: string): string {
 }
 
 /**
+ * Escapes HTML special characters to prevent XSS in HTML contexts (emails, etc.).
+ */
+export function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+/**
  * Validates that a URL starts with http:// or https://.
  * Returns an empty string if the format is invalid.
  */
