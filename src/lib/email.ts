@@ -602,7 +602,7 @@ export async function sendDonationConfirmationEmail(
       to: recipientEmail,
       subject: `Thank You for Your ${amount < 100 ? 'Generous' : 'Major'} Donation - A Vision For You`,
       html,
-      from: 'A Vision For You <noreply@avisionforyou.org>'
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>'
     })
 
     console.log('✅ Donation confirmation email sent successfully to:', recipientEmail, result)
