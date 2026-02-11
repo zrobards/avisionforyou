@@ -16,7 +16,7 @@ export async function sendEmail({
   to,
   subject,
   html,
-  from = 'A Vision For You <noreply@avisionforyou.org>',
+  from = process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
 }: {
   to: string
   subject: string
@@ -84,7 +84,7 @@ export async function sendMeetingReminder(
       : 'in 1 hour'
 
     const result = await resendClient.emails.send({
-      from: 'A Vision For You <noreply@avisionforyou.org>',
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
       to: rsvp.user.email,
       subject: `Reminder: ${rsvp.session.title} Meeting ${reminderType.type === '24h' ? 'Tomorrow' : 'Starting Soon'}`,
       html: `
@@ -176,7 +176,7 @@ export async function sendAdmissionConfirmation(
     if (!resendClient) return false
 
     const result = await resendClient.emails.send({
-      from: 'A Vision For You <noreply@avisionforyou.org>',
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
       to: email,
       subject: 'Thank You for Your Interest in A Vision For You',
       html: `
@@ -254,7 +254,7 @@ export async function sendAdmissionNotificationToAdmin(
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@avisionforyou.org'
     
     const result = await resendClient.emails.send({
-      from: 'A Vision For You <noreply@avisionforyou.org>',
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
       to: adminEmail,
       replyTo: email,
       subject: `New Admission Inquiry: ${name} - ${program}`,
@@ -339,7 +339,7 @@ export async function sendDonationThankYou(
     const isRecurring = frequency !== 'ONE_TIME'
     
     const result = await resendClient.emails.send({
-      from: 'A Vision For You <noreply@avisionforyou.org>',
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
       to: email,
       subject: `Thank You for Your ${isRecurring ? 'Recurring ' : ''}Donation!`,
       html: `
