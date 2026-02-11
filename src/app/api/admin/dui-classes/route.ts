@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { DUIClassSchema, getValidationErrors } from "@/lib/validation";
+import { ZodError } from "zod";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { rateLimitResponse } from "@/lib/apiAuth";
 
 // GET - List all DUI classes
 export async function GET(request: NextRequest) {
@@ -56,7 +60,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const body = await request.json();
+    // Rate limit: 30 per hour per user
+    const userId = (session.user as any)?.id || session.user?.email || "unknown";
+    const rateLimit = checkRateLimit(`admin-dui-classes:${userId}`, 30, 3600);
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfter || 60);
+    }
+
+    // Validate request body with Zod
+    let validatedData;
+    try {
+      const body = await request.json();
+      validatedData = DUIClassSchema.parse(body);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const errors = getValidationErrors(error);
+        return NextResponse.json(
+          { error: "Validation failed", details: errors },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
+
     const {
       title,
       description,
@@ -67,19 +93,11 @@ export async function POST(request: NextRequest) {
       price,
       capacity,
       instructor,
-      active = true
-    } = body;
-
-    // Validate required fields
-    if (!title || !date || !startTime || !endTime || !location || !price || !capacity) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+      active
+    } = validatedData;
 
     // Convert price to cents
-    const priceInCents = Math.round(parseFloat(price) * 100);
+    const priceInCents = Math.round(price * 100);
 
     const duiClass = await db.dUIClass.create({
       data: {
@@ -90,9 +108,9 @@ export async function POST(request: NextRequest) {
         endTime,
         location,
         price: priceInCents,
-        capacity: parseInt(capacity),
+        capacity,
         instructor: instructor || null,
-        active: active !== false
+        active
       }
     });
 

@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { TeamMemberSchema, getValidationErrors } from "@/lib/validation";
+import { ZodError } from "zod";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { rateLimitResponse } from "@/lib/apiAuth";
 
 export async function GET() {
   try {
@@ -28,12 +32,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { name, title, bio, role, imageUrl, email, phone } = body;
-
-    if (!name || !title) {
-      return NextResponse.json({ error: "Name and title are required" }, { status: 400 });
+    // Rate limit: 30 per hour per user
+    const userId = (session.user as any)?.id || session.user?.email || "unknown";
+    const rateLimit = checkRateLimit(`admin-team:${userId}`, 30, 3600);
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfter || 60);
     }
+
+    // Validate request body with Zod
+    let validatedData;
+    try {
+      const body = await request.json();
+      validatedData = TeamMemberSchema.parse(body);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const errors = getValidationErrors(error);
+        return NextResponse.json(
+          { error: "Validation failed", details: errors },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
+
+    const { name, title, bio, imageUrl, email, phone } = validatedData;
 
     const member = await db.teamMember.create({
       data: {

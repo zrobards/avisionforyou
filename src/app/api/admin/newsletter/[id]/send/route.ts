@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
 import { Resend } from 'resend'
 import { revalidatePath } from 'next/cache'
+import { checkRateLimit } from '@/lib/rateLimit'
+import { rateLimitResponse } from '@/lib/apiAuth'
 
 // Initialize Resend only if API key is provided
 const resend = process.env.RESEND_API_KEY?.trim() ? new Resend(process.env.RESEND_API_KEY.trim()) : null
@@ -24,6 +26,13 @@ export async function POST(
     const userRole = (session.user as any).role
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 })
+    }
+
+    // Rate limit: 10 newsletter sends per hour per user (critical - sends to all subscribers)
+    const userId = (session.user as any)?.id || session.user?.email || 'unknown'
+    const rateLimit = checkRateLimit(`admin-newsletter-send:${userId}`, 10, 3600)
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfter || 60)
     }
 
     const newsletter = await prisma.newsletter.findUnique({

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { checkRateLimit } from '@/lib/rateLimit'
+import { rateLimitResponse } from '@/lib/apiAuth'
 import fs from 'fs'
 import path from 'path'
 
@@ -89,6 +91,12 @@ export async function POST(request: NextRequest) {
         { error: 'Unauthorized - Admin only' },
         { status: 403 }
       )
+    }
+
+    // Rate limit: 30 per hour per user
+    const rateLimit = checkRateLimit(`admin-blog:${user.id}`, 30, 3600)
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfter || 60)
     }
 
     const { title, content, excerpt, status, category, tags, imageUrl } = await request.json()

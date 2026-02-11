@@ -79,6 +79,37 @@ export const ContactSchema = z.object({
   message: z.string().min(10).max(5000),
 })
 
+// DUI Class Schema (price in dollars, converted to cents in route)
+export const DUIClassSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(5000).optional().or(z.literal('')),
+  date: z.string().min(1, 'Date is required'),
+  startTime: z.string().min(1, 'Start time is required').max(20),
+  endTime: z.string().min(1, 'End time is required').max(20),
+  location: z.string().min(1, 'Location is required').max(500),
+  price: z.coerce.number().min(0).max(100000),
+  capacity: z.coerce.number().int().min(1).max(1000),
+  instructor: z.string().max(200).optional().or(z.literal('')),
+  active: z.boolean().optional().default(true),
+})
+
+// Team Member Schema
+export const TeamMemberSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(200),
+  title: z.string().min(1, 'Title is required').max(200),
+  bio: z.string().max(5000).optional().or(z.literal('')),
+  email: z.string().email().optional().or(z.literal('')).or(z.literal(null)),
+  phone: z.string().max(20).optional().or(z.literal('')).or(z.literal(null)),
+  imageUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
+})
+
+// Community Announcement Schema
+export const AnnouncementSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(500),
+  content: z.string().min(1, 'Content is required').max(50000),
+  published: z.boolean().optional().default(false),
+})
+
 /**
  * Validation Helper
  * 

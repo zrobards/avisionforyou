@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { rateLimitResponse } from "@/lib/apiAuth";
 
 export async function GET() {
   try {
@@ -17,6 +19,12 @@ export async function GET() {
 
     if (!user || (user.role !== "BOARD" && user.role !== "ADMIN")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Rate limit: 10 exports per hour per user
+    const rateLimit = checkRateLimit(`board-donations-export:${user.id}`, 10, 3600);
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfter || 60);
     }
 
     const donations = await db.donation.findMany({
