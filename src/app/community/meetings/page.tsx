@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { usePolling } from '@/hooks/usePolling'
 import { Calendar, MapPin, Link as LinkIcon, CheckCircle, DollarSign, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -35,13 +36,7 @@ export default function CommunityMeetingsPage() {
   const [actionId, setActionId] = useState<string | null>(null)
   const [error, setError] = useState("")
 
-  useEffect(() => {
-    fetchItems()
-    const interval = setInterval(fetchItems, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       const res = await fetch("/api/community/meetings?upcoming=true")
       if (res.ok) {
@@ -53,7 +48,13 @@ export default function CommunityMeetingsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
+
+  usePolling(fetchItems, 60000)
 
   const handleRsvp = async (itemId: string, itemType: 'session' | 'class') => {
     setActionId(itemId)

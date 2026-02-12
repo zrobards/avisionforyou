@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react'
 
 interface CommunityAnnouncement {
@@ -26,13 +27,7 @@ export default function AdminCommunityAnnouncementsPage() {
   })
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    fetchAnnouncements()
-    const interval = setInterval(fetchAnnouncements, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  async function fetchAnnouncements() {
+  const fetchAnnouncements = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/community/announcements')
       if (res.ok) {
@@ -44,7 +39,13 @@ export default function AdminCommunityAnnouncementsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchAnnouncements()
+  }, [fetchAnnouncements])
+
+  usePolling(fetchAnnouncements, 30000)
 
   function openCreateModal() {
     setEditingAnnouncement(null)

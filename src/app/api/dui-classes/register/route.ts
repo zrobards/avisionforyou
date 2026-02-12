@@ -32,71 +32,68 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get class details
-    const duiClass = await db.dUIClass.findUnique({
-      where: { id: classId },
-      include: { 
-        _count: { 
-          select: { 
-            registrations: {
-              where: {
-                status: { not: "CANCELLED" }
+    // Use transaction to prevent race condition on capacity check
+    const result = await db.$transaction(async (tx) => {
+      // Get class details
+      const duiClass = await tx.dUIClass.findUnique({
+        where: { id: classId },
+        include: {
+          _count: {
+            select: {
+              registrations: {
+                where: {
+                  status: { not: "CANCELLED" }
+                }
               }
             }
-          } 
-        } 
-      },
+          }
+        },
+      });
+
+      if (!duiClass) {
+        return { error: "Class not found", status: 404 };
+      }
+
+      if (!duiClass.active) {
+        return { error: "Class is no longer available", status: 400 };
+      }
+
+      if (new Date(duiClass.date) < new Date()) {
+        return { error: "Class date has passed", status: 400 };
+      }
+
+      if (duiClass._count.registrations >= duiClass.capacity) {
+        return { error: "Class is full", status: 400 };
+      }
+
+      // Check for duplicate registration
+      const existingReg = await tx.dUIRegistration.findFirst({
+        where: {
+          classId,
+          email,
+          status: { not: "CANCELLED" },
+        },
+      });
+
+      if (existingReg) {
+        return { error: "You're already registered for this class", status: 400 };
+      }
+
+      return { duiClass };
     });
 
-    if (!duiClass) {
-      return NextResponse.json({ error: "Class not found" }, { status: 404 });
+    if ('error' in result) {
+      return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
-    // Check if class is active
-    if (!duiClass.active) {
-      return NextResponse.json(
-        { error: "Class is no longer available" },
-        { status: 400 }
-      );
-    }
-
-    // Check if class date has passed
-    if (new Date(duiClass.date) < new Date()) {
-      return NextResponse.json(
-        { error: "Class date has passed" },
-        { status: 400 }
-      );
-    }
-
-    // Check capacity
-    if (duiClass._count.registrations >= duiClass.capacity) {
-      return NextResponse.json({ error: "Class is full" }, { status: 400 });
-    }
-
-    // Check for duplicate registration (same email, non-cancelled)
-    const existingReg = await db.dUIRegistration.findFirst({
-      where: {
-        classId,
-        email,
-        status: { not: "CANCELLED" },
-      },
-    });
-
-    if (existingReg) {
-      return NextResponse.json(
-        { error: "You're already registered for this class" },
-        { status: 400 }
-      );
-    }
+    const { duiClass } = result;
 
     // Generate unique ID for payment
     const registrationId = `dui-${classId}-${email}-${Date.now()}`;
 
     try {
-      // Get location ID
       const locationId = getSquareLocationId();
 
-      // Create payment link via Square Payment Links API (replaces deprecated /v2/checkouts)
       const paymentLinkBody = {
         idempotency_key: registrationId,
         quick_pay: {
@@ -141,7 +138,6 @@ export async function POST(request: NextRequest) {
       const paymentUrl = paymentLinkData.payment_link.url;
       const orderId = paymentLinkData.payment_link.order_id;
 
-      // Create registration record
       const registration = await db.dUIRegistration.create({
         data: {
           classId,
@@ -172,7 +168,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("DUI registration error:", error);
     return NextResponse.json(
-      { error: error.message || "Registration failed" },
+      { error: "Registration failed" },
       { status: 500 }
     );
   }

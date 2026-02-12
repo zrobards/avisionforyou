@@ -37,33 +37,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Poll has closed" }, { status: 400 });
     }
 
-    // Check if user already voted
-    const existingVote = await db.communityPollVote.findUnique({
-      where: {
-        pollId_userId: {
+    // Create vote — use try/catch for unique constraint (P2002) to handle race conditions
+    try {
+      const newVote = await db.communityPollVote.create({
+        data: {
           pollId,
           userId: session.user.id,
+          vote,
         },
-      },
-    });
-
-    if (existingVote) {
-      return NextResponse.json(
-        { error: "You have already voted on this poll" },
-        { status: 400 }
-      );
+      });
+      return NextResponse.json({ success: true, vote: newVote });
+    } catch (createError: any) {
+      if (createError?.code === 'P2002') {
+        return NextResponse.json(
+          { error: "You have already voted on this poll" },
+          { status: 400 }
+        );
+      }
+      throw createError;
     }
-
-    // Create vote
-    const newVote = await db.communityPollVote.create({
-      data: {
-        pollId,
-        userId: session.user.id,
-        vote,
-      },
-    });
-
-    return NextResponse.json({ success: true, vote: newVote });
   } catch (error) {
     console.error("Error voting:", error);
     return NextResponse.json({ error: "Failed to vote" }, { status: 500 });

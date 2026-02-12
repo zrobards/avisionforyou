@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -46,21 +47,7 @@ export default function AdminBlog() {
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
   })
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-
-    if (status === 'authenticated') {
-      fetchPosts()
-      // Poll for updates every 30 seconds
-      const interval = setInterval(fetchPosts, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [status])
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       const response = await fetch('/api/blog?drafts=true', { cache: 'no-store' })
       if (response.ok) {
@@ -72,7 +59,19 @@ export default function AdminBlog() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+    if (status === 'authenticated') {
+      fetchPosts()
+    }
+  }, [status, router, fetchPosts])
+
+  usePolling(fetchPosts, 30000, status === 'authenticated')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

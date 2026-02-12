@@ -32,7 +32,7 @@ export async function GET() {
 
   return NextResponse.json({
     donations: {
-      amount: donationsThisMonth._sum.amount || 0,
+      amount: Number(donationsThisMonth._sum.amount ?? 0),
       count: donationsThisMonth._count,
     },
     meetingsThisMonth,

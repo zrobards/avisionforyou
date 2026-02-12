@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { usePolling } from '@/hooks/usePolling'
 import { BookOpen, ExternalLink } from "lucide-react"
 
 interface Resource {
@@ -17,13 +18,7 @@ export default function CommunityResourcesPage() {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchResources()
-    const interval = setInterval(fetchResources, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     try {
       const res = await fetch("/api/community/resources")
       if (res.ok) {
@@ -35,7 +30,13 @@ export default function CommunityResourcesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchResources()
+  }, [fetchResources])
+
+  usePolling(fetchResources, 60000)
 
   // Get unique categories
   const categories = Array.from(

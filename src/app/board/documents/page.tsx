@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { Download, FileText, Search, Upload, X } from 'lucide-react'
 
 interface BoardDocument {
@@ -40,12 +41,12 @@ export default function BoardDocumentsPage() {
     category: 'BOARD_UPDATE'
   })
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     try {
-      const url = selectedCategory 
+      const url = selectedCategory
         ? `/api/board/documents?category=${selectedCategory}`
         : '/api/board/documents'
-      
+
       const res = await fetch(url)
       if (res.ok) {
         const data = await res.json()
@@ -57,13 +58,13 @@ export default function BoardDocumentsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedCategory])
 
   useEffect(() => {
     fetchDocuments()
-    const interval = setInterval(fetchDocuments, 60000)
-    return () => clearInterval(interval)
-  }, [selectedCategory])
+  }, [fetchDocuments])
+
+  usePolling(fetchDocuments, 60000)
 
   useEffect(() => {
     if (searchQuery.trim() === '') {

@@ -21,6 +21,7 @@ export async function GET() {
 
     // Get all completed donations
     const donations = await db.donation.findMany({
+      take: 100,
       where: { status: "COMPLETED" },
       orderBy: { createdAt: "desc" },
     });
@@ -32,16 +33,16 @@ export async function GET() {
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - now.getDay());
 
-    const totalAllTime = donations.reduce((sum, d) => sum + d.amount, 0);
+    const totalAllTime = donations.reduce((sum, d) => sum + Number(d.amount), 0);
     const totalThisYear = donations
       .filter((d) => d.createdAt >= startOfYear)
-      .reduce((sum, d) => sum + d.amount, 0);
+      .reduce((sum, d) => sum + Number(d.amount), 0);
     const totalThisMonth = donations
       .filter((d) => d.createdAt >= startOfMonth)
-      .reduce((sum, d) => sum + d.amount, 0);
+      .reduce((sum, d) => sum + Number(d.amount), 0);
     const totalThisWeek = donations
       .filter((d) => d.createdAt >= startOfWeek)
-      .reduce((sum, d) => sum + d.amount, 0);
+      .reduce((sum, d) => sum + Number(d.amount), 0);
 
     // Donation count by frequency
     const donationCountByFrequency = donations.reduce(
@@ -63,9 +64,9 @@ export async function GET() {
       const name = d.name || "Anonymous Donor";
 
       if (existing) {
-        existing.total += d.amount;
+        existing.total += Number(d.amount);
       } else {
-        donorMap.set(key, { name, total: d.amount });
+        donorMap.set(key, { name, total: Number(d.amount) });
       }
     });
 
@@ -83,7 +84,7 @@ export async function GET() {
         (d) => d.createdAt >= month && d.createdAt < nextMonth
       );
 
-      const total = monthDonations.reduce((sum, d) => sum + d.amount, 0);
+      const total = monthDonations.reduce((sum, d) => sum + Number(d.amount), 0);
 
       monthlyTrend.push({
         month: month.toLocaleDateString("en-US", { year: "numeric", month: "short" }),

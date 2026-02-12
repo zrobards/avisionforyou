@@ -44,7 +44,7 @@ export function hasRole(userRole: string | undefined, allowedRoles: readonly str
  * @returns Session if authenticated, null otherwise
  */
 export async function getSession() {
-  if (process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true') {
+  if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true') {
     return {
       user: {
         id: 'bypass-review',

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 
 interface ActivityItem {
   id: string
@@ -15,13 +16,7 @@ export default function ActivityFeed() {
   const [activities, setActivities] = useState<ActivityItem[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchActivities()
-    const interval = setInterval(fetchActivities, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
       const res = await fetch('/api/activity')
       if (res.ok) {
@@ -33,7 +28,13 @@ export default function ActivityFeed() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchActivities()
+  }, [fetchActivities])
+
+  usePolling(fetchActivities, 60000)
 
   const getTypeIcon = (type: string) => {
     switch (type) {

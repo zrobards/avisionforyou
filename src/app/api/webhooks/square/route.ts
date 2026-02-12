@@ -59,6 +59,15 @@ export async function POST(request: NextRequest) {
       timestamp: event.created_at
     })
 
+    // Idempotency check — skip if we've already processed this event
+    const existingLog = await db.webhookLog.findFirst({
+      where: { eventId: event.id, provider: "square" }
+    })
+    if (existingLog) {
+      console.log("Square Webhook: Duplicate event, skipping", event.id)
+      return NextResponse.json({ received: true }, { status: 200 })
+    }
+
     // Log webhook for audit trail
     await db.webhookLog.create({
       data: {
@@ -152,90 +161,91 @@ async function handlePaymentEvent(event: any) {
       paymentStatus = "FAILED"
     }
 
-    // Update donation if found
-    if (donation) {
-      let newStatus = donation.status
-      
-      if (payment.status === "COMPLETED" || payment.status === "APPROVED") {
-        newStatus = "COMPLETED"
-        console.log("Square Webhook: Payment completed for donation", donation.id)
-      } else if (payment.status === "PENDING") {
-        newStatus = "PENDING"
-      } else if (payment.status === "CANCELED" || payment.status === "FAILED") {
-        newStatus = "FAILED"
-        console.warn("Square Webhook: Payment failed for donation", donation.id)
-      }
+    // Update donation and/or DUI registration in a transaction
+    await db.$transaction(async (tx) => {
+      if (donation) {
+        let newStatus = donation.status
 
-      await db.donation.update({
-        where: { id: donation.id },
-        data: {
-          status: newStatus as "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED"
+        if (payment.status === "COMPLETED" || payment.status === "APPROVED") {
+          newStatus = "COMPLETED"
+          console.log("Square Webhook: Payment completed for donation", donation.id)
+        } else if (payment.status === "PENDING") {
+          newStatus = "PENDING"
+        } else if (payment.status === "CANCELED" || payment.status === "FAILED") {
+          newStatus = "FAILED"
+          console.warn("Square Webhook: Payment failed for donation", donation.id)
         }
-      })
 
-      console.log("Square Webhook: Updated donation status to", newStatus)
-    }
+        await tx.donation.update({
+          where: { id: donation.id },
+          data: {
+            status: newStatus as "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED"
+          }
+        })
 
-    // Update DUI registration if found
-    if (duiRegistration) {
-      const updateData: any = {
-        paymentStatus: paymentStatus,
-        paymentId: payment.id, // Update with actual payment ID
+        console.log("Square Webhook: Updated donation status to", newStatus)
       }
 
-      if (paymentStatus === "COMPLETED") {
-        updateData.status = "CONFIRMED"
-        console.log("Square Webhook: Payment completed for DUI registration", duiRegistration.id)
-      } else if (paymentStatus === "FAILED") {
-        console.warn("Square Webhook: Payment failed for DUI registration", duiRegistration.id)
+      if (duiRegistration) {
+        const updateData: any = {
+          paymentStatus: paymentStatus,
+          paymentId: payment.id,
+        }
+
+        if (paymentStatus === "COMPLETED") {
+          updateData.status = "CONFIRMED"
+          console.log("Square Webhook: Payment completed for DUI registration", duiRegistration.id)
+        } else if (paymentStatus === "FAILED") {
+          console.warn("Square Webhook: Payment failed for DUI registration", duiRegistration.id)
+        }
+
+        await tx.dUIRegistration.update({
+          where: { id: duiRegistration.id },
+          data: updateData
+        })
+
+        console.log("Square Webhook: Updated DUI registration status to", paymentStatus)
       }
+    })
 
-      await db.dUIRegistration.update({
-        where: { id: duiRegistration.id },
-        data: updateData
-      })
-
-      console.log("Square Webhook: Updated DUI registration status to", paymentStatus)
-
-      // Send confirmation email for completed DUI payments
-      if (paymentStatus === "COMPLETED" && duiRegistration.email) {
-        try {
-          const { sendEmail } = await import("@/lib/email")
-          await sendEmail({
-            to: duiRegistration.email,
-            subject: "DUI Class Registration Confirmed - A Vision For You",
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background-color: #7f3d8b; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
-                  <h1 style="color: white; margin: 0;">Registration Confirmed</h1>
-                </div>
-                <div style="background-color: #f9fafb; padding: 30px;">
-                  <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-                    Hi ${escapeHtml(duiRegistration.firstName || "there")},
-                  </p>
-                  <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-                    Your payment has been received and your DUI class registration is confirmed.
-                  </p>
-                  <div style="background-color: white; border-left: 4px solid #7f3d8b; padding: 20px; margin: 25px 0; border-radius: 4px;">
-                    <p style="color: #374151; margin: 0;"><strong>Registration ID:</strong> ${duiRegistration.id}</p>
-                  </div>
-                  <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-                    We will contact you with class details and scheduling information. If you have questions, call us at
-                    <a href="tel:+15027496344" style="color: #7f3d8b;">(502) 749-6344</a>.
-                  </p>
-                </div>
-                <div style="background-color: #e5e7eb; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
-                  <p style="color: #6b7280; font-size: 12px; margin: 0;">
-                    A Vision For You | 1675 Story Ave, Louisville, KY 40206
-                  </p>
-                </div>
+    // Send confirmation email for completed DUI payments
+    if (paymentStatus === "COMPLETED" && duiRegistration?.email) {
+      try {
+        const { sendEmail } = await import("@/lib/email")
+        await sendEmail({
+          to: duiRegistration.email,
+          subject: "DUI Class Registration Confirmed - A Vision For You",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background-color: #7f3d8b; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
+                <h1 style="color: white; margin: 0;">Registration Confirmed</h1>
               </div>
-            `,
-          })
-          console.log("Square Webhook: Sent DUI confirmation email to", duiRegistration.email)
-        } catch (emailError) {
-          console.error("Square Webhook: Failed to send DUI confirmation email:", emailError)
-        }
+              <div style="background-color: #f9fafb; padding: 30px;">
+                <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+                  Hi ${escapeHtml(duiRegistration.firstName || "there")},
+                </p>
+                <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+                  Your payment has been received and your DUI class registration is confirmed.
+                </p>
+                <div style="background-color: white; border-left: 4px solid #7f3d8b; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                  <p style="color: #374151; margin: 0;"><strong>Registration ID:</strong> ${duiRegistration.id}</p>
+                </div>
+                <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+                  We will contact you with class details and scheduling information. If you have questions, call us at
+                  <a href="tel:+15027496344" style="color: #7f3d8b;">(502) 749-6344</a>.
+                </p>
+              </div>
+              <div style="background-color: #e5e7eb; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
+                <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                  A Vision For You | 1675 Story Ave, Louisville, KY 40206
+                </p>
+              </div>
+            </div>
+          `,
+        })
+        console.log("Square Webhook: Sent DUI confirmation email to", duiRegistration.email)
+      } catch (emailError) {
+        console.error("Square Webhook: Failed to send DUI confirmation email:", emailError)
       }
     }
 

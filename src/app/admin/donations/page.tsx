@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { 
@@ -59,20 +60,7 @@ export default function AdminDonations() {
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterFrequency, setFilterFrequency] = useState('all')
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-
-    if (status === 'authenticated') {
-      fetchDonations()
-      const interval = setInterval(fetchDonations, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [status])
-
-  const fetchDonations = async () => {
+  const fetchDonations = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/donations')
       if (response.ok) {
@@ -88,7 +76,19 @@ export default function AdminDonations() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+    if (status === 'authenticated') {
+      fetchDonations()
+    }
+  }, [status, router, fetchDonations])
+
+  usePolling(fetchDonations, 30000, status === 'authenticated')
 
   const filteredDonations = donations.filter(d => {
     const matchesSearch = !searchTerm || 

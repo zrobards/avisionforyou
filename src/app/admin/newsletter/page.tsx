@@ -1,7 +1,8 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -47,21 +48,7 @@ export default function AdminNewsletter() {
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED'
   })
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-
-    if (status === 'authenticated') {
-      fetchNewsletters()
-      // Poll for updates every 30 seconds
-      const interval = setInterval(fetchNewsletters, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [status])
-
-  const fetchNewsletters = async () => {
+  const fetchNewsletters = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/newsletter', { cache: 'no-store' })
       if (response.ok) {
@@ -90,11 +77,23 @@ export default function AdminNewsletter() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [loading, showToast, router])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+    if (status === 'authenticated') {
+      fetchNewsletters()
+    }
+  }, [status, router, fetchNewsletters])
+
+  usePolling(fetchNewsletters, 30000, status === 'authenticated')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {
       if (editing) {
         const newsletter = newsletters.find(n => n.id === editing)

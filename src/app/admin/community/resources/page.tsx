@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { Plus, Edit, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 
 interface CommunityResource {
@@ -29,13 +30,7 @@ export default function AdminCommunityResourcesPage() {
   })
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    fetchResources()
-    const interval = setInterval(fetchResources, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  async function fetchResources() {
+  const fetchResources = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/community/resources')
       if (res.ok) {
@@ -47,7 +42,13 @@ export default function AdminCommunityResourcesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchResources()
+  }, [fetchResources])
+
+  usePolling(fetchResources, 30000)
 
   function openCreateModal() {
     setEditingResource(null)

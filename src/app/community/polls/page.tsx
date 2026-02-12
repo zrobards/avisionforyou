@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { usePolling } from '@/hooks/usePolling';
 import { useSession } from "next-auth/react";
 
 interface Poll {
@@ -22,13 +23,7 @@ export default function CommunityPollsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchPolls();
-    const interval = setInterval(fetchPolls, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchPolls = async () => {
+  const fetchPolls = useCallback(async () => {
     try {
       const res = await fetch("/api/community/polls");
       if (!res.ok) throw new Error("Failed to fetch polls");
@@ -39,7 +34,13 @@ export default function CommunityPollsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPolls();
+  }, [fetchPolls]);
+
+  usePolling(fetchPolls, 60000);
 
   const handleVote = async (pollId: string, vote: boolean) => {
     try {

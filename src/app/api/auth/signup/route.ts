@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const cleanName = sanitizeString(name, 100)
 
     // Validation
-    if (!email || !name || !password) {
+    if (!cleanEmail || !cleanName || !password) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }

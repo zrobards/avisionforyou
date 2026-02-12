@@ -33,30 +33,38 @@ export async function GET() {
       },
     });
 
-    // Calculate yes/no counts and user's vote
-    const pollsWithStats = await Promise.all(
-      polls.map(async (poll) => {
-        const yesVotes = await db.communityPollVote.count({
-          where: { pollId: poll.id, vote: true },
-        });
-        const noVotes = await db.communityPollVote.count({
-          where: { pollId: poll.id, vote: false },
-        });
+    // Get all vote counts in a single groupBy query instead of per-poll
+    const pollIds = polls.map(p => p.id);
+    const voteCounts = await db.communityPollVote.groupBy({
+      by: ['pollId', 'vote'],
+      where: { pollId: { in: pollIds } },
+      _count: true,
+    });
 
-        return {
-          id: poll.id,
-          title: poll.title,
-          description: poll.description,
-          active: poll.active,
-          closesAt: poll.closesAt,
-          createdAt: poll.createdAt,
-          _count: poll._count,
-          yesVotes,
-          noVotes,
-          userVote: poll.votes[0]?.vote ?? null,
-        };
-      })
-    );
+    // Build lookup map
+    const voteMap = new Map<string, { yes: number; no: number }>();
+    for (const vc of voteCounts) {
+      const entry = voteMap.get(vc.pollId) || { yes: 0, no: 0 };
+      if (vc.vote) entry.yes = vc._count;
+      else entry.no = vc._count;
+      voteMap.set(vc.pollId, entry);
+    }
+
+    const pollsWithStats = polls.map((poll) => {
+      const counts = voteMap.get(poll.id) || { yes: 0, no: 0 };
+      return {
+        id: poll.id,
+        title: poll.title,
+        description: poll.description,
+        active: poll.active,
+        closesAt: poll.closesAt,
+        createdAt: poll.createdAt,
+        _count: poll._count,
+        yesVotes: counts.yes,
+        noVotes: counts.no,
+        userVote: poll.votes[0]?.vote ?? null,
+      };
+    });
 
     return NextResponse.json(pollsWithStats);
   } catch (error) {

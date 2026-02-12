@@ -219,6 +219,16 @@ export async function POST(request: NextRequest) {
         { status: 200 }
       )
     } catch (squareError: any) {
+      // Mark donation as FAILED since Square API call failed
+      try {
+        await db.donation.update({
+          where: { id: donation.id },
+          data: { status: "FAILED" }
+        })
+      } catch (updateError) {
+        console.error("Failed to mark donation as FAILED:", updateError)
+      }
+
       const errorInfo = handleApiError(squareError, 'donate/square', requestId, undefined)
 
       logApiRequest({

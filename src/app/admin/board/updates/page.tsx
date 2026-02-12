@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { Plus, Edit, Trash2, AlertCircle } from 'lucide-react'
 
 interface BoardUpdate {
@@ -35,13 +36,7 @@ export default function AdminBoardUpdatesPage() {
   })
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    fetchUpdates()
-    const interval = setInterval(fetchUpdates, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  async function fetchUpdates() {
+  const fetchUpdates = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/board/updates')
       if (res.ok) {
@@ -53,7 +48,13 @@ export default function AdminBoardUpdatesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchUpdates()
+  }, [fetchUpdates])
+
+  usePolling(fetchUpdates, 30000)
 
   function openCreateModal() {
     setEditingUpdate(null)

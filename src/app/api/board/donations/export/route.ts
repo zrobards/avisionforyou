@@ -37,7 +37,7 @@ export async function GET() {
       d.createdAt.toLocaleDateString(),
       d.name || "Anonymous",
       d.email || "",
-      `$${d.amount.toFixed(2)}`,
+      `$${Number(d.amount).toFixed(2)}`,
       d.frequency,
       d.status,
     ]);

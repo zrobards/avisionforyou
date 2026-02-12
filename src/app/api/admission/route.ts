@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists in database
-    const existingInquiry = await db.admissionInquiry.findUnique({
+    const existingInquiry = await db.admissionInquiry.findFirst({
       where: { email: email.toLowerCase() },
     }).catch(() => null)
 

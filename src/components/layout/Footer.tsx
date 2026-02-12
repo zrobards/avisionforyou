@@ -32,8 +32,6 @@ export default function Footer() {
       }
     };
     fetchStats();
-    const interval = setInterval(fetchStats, 60000);
-    return () => clearInterval(interval);
   }, []);
 
   return (

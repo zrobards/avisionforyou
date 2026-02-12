@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Plus, Edit, Trash2, Users, Calendar, DollarSign, X, Save } from 'lucide-react'
@@ -59,20 +60,7 @@ export default function AdminDUIClassesPage() {
     active: true
   })
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-
-    if (status === 'authenticated') {
-      fetchClasses()
-      const interval = setInterval(fetchClasses, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [status])
-
-  const fetchClasses = async () => {
+  const fetchClasses = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/dui-classes')
       if (response.ok) {
@@ -84,7 +72,19 @@ export default function AdminDUIClassesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+    if (status === 'authenticated') {
+      fetchClasses()
+    }
+  }, [status, router, fetchClasses])
+
+  usePolling(fetchClasses, 30000, status === 'authenticated')
 
   const fetchRegistrations = async (classId: string) => {
     try {

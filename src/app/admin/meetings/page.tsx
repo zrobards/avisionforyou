@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/shared/ToastProvider'
@@ -53,49 +54,7 @@ export default function AdminMeetingsPage() {
     link: ''
   })
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-
-    if (status === 'authenticated') {
-      const userRole = (session?.user as any)?.role
-      if (userRole !== 'ADMIN') {
-        showToast('error', 'Admin access required')
-        router.push('/dashboard')
-        return
-      }
-      fetchMeetings()
-      // Poll for updates every 30 seconds
-      const interval = setInterval(fetchMeetings, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [status, router, showToast])
-
-  // Filter meetings when search or filter changes
-  useEffect(() => {
-    let result = meetings
-    
-    // Apply search
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      result = result.filter(m => 
-        m.title.toLowerCase().includes(term) ||
-        m.description?.toLowerCase().includes(term) ||
-        m.location?.toLowerCase().includes(term)
-      )
-    }
-
-    // Apply format filter
-    if (filterFormat !== 'ALL') {
-      result = result.filter(m => m.format === filterFormat)
-    }
-
-    setFilteredMeetings(result)
-  }, [meetings, searchTerm, filterFormat])
-
-  const fetchMeetings = async () => {
+  const fetchMeetings = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/meetings', { cache: 'no-store' })
       if (!response.ok) throw new Error('Failed to fetch meetings')
@@ -117,7 +76,48 @@ export default function AdminMeetingsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [loading, showToast])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+
+    if (status === 'authenticated') {
+      const userRole = (session?.user as any)?.role
+      if (userRole !== 'ADMIN') {
+        showToast('error', 'Admin access required')
+        router.push('/dashboard')
+        return
+      }
+      fetchMeetings()
+    }
+  }, [status, router, showToast, fetchMeetings, session])
+
+  usePolling(fetchMeetings, 30000, status === 'authenticated')
+
+  // Filter meetings when search or filter changes
+  useEffect(() => {
+    let result = meetings
+
+    // Apply search
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      result = result.filter(m =>
+        m.title.toLowerCase().includes(term) ||
+        m.description?.toLowerCase().includes(term) ||
+        m.location?.toLowerCase().includes(term)
+      )
+    }
+
+    // Apply format filter
+    if (filterFormat !== 'ALL') {
+      result = result.filter(m => m.format === filterFormat)
+    }
+
+    setFilteredMeetings(result)
+  }, [meetings, searchTerm, filterFormat])
 
   const handleSaveMeeting = async (e: React.FormEvent) => {
     e.preventDefault()

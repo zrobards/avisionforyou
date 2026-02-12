@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { buildPageMetadata } from '@/lib/metadata'
 import HomeClient from './HomeClient'
 
@@ -15,8 +14,8 @@ export default function Home() {
         "@type": "NonprofitOrganization",
         name: "A Vision For You Inc.",
         alternateName: "AVFY",
-        url: "https://avfy-main.vercel.app",
-        logo: "https://avfy-main.vercel.app/AVFY%20LOGO.jpg",
+        url: "https://avisionforyou.org",
+        logo: "https://avisionforyou.org/AVFY%20LOGO.jpg",
         description: "501(c)(3) addiction recovery nonprofit providing free programs, safe housing, evidence-based treatment, career reentry, and community support in Louisville, KY.",
         foundingDate: "2019",
         nonprofitStatus: "501(c)(3)",
@@ -46,8 +45,8 @@ export default function Home() {
       {
         "@type": "LocalBusiness",
         name: "A Vision For You",
-        url: "https://avfy-main.vercel.app",
-        image: "https://avfy-main.vercel.app/AVFY%20LOGO.jpg",
+        url: "https://avisionforyou.org",
+        image: "https://avisionforyou.org/AVFY%20LOGO.jpg",
         telephone: "+1-502-749-6344",
         address: {
           "@type": "PostalAddress",

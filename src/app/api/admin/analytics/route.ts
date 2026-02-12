@@ -20,223 +20,298 @@ export async function GET(request: NextRequest) {
     const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    // === USER METRICS ===
-    const totalUsers = await db.user.count();
-    const newUsersLast30Days = await db.user.count({
-      where: { createdAt: { gte: thirtyDaysAgo } }
-    });
-    const newUsersPrevious30Days = await db.user.count({
-      where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } }
-    });
-    
-    const activeUsersLast30Days = await db.user.count({
-      where: {
-        OR: [
-          { rsvps: { some: { createdAt: { gte: thirtyDaysAgo } } } },
-          { donations: { some: { createdAt: { gte: thirtyDaysAgo } } } }
-        ]
-      }
-    });
+    // === PARALLEL QUERY BATCH 1: Independent counts & aggregates ===
+    const [
+      // User metrics
+      totalUsers,
+      newUsersLast30Days,
+      newUsersPrevious30Days,
+      activeUsersLast30Days,
+      cohortUsers,
+      // Donation metrics (aggregated at DB level)
+      totalDonations,
+      totalAmountAgg,
+      donationsLast30Days,
+      amountLast30DaysAgg,
+      amountPrevious30DaysAgg,
+      recurringDonors,
+      usersWhoDonated,
+      donationsByFrequency,
+      // Engagement metrics
+      totalMeetings,
+      upcomingMeetings,
+      totalRSVPs,
+      rsvpsLast30Days,
+      confirmedRSVPs,
+      popularMeetings,
+      // Program interest
+      programInterestGroups,
+      // Admission inquiries
+      totalInquiries,
+      inquiriesLast30Days,
+      processedInquiries,
+      // Blog metrics
+      totalBlogPosts,
+      blogViewsAgg,
+      // Funnel metrics
+      assessmentToRSVP,
+      rsvpToDonation,
+    ] = await Promise.all([
+      // --- User metrics ---
+      db.user.count(),
+      db.user.count({
+        where: { createdAt: { gte: thirtyDaysAgo } }
+      }),
+      db.user.count({
+        where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } }
+      }),
+      db.user.count({
+        where: {
+          OR: [
+            { rsvps: { some: { createdAt: { gte: thirtyDaysAgo } } } },
+            { donations: { some: { createdAt: { gte: thirtyDaysAgo } } } }
+          ]
+        }
+      }),
+      db.user.findMany({
+        where: { createdAt: { gte: ninetyDaysAgo, lt: sixtyDaysAgo } },
+        select: { id: true }
+      }),
+
+      // --- Donation metrics (DB-level aggregation) ---
+      db.donation.count(),
+      db.donation.aggregate({ _sum: { amount: true } }),
+      db.donation.count({
+        where: { createdAt: { gte: thirtyDaysAgo } }
+      }),
+      db.donation.aggregate({
+        where: { createdAt: { gte: thirtyDaysAgo } },
+        _sum: { amount: true }
+      }),
+      db.donation.aggregate({
+        where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+        _sum: { amount: true }
+      }),
+      db.donation.count({
+        where: { frequency: { not: 'ONE_TIME' } }
+      }),
+      db.user.count({
+        where: { donations: { some: {} } }
+      }),
+      db.donation.groupBy({
+        by: ['frequency'],
+        _count: true,
+        _sum: { amount: true }
+      }),
+
+      // --- Engagement metrics ---
+      db.programSession.count(),
+      db.programSession.count({
+        where: { startDate: { gte: now } }
+      }),
+      db.rSVP.count(),
+      db.rSVP.count({
+        where: { createdAt: { gte: thirtyDaysAgo } }
+      }),
+      db.rSVP.count({
+        where: { status: 'CONFIRMED' }
+      }),
+      db.programSession.findMany({
+        select: {
+          id: true,
+          title: true,
+          startDate: true,
+          _count: { select: { rsvps: true } }
+        },
+        orderBy: { rsvps: { _count: 'desc' } },
+        take: 5
+      }),
+
+      // --- Program interest (DB-level groupBy) ---
+      db.assessment.groupBy({
+        by: ['recommendedProgram'],
+        _count: true
+      }),
+
+      // --- Admission inquiries ---
+      db.admissionInquiry.count(),
+      db.admissionInquiry.count({
+        where: { createdAt: { gte: thirtyDaysAgo } }
+      }),
+      db.admissionInquiry.count({
+        where: { status: 'PROCESSED' }
+      }),
+
+      // --- Blog metrics ---
+      db.blogPost.count({
+        where: { status: 'PUBLISHED' }
+      }),
+      db.blogPost.aggregate({
+        where: { status: 'PUBLISHED' },
+        _sum: { views: true }
+      }),
+
+      // --- Funnel metrics ---
+      db.user.count({
+        where: {
+          AND: [
+            { assessment: { isNot: null } },
+            { rsvps: { some: {} } }
+          ]
+        }
+      }),
+      db.user.count({
+        where: {
+          AND: [
+            { rsvps: { some: {} } },
+            { donations: { some: {} } }
+          ]
+        }
+      }),
+    ]);
+
+    // === Derived values from batch 1 ===
+    const totalAmount = Number(totalAmountAgg._sum.amount ?? 0);
+    const amountLast30Days = Number(amountLast30DaysAgg._sum.amount ?? 0);
+    const amountPrevious30Days = Number(amountPrevious30DaysAgg._sum.amount ?? 0);
+    const averageDonation = totalDonations > 0 ? totalAmount / totalDonations : 0;
+    const donationConversionRate = totalUsers > 0 ? (usersWhoDonated / totalUsers) * 100 : 0;
 
     const userGrowthRate = newUsersPrevious30Days > 0
       ? ((newUsersLast30Days - newUsersPrevious30Days) / newUsersPrevious30Days) * 100
       : 0;
 
-    // Retention Rate (90-day cohort)
-    const cohortUsers = await db.user.findMany({
-      where: { createdAt: { gte: ninetyDaysAgo, lt: sixtyDaysAgo } },
-      select: { id: true }
-    });
-    const cohortIds = cohortUsers.map(u => u.id);
-    const retainedUsers = await db.user.count({
-      where: {
-        id: { in: cohortIds },
-        OR: [
-          { rsvps: { some: { createdAt: { gte: thirtyDaysAgo } } } },
-          { donations: { some: { createdAt: { gte: thirtyDaysAgo } } } }
-        ]
-      }
-    });
-    const retentionRate = cohortIds.length > 0 ? (retainedUsers / cohortIds.length) * 100 : 0;
-
-    // User Growth Trend (last 6 months)
-    const userGrowthTrend = [];
-    for (let i = 5; i >= 0; i--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-      const count = await db.user.count({
-        where: { createdAt: { gte: monthStart, lte: monthEnd } }
-      });
-      userGrowthTrend.push({
-        month: monthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        count
-      });
-    }
-
-    // === DONATION METRICS ===
-    const donations = await db.donation.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
-
-    const totalDonations = donations.length;
-    const donationsLast30Days = donations.filter(d => new Date(d.createdAt) >= thirtyDaysAgo).length;
-    const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
-    const amountLast30Days = donations.filter(d => new Date(d.createdAt) >= thirtyDaysAgo)
-      .reduce((sum, d) => sum + d.amount, 0);
-    const amountPrevious30Days = donations.filter(d => {
-      const date = new Date(d.createdAt);
-      return date >= sixtyDaysAgo && date < thirtyDaysAgo;
-    }).reduce((sum, d) => sum + d.amount, 0);
-    
-    const averageDonation = totalDonations > 0 ? totalAmount / totalDonations : 0;
-    
-    const usersWhoDonated = await db.user.count({
-      where: { donations: { some: {} } }
-    });
-    const donationConversionRate = totalUsers > 0 ? (usersWhoDonated / totalUsers) * 100 : 0;
-    
-    const recurringDonors = donations.filter(d => d.frequency !== 'ONE_TIME').length;
-    
     const donationGrowthRate = amountPrevious30Days > 0
       ? ((amountLast30Days - amountPrevious30Days) / amountPrevious30Days) * 100
       : 0;
 
-    // Donation Trend (last 6 months)
-    const donationTrend = [];
-    for (let i = 5; i >= 0; i--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-      const monthDonations = donations.filter(d => {
-        const date = new Date(d.createdAt);
-        return date >= monthStart && date <= monthEnd;
-      });
-      donationTrend.push({
-        month: monthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        amount: monthDonations.reduce((sum, d) => sum + d.amount, 0),
-        count: monthDonations.length
-      });
-    }
+    const attendanceRate = totalRSVPs > 0 ? (confirmedRSVPs / totalRSVPs) * 100 : 0;
+    const avgRSVPsPerUser = activeUsersLast30Days > 0 ? rsvpsLast30Days / activeUsersLast30Days : 0;
 
-    // Donation Methods
-    const donationMethods = [
-      {
-        method: 'One-Time',
-        count: donations.filter(d => d.frequency === 'ONE_TIME').length,
-        amount: donations.filter(d => d.frequency === 'ONE_TIME').reduce((sum, d) => sum + d.amount, 0)
-      },
-      {
-        method: 'Monthly',
-        count: donations.filter(d => d.frequency === 'MONTHLY').length,
-        amount: donations.filter(d => d.frequency === 'MONTHLY').reduce((sum, d) => sum + d.amount, 0)
-      },
-      {
-        method: 'Yearly',
-        count: donations.filter(d => d.frequency === 'YEARLY').length,
-        amount: donations.filter(d => d.frequency === 'YEARLY').reduce((sum, d) => sum + d.amount, 0)
-      }
-    ].filter(m => m.count > 0);
+    const totalBlogViews = Number(blogViewsAgg._sum.views ?? 0);
+    const avgViewsPerPost = totalBlogPosts > 0 ? Math.round(totalBlogViews / totalBlogPosts) : 0;
 
-    // Top Donors
-    const topDonors = donations
+    const inquiryResponseRate = totalInquiries > 0 ? (processedInquiries / totalInquiries) * 100 : 0;
+
+    // Map program interest from groupBy results
+    const programInterest = programInterestGroups
+      .map(g => ({
+        program: g.recommendedProgram || 'Unknown',
+        count: g._count
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    const assessmentCompleted = programInterestGroups.reduce((sum, g) => sum + g._count, 0);
+
+    // Map donation methods from groupBy results
+    const frequencyLabelMap: Record<string, string> = {
+      ONE_TIME: 'One-Time',
+      MONTHLY: 'Monthly',
+      YEARLY: 'Yearly',
+    };
+    const donationMethods = donationsByFrequency
+      .map(g => ({
+        method: frequencyLabelMap[g.frequency] || g.frequency,
+        count: g._count,
+        amount: Number(g._sum.amount ?? 0)
+      }))
+      .filter(m => m.count > 0);
+
+    // === PARALLEL QUERY BATCH 2: Retention + Trends + Top Donors ===
+    const cohortIds = cohortUsers.map(u => u.id);
+
+    const [
+      retainedUsers,
+      userGrowthTrend,
+      donationTrend,
+      topDonorsRaw,
+    ] = await Promise.all([
+      // Retention
+      cohortIds.length > 0
+        ? db.user.count({
+            where: {
+              id: { in: cohortIds },
+              OR: [
+                { rsvps: { some: { createdAt: { gte: thirtyDaysAgo } } } },
+                { donations: { some: { createdAt: { gte: thirtyDaysAgo } } } }
+              ]
+            }
+          })
+        : Promise.resolve(0),
+
+      // User Growth Trend (last 6 months) - parallel
+      Promise.all(
+        Array.from({ length: 6 }, (_, idx) => {
+          const i = 5 - idx;
+          const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+          return db.user.count({
+            where: { createdAt: { gte: monthStart, lte: monthEnd } }
+          }).then(count => ({
+            month: monthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+            count
+          }));
+        })
+      ),
+
+      // Donation Trend (last 6 months) - parallel
+      Promise.all(
+        Array.from({ length: 6 }, (_, idx) => {
+          const i = 5 - idx;
+          const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+          return Promise.all([
+            db.donation.aggregate({
+              where: { createdAt: { gte: monthStart, lte: monthEnd } },
+              _sum: { amount: true },
+              _count: true
+            }),
+            Promise.resolve(monthStart)
+          ]).then(([agg, ms]) => ({
+            month: ms.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+            amount: Number(agg._sum.amount ?? 0),
+            count: agg._count
+          }));
+        })
+      ),
+
+      // Top Donors - limited findMany instead of full table scan
+      db.donation.findMany({
+        select: {
+          name: true,
+          email: true,
+          amount: true,
+        },
+        orderBy: { amount: 'desc' },
+        take: 100
+      }),
+    ]);
+
+    const retentionRate = cohortIds.length > 0 ? (retainedUsers / cohortIds.length) * 100 : 0;
+
+    // Aggregate top donors from the limited result set
+    const topDonors = topDonorsRaw
       .reduce((acc: { name: string; amount: number; count: number }[], d) => {
         const donorKey = d.name || d.email || 'Anonymous';
         const existing = acc.find(donor => donor.name === donorKey);
         if (existing) {
-          existing.amount += d.amount;
+          existing.amount += Number(d.amount);
           existing.count += 1;
         } else {
-          acc.push({ name: donorKey, amount: d.amount, count: 1 });
+          acc.push({ name: donorKey, amount: Number(d.amount), count: 1 });
         }
         return acc;
       }, [])
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 10);
 
-    // === ENGAGEMENT METRICS ===
-    const totalMeetings = await db.programSession.count();
-    const upcomingMeetings = await db.programSession.count({
-      where: { startDate: { gte: now } }
-    });
-    const totalRSVPs = await db.rSVP.count();
-    const rsvpsLast30Days = await db.rSVP.count({
-      where: { createdAt: { gte: thirtyDaysAgo } }
-    });
-    const confirmedRSVPs = await db.rSVP.count({
-      where: { status: 'CONFIRMED' }
-    });
-    const attendanceRate = totalRSVPs > 0 ? (confirmedRSVPs / totalRSVPs) * 100 : 0;
-    const avgRSVPsPerUser = activeUsersLast30Days > 0 ? rsvpsLast30Days / activeUsersLast30Days : 0;
-
-    // Popular Meetings
-    const popularMeetings = await db.programSession.findMany({
-      select: {
-        id: true,
-        title: true,
-        startDate: true,
-        _count: { select: { rsvps: true } }
-      },
-      orderBy: { rsvps: { _count: 'desc' } },
-      take: 5
-    });
-
-    // === PROGRAM INTEREST ===
-    const assessments = await db.assessment.findMany();
-    const programInterest = assessments.reduce((acc: any[], a) => {
-      const program = a.recommendedProgram || 'Unknown';
-      const existing = acc.find(p => p.program === program);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        acc.push({ program, count: 1 });
-      }
-      return acc;
-    }, []).sort((a, b) => b.count - a.count);
-
-    // === ADMISSION INQUIRIES ===
-    const totalInquiries = await db.admissionInquiry.count();
-    const inquiriesLast30Days = await db.admissionInquiry.count({
-      where: { createdAt: { gte: thirtyDaysAgo } }
-    });
-    const processedInquiries = await db.admissionInquiry.count({
-      where: { status: 'PROCESSED' }
-    });
-    const inquiryResponseRate = totalInquiries > 0 ? (processedInquiries / totalInquiries) * 100 : 0;
-
-    // === BLOG METRICS ===
-    const totalBlogPosts = await db.blogPost.count({
-      where: { status: 'PUBLISHED' }
-    });
-    const blogPosts = await db.blogPost.findMany({
-      where: { status: 'PUBLISHED' },
-      select: { views: true }
-    });
-    const totalBlogViews = blogPosts.reduce((sum, p) => sum + (p.views || 0), 0);
-    const avgViewsPerPost = totalBlogPosts > 0 ? Math.round(totalBlogViews / totalBlogPosts) : 0;
-
-    // === CONVERSION FUNNEL ===
-    const assessmentCompleted = assessments.length;
-    const assessmentToRSVP = await db.user.count({
-      where: {
-        AND: [
-          { assessment: { isNot: null } },
-          { rsvps: { some: {} } }
-        ]
-      }
-    });
-    const rsvpToDonation = await db.user.count({
-      where: {
-        AND: [
-          { rsvps: { some: {} } },
-          { donations: { some: {} } }
-        ]
-      }
-    });
+    // === Funnel rates ===
     const assessmentToRSVPRate = assessmentCompleted > 0 ? (assessmentToRSVP / assessmentCompleted) * 100 : 0;
     const rsvpToDonationRate = assessmentToRSVP > 0 ? (rsvpToDonation / assessmentToRSVP) * 100 : 0;
 
     // === INSIGHTS ===
     const insights = [];
-    
+
     if (donationConversionRate < 10) {
       insights.push({
         type: 'warning',
@@ -244,7 +319,7 @@ export async function GET(request: NextRequest) {
         message: `Only ${donationConversionRate.toFixed(1)}% of users have donated. Consider adding donation prompts or highlighting impact stories.`
       });
     }
-    
+
     if (retentionRate < 30) {
       insights.push({
         type: 'warning',
@@ -252,7 +327,7 @@ export async function GET(request: NextRequest) {
         message: `Only ${retentionRate.toFixed(1)}% of users remain active after 90 days. Focus on engagement and follow-up communications.`
       });
     }
-    
+
     if (userGrowthRate > 20) {
       insights.push({
         type: 'success',
@@ -260,7 +335,7 @@ export async function GET(request: NextRequest) {
         message: `User growth increased by ${userGrowthRate.toFixed(1)}% this month. Keep up the momentum!`
       });
     }
-    
+
     if (donationGrowthRate > 15) {
       insights.push({
         type: 'success',
@@ -268,7 +343,7 @@ export async function GET(request: NextRequest) {
         message: `Donations increased by ${donationGrowthRate.toFixed(1)}% this month. Your fundraising efforts are paying off!`
       });
     }
-    
+
     if (assessmentToRSVPRate < 25) {
       insights.push({
         type: 'info',

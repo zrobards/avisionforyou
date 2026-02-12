@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Mail, Phone, Calendar, User, Building2, CheckCircle, Clock, XCircle } from 'lucide-react'
@@ -24,14 +25,7 @@ export default function AdminContactPage() {
   const [filter, setFilter] = useState<string>('all')
   const safeInquiries = Array.isArray(inquiries) ? inquiries : []
 
-  useEffect(() => {
-    fetchInquiries()
-    // Poll for updates every 30 seconds
-    const interval = setInterval(fetchInquiries, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  async function fetchInquiries() {
+  const fetchInquiries = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/contact', { cache: 'no-store' })
       if (res.ok) {
@@ -50,7 +44,13 @@ export default function AdminContactPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchInquiries()
+  }, [fetchInquiries])
+
+  usePolling(fetchInquiries, 30000)
 
   async function updateStatus(id: string, status: ContactInquiry['status']) {
     try {

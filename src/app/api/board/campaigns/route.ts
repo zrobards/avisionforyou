@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { z } from "zod";
+
+const createCampaignSchema = z.object({
+  name: z.string().min(1).max(200).trim(),
+  description: z.string().min(1).max(5000).trim(),
+  goalAmount: z.coerce.number().positive(),
+  startDate: z.string().datetime(),
+  endDate: z.string().datetime(),
+  targetAudience: z.string().max(500).optional(),
+  status: z.enum(["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"]).optional(),
+});
 
 export async function GET() {
   try {
@@ -21,6 +32,7 @@ export async function GET() {
 
     const campaigns = await db.campaign.findMany({
       orderBy: { createdAt: "desc" },
+      take: 50,
       include: {
         createdBy: {
           select: { name: true, email: true },
@@ -58,35 +70,33 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const {
-      name,
-      description,
-      goalAmount,
-      startDate,
-      endDate,
-      targetAudience,
-      status,
-    } = body;
-
-    if (!name || !description || !goalAmount || !startDate || !endDate) {
+    const parsed = createCampaignSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
 
-    // Generate slug from name
-    const slug = name
+    const { name, description, goalAmount, startDate, endDate, targetAudience, status } = parsed.data;
+
+    // Generate slug with collision avoidance
+    let slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
+
+    const existingSlug = await db.campaign.findUnique({ where: { slug } });
+    if (existingSlug) {
+      slug = `${slug}-${Date.now()}`;
+    }
 
     const campaign = await db.campaign.create({
       data: {
         name,
         slug,
         description,
-        goalAmount: parseFloat(goalAmount),
+        goalAmount,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         targetAudience,

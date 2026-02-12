@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { usePolling } from '@/hooks/usePolling'
 import { Calendar, MapPin, Link as LinkIcon, X } from "lucide-react"
 
 interface RSVP {
@@ -29,13 +30,7 @@ export default function MyRSVPsPage() {
   const [actionId, setActionId] = useState<string | null>(null)
   const [error, setError] = useState("")
 
-  useEffect(() => {
-    fetchRSVPs()
-    const interval = setInterval(fetchRSVPs, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const fetchRSVPs = async () => {
+  const fetchRSVPs = useCallback(async () => {
     try {
       const res = await fetch("/api/rsvp")
       if (res.ok) {
@@ -47,7 +42,13 @@ export default function MyRSVPsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchRSVPs()
+  }, [fetchRSVPs])
+
+  usePolling(fetchRSVPs, 60000)
 
   const handleCancelRsvp = async (sessionId: string) => {
     setActionId(sessionId)

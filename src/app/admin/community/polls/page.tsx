@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { usePolling } from '@/hooks/usePolling';
 import { Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 
 interface Poll {
@@ -26,13 +27,7 @@ export default function AdminPollsPage() {
     closesAt: "",
   });
 
-  useEffect(() => {
-    fetchPolls();
-    const interval = setInterval(fetchPolls, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchPolls = async () => {
+  const fetchPolls = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/community/polls");
       if (!res.ok) throw new Error("Failed to fetch polls");
@@ -43,7 +38,13 @@ export default function AdminPollsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPolls();
+  }, [fetchPolls]);
+
+  usePolling(fetchPolls, 30000);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

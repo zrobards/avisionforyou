@@ -24,8 +24,18 @@ export async function GET(req: NextRequest) {
     }
 
     const media = await prisma.mediaItem.findMany({
+      take: 50,
       orderBy: { uploadedAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        filename: true,
+        type: true,
+        size: true,
+        mimeType: true,
+        tags: true,
+        usage: true,
+        uploadedAt: true,
+        uploadedById: true,
         uploadedBy: {
           select: {
             name: true,

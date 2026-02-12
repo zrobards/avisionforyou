@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Upload, Image as ImageIcon, Video, Download, Tag, Search, Filter, Trash2, Eye } from 'lucide-react'
@@ -48,20 +49,7 @@ export default function MediaLibrary() {
     { id: 'newsletter', label: 'Newsletter', icon: '📧' }
   ]
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-    if (status === 'authenticated') {
-      fetchMedia()
-      // Poll for updates every 30 seconds
-      const interval = setInterval(fetchMedia, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [status])
-
-  const fetchMedia = async () => {
+  const fetchMedia = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/media', { cache: 'no-store' })
       if (!response.ok) {
@@ -79,7 +67,19 @@ export default function MediaLibrary() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [loading, showToast])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+    if (status === 'authenticated') {
+      fetchMedia()
+    }
+  }, [status, router, fetchMedia])
+
+  usePolling(fetchMedia, 30000, status === 'authenticated')
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files

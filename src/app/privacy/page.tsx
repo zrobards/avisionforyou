@@ -1,6 +1,9 @@
-'use client'
+import { buildPageMetadata } from '@/lib/metadata'
 
-import Link from 'next/link'
+export const metadata = buildPageMetadata(
+  'Privacy Policy | A Vision For You Recovery',
+  'Privacy policy for A Vision For You Inc. Learn how we protect your personal information and data.'
+)
 
 export default function Privacy() {
   return (

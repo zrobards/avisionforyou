@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import {
@@ -163,19 +164,7 @@ export default function AdminAnalyticsPage() {
   const [error, setError] = useState('')
   const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-    if (status === 'authenticated') {
-      fetchAnalytics()
-      const interval = setInterval(fetchAnalytics, 60000)
-      return () => clearInterval(interval)
-    }
-  }, [status])
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/analytics')
       if (!res.ok) throw new Error('Failed to fetch analytics')
@@ -188,7 +177,19 @@ export default function AdminAnalyticsPage() {
       setLoading(false)
       setRefreshing(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+    if (status === 'authenticated') {
+      fetchAnalytics()
+    }
+  }, [status, router, fetchAnalytics])
+
+  usePolling(fetchAnalytics, 60000, status === 'authenticated')
 
   const handleRefresh = () => {
     setRefreshing(true)

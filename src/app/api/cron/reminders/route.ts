@@ -7,32 +7,25 @@ import crypto from 'crypto'
 
 export async function GET(request: Request) {
   try {
-    // Check if called by Vercel Cron (has special headers) or external service
+    // Require Bearer token auth for all callers
     const authHeader = request.headers.get('authorization')
-    const isVercelCron = request.headers.get('user-agent')?.includes('vercel-cron')
-    
-    // If not Vercel Cron, require authentication with constant-time comparison
-    if (!isVercelCron) {
-      const cronSecret = process.env.CRON_SECRET
-      
-      if (!cronSecret || !authHeader) {
+    const cronSecret = process.env.CRON_SECRET
+
+    if (!cronSecret || !authHeader) {
+      return new Response('Unauthorized', { status: 401 })
+    }
+
+    const expectedAuth = `Bearer ${cronSecret}`
+    try {
+      const isValid = crypto.timingSafeEqual(
+        Buffer.from(authHeader),
+        Buffer.from(expectedAuth)
+      )
+      if (!isValid) {
         return new Response('Unauthorized', { status: 401 })
       }
-      
-      const expectedAuth = `Bearer ${cronSecret}`
-      try {
-        // Use constant-time comparison to prevent timing attacks
-        const isValid = crypto.timingSafeEqual(
-          Buffer.from(authHeader),
-          Buffer.from(expectedAuth)
-        )
-        if (!isValid) {
-          return new Response('Unauthorized', { status: 401 })
-        }
-      } catch {
-        // Buffer lengths don't match - invalid auth
-        return new Response('Unauthorized', { status: 401 })
-      }
+    } catch {
+      return new Response('Unauthorized', { status: 401 })
     }
 
     const result = await sendBulkMeetingReminders()

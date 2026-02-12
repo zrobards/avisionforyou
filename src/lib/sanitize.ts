@@ -1,73 +1,39 @@
 /**
- * Shared input sanitization utilities.
- * No external dependencies -- uses regex for HTML stripping.
+ * HTML escape utility to prevent XSS in email templates and HTML responses.
  */
 
-/**
- * Removes all HTML tags from a string.
- */
-export function stripHtml(input: string): string {
-  return input.replace(/<[^>]*>/g, "");
+const ESCAPE_MAP: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#x27;',
 }
 
 /**
- * Trims whitespace, removes HTML tags, and limits length.
- * @param input  - Raw string input.
- * @param maxLength - Maximum allowed length (default 1000).
- * @returns The sanitized string.
+ * Escape HTML special characters to prevent XSS injection.
  */
-export function sanitizeString(input: string, maxLength: number = 1000): string {
-  const stripped = stripHtml(input).trim();
-  return stripped.slice(0, maxLength);
+export function escapeHtml(str: string | null | undefined): string {
+  if (!str) return ''
+  return String(str).replace(/[&<>"']/g, (ch) => ESCAPE_MAP[ch] || ch)
 }
 
 /**
- * Lowercases, trims, and validates an email address.
- * Returns an empty string if the format is invalid.
+ * Strip HTML tags and trim a string to a maximum length.
  */
-export function sanitizeEmail(input: string): string {
-  const trimmed = input.trim().toLowerCase();
-  // Basic RFC-style email check: local@domain.tld
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(trimmed) ? trimmed : "";
+export function sanitizeString(str: string | null | undefined, maxLength = 255): string {
+  if (!str) return ''
+  return String(str).replace(/<[^>]*>/g, '').trim().slice(0, maxLength)
 }
 
 /**
- * Strips all characters except digits and a leading +, then limits
- * the digit portion to 15 characters (per E.164).
+ * Sanitize and validate an email address.
+ * Returns the trimmed, lowercased email or null if invalid.
  */
-export function sanitizePhone(input: string): string {
-  // Preserve a leading '+' if present.
-  const hasPlus = input.trimStart().startsWith("+");
-  const digitsOnly = input.replace(/[^\d]/g, "").slice(0, 15);
-  return hasPlus ? `+${digitsOnly}` : digitsOnly;
-}
-
-/**
- * Escapes HTML special characters to prevent XSS in HTML contexts (emails, etc.).
- */
-export function escapeHtml(input: string): string {
-  return input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-
-/**
- * Validates that a URL starts with http:// or https://.
- * Returns an empty string if the format is invalid.
- */
-export function sanitizeUrl(input: string): string {
-  const trimmed = input.trim();
-  try {
-    const url = new URL(trimmed);
-    if (url.protocol === "http:" || url.protocol === "https:") {
-      return trimmed;
-    }
-    return "";
-  } catch {
-    return "";
-  }
+export function sanitizeEmail(email: string | null | undefined): string | null {
+  if (!email) return null
+  const trimmed = String(email).trim().toLowerCase()
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(trimmed) || trimmed.length > 254) return null
+  return trimmed
 }

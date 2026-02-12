@@ -15,6 +15,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Only admins can seed the database
+    const user = await db.user.findUnique({
+      where: { email: session.user.email },
+      select: { role: true }
+    })
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: "Forbidden" },
+        { status: 403 }
+      )
+    }
+
     // Create Programs
     const programs = []
     const programsData = [
@@ -237,7 +249,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Seed error:", error)
     return NextResponse.json(
-      { error: "Failed to seed database: " + (error as Error).message },
+      { error: "Failed to seed database" },
       { status: 500 }
     )
   }

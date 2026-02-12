@@ -3,12 +3,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession, signOut } from 'next-auth/react'
+import { usePathname } from 'next/navigation'
 import { Home, Calendar, BookOpen, Users, LogOut, User, Settings, Menu, X, ChevronDown, Heart, Phone } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import NotificationBell from '@/components/shared/NotificationBell'
 
 export default function Navbar() {
   const { data: session, status } = useSession()
+  const pathname = usePathname()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showAboutDropdown, setShowAboutDropdown] = useState(false)
@@ -19,6 +21,99 @@ export default function Navbar() {
   const isAdmin = userRole === 'ADMIN'
   const isBoard = userRole === 'BOARD' || userRole === 'ADMIN'
   const canAccessCommunity = userRole === 'ALUMNI' || userRole === 'BOARD' || userRole === 'ADMIN'
+
+  const aboutDropdownRef = useRef<HTMLDivElement>(null)
+  const blogDropdownRef = useRef<HTMLDivElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  const aboutItems = [
+    { href: '/about', label: 'About Us' },
+    { href: '/team', label: 'Our Team' },
+    { href: '/impact', label: 'Our Impact' },
+    { href: '/social', label: 'Social Media' },
+  ]
+
+  const blogItems = [
+    { href: '/blog', label: 'Blog Posts' },
+    { href: '/newsletter', label: 'Newsletters' },
+  ]
+
+  // Check if a link is active
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    return pathname?.startsWith(href)
+  }
+
+  // Active link class helper
+  const activeLinkClass = (href: string) =>
+    isActive(href) ? 'text-white border-b-2 border-brand-green pb-0.5' : 'text-white/70'
+
+  // Close dropdowns on Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowAboutDropdown(false)
+        setShowBlogDropdown(false)
+        setShowUserMenu(false)
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [])
+
+  // Keyboard handler for dropdown triggers
+  const handleDropdownKeyDown = useCallback(
+    (
+      e: React.KeyboardEvent,
+      isOpen: boolean,
+      setOpen: (v: boolean) => void,
+      dropdownRef: React.RefObject<HTMLDivElement | null>
+    ) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        setOpen(!isOpen)
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setOpen(true)
+        // Focus first menu item
+        setTimeout(() => {
+          const firstItem = dropdownRef.current?.querySelector('[role="menuitem"]') as HTMLElement | null
+          firstItem?.focus()
+        }, 0)
+      } else if (e.key === 'Escape') {
+        setOpen(false)
+      }
+    },
+    []
+  )
+
+  // Keyboard handler for menu items within a dropdown
+  const handleMenuItemKeyDown = useCallback(
+    (
+      e: React.KeyboardEvent,
+      setOpen: (v: boolean) => void,
+      dropdownRef: React.RefObject<HTMLDivElement | null>
+    ) => {
+      const items = dropdownRef.current?.querySelectorAll('[role="menuitem"]') as NodeListOf<HTMLElement> | undefined
+      if (!items) return
+
+      const currentIndex = Array.from(items).indexOf(e.currentTarget as HTMLElement)
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        const nextIndex = (currentIndex + 1) % items.length
+        items[nextIndex]?.focus()
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        const prevIndex = (currentIndex - 1 + items.length) % items.length
+        items[prevIndex]?.focus()
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        setOpen(false)
+      }
+    },
+    []
+  )
 
   return (
     <nav className="sticky top-0 z-50 bg-brand-dark border-b border-white/10 shadow-lg shadow-black/20">
@@ -40,7 +135,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-3 xl:gap-5">
-            <Link href="/" className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors text-sm">
+            <Link href="/" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/')}`}>
               <Home className="w-4 h-4" />
               <span className="hidden xl:inline">Home</span>
             </Link>
@@ -48,27 +143,35 @@ export default function Navbar() {
             {/* About Dropdown */}
             <div
               className="relative group"
+              ref={aboutDropdownRef}
               onMouseEnter={() => setShowAboutDropdown(true)}
               onMouseLeave={() => setShowAboutDropdown(false)}
             >
-              <button className="flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 text-sm">
+              <button
+                className={`flex items-center gap-1 hover:text-white transition-colors py-2 text-sm ${
+                  aboutItems.some(item => isActive(item.href)) ? 'text-white border-b-2 border-brand-green pb-0.5' : 'text-white/70'
+                }`}
+                aria-haspopup="true"
+                aria-expanded={showAboutDropdown}
+                onKeyDown={(e) => handleDropdownKeyDown(e, showAboutDropdown, setShowAboutDropdown, aboutDropdownRef)}
+              >
                 About
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
               {showAboutDropdown && (
                 <div className="absolute top-full left-0 pt-2 z-50">
-                  <div className="bg-brand-dark-lighter border border-white/10 rounded-xl shadow-2xl py-2 w-48">
-                    {[
-                      { href: '/about', label: 'About Us' },
-                      { href: '/team', label: 'Our Team' },
-                      { href: '/impact', label: 'Our Impact' },
-                      { href: '/social', label: 'Social Media' },
-                    ].map((item) => (
+                  <div className="bg-brand-dark-lighter border border-white/10 rounded-xl shadow-2xl py-2 w-48" role="menu">
+                    {aboutItems.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="block px-4 py-2.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors text-sm"
+                        role="menuitem"
+                        tabIndex={0}
+                        className={`block px-4 py-2.5 hover:bg-white/10 hover:text-white transition-colors text-sm ${
+                          isActive(item.href) ? 'text-white bg-white/5 font-semibold' : 'text-white/70'
+                        }`}
                         onClick={() => setShowAboutDropdown(false)}
+                        onKeyDown={(e) => handleMenuItemKeyDown(e, setShowAboutDropdown, aboutDropdownRef)}
                       >
                         {item.label}
                       </Link>
@@ -78,11 +181,11 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link href="/programs" className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors text-sm">
+            <Link href="/programs" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/programs')}`}>
               <Calendar className="w-4 h-4" />
               <span className="hidden xl:inline">Programs</span>
             </Link>
-            <Link href="/meetings" className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors text-sm">
+            <Link href="/meetings" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/meetings')}`}>
               <Users className="w-4 h-4" />
               <span className="hidden xl:inline">Meetings</span>
             </Link>
@@ -90,29 +193,46 @@ export default function Navbar() {
             {/* Blog Dropdown */}
             <div
               className="relative group"
+              ref={blogDropdownRef}
               onMouseEnter={() => setShowBlogDropdown(true)}
               onMouseLeave={() => setShowBlogDropdown(false)}
             >
-              <button className="flex items-center gap-1 text-white/70 hover:text-white transition-colors py-2 text-sm">
+              <button
+                className={`flex items-center gap-1 hover:text-white transition-colors py-2 text-sm ${
+                  blogItems.some(item => isActive(item.href)) ? 'text-white border-b-2 border-brand-green pb-0.5' : 'text-white/70'
+                }`}
+                aria-haspopup="true"
+                aria-expanded={showBlogDropdown}
+                onKeyDown={(e) => handleDropdownKeyDown(e, showBlogDropdown, setShowBlogDropdown, blogDropdownRef)}
+              >
                 <BookOpen className="w-4 h-4" />
                 <span className="hidden xl:inline">Blog</span>
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
               {showBlogDropdown && (
                 <div className="absolute top-full left-0 pt-2 z-50">
-                  <div className="bg-brand-dark-lighter border border-white/10 rounded-xl shadow-2xl py-2 w-48">
-                    <Link href="/blog" className="block px-4 py-2.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors text-sm" onClick={() => setShowBlogDropdown(false)}>
-                      Blog Posts
-                    </Link>
-                    <Link href="/newsletter" className="block px-4 py-2.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors text-sm" onClick={() => setShowBlogDropdown(false)}>
-                      Newsletters
-                    </Link>
+                  <div className="bg-brand-dark-lighter border border-white/10 rounded-xl shadow-2xl py-2 w-48" role="menu">
+                    {blogItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        role="menuitem"
+                        tabIndex={0}
+                        className={`block px-4 py-2.5 hover:bg-white/10 hover:text-white transition-colors text-sm ${
+                          isActive(item.href) ? 'text-white bg-white/5 font-semibold' : 'text-white/70'
+                        }`}
+                        onClick={() => setShowBlogDropdown(false)}
+                        onKeyDown={(e) => handleMenuItemKeyDown(e, setShowBlogDropdown, blogDropdownRef)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
 
-            <Link href="/contact" className="text-white/70 hover:text-white transition-colors text-sm">
+            <Link href="/contact" className={`hover:text-white transition-colors text-sm ${activeLinkClass('/contact')}`}>
               Contact
             </Link>
 
@@ -128,7 +248,9 @@ export default function Navbar() {
               </a>
               <Link
                 href="/donate"
-                className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-brand-green to-emerald-500 text-white rounded-lg hover:shadow-lg hover:shadow-brand-green/25 hover:scale-105 transition-all text-xs xl:text-sm font-bold"
+                className={`flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-brand-green to-emerald-500 text-white rounded-lg hover:shadow-lg hover:shadow-brand-green/25 hover:scale-105 transition-all text-xs xl:text-sm font-bold ${
+                  isActive('/donate') ? 'ring-2 ring-white/50' : ''
+                }`}
                 title="Donate"
               >
                 <Heart className="w-4 h-4" />
@@ -143,7 +265,9 @@ export default function Navbar() {
                 {isBoard && (
                   <Link
                     href="/board"
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors font-medium text-xs"
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors font-medium text-xs ${
+                      isActive('/board') ? 'ring-2 ring-brand-green/50' : ''
+                    }`}
                     title="Board Portal"
                   >
                     <span className="hidden xl:inline">Board</span>
@@ -153,7 +277,9 @@ export default function Navbar() {
                 {canAccessCommunity && (
                   <Link
                     href="/community"
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-brand-green/20 text-brand-green rounded-lg hover:bg-brand-green/30 transition-colors font-medium text-xs"
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 bg-brand-green/20 text-brand-green rounded-lg hover:bg-brand-green/30 transition-colors font-medium text-xs ${
+                      isActive('/community') ? 'ring-2 ring-brand-green/50' : ''
+                    }`}
                     title="Community"
                   >
                     <span className="hidden xl:inline">Community</span>
@@ -169,27 +295,32 @@ export default function Navbar() {
             {status === 'loading' ? (
               <div className="animate-pulse bg-white/10 rounded-full w-9 h-9 sm:w-10 sm:h-10" />
             ) : session ? (
-              <div className="hidden md:block relative">
+              <div className="hidden md:block relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg transition-colors text-sm"
                   aria-label="User menu"
+                  aria-haspopup="true"
                   aria-expanded={showUserMenu}
+                  onKeyDown={(e) => handleDropdownKeyDown(e, showUserMenu, setShowUserMenu, userMenuRef)}
                 >
                   <User className="w-4 h-4" />
                   <span className="hidden lg:inline max-w-[120px] truncate">{session.user?.name || 'Account'}</span>
                 </button>
 
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] bg-brand-dark-lighter border border-white/10 rounded-xl shadow-2xl py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] bg-brand-dark-lighter border border-white/10 rounded-xl shadow-2xl py-2 z-50" role="menu">
                     <div className="px-4 py-2.5 border-b border-white/10">
                       <p className="text-sm font-semibold text-white truncate">{session.user?.name}</p>
                       <p className="text-xs text-white/50 truncate">{session.user?.email}</p>
                     </div>
                     <Link
                       href="/dashboard"
+                      role="menuitem"
+                      tabIndex={0}
                       className="flex items-center gap-2 px-4 py-2.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors text-sm"
                       onClick={() => setShowUserMenu(false)}
+                      onKeyDown={(e) => handleMenuItemKeyDown(e, setShowUserMenu, userMenuRef)}
                     >
                       <Settings className="w-4 h-4" />
                       My Dashboard
@@ -197,19 +328,25 @@ export default function Navbar() {
                     {isAdmin && (
                       <Link
                         href="/admin"
+                        role="menuitem"
+                        tabIndex={0}
                         className="flex items-center gap-2 px-4 py-2.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors text-sm"
                         onClick={() => setShowUserMenu(false)}
+                        onKeyDown={(e) => handleMenuItemKeyDown(e, setShowUserMenu, userMenuRef)}
                       >
                         <Users className="w-4 h-4" />
                         Admin Panel
                       </Link>
                     )}
                     <button
+                      role="menuitem"
+                      tabIndex={0}
                       onClick={() => {
                         setShowUserMenu(false)
                         signOut({ callbackUrl: '/' })
                       }}
                       className="flex items-center gap-2 w-full px-4 py-2.5 text-red-400 hover:bg-red-500/10 transition-colors text-sm"
+                      onKeyDown={(e) => handleMenuItemKeyDown(e, setShowUserMenu, userMenuRef)}
                     >
                       <LogOut className="w-4 h-4" />
                       Sign Out
@@ -220,7 +357,9 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="hidden md:block bg-white/10 text-white px-4 py-2 rounded-lg font-semibold hover:bg-white/20 transition-colors text-sm"
+                className={`hidden md:block bg-white/10 text-white px-4 py-2 rounded-lg font-semibold hover:bg-white/20 transition-colors text-sm ${
+                  isActive('/login') ? 'ring-2 ring-brand-green/50' : ''
+                }`}
               >
                 Sign In
               </Link>
@@ -272,7 +411,7 @@ export default function Navbar() {
               </div>
 
               {/* Navigation Links */}
-              <Link href="/" className="flex items-center gap-3 text-white/80 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors" onClick={() => setShowMobileMenu(false)}>
+              <Link href="/" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
                 <Home className="w-5 h-5" />
                 <span className="font-medium">Home</span>
               </Link>
@@ -281,23 +420,25 @@ export default function Navbar() {
               <div>
                 <button
                   onClick={() => setShowMobileAboutMenu(!showMobileAboutMenu)}
-                  className="flex items-center justify-between w-full text-white/80 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors"
+                  className={`flex items-center justify-between w-full hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${
+                    aboutItems.some(item => isActive(item.href)) ? 'text-white bg-white/5' : 'text-white/80'
+                  }`}
+                  aria-haspopup="true"
+                  aria-expanded={showMobileAboutMenu}
                 >
                   <span className="font-medium">About</span>
                   <ChevronDown className={`w-5 h-5 transition-transform ${showMobileAboutMenu ? 'rotate-180' : ''}`} />
                 </button>
                 {showMobileAboutMenu && (
-                  <div className="ml-4 mt-1 space-y-1">
-                    {[
-                      { href: '/about', label: 'About Us' },
-                      { href: '/team', label: 'Our Team' },
-                      { href: '/impact', label: 'Our Impact' },
-                      { href: '/social', label: 'Social Media' },
-                    ].map((item) => (
+                  <div className="ml-4 mt-1 space-y-1" role="menu">
+                    {aboutItems.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="flex items-center gap-3 text-white/60 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors"
+                        role="menuitem"
+                        className={`flex items-center gap-3 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors ${
+                          isActive(item.href) ? 'text-white bg-white/5 font-semibold' : 'text-white/60'
+                        }`}
                         onClick={() => { setShowMobileMenu(false); setShowMobileAboutMenu(false) }}
                       >
                         <span className="text-sm">{item.label}</span>
@@ -307,11 +448,11 @@ export default function Navbar() {
                 )}
               </div>
 
-              <Link href="/programs" className="flex items-center gap-3 text-white/80 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors" onClick={() => setShowMobileMenu(false)}>
+              <Link href="/programs" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/programs') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
                 <Calendar className="w-5 h-5" />
                 <span className="font-medium">Programs</span>
               </Link>
-              <Link href="/meetings" className="flex items-center gap-3 text-white/80 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors" onClick={() => setShowMobileMenu(false)}>
+              <Link href="/meetings" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/meetings') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
                 <Users className="w-5 h-5" />
                 <span className="font-medium">Meetings & Groups</span>
               </Link>
@@ -320,7 +461,11 @@ export default function Navbar() {
               <div>
                 <button
                   onClick={() => setShowMobileBlogMenu(!showMobileBlogMenu)}
-                  className="flex items-center justify-between w-full text-white/80 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors"
+                  className={`flex items-center justify-between w-full hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${
+                    blogItems.some(item => isActive(item.href)) ? 'text-white bg-white/5' : 'text-white/80'
+                  }`}
+                  aria-haspopup="true"
+                  aria-expanded={showMobileBlogMenu}
                 >
                   <div className="flex items-center gap-3">
                     <BookOpen className="w-5 h-5" />
@@ -329,18 +474,25 @@ export default function Navbar() {
                   <ChevronDown className={`w-5 h-5 transition-transform ${showMobileBlogMenu ? 'rotate-180' : ''}`} />
                 </button>
                 {showMobileBlogMenu && (
-                  <div className="ml-4 mt-1 space-y-1">
-                    <Link href="/blog" className="flex items-center gap-3 text-white/60 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors" onClick={() => { setShowMobileMenu(false); setShowMobileBlogMenu(false) }}>
-                      <span className="text-sm">Blog Posts</span>
-                    </Link>
-                    <Link href="/newsletter" className="flex items-center gap-3 text-white/60 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors" onClick={() => { setShowMobileMenu(false); setShowMobileBlogMenu(false) }}>
-                      <span className="text-sm">Newsletters</span>
-                    </Link>
+                  <div className="ml-4 mt-1 space-y-1" role="menu">
+                    {blogItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        role="menuitem"
+                        className={`flex items-center gap-3 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors ${
+                          isActive(item.href) ? 'text-white bg-white/5 font-semibold' : 'text-white/60'
+                        }`}
+                        onClick={() => { setShowMobileMenu(false); setShowMobileBlogMenu(false) }}
+                      >
+                        <span className="text-sm">{item.label}</span>
+                      </Link>
+                    ))}
                   </div>
                 )}
               </div>
 
-              <Link href="/contact" className="flex items-center gap-3 text-white/80 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors" onClick={() => setShowMobileMenu(false)}>
+              <Link href="/contact" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/contact') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
                 <span className="font-medium">Contact</span>
               </Link>
 
@@ -354,22 +506,22 @@ export default function Navbar() {
                   </div>
 
                   {isBoard && (
-                    <Link href="/board" className="flex items-center gap-3 bg-white/10 text-white hover:bg-white/20 px-4 py-3 rounded-lg transition-colors font-medium" onClick={() => setShowMobileMenu(false)}>
+                    <Link href="/board" className={`flex items-center gap-3 bg-white/10 text-white hover:bg-white/20 px-4 py-3 rounded-lg transition-colors font-medium ${isActive('/board') ? 'border-l-2 border-brand-green' : ''}`} onClick={() => setShowMobileMenu(false)}>
                       <span>Board Portal</span>
                     </Link>
                   )}
                   {canAccessCommunity && (
-                    <Link href="/community" className="flex items-center gap-3 bg-brand-green/20 text-brand-green hover:bg-brand-green/30 px-4 py-3 rounded-lg transition-colors font-medium mt-1" onClick={() => setShowMobileMenu(false)}>
+                    <Link href="/community" className={`flex items-center gap-3 bg-brand-green/20 text-brand-green hover:bg-brand-green/30 px-4 py-3 rounded-lg transition-colors font-medium mt-1 ${isActive('/community') ? 'border-l-2 border-brand-green' : ''}`} onClick={() => setShowMobileMenu(false)}>
                       <span>Community</span>
                     </Link>
                   )}
                   {isAdmin && (
-                    <Link href="/admin" className="flex items-center gap-3 bg-white/10 text-white hover:bg-white/20 px-4 py-3 rounded-lg transition-colors font-medium mt-1" onClick={() => setShowMobileMenu(false)}>
+                    <Link href="/admin" className={`flex items-center gap-3 bg-white/10 text-white hover:bg-white/20 px-4 py-3 rounded-lg transition-colors font-medium mt-1 ${isActive('/admin') ? 'border-l-2 border-brand-green' : ''}`} onClick={() => setShowMobileMenu(false)}>
                       <Users className="w-5 h-5" />
                       <span>Admin Panel</span>
                     </Link>
                   )}
-                  <Link href="/dashboard" className="flex items-center gap-3 text-white/80 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors mt-1" onClick={() => setShowMobileMenu(false)}>
+                  <Link href="/dashboard" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors mt-1 ${isActive('/dashboard') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
                     <Settings className="w-5 h-5" />
                     <span className="font-medium">My Dashboard</span>
                   </Link>

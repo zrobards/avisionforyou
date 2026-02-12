@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Plus, Edit, Trash2, Save, User } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
@@ -36,21 +38,7 @@ export default function AdminTeam() {
     phone: ''
   })
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-
-    if (status === 'authenticated') {
-      fetchMembers()
-      // Poll for updates every 30 seconds
-      const interval = setInterval(fetchMembers, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [status])
-
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/team', { cache: 'no-store' })
       if (response.ok) {
@@ -68,11 +56,23 @@ export default function AdminTeam() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [loading, showToast])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+    if (status === 'authenticated') {
+      fetchMembers()
+    }
+  }, [status, router, fetchMembers])
+
+  usePolling(fetchMembers, 30000, status === 'authenticated')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {
       if (editing) {
         const response = await fetch(`/api/admin/team/${editing}`, {
@@ -318,10 +318,13 @@ export default function AdminTeam() {
                 <div key={member.id} className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700">
                   <div className="flex flex-col sm:flex-row gap-4">
                     {member.imageUrl ? (
-                      <img 
-                        src={member.imageUrl} 
+                      <Image
+                        src={member.imageUrl}
                         alt={member.name}
+                        width={80}
+                        height={80}
                         className="w-20 h-20 rounded-full object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center">

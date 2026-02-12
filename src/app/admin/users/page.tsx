@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/toast'
@@ -28,6 +29,22 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState<string>('ALL')
 
+  const fetchUsers = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/users', { cache: 'no-store' })
+      if (!response.ok) throw new Error('Failed to fetch users')
+      const data = await response.json()
+      setUsers(Array.isArray(data) ? data : (data.users || []))
+    } catch (error) {
+      if (loading) {
+        showToast('Failed to load users', 'error')
+      }
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }, [loading, showToast])
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
@@ -42,11 +59,10 @@ export default function AdminUsersPage() {
         return
       }
       fetchUsers()
-      // Poll for updates every 30 seconds
-      const interval = setInterval(fetchUsers, 30000)
-      return () => clearInterval(interval)
     }
-  }, [status, router, showToast])
+  }, [status, router, showToast, fetchUsers, session])
+
+  usePolling(fetchUsers, 30000, status === 'authenticated')
 
   // Filter users when search or role filter changes
   useEffect(() => {
@@ -55,7 +71,7 @@ export default function AdminUsersPage() {
     // Apply search
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      result = result.filter(u => 
+      result = result.filter(u =>
         u.name?.toLowerCase().includes(term) ||
         u.email.toLowerCase().includes(term)
       )
@@ -68,22 +84,6 @@ export default function AdminUsersPage() {
 
     setFilteredUsers(result)
   }, [users, searchTerm, filterRole])
-
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch('/api/admin/users', { cache: 'no-store' })
-      if (!response.ok) throw new Error('Failed to fetch users')
-      const data = await response.json()
-      setUsers(Array.isArray(data) ? data : (data.users || []))
-    } catch (error) {
-      if (loading) {
-        showToast('Failed to load users', 'error')
-      }
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {

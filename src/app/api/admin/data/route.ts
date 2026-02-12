@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
 
     // Get all users with their assessments
     const users = await db.user.findMany({
+      take: 100,
       include: {
         assessment: true,
         rsvps: {
@@ -51,6 +52,7 @@ export async function GET(request: NextRequest) {
 
     // Get all meetings
     const meetings = await db.programSession.findMany({
+      take: 100,
       include: {
         rsvps: {
           include: {
@@ -84,7 +86,7 @@ export async function GET(request: NextRequest) {
         }
       }),
       totalDonations: donationAggregate._count._all,
-      donationVolume: donationAggregate._sum.amount || 0
+      donationVolume: Number(donationAggregate._sum.amount ?? 0)
     }
 
     return NextResponse.json({

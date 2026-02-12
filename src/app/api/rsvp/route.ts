@@ -68,52 +68,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if RSVP already exists
-    const existingRsvp = await db.rSVP.findUnique({
+    // Upsert RSVP to avoid race conditions
+    const rsvp = await db.rSVP.upsert({
       where: {
         userId_sessionId: {
           userId: user.id,
           sessionId: sessionId
         }
-      }
-    })
-
-    if (existingRsvp) {
-      // Update existing RSVP
-      const updatedRsvp = await db.rSVP.update({
-        where: {
-          userId_sessionId: {
-            userId: user.id,
-            sessionId: sessionId
-          }
-        },
-        data: { status: status || "CONFIRMED" }
-      })
-
-      return NextResponse.json({
-        success: true,
-        message: "RSVP updated",
-        rsvp: updatedRsvp
-      })
-    }
-
-    // Create new RSVP
-    const newRsvp = await db.rSVP.create({
-      data: {
+      },
+      update: { status: status || "CONFIRMED" },
+      create: {
         userId: user.id,
         sessionId: sessionId,
         status: status || "CONFIRMED"
       }
     })
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "RSVP created successfully",
-        rsvp: newRsvp
-      },
-      { status: 201 }
-    )
+    return NextResponse.json({
+      success: true,
+      message: "RSVP saved",
+      rsvp
+    })
   } catch (error) {
 
     return NextResponse.json(

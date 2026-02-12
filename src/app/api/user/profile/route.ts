@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { z } from 'zod'
+
+const profileUpdateSchema = z.object({
+  name: z.string().max(100).transform(val => val.replace(/<[^>]*>/g, '').trim()),
+})
 
 // GET /api/user/profile - Get current user profile
 export async function GET() {
@@ -56,7 +61,15 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const { name } = await request.json()
+    const body = await request.json()
+    const parsed = profileUpdateSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid input', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      )
+    }
+    const { name } = parsed.data
 
     const user = await db.user.update({
       where: { email: session.user.email },

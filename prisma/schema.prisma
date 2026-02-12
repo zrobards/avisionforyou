@@ -42,6 +42,7 @@ model User {
   campaignNotes CampaignNote[] @relation("CampaignNoteAuthor")
   meetingMinutes MeetingMinutes[] @relation("MinutesUploader")
   notifications Notification[]
+  auditLogs     AuditLog[]
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -230,7 +231,7 @@ model Donation {
   user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId            String?
   
-  amount            Float
+  amount            Decimal  @db.Decimal(10,2)
   currency          String   @default("USD")
   frequency         DonationFrequency @default(ONE_TIME)
   status            DonationStatus @default(COMPLETED)
@@ -241,8 +242,6 @@ model Donation {
   impactMessage     String?
   
   // Square payment tracking
-  stripeId          String?
-  stripeSubscriptionId String?
   squarePaymentId   String?
   squareSubscriptionId String? // For recurring donations
   
@@ -260,6 +259,7 @@ model Donation {
   @@index([frequency])
   @@index([squareSubscriptionId])
   @@index([nextRenewalDate])
+  @@index([squarePaymentId])
   @@map("donations")
 }
 
@@ -349,21 +349,6 @@ model CoreValue {
   @@map("core_values")
 }
 
-// Subscription management
-model Subscription {
-  id                String   @id @default(cuid())
-  userId            String
-  
-  stripeId          String   @unique
-  plan              String
-  status            String
-  currentPeriodEnd  DateTime?
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("subscriptions")
-}
 
 // Audit log for admin actions
 model AuditLog {
@@ -372,6 +357,7 @@ model AuditLog {
   entity            String
   entityId          String
   userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   details           Json?
   
   createdAt         DateTime @default(now())
@@ -393,7 +379,7 @@ model VerificationToken {
 model AdmissionInquiry {
   id                String   @id @default(cuid())
   name              String
-  email             String   @unique
+  email             String
   phone             String
   program           String
   message           String?  @db.Text
@@ -445,7 +431,6 @@ model NewsletterSubscriber {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  @@index([email])
   @@index([subscribed])
   @@map("newsletter_subscribers")
 }
@@ -519,7 +504,7 @@ model ProgramOutcome {
   id            String   @id @default(cuid())
   programName   String   // "Surrender House", "MindBodySoul IOP", "Moving Mountains", "Overall"
   metric        String   // "completion_rate", "retention_90day", "housing_stability", "employment"
-  value         Float    // The percentage or numeric value
+  value         Decimal  @db.Decimal(10,2) // The percentage or numeric value
   unit          String   @default("percent") // "percent", "count", "dollars"
   period        String   // "2024", "Q1 2024", "Last 12 months"
   description   String?  @db.Text
@@ -644,7 +629,7 @@ model BoardUpdate {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([category])
   @@index([priority])
@@ -663,7 +648,7 @@ model BoardDocument {
   category    BoardDocumentCategory
   uploadedAt  DateTime @default(now())
   uploadedById String
-  uploadedBy  User     @relation(fields: [uploadedById], references: [id])
+  uploadedBy  User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
 
   @@index([category])
   @@index([uploadedAt])
@@ -724,6 +709,7 @@ model DUIRegistration {
   @@index([email])
   @@index([paymentStatus])
   @@index([status])
+  @@index([paymentId])
   @@map("dui_registrations")
 }
 
@@ -763,7 +749,7 @@ model CommunityAnnouncement {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([published])
   @@index([createdAt])
@@ -811,7 +797,7 @@ model CommunityPollVote {
   pollId    String
   poll      CommunityPoll @relation(fields: [pollId], references: [id], onDelete: Cascade)
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   vote      Boolean  // true = yes, false = no
   createdAt DateTime @default(now())
   
@@ -827,15 +813,15 @@ model Campaign {
   name          String
   slug          String    @unique
   description   String    @db.Text
-  goalAmount    Float
-  raisedAmount  Float     @default(0)
+  goalAmount    Decimal   @db.Decimal(10,2)
+  raisedAmount  Decimal   @db.Decimal(10,2) @default(0)
   donorCount    Int       @default(0)
   status        CampaignStatus @default(DRAFT)
   startDate     DateTime
   endDate       DateTime
   targetAudience String?
   createdById   String
-  createdBy     User      @relation("CampaignCreator", fields: [createdById], references: [id])
+  createdBy     User      @relation("CampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)
   notes         CampaignNote[]
 
   createdAt     DateTime  @default(now())
@@ -860,7 +846,7 @@ model CampaignNote {
   campaignId  String
   campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   authorId    String
-  author      User     @relation("CampaignNoteAuthor", fields: [authorId], references: [id])
+  author      User     @relation("CampaignNoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   content     String   @db.Text
   createdAt   DateTime @default(now())
 
@@ -877,7 +863,7 @@ model MeetingMinutes {
   fileName    String
   attendees   String?  @db.Text
   uploadedById String
-  uploadedBy  User     @relation("MinutesUploader", fields: [uploadedById], references: [id])
+  uploadedBy  User     @relation("MinutesUploader", fields: [uploadedById], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
 
   @@index([meetingDate])

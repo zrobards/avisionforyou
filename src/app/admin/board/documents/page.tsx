@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { Upload, Trash2, Download } from 'lucide-react'
 
 interface BoardDocument {
@@ -36,13 +37,7 @@ export default function AdminBoardDocumentsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
 
-  useEffect(() => {
-    fetchDocuments()
-    const interval = setInterval(fetchDocuments, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  async function fetchDocuments() {
+  const fetchDocuments = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/board/documents')
       if (res.ok) {
@@ -54,7 +49,13 @@ export default function AdminBoardDocumentsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchDocuments()
+  }, [fetchDocuments])
+
+  usePolling(fetchDocuments, 30000)
 
   function openUploadModal() {
     setFormData({

@@ -1,6 +1,9 @@
-'use client'
+import { buildPageMetadata } from '@/lib/metadata'
 
-import Link from 'next/link'
+export const metadata = buildPageMetadata(
+  'Terms of Service | A Vision For You Recovery',
+  'Terms of service for A Vision For You Inc. Review our terms and conditions for using our services.'
+)
 
 export default function Terms() {
   return (

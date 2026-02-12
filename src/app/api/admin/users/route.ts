@@ -24,7 +24,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch all users
+    const { searchParams } = new URL(request.url)
+    const skip = parseInt(searchParams.get('skip') || '0', 10)
     const users = await db.user.findMany({
+      take: 100,
+      skip: isNaN(skip) ? 0 : skip,
       select: {
         id: true,
         email: true,

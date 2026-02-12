@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { usePolling } from '@/hooks/usePolling'
 import { Bell } from "lucide-react"
 
 interface Announcement {
@@ -18,13 +19,7 @@ export default function CommunityAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchAnnouncements()
-    const interval = setInterval(fetchAnnouncements, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     try {
       const res = await fetch("/api/community/announcements")
       if (res.ok) {
@@ -36,7 +31,13 @@ export default function CommunityAnnouncementsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchAnnouncements()
+  }, [fetchAnnouncements])
+
+  usePolling(fetchAnnouncements, 60000)
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)

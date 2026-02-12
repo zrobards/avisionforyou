@@ -4,10 +4,6 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { rateLimitResponse } from '@/lib/apiAuth'
-import fs from 'fs'
-import path from 'path'
-
-const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
 
 // GET /api/blog - List all published posts (public) or all posts (admin)
 export async function GET(request: NextRequest) {
@@ -36,17 +32,9 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: { publishedAt: 'desc' }
+      orderBy: { publishedAt: 'desc' },
+      take: 50
     })
-
-    if (!posts.length && fs.existsSync(BLOG_POSTS_PATH)) {
-      const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-      return NextResponse.json(fallbackPosts, {
-        headers: {
-          'Cache-Control': 'no-store, max-age=0'
-        }
-      })
-    }
 
     return NextResponse.json(posts, {
       headers: {
@@ -55,14 +43,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching blog posts:', error)
-    if (fs.existsSync(BLOG_POSTS_PATH)) {
-      const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-      return NextResponse.json(fallbackPosts, {
-        headers: {
-          'Cache-Control': 'no-store, max-age=0'
-        }
-      })
-    }
     return NextResponse.json(
       { error: 'Failed to fetch blog posts' },
       { status: 500 }
@@ -108,11 +88,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate slug from title
-    const slug = title
+    // Generate slug from title with collision avoidance
+    let slug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
+
+    const existingSlug = await db.blogPost.findUnique({ where: { slug } })
+    if (existingSlug) {
+      slug = `${slug}-${Date.now()}`
+    }
 
     // Calculate read time (rough estimate: 200 words per minute)
     const wordCount = content.split(/\s+/).length

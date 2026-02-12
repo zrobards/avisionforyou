@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { DollarSign, Calendar, Users, Mail, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -35,34 +36,34 @@ export default function BoardDashboard() {
   const [recentUpdates, setRecentUpdates] = useState<BoardUpdate[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [metricsRes, updatesRes] = await Promise.all([
-          fetch('/api/board/metrics'),
-          fetch('/api/board/updates?limit=5'),
-        ])
+  const fetchData = useCallback(async () => {
+    try {
+      const [metricsRes, updatesRes] = await Promise.all([
+        fetch('/api/board/metrics'),
+        fetch('/api/board/updates?limit=5'),
+      ])
 
-        if (metricsRes.ok) {
-          const metricsData = await metricsRes.json()
-          setMetrics(metricsData)
-        }
-
-        if (updatesRes.ok) {
-          const updatesData = await updatesRes.json()
-          setRecentUpdates(updatesData)
-        }
-      } catch (error) {
-        console.error('Error fetching board data:', error)
-      } finally {
-        setLoading(false)
+      if (metricsRes.ok) {
+        const metricsData = await metricsRes.json()
+        setMetrics(metricsData)
       }
-    }
 
-    fetchData()
-    const interval = setInterval(fetchData, 60000)
-    return () => clearInterval(interval)
+      if (updatesRes.ok) {
+        const updatesData = await updatesRes.json()
+        setRecentUpdates(updatesData)
+      }
+    } catch (error) {
+      console.error('Error fetching board data:', error)
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  usePolling(fetchData, 60000)
 
   if (loading) {
     return (

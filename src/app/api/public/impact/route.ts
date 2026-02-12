@@ -27,7 +27,7 @@ export async function GET() {
     return NextResponse.json({
       totalMeetings: meetings,
       totalRSVPs: rsvps,
-      totalDonations: Math.round(donations._sum.amount || 0),
+      totalDonations: Math.round(Number(donations._sum.amount ?? 0)),
       livesImpacted: livesImpacted
     })
   } catch (error) {

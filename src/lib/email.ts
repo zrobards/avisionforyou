@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { db } from './db'
+import { escapeHtml } from '@/lib/sanitize'
 
 // Initialize Resend only if API key is provided
 const resend = process.env.RESEND_API_KEY?.trim() ? new Resend(process.env.RESEND_API_KEY.trim()) : null
@@ -86,7 +87,7 @@ export async function sendMeetingReminder(
     const result = await resendClient.emails.send({
       from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
       to: rsvp.user.email,
-      subject: `Reminder: ${rsvp.session.title} Meeting ${reminderType.type === '24h' ? 'Tomorrow' : 'Starting Soon'}`,
+      subject: `Reminder: ${escapeHtml(rsvp.session.title)} Meeting ${reminderType.type === '24h' ? 'Tomorrow' : 'Starting Soon'}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -94,7 +95,7 @@ export async function sendMeetingReminder(
           </div>
           
           <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-            Hi ${rsvp.user.name || 'there'},
+            Hi ${escapeHtml(rsvp.user.name) || 'there'},
           </p>
           
           <p style="color: #374151; font-size: 16px; line-height: 1.6;">
@@ -102,7 +103,7 @@ export async function sendMeetingReminder(
           </p>
           
           <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; margin: 20px 0;">
-            <h2 style="color: #1e40af; margin: 0 0 8px 0;">${rsvp.session.title}</h2>
+            <h2 style="color: #1e40af; margin: 0 0 8px 0;">${escapeHtml(rsvp.session.title)}</h2>
             <p style="color: #1e3a8a; margin: 4px 0;">
               <strong>Date:</strong> ${formattedDate}
             </p>
@@ -111,12 +112,12 @@ export async function sendMeetingReminder(
             </p>
             ${rsvp.session.location ? `
             <p style="color: #1e3a8a; margin: 4px 0;">
-              <strong>Location:</strong> ${rsvp.session.location}
+              <strong>Location:</strong> ${escapeHtml(rsvp.session.location)}
             </p>
             ` : ''}
             ${rsvp.session.link ? `
             <p style="color: #1e3a8a; margin: 4px 0;">
-              <strong>Meeting Link:</strong> <a href="${rsvp.session.link}" style="color: #3b82f6;">${rsvp.session.link}</a>
+              <strong>Meeting Link:</strong> <a href="${escapeHtml(rsvp.session.link)}" style="color: #3b82f6;">${escapeHtml(rsvp.session.link)}</a>
             </p>
             ` : ''}
           </div>
@@ -124,7 +125,7 @@ export async function sendMeetingReminder(
           ${rsvp.session.description ? `
           <div style="color: #374151; font-size: 14px; line-height: 1.6;">
             <p><strong>Description:</strong></p>
-            <p>${rsvp.session.description}</p>
+            <p>${escapeHtml(rsvp.session.description)}</p>
           </div>
           ` : ''}
           
@@ -187,11 +188,11 @@ export async function sendAdmissionConfirmation(
           
           <div style="background-color: #f9fafb; padding: 30px;">
             <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-              Hi ${name},
+              Hi ${escapeHtml(name)},
             </p>
-            
+
             <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-              Thank you for your interest in our recovery programs. We have received your inquiry for the <strong>${program}</strong> program.
+              Thank you for your interest in our recovery programs. We have received your inquiry for the <strong>${escapeHtml(program)}</strong> program.
             </p>
             
             <div style="background-color: white; border-left: 4px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 4px;">
@@ -257,7 +258,7 @@ export async function sendAdmissionNotificationToAdmin(
       from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
       to: adminEmail,
       replyTo: email,
-      subject: `New Admission Inquiry: ${name} - ${program}`,
+      subject: `New Admission Inquiry: ${escapeHtml(name)} - ${escapeHtml(program)}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #dc2626; padding: 20px; border-radius: 8px 8px 0 0;">
@@ -270,19 +271,19 @@ export async function sendAdmissionNotificationToAdmin(
               <table style="width: 100%; color: #374151; line-height: 1.8;">
                 <tr>
                   <td style="padding: 8px 0; font-weight: bold; width: 120px;">Name:</td>
-                  <td style="padding: 8px 0;">${name}</td>
+                  <td style="padding: 8px 0;">${escapeHtml(name)}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; font-weight: bold;">Email:</td>
-                  <td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #3b82f6;">${email}</a></td>
+                  <td style="padding: 8px 0;"><a href="mailto:${escapeHtml(email)}" style="color: #3b82f6;">${escapeHtml(email)}</a></td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; font-weight: bold;">Phone:</td>
-                  <td style="padding: 8px 0;"><a href="tel:${phone}" style="color: #3b82f6;">${phone}</a></td>
+                  <td style="padding: 8px 0;"><a href="tel:${escapeHtml(phone)}" style="color: #3b82f6;">${escapeHtml(phone)}</a></td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; font-weight: bold;">Program:</td>
-                  <td style="padding: 8px 0;">${program}</td>
+                  <td style="padding: 8px 0;">${escapeHtml(program)}</td>
                 </tr>
               </table>
             </div>
@@ -290,7 +291,7 @@ export async function sendAdmissionNotificationToAdmin(
             ${message ? `
             <div style="background-color: white; padding: 20px; border-radius: 8px;">
               <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 16px;">Message:</h3>
-              <p style="color: #374151; line-height: 1.6; margin: 0; white-space: pre-wrap;">${message}</p>
+              <p style="color: #374151; line-height: 1.6; margin: 0; white-space: pre-wrap;">${escapeHtml(message)}</p>
             </div>
             ` : ''}
             
@@ -350,7 +351,7 @@ export async function sendDonationThankYou(
           
           <div style="background-color: #f9fafb; padding: 30px;">
             <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-              Dear ${name},
+              Dear ${escapeHtml(name)},
             </p>
             
             <p style="color: #374151; font-size: 16px; line-height: 1.6;">
@@ -534,7 +535,7 @@ export async function sendDonationConfirmationEmail(
             </div>
             
             <div class="content">
-              <p>Hi ${donorName},</p>
+              <p>Hi ${escapeHtml(donorName)},</p>
               
               <p>We are incredibly grateful for your donation of <strong>$${amount.toFixed(2)}</strong> to A Vision For You. Your compassion and support make a real difference in the lives of the people we serve.</p>
               
@@ -589,7 +590,7 @@ export async function sendDonationConfirmationEmail(
                 1675 Story Ave, Louisville, KY 40206<br>
                 <a href="https://avisionforyou.org" style="color: #3b82f6;">avisionforyou.org</a></p>
                 <p style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px;">
-                  This email was sent to ${recipientEmail} because you made a donation to A Vision For You.
+                  This email was sent to ${escapeHtml(recipientEmail)} because you made a donation to A Vision For You.
                 </p>
               </div>
             </div>

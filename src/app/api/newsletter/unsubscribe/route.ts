@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { escapeHtml, sanitizeEmail } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -113,9 +114,10 @@ function htmlResponse(title: string, heading: string, message: string, success: 
 
 export async function GET(req: NextRequest) {
   try {
-    const email = req.nextUrl.searchParams.get('email')
+    const rawEmail = req.nextUrl.searchParams.get('email')
+    const email = sanitizeEmail(rawEmail)
 
-    if (!email || !email.includes('@')) {
+    if (!email) {
       return htmlResponse(
         'Invalid Request',
         'Invalid Unsubscribe Link',
@@ -132,7 +134,7 @@ export async function GET(req: NextRequest) {
       return htmlResponse(
         'Not Found',
         'Email Not Found',
-        `We could not find a subscription for <strong>${email}</strong>. You may have already been removed, or the email address may be incorrect.`,
+        `We could not find a subscription for <strong>${escapeHtml(email)}</strong>. You may have already been removed, or the email address may be incorrect.`,
         false,
       )
     }
@@ -141,7 +143,7 @@ export async function GET(req: NextRequest) {
       return htmlResponse(
         'Already Unsubscribed',
         'Already Unsubscribed',
-        `<strong>${email}</strong> is already unsubscribed from our newsletter. No further action is needed.`,
+        `<strong>${escapeHtml(email)}</strong> is already unsubscribed from our newsletter. No further action is needed.`,
         true,
       )
     }
@@ -157,7 +159,7 @@ export async function GET(req: NextRequest) {
     return htmlResponse(
       'Unsubscribed',
       'Successfully Unsubscribed',
-      `<strong>${email}</strong> has been removed from our mailing list. You will no longer receive newsletter emails from A Vision For You. We wish you all the best.`,
+      `<strong>${escapeHtml(email)}</strong> has been removed from our mailing list. You will no longer receive newsletter emails from A Vision For You. We wish you all the best.`,
       true,
     )
   } catch (error) {

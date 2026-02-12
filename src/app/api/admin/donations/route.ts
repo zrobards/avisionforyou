@@ -28,7 +28,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all donations with user details
+    const { searchParams } = new URL(request.url)
+    const skip = parseInt(searchParams.get('skip') || '0', 10)
     const donations = await db.donation.findMany({
+      take: 100,
+      skip: isNaN(skip) ? 0 : skip,
       include: {
         user: {
           select: {
@@ -44,15 +48,15 @@ export async function GET(request: NextRequest) {
     // Calculate statistics
     const stats = {
       totalDonations: donations.length,
-      totalAmount: donations.reduce((sum, d) => sum + d.amount, 0),
-      averageDonation: donations.length > 0 
-        ? Math.round((donations.reduce((sum, d) => sum + d.amount, 0) / donations.length) * 100) / 100
+      totalAmount: donations.reduce((sum, d) => sum + Number(d.amount), 0),
+      averageDonation: donations.length > 0
+        ? Math.round((donations.reduce((sum, d) => sum + Number(d.amount), 0) / donations.length) * 100) / 100
         : 0,
       oneTimeDonations: donations.filter(d => d.frequency === 'ONE_TIME').length,
       recurringDonations: donations.filter(d => d.frequency !== 'ONE_TIME').length,
       totalRecurring: donations
         .filter(d => d.frequency !== 'ONE_TIME')
-        .reduce((sum, d) => sum + d.amount, 0),
+        .reduce((sum, d) => sum + Number(d.amount), 0),
       completedDonations: donations.filter(d => d.status === 'COMPLETED').length,
       failedDonations: donations.filter(d => d.status === 'FAILED').length,
       pendingDonations: donations.filter(d => d.status === 'PENDING').length,
@@ -73,7 +77,7 @@ export async function GET(request: NextRequest) {
       const monthKey = d.createdAt.toLocaleString('default', { month: 'short', year: 'numeric' })
       if (monthlyDonations[monthKey]) {
         monthlyDonations[monthKey].count++
-        monthlyDonations[monthKey].amount += d.amount
+        monthlyDonations[monthKey].amount += Number(d.amount)
       }
     })
 

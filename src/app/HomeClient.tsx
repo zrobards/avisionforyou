@@ -43,8 +43,8 @@ const TESTIMONIALS = [
 ]
 
 const PROGRAMS = [
-  { title: "Surrender Program", description: "Voluntary, self-help, social model recovery grounded in 12-step principles", icon: HandHeart, href: "/programs/surrender", badge: "100% FREE", badgeColor: "bg-green-500" },
-  { title: "MindBodySoul IOP", description: "Intensive Outpatient combining therapy, psychiatry, and evidence-based practices", icon: Brain, href: "/programs/iop", badge: "Insurance Accepted", badgeColor: "bg-blue-500" },
+  { title: "Surrender Program", description: "Voluntary, self-help, social model recovery grounded in 12-step principles", icon: HandHeart, href: "/programs/surrender-program", badge: "100% FREE", badgeColor: "bg-green-500" },
+  { title: "MindBodySoul IOP", description: "Intensive Outpatient combining therapy, psychiatry, and evidence-based practices", icon: Brain, href: "/programs/mindbodysoul-iop", badge: "Insurance Accepted", badgeColor: "bg-blue-500" },
   { title: "Housing & Shelter", description: "Safe, supportive residential recovery spaces with community living", icon: Home, href: "/programs/housing", badge: "7 Residences", badgeColor: "bg-purple-500" },
   { title: "Meetings & Groups", description: "Peer-driven recovery meetings, support groups, and community building", icon: Users, href: "/programs/self-help", badge: "Open to All", badgeColor: "bg-amber-500" },
   { title: "Food & Nutrition", description: "Nutritious meals and dietary support as part of holistic recovery", icon: Utensils, href: "/programs/food", badge: "Daily Meals", badgeColor: "bg-orange-500" },
@@ -69,6 +69,15 @@ const SOCIAL_CHANNELS = [
 
 export default function HomeClient() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mql.matches)
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mql.addEventListener('change', handler)
+    return () => mql.removeEventListener('change', handler)
+  }, [])
 
   const nextTestimonial = useCallback(() => {
     setCurrentTestimonial((prev) => (prev + 1) % TESTIMONIALS.length)
@@ -78,11 +87,12 @@ export default function HomeClient() {
     setCurrentTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)
   }, [])
 
-  // Auto-rotate testimonials
+  // Auto-rotate testimonials (disabled if user prefers reduced motion)
   useEffect(() => {
+    if (prefersReducedMotion) return
     const interval = setInterval(nextTestimonial, 6000)
     return () => clearInterval(interval)
-  }, [nextTestimonial])
+  }, [nextTestimonial, prefersReducedMotion])
 
   return (
     <div className="min-h-screen bg-brand-dark">
@@ -93,7 +103,7 @@ export default function HomeClient() {
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           poster="/AVFY%20LOGO.jpg"
           className="absolute top-0 left-0 h-full w-full object-cover"
         >
