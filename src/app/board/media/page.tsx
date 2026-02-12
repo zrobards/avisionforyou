@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { Upload, Download, Image as ImageIcon, FileText, X } from 'lucide-react'
 
 interface MediaItem {
@@ -209,12 +210,14 @@ export default function MediaLibraryPage() {
               key={item.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
-              <div className="aspect-video bg-gray-100 flex items-center justify-center">
+              <div className="relative aspect-video bg-gray-100 flex items-center justify-center">
                 {item.type === 'image' ? (
-                  <img
+                  <Image
                     src={item.url}
                     alt={item.filename}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                 ) : (
                   <FileText className="w-12 h-12 text-gray-400" />

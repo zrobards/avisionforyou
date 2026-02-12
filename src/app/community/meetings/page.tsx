@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { usePolling } from '@/hooks/usePolling'
 import { Calendar, MapPin, Link as LinkIcon, CheckCircle, DollarSign, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { trackRSVP } from "@/components/analytics/GoogleAnalytics"
 
 interface SessionOrClass {
   id: string
@@ -79,6 +80,7 @@ export default function CommunityMeetingsPage() {
           return
         }
 
+        trackRSVP(itemId, alreadyRsvpd ? 'cancel' : 'create')
         // Refresh items to update RSVP status
         fetchItems()
       } else {

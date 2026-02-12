@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Share2, Twitter, Facebook, Linkedin, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -118,10 +119,12 @@ export default function BlogPostPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {post.author.image && (
-                <img 
-                  src={post.author.image} 
+                <Image
+                  src={post.author.image}
                   alt={post.author.name}
-                  className="w-12 h-12 rounded-full"
+                  width={48}
+                  height={48}
+                  className="rounded-full object-cover"
                 />
               )}
               <div>
@@ -177,11 +180,14 @@ export default function BlogPostPage() {
 
         {/* Featured Image */}
         {post.imageUrl && (
-          <div className="mb-8 rounded-xl overflow-hidden">
-            <img 
-              src={post.imageUrl} 
+          <div className="relative mb-8 rounded-xl overflow-hidden h-48 sm:h-64 md:h-96">
+            <Image
+              src={post.imageUrl}
               alt={post.title}
-              className="w-full h-48 sm:h-64 md:h-96 object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 896px"
+              priority
             />
           </div>
         )}

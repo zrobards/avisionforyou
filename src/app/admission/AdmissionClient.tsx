@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { trackEvent } from '@/components/analytics/GoogleAnalytics';
 
 export default function AdmissionPage() {
   const [formData, setFormData] = useState({
@@ -28,6 +29,7 @@ export default function AdmissionPage() {
       });
 
       if (response.ok) {
+        trackEvent('admission_inquiry');
         setSubmitted(true);
         setFormData({ name: '', email: '', phone: '', program: '', message: '' });
       } else {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { Mail, User } from 'lucide-react'
 
 interface TeamMember {
@@ -82,10 +83,12 @@ export default function TeamDirectoryPage() {
             >
               <div className="flex flex-col items-center text-center">
                 {member.imageUrl ? (
-                  <img
+                  <Image
                     src={member.imageUrl}
                     alt={member.name}
-                    className="w-24 h-24 rounded-full object-cover mb-4"
+                    width={96}
+                    height={96}
+                    className="rounded-full object-cover mb-4"
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
@@ -129,10 +132,12 @@ export default function TeamDirectoryPage() {
               >
                 <div className="flex flex-col items-center text-center">
                   {member.imageUrl ? (
-                    <img
+                    <Image
                       src={member.imageUrl}
                       alt={member.name}
-                      className="w-24 h-24 rounded-full object-cover mb-4"
+                      width={96}
+                      height={96}
+                      className="rounded-full object-cover mb-4"
                     />
                   ) : (
                     <div className="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center mb-4">

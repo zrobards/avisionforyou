@@ -6,6 +6,7 @@ import {
   Users, Heart, Newspaper, Briefcase, Building2, HandHeart, Eye, CalendarCheck
 } from 'lucide-react'
 import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
+import { trackEvent } from '@/components/analytics/GoogleAnalytics'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -32,6 +33,7 @@ export default function ContactPage() {
       })
 
       if (response.ok) {
+        trackEvent('contact_form_submit')
         setStatus('success')
         setFormData({ name: '', email: '', phone: '', department: 'general', subject: '', message: '' })
         setTimeout(() => setStatus('idle'), 5000)

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Heart, CheckCircle, AlertCircle } from 'lucide-react'
+import { trackAssessmentComplete } from '@/components/analytics/GoogleAnalytics'
 
 const ASSESSMENT_QUESTIONS = [
   {
@@ -123,6 +124,7 @@ export default function Assessment() {
 
         const data = await response.json()
         setRecommendedProgram(data.recommendedProgram)
+        trackAssessmentComplete(data.recommendedProgram)
         setShowResult(true)
       } catch (err) {
         setError('Failed to save your assessment. Please try again.')

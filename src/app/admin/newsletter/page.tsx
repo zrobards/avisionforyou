@@ -6,6 +6,7 @@ import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Plus, Edit, Trash2, Eye, Save, Mail, Upload, X } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
@@ -322,11 +323,13 @@ export default function AdminNewsletter() {
               <div>
                 <label className="block text-gray-300 font-semibold mb-2">Image (optional)</label>
                 {formData.imageUrl ? (
-                  <div className="relative">
-                    <img
+                  <div className="relative h-40">
+                    <Image
                       src={formData.imageUrl}
                       alt="Preview"
-                      className="w-full h-40 object-cover rounded border border-gray-600"
+                      fill
+                      className="object-cover rounded border border-gray-600"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                     <button
                       type="button"

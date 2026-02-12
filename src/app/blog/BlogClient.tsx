@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 interface BlogPost {
@@ -95,11 +96,13 @@ export default function BlogPage() {
               <Link key={post.id} href={`/blog/${post.slug}`} className="group">
                 <article className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                   {post.imageUrl && (
-                    <div className="h-48 overflow-hidden">
-                      <img
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
                         src={post.imageUrl}
                         alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
                   )}

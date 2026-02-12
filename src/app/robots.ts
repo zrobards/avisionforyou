@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/admin/', '/dashboard/', '/board/', '/community/', '/setup-admin/'],
+        disallow: ['/api/', '/admin/', '/dashboard/', '/board/', '/community/'],
       },
     ],
     sitemap: 'https://avisionforyou.org/sitemap.xml',

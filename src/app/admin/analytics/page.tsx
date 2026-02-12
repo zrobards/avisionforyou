@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation'
 import {
   DollarSign, Users, TrendingUp, TrendingDown, Calendar, BarChart3,
   Target, AlertCircle, CheckCircle, Info, ArrowUpRight, ArrowDownRight,
-  Heart, Mail, BookOpen, UserCheck, RefreshCw
+  Heart, Mail, BookOpen, UserCheck, RefreshCw, Globe, Monitor, Smartphone,
+  Tablet, MapPin, Clock, Eye, ExternalLink
 } from 'lucide-react'
 
 interface AnalyticsData {
@@ -63,6 +64,26 @@ interface AnalyticsData {
     rsvpToDonationRate: number
   }
   insights: { type: string; title: string; message: string }[]
+}
+
+interface GA4Data {
+  configured: boolean
+  message?: string
+  error?: string
+  data?: {
+    visitors: {
+      activeUsers: number
+      newUsers: number
+      sessions: number
+      pageViews: number
+      bounceRate: number
+      avgSessionDuration: number
+    }
+    trafficSources: { source: string; sessions: number }[]
+    topPages: { path: string; views: number; users: number }[]
+    devices: { device: string; sessions: number; percentage: number }[]
+    demographics: { location: string; users: number }[]
+  }
 }
 
 function StatCard({ title, value, subtitle, icon: Icon, trend, trendLabel, color = 'purple' }: {
@@ -160,16 +181,27 @@ export default function AdminAnalyticsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [data, setData] = useState<AnalyticsData | null>(null)
+  const [ga4Data, setGa4Data] = useState<GA4Data | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [refreshing, setRefreshing] = useState(false)
 
   const fetchAnalytics = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/analytics')
-      if (!res.ok) throw new Error('Failed to fetch analytics')
-      const json = await res.json()
+      const [analyticsRes, ga4Res] = await Promise.all([
+        fetch('/api/admin/analytics'),
+        fetch('/api/admin/analytics/ga4?days=30').catch(() => null),
+      ])
+      if (!analyticsRes.ok) throw new Error('Failed to fetch analytics')
+      const json = await analyticsRes.json()
       setData(json)
+      if (ga4Res?.ok) {
+        const ga4Json = await ga4Res.json()
+        setGa4Data(ga4Json)
+      } else if (ga4Res) {
+        const ga4Json = await ga4Res.json().catch(() => null)
+        setGa4Data(ga4Json)
+      }
       setError('')
     } catch (err: any) {
       setError(err.message)
@@ -301,6 +333,182 @@ export default function AdminAnalyticsPage() {
           color="orange"
         />
       </div>
+
+      {/* Website Traffic (GA4) */}
+      {ga4Data && ga4Data.configured && ga4Data.data && (
+        <>
+          {/* GA4 Key Metrics */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Globe className="w-5 h-5 text-brand-purple" />
+              <h2 className="text-lg font-bold text-gray-900">Website Traffic</h2>
+              <span className="text-xs text-gray-400 ml-2">Google Analytics · Last 30 days</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              <StatCard
+                title="Active Users"
+                value={ga4Data.data.visitors.activeUsers.toLocaleString()}
+                icon={Users}
+                color="blue"
+              />
+              <StatCard
+                title="Sessions"
+                value={ga4Data.data.visitors.sessions.toLocaleString()}
+                icon={Eye}
+                color="purple"
+              />
+              <StatCard
+                title="Page Views"
+                value={ga4Data.data.visitors.pageViews.toLocaleString()}
+                icon={BookOpen}
+                color="green"
+              />
+              <StatCard
+                title="Bounce Rate"
+                value={`${ga4Data.data.visitors.bounceRate}%`}
+                icon={TrendingDown}
+                color="orange"
+              />
+              <StatCard
+                title="Avg Duration"
+                value={`${Math.floor(ga4Data.data.visitors.avgSessionDuration / 60)}m ${Math.round(ga4Data.data.visitors.avgSessionDuration % 60)}s`}
+                icon={Clock}
+                color="blue"
+              />
+            </div>
+          </div>
+
+          {/* Traffic Sources & Top Pages */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {/* Traffic Sources */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Traffic Sources</h3>
+              <p className="text-xs text-gray-500 mb-4">Where your visitors come from</p>
+              {ga4Data.data.trafficSources.length > 0 ? (
+                <SimpleBarChart
+                  data={ga4Data.data.trafficSources}
+                  labelKey="source"
+                  valueKey="sessions"
+                  color="bg-gradient-to-r from-blue-500 to-blue-600"
+                />
+              ) : (
+                <p className="text-gray-500 text-sm">No traffic data yet</p>
+              )}
+            </div>
+
+            {/* Top Pages */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Top Pages</h3>
+              <p className="text-xs text-gray-500 mb-4">Most visited pages</p>
+              {ga4Data.data.topPages.length > 0 ? (
+                <div className="space-y-2">
+                  {ga4Data.data.topPages.map((page, i) => (
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className="text-xs font-bold text-gray-400 w-5 text-right flex-shrink-0">{i + 1}</span>
+                        <span className="text-sm text-gray-700 truncate">{page.path}</span>
+                      </div>
+                      <div className="flex items-center gap-4 flex-shrink-0 ml-3">
+                        <span className="text-sm font-semibold text-gray-900">{page.views.toLocaleString()} views</span>
+                        <span className="text-xs text-gray-500">{page.users} users</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">No page data yet</p>
+              )}
+            </div>
+          </div>
+
+          {/* Devices & Demographics */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {/* Device Breakdown */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Device Breakdown</h3>
+              {ga4Data.data.devices.length > 0 ? (
+                <div className="space-y-4">
+                  {ga4Data.data.devices.map((device, i) => {
+                    const DeviceIcon = device.device === 'mobile' ? Smartphone
+                      : device.device === 'tablet' ? Tablet : Monitor
+                    return (
+                      <div key={i} className="flex items-center gap-3">
+                        <DeviceIcon className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                        <div className="flex-1">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm font-medium text-gray-700 capitalize">{device.device}</span>
+                            <span className="text-sm font-semibold text-gray-900">{device.percentage}%</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2.5">
+                            <div
+                              className="bg-brand-purple h-2.5 rounded-full transition-all duration-500"
+                              style={{ width: `${device.percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-500">{device.sessions.toLocaleString()} sessions</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">No device data yet</p>
+              )}
+            </div>
+
+            {/* Visitor Geography */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <MapPin className="w-5 h-5 text-brand-purple" />
+                <h3 className="text-lg font-bold text-gray-900">Visitor Geography</h3>
+              </div>
+              {ga4Data.data.demographics.length > 0 ? (
+                <div className="space-y-3">
+                  {ga4Data.data.demographics.map((loc, i) => (
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-gray-400 w-5 text-right">{i + 1}</span>
+                        <span className="text-sm text-gray-700">{loc.location}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900">{loc.users.toLocaleString()} users</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">No geography data yet</p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* GA4 Setup Instructions (when not configured) */}
+      {ga4Data && !ga4Data.configured && (
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
+          <div className="flex items-start gap-3">
+            <Globe className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Set Up Website Traffic Analytics</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Connect Google Analytics 4 to see real-time visitor data, traffic sources, device breakdown, and visitor demographics right here in your dashboard.
+              </p>
+              <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
+                <li><strong>Create GA4 Property</strong> — Go to analytics.google.com → Admin → Create Property → Add your website</li>
+                <li><strong>Create Service Account</strong> — Go to console.cloud.google.com → Enable &quot;Google Analytics Data API&quot; → Create Service Account → Download JSON key</li>
+                <li><strong>Grant Access</strong> — In Google Analytics → Admin → Property Access Management → Add the service account email as &quot;Viewer&quot;</li>
+                <li><strong>Set Environment Variables</strong> on Vercel:
+                  <ul className="ml-6 mt-1 space-y-1 list-disc">
+                    <li><code className="bg-white px-1.5 py-0.5 rounded text-xs border">NEXT_PUBLIC_GOOGLE_ANALYTICS_ID</code> — Your GA4 Measurement ID (G-XXXXXXXXXX)</li>
+                    <li><code className="bg-white px-1.5 py-0.5 rounded text-xs border">GOOGLE_ANALYTICS_CREDENTIALS</code> — Service account JSON key (single line)</li>
+                    <li><code className="bg-white px-1.5 py-0.5 rounded text-xs border">GOOGLE_ANALYTICS_PROPERTY_ID</code> — Numeric property ID</li>
+                  </ul>
+                </li>
+                <li><strong>Redeploy</strong> — Trigger a new deployment for the changes to take effect</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Donation & User Trends */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

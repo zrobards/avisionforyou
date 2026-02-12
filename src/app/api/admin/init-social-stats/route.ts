@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     console.error('Error initializing social stats table:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to initialize social stats table', details: errorMessage },
+      { error: 'Failed to initialize social stats table' },
       { status: 500 }
     )
   }

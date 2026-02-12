@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 import CountUpNumber from '@/components/shared/CountUpNumber'
+import { trackDonation } from '@/components/analytics/GoogleAnalytics'
 
 /* ─── Impact Tiers (used in preset buttons) ─── */
 const impactLevels = [
@@ -147,13 +148,7 @@ export default function Donate() {
       }
 
       if (data.url) {
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          ;(window as any).gtag('event', 'donation', {
-            value: amount,
-            currency: 'USD',
-            transaction_id: data.donationId || '',
-          })
-        }
+        trackDonation(amount, data.donationId || '')
         window.location.href = data.url
       } else if (data.sessionId) {
         window.location.href = data.url

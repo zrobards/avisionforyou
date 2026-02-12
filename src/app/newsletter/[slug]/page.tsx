@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Calendar, User, ArrowLeft, Mail } from 'lucide-react'
 import DOMPurify from 'isomorphic-dompurify'
 
@@ -86,12 +87,13 @@ export default function NewsletterDetailPage() {
         <article className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
           {newsletter.imageUrl && (
             <div className="relative h-64 md:h-96 bg-gradient-to-br from-purple-100 to-blue-100">
-              <img
+              <Image
                 src={newsletter.imageUrl}
                 alt={newsletter.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                referrerPolicy="no-referrer"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 896px"
+                priority
               />
             </div>
           )}

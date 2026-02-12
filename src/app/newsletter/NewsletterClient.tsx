@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { Mail, Calendar, User, ChevronRight } from 'lucide-react'
 
@@ -77,10 +78,12 @@ export default function NewsletterPage() {
               >
                 {newsletter.imageUrl && (
                   <div className="relative h-48 bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
-                    <img
+                    <Image
                       src={newsletter.imageUrl}
                       alt={newsletter.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                 )}

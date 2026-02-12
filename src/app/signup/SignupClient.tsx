@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Heart, Lock, Mail, User, ArrowRight } from 'lucide-react'
+import { trackSignup } from '@/components/analytics/GoogleAnalytics'
 
 export default function SignupClient() {
   const router = useRouter()
@@ -65,6 +66,7 @@ export default function SignupClient() {
         return
       }
 
+      trackSignup('email')
       router.push('/dashboard')
     } catch {
       setError('An unexpected error occurred. Please try again.')
