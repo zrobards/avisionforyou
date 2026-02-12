@@ -26,7 +26,7 @@ export const NewsletterSchema = z.object({
   title: z.string().min(1).max(500),
   excerpt: z.string().max(500).optional().or(z.literal('')),
   content: z.string().min(10).max(50000),
-  imageUrl: z.string().url().optional().or(z.literal('')),
+  imageUrl: z.string().optional().or(z.literal('')),
   status: z.enum(['DRAFT', 'PUBLISHED']),
 })
 
@@ -100,7 +100,7 @@ export const TeamMemberSchema = z.object({
   bio: z.string().max(5000).optional().or(z.literal('')),
   email: z.string().email().optional().or(z.literal('')).or(z.literal(null)),
   phone: z.string().max(20).optional().or(z.literal('')).or(z.literal(null)),
-  imageUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
+  imageUrl: z.string().optional().or(z.literal('')).or(z.literal(null)),
 })
 
 // Community Announcement Schema
