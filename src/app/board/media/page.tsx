@@ -218,6 +218,7 @@ export default function MediaLibraryPage() {
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    unoptimized={item.url.startsWith('data:')}
                   />
                 ) : (
                   <FileText className="w-12 h-12 text-gray-400" />

@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
         slug,
         content: validatedData.content,
         excerpt: validatedData.excerpt,
-        imageUrl: null, // Field not in schema for Phase 1
+        imageUrl: validatedData.imageUrl || null,
         status,
         authorId: userId,
         publishedAt: status === 'PUBLISHED' ? new Date() : null

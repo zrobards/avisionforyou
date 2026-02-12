@@ -89,6 +89,7 @@ export default function TeamDirectoryPage() {
                     width={96}
                     height={96}
                     className="rounded-full object-cover mb-4"
+                    unoptimized={member.imageUrl.startsWith('data:')}
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center mb-4">

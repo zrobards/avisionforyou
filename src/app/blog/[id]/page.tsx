@@ -125,6 +125,7 @@ export default function BlogPostPage() {
                   width={48}
                   height={48}
                   className="rounded-full object-cover"
+                  unoptimized={post.author.image.startsWith('data:')}
                 />
               )}
               <div>
@@ -188,6 +189,7 @@ export default function BlogPostPage() {
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 896px"
               priority
+              unoptimized={post.imageUrl.startsWith('data:')}
             />
           </div>
         )}

@@ -330,6 +330,7 @@ export default function AdminNewsletter() {
                       fill
                       className="object-cover rounded border border-gray-600"
                       sizes="(max-width: 768px) 100vw, 50vw"
+                      unoptimized={formData.imageUrl.startsWith('data:')}
                     />
                     <button
                       type="button"

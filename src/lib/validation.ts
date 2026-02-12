@@ -64,7 +64,7 @@ export const DonationSchema = z.object({
 export const AdmissionSchema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email(),
-  phone: z.string().min(10).max(20).optional(),
+  phone: z.string().min(10).max(20).optional().or(z.literal('')),
   program: z.string().min(1).max(200),
   message: z.string().min(10).max(5000),
 })
@@ -73,7 +73,7 @@ export const AdmissionSchema = z.object({
 export const ContactSchema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email(),
-  phone: z.string().min(10).max(20).optional(),
+  phone: z.string().min(10).max(20).optional().or(z.literal('')),
   department: z.enum(['general', 'programs', 'donate', 'volunteer', 'press', 'careers']).optional(),
   subject: z.string().min(1).max(200),
   message: z.string().min(10).max(5000),

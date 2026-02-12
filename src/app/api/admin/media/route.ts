@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
         id: true,
         filename: true,
         type: true,
+        url: true,
         size: true,
         mimeType: true,
         tags: true,

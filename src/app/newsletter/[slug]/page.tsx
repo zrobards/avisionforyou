@@ -94,6 +94,7 @@ export default function NewsletterDetailPage() {
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 896px"
                 priority
+                unoptimized={newsletter.imageUrl.startsWith('data:')}
               />
             </div>
           )}
