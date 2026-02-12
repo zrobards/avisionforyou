@@ -150,8 +150,6 @@ export default function Donate() {
       if (data.url) {
         trackDonation(amount, data.donationId || '')
         window.location.href = data.url
-      } else if (data.sessionId) {
-        window.location.href = data.url
       } else {
         setError('Failed to create payment session. Please try again.')
       }
