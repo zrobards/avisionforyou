@@ -90,7 +90,7 @@ function StatCard({ title, value, subtitle, icon: Icon, trend, trendLabel, color
   title: string
   value: string | number
   subtitle?: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   trend?: number
   trendLabel?: string
   color?: 'purple' | 'green' | 'blue' | 'orange' | 'red'
@@ -127,13 +127,13 @@ function StatCard({ title, value, subtitle, icon: Icon, trend, trendLabel, color
 }
 
 function SimpleBarChart({ data, labelKey, valueKey, prefix = '', color = 'bg-brand-purple' }: {
-  data: any[]
+  data: Record<string, string | number>[]
   labelKey: string
   valueKey: string
   prefix?: string
   color?: string
 }) {
-  const max = Math.max(...data.map(d => d[valueKey]), 1)
+  const max = Math.max(...data.map(d => Number(d[valueKey]) || 0), 1)
   return (
     <div className="space-y-2">
       {data.map((item, i) => (
@@ -142,7 +142,7 @@ function SimpleBarChart({ data, labelKey, valueKey, prefix = '', color = 'bg-bra
           <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
             <div
               className={`${color} h-full rounded-full transition-all duration-500`}
-              style={{ width: `${Math.max((item[valueKey] / max) * 100, 2)}%` }}
+              style={{ width: `${Math.max((Number(item[valueKey]) / max) * 100, 2)}%` }}
             />
             <span className="absolute inset-0 flex items-center px-3 text-xs font-semibold text-gray-700">
               {prefix}{typeof item[valueKey] === 'number' && item[valueKey] % 1 !== 0
@@ -203,8 +203,8 @@ export default function AdminAnalyticsPage() {
         setGa4Data(ga4Json)
       }
       setError('')
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
       setRefreshing(false)

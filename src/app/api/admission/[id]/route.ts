@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { logger } from '@/lib/logger'
 
 export async function PATCH(
   request: NextRequest,
@@ -45,7 +46,7 @@ export async function PATCH(
 
     return NextResponse.json(inquiry);
   } catch (error) {
-    console.error('Error updating inquiry:', error);
+    logger.error({ err: error }, 'Error updating inquiry');
     return NextResponse.json(
       { error: 'Failed to update inquiry' },
       { status: 500 }
@@ -85,7 +86,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting inquiry:', error);
+    logger.error({ err: error }, 'Error deleting inquiry');
     return NextResponse.json(
       { error: 'Failed to delete inquiry' },
       { status: 500 }

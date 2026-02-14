@@ -8,7 +8,7 @@ export default async function BoardLayout({ children }: { children: React.ReactN
   const session = await getServerSession(authOptions)
 
   if (!bypassAuth) {
-    if (!session || ((session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+    if (!session || (session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
       redirect("/unauthorized")
     }
   }

@@ -4,6 +4,11 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { rateLimitResponse } from '@/lib/apiAuth'
+import fs from 'fs'
+import path from 'path'
+import { logger } from '@/lib/logger'
+
+const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
 
 // GET /api/blog - List all published posts (public) or all posts (admin)
 export async function GET(request: NextRequest) {
@@ -11,7 +16,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions)
     const { searchParams } = new URL(request.url)
     const includesDrafts = searchParams.get('drafts') === 'true'
-    
+
     // Check if user is admin
     let isAdmin = false
     if (session?.user?.email) {
@@ -41,8 +46,16 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'no-store, max-age=0'
       }
     })
-  } catch (error) {
-    console.error('Error fetching blog posts:', error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, 'Error fetching blog posts')
+    if (fs.existsSync(BLOG_POSTS_PATH)) {
+      const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
+      return NextResponse.json(fallbackPosts, {
+        headers: {
+          'Cache-Control': 'no-store, max-age=0'
+        }
+      })
+    }
     return NextResponse.json(
       { error: 'Failed to fetch blog posts' },
       { status: 500 }
@@ -129,8 +142,8 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(post, { status: 201 })
-  } catch (error) {
-    console.error('Error creating blog post:', error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, 'Error creating blog post')
     return NextResponse.json(
       { error: 'Failed to create blog post' },
       { status: 500 }

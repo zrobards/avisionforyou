@@ -8,17 +8,17 @@ export const dynamic = "force-dynamic";
 
 export default async function CommunityDashboardPage() {
   const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true'
-  const session = (bypassAuth
+  const session = bypassAuth
     ? {
         user: {
           id: 'bypass-review',
           name: 'Review Admin',
           email: 'admin@avisionforyou.org',
-          role: 'ADMIN'
+          role: 'ADMIN' as const
         },
         expires: '2099-01-01T00:00:00.000Z'
       }
-    : await getServerSession(authOptions)) as any;
+    : await getServerSession(authOptions);
 
   if (!bypassAuth) {
     if (!session?.user?.email) {
@@ -29,7 +29,7 @@ export default async function CommunityDashboardPage() {
   const user = bypassAuth
     ? await db.user.findFirst({ where: { role: "ADMIN" } })
     : await db.user.findUnique({
-        where: { email: session.user.email },
+        where: { email: session!.user.email },
       });
 
   if (!user && !bypassAuth) {
@@ -229,7 +229,7 @@ export default async function CommunityDashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {activePolls.map((poll) => {
-                    const hasVoted = (poll as any).votes?.length > 0;
+                    const hasVoted = 'votes' in poll && Array.isArray(poll.votes) && poll.votes.length > 0;
                     return (
                       <Link
                         key={poll.id}

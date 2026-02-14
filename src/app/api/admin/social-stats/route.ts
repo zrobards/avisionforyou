@@ -5,6 +5,7 @@ import { requireAdminAuth, errorResponse, validationErrorResponse, successRespon
 import { SocialStatsSchema, validateRequest, getValidationErrors } from '@/lib/validation'
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
 import { ZodError } from 'zod'
+import { logger } from '@/lib/logger'
 
 // Note: apiAuth.ts now correctly imports authOptions from @/lib/auth instead of the route file
 
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
       return errorResponse('Unauthorized', 'UNAUTHORIZED', 401)
     }
 
-    const userId = (session.user as any)?.id
+    const userId = session.user?.id
 
     // Validate request body with Zod
     let validatedData
@@ -66,10 +67,11 @@ export async function POST(request: NextRequest) {
     // Check if table exists, create it if not
     try {
       await db.socialStats.findFirst()
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Table doesn't exist, create it
-      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
-        console.log('Creating social_stats table...')
+      const dbErr = error as { message?: string; code?: string }
+      if (dbErr?.message?.includes('does not exist') || dbErr?.code === '42P01') {
+        logger.info('Creating social_stats table...')
         try {
           await db.$executeRawUnsafe(`
             CREATE TABLE IF NOT EXISTS "social_stats" (
@@ -88,9 +90,9 @@ export async function POST(request: NextRequest) {
             CREATE UNIQUE INDEX IF NOT EXISTS "social_stats_platform_key" 
             ON "social_stats"("platform");
           `)
-          console.log('Table created successfully')
+          logger.info('Table created successfully')
         } catch (createError) {
-          console.error('Error creating table:', createError)
+          logger.error({ err: createError }, 'Error creating table')
           // Continue anyway, might already exist
         }
       } else {
@@ -173,7 +175,7 @@ export async function GET(request: NextRequest) {
       return errorResponse('Unauthorized', 'UNAUTHORIZED', 401)
     }
 
-    const userId = (session.user as any)?.id
+    const userId = session.user?.id
 
     // Fetch all social stats from database
     let stats
@@ -181,9 +183,10 @@ export async function GET(request: NextRequest) {
       stats = await db.socialStats.findMany({
         orderBy: { platform: 'asc' }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If table doesn't exist, return hardcoded defaults
-      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+      const dbErr = error as { message?: string; code?: string }
+      if (dbErr?.message?.includes('does not exist') || dbErr?.code === '42P01') {
         logApiRequest({
           timestamp: new Date(),
           method: 'GET',

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: Request,
@@ -20,7 +21,7 @@ export async function GET(
 
     return NextResponse.json(duiClass);
   } catch (error) {
-    console.error("Error fetching DUI class:", error);
+    logger.error({ err: error }, "Error fetching DUI class");
     return NextResponse.json(
       { error: "Failed to fetch class" },
       { status: 500 }

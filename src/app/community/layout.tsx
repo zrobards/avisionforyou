@@ -8,7 +8,7 @@ export default async function CommunityLayout({ children }: { children: React.Re
   const session = await getServerSession(authOptions)
 
   if (!bypassAuth) {
-    if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+    if (!session || (session.user.role !== "ALUMNI" && session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
       redirect("/unauthorized")
     }
   }

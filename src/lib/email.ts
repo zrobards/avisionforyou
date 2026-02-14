@@ -1,13 +1,14 @@
 import { Resend } from 'resend'
 import { db } from './db'
 import { escapeHtml } from '@/lib/sanitize'
+import { logger } from '@/lib/logger'
 
 // Initialize Resend only if API key is provided
 const resend = process.env.RESEND_API_KEY?.trim() ? new Resend(process.env.RESEND_API_KEY.trim()) : null
 
 const getResendClient = () => {
   if (!resend) {
-    console.warn('RESEND_API_KEY not configured - email not sent')
+    logger.warn('RESEND_API_KEY not configured - email not sent')
     return null
   }
   return resend
@@ -26,7 +27,7 @@ export async function sendEmail({
 }) {
   try {
     if (!resend) {
-      console.warn('RESEND_API_KEY not configured - email not sent:', { to, subject })
+      logger.warn({ to, subject }, 'RESEND_API_KEY not configured - email not sent')
       return { error: 'Email service not configured' }
     }
 
@@ -37,7 +38,7 @@ export async function sendEmail({
       html,
     })
   } catch (error) {
-    console.error('Failed to send email:', error)
+    logger.error({ err: error }, 'Failed to send email')
     throw error
   }
 }
@@ -64,7 +65,7 @@ export async function sendMeetingReminder(
     })
 
     if (!rsvp || !rsvp.user.email) {
-      console.error('RSVP or user email not found')
+      logger.error({ rsvpId }, 'RSVP or user email not found')
       return false
     }
 
@@ -150,7 +151,7 @@ export async function sendMeetingReminder(
     })
 
     if (result.error) {
-      console.error('Email error:', result.error)
+      logger.error({ err: result.error, rsvpId }, 'Meeting reminder email error')
       return false
     }
 
@@ -162,7 +163,7 @@ export async function sendMeetingReminder(
 
     return true
   } catch (error) {
-    console.error('Error sending meeting reminder:', error)
+    logger.error({ err: error, rsvpId }, 'Error sending meeting reminder')
     return false
   }
 }
@@ -230,13 +231,13 @@ export async function sendAdmissionConfirmation(
     })
 
     if (result.error) {
-      console.error('Admission confirmation email error:', result.error)
+      logger.error({ err: result.error, email }, 'Admission confirmation email error')
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Error sending admission confirmation:', error)
+    logger.error({ err: error, email }, 'Error sending admission confirmation')
     return false
   }
 }
@@ -311,13 +312,13 @@ export async function sendAdmissionNotificationToAdmin(
     })
 
     if (result.error) {
-      console.error('Admin notification email error:', result.error)
+      logger.error({ err: result.error }, 'Admin notification email error')
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Error sending admin notification:', error)
+    logger.error({ err: error }, 'Error sending admin notification')
     return false
   }
 }
@@ -403,13 +404,13 @@ export async function sendDonationThankYou(
     })
 
     if (result.error) {
-      console.error('Donation thank you email error:', result.error)
+      logger.error({ err: result.error, email }, 'Donation thank you email error')
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Error sending donation thank you:', error)
+    logger.error({ err: error, email }, 'Error sending donation thank you')
     return false
   }
 }
@@ -482,12 +483,10 @@ export async function sendBulkMeetingReminders() {
       if (sent) sent1h++
     }
 
-    console.log(
-      `Sent ${sent24h} 24-hour reminders and ${sent1h} 1-hour reminders`
-    )
+    logger.info({ sent24h, sent1h, total: sent24h + sent1h }, 'Bulk meeting reminders sent')
     return { sent24h, sent1h, total: sent24h + sent1h }
   } catch (error) {
-    console.error('Error sending bulk reminders:', error)
+    logger.error({ err: error }, 'Error sending bulk reminders')
     return { sent24h: 0, sent1h: 0, total: 0 }
   }
 }
@@ -502,7 +501,7 @@ export async function sendDonationConfirmationEmail(
   try {
     // Check if Resend API key is configured
     if (!process.env.RESEND_API_KEY) {
-      console.warn("Donation email: RESEND_API_KEY not configured - email not sent")
+      logger.warn('Donation email: RESEND_API_KEY not configured - email not sent')
       return false
     }
 
@@ -606,15 +605,15 @@ export async function sendDonationConfirmationEmail(
       from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>'
     })
 
-    console.log('✅ Donation confirmation email sent successfully to:', recipientEmail, result)
+    logger.info({ recipientEmail }, 'Donation confirmation email sent successfully')
     return true
   } catch (error) {
-    console.error('❌ Failed to send donation confirmation email:', {
+    logger.error({
+      err: error,
       recipientEmail,
       donorName,
       amount,
-      error: error instanceof Error ? error.message : String(error)
-    })
+    }, 'Failed to send donation confirmation email')
     return false
   }
 }

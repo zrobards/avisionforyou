@@ -1,4 +1,5 @@
 import { db } from './db'
+import { logger } from '@/lib/logger'
 
 export type ProgramInfo = {
   title: string
@@ -114,7 +115,7 @@ export async function getPrograms(): Promise<ProgramInfo[]> {
       } satisfies ProgramInfo
     })
   } catch (err) {
-    console.error('CMS:getPrograms fallback due to error', err)
+    logger.error({ err }, 'CMS:getPrograms fallback due to error')
     return Object.values(fallbackPrograms)
   }
 }

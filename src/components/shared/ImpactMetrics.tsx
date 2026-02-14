@@ -43,9 +43,17 @@ export default function ImpactMetrics() {
     fetchMetrics()
   }, [])
 
-  // Animate counters
+  // Animate counters (skip animation if user prefers reduced motion)
   useEffect(() => {
     if (loading) return
+
+    const prefersReducedMotion = typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (prefersReducedMotion) {
+      setDisplayMetrics(metrics)
+      return
+    }
 
     const duration = 2000 // 2 seconds
     const steps = 60

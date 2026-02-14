@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { v4 as uuidv4 } from 'uuid'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(post)
   } catch (error) {
-    console.error('Error creating social media post:', error)
+    logger.error({ err: error }, 'Error creating social media post')
     return NextResponse.json(
       { error: 'Failed to create post' },
       { status: 500 }
@@ -70,7 +71,7 @@ export async function GET() {
 
     return NextResponse.json(posts)
   } catch (error) {
-    console.error('Error fetching posts:', error)
+    logger.error({ err: error }, 'Error fetching posts')
     return NextResponse.json(
       { error: 'Failed to fetch posts' },
       { status: 500 }

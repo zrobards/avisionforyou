@@ -1,5 +1,6 @@
 import { sendBulkMeetingReminders } from '@/lib/email'
 import crypto from 'crypto'
+import { logger } from '@/lib/logger'
 
 // This endpoint is called by Vercel Cron every 10 minutes
 // Vercel Cron jobs are automatically authenticated - no Bearer token needed
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
       ...result,
     })
   } catch (error) {
-    console.error('Cron error:', error)
+    logger.error({ err: error }, 'Cron error')
     return Response.json(
       { success: false, error: 'Failed to send reminders' },
       { status: 500 }

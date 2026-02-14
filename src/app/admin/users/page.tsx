@@ -52,7 +52,7 @@ export default function AdminUsersPage() {
     }
 
     if (status === 'authenticated') {
-      const userRole = (session?.user as any)?.role
+      const userRole = session?.user?.role
       if (userRole !== 'ADMIN') {
         showToast('Admin access required', 'error')
         router.push('/dashboard')
@@ -120,8 +120,8 @@ export default function AdminUsersPage() {
 
       showToast('User deleted successfully', 'success')
       fetchUsers()
-    } catch (error: any) {
-      showToast(error.message || 'Failed to delete user', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to delete user', 'error')
       console.error(error)
     }
   }

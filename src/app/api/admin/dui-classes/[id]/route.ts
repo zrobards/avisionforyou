@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { logger } from '@/lib/logger'
 
 // GET - Get single class
 export async function GET(
@@ -16,7 +17,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as any)?.role;
+    const userRole = session.user?.role;
     if (userRole !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -36,7 +37,7 @@ export async function GET(
 
     return NextResponse.json(duiClass);
   } catch (error) {
-    console.error("Error fetching DUI class:", error);
+    logger.error({ err: error }, "Error fetching DUI class");
     return NextResponse.json(
       { error: "Failed to fetch class" },
       { status: 500 }
@@ -57,13 +58,13 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as any)?.role;
+    const userRole = session.user?.role;
     if (userRole !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await request.json();
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (body.title !== undefined) updateData.title = body.title;
     if (body.description !== undefined) updateData.description = body.description;
@@ -83,7 +84,7 @@ export async function PATCH(
 
     return NextResponse.json(duiClass);
   } catch (error) {
-    console.error("Error updating DUI class:", error);
+    logger.error({ err: error }, "Error updating DUI class");
     return NextResponse.json(
       { error: "Failed to update class" },
       { status: 500 }
@@ -104,7 +105,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as any)?.role;
+    const userRole = session.user?.role;
     if (userRole !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -129,7 +130,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting DUI class:", error);
+    logger.error({ err: error }, "Error deleting DUI class");
     return NextResponse.json(
       { error: "Failed to delete class" },
       { status: 500 }

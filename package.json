@@ -10,7 +10,10 @@
     "lint": "next lint",
     "seed": "ts-node prisma/seed.ts",
     "postinstall": "prisma generate",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "analyze": "ANALYZE=true next build",
     "migrate:blog": "ts-node scripts/migrate-wix-blog.ts",
     "migrate:blog:links": "ts-node scripts/update-internal-links.ts",
     "import:blog": "ts-node scripts/import-blog-json.ts"
@@ -25,8 +28,11 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@google-analytics/data": "^5.2.1",
     "@prisma/client": "^5.22.0",
+    "@sentry/nextjs": "^10.38.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.13",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.2",
     "@vercel/analytics": "^1.6.1",
     "autoprefixer": "^10.4.22",
     "bcryptjs": "^3.0.3",
@@ -36,6 +42,8 @@
     "lucide-react": "^0.555.0",
     "next": "^15.5.12",
     "next-auth": "^4.24.13",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3",
     "postcss": "^8.5.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -46,9 +54,16 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.6",
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^5.1.4",
+    "jsdom": "^28.0.0",
     "prisma": "^5.22.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "vitest": "^4.0.18"
   }
 }

@@ -1,15 +1,16 @@
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { NextRequest, NextResponse } from "next/server"
-import { checkRateLimit, getClientIp } from "@/lib/rateLimit"
+import { rateLimit, authLimiter, getClientIp } from "@/lib/rateLimit"
 import { sanitizeString, sanitizeEmail } from "@/lib/sanitize"
 import { logActivity, notifyByRole } from "@/lib/notifications"
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIp(request)
-    const rl = checkRateLimit(`signup:${ip}`, 5, 900) // 5 per 15 minutes
-    if (!rl.allowed) {
+    const rl = await rateLimit(authLimiter, ip)
+    if (!rl.success) {
       return NextResponse.json(
         { error: "Too many signup attempts. Please try again later." },
         { status: 429 }
@@ -18,11 +19,8 @@ export async function POST(request: NextRequest) {
 
     const { email, name, password } = await request.json()
 
-    const cleanEmail = sanitizeEmail(email)
-    const cleanName = sanitizeString(name, 100)
-
-    // Validation
-    if (!cleanEmail || !cleanName || !password) {
+    // Validation (before sanitization — validate raw inputs first)
+    if (!email || !name || !password) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -42,6 +40,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Sanitize inputs after validation
+    const cleanEmail = sanitizeEmail(email)
+    const cleanName = sanitizeString(name, 100)
 
     // Check if user exists
     const existingUser = await db.user.findUnique({
@@ -85,8 +87,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error) {
-    console.error("Signup error:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Signup error")
     return NextResponse.json(
       { error: "An error occurred during signup" },
       { status: 500 }

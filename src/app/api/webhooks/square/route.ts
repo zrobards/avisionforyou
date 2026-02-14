@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
+import { logger } from "@/lib/logger"
 import crypto from "crypto"
 import { escapeHtml } from "@/lib/sanitize"
+import type { Prisma } from "@prisma/client"
+import type { SquareWebhookEvent, SquarePaymentObject, SquareInvoiceObject, SquareSubscriptionObject } from "@/types/square"
 
 /**
  * Square Webhook Handler
- * 
+ *
  * Receives real-time payment events from Square and updates donation status
  * Events: payment.created, payment.completed, payment.updated, invoice.payment_pending, etc.
  */
@@ -16,9 +19,9 @@ async function verifySquareWebhookSignature(
 ): Promise<boolean> {
   // Get webhook signing key from environment
   const webhookSignatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY
-  
+
   if (!webhookSignatureKey) {
-    console.error("Square Webhook: SQUARE_WEBHOOK_SIGNATURE_KEY not configured")
+    logger.error("Square Webhook: SQUARE_WEBHOOK_SIGNATURE_KEY not configured")
     return false
   }
 
@@ -39,32 +42,28 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
     const signatureHeader = request.headers.get("x-square-hmac-sha256-signature") || ""
-    
+
     // Verify webhook signature
     const isValid = await verifySquareWebhookSignature(body, signatureHeader)
-    
+
     if (!isValid) {
-      console.error("Square Webhook: Invalid signature")
+      logger.error("Square Webhook: Invalid signature")
       return NextResponse.json(
         { error: "Invalid webhook signature" },
         { status: 401 }
       )
     }
 
-    const event = JSON.parse(body)
-    
-    console.log("Square Webhook: Event received", {
-      type: event.type,
-      eventId: event.id,
-      timestamp: event.created_at
-    })
+    const event: SquareWebhookEvent = JSON.parse(body)
+
+    logger.info({ type: event.type, eventId: event.event_id, timestamp: event.created_at }, "Square Webhook: Event received")
 
     // Idempotency check — skip if we've already processed this event
     const existingLog = await db.webhookLog.findFirst({
       where: { eventId: event.id, provider: "square" }
     })
     if (existingLog) {
-      console.log("Square Webhook: Duplicate event, skipping", event.id)
+      logger.info({ eventId: event.id }, "Square Webhook: Duplicate event, skipping")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest) {
         provider: "square",
         eventType: event.type,
         eventId: event.id,
-        data: event,
+        data: JSON.parse(JSON.stringify(event)) as Prisma.InputJsonValue,
         status: "processed"
       }
     })
@@ -102,13 +101,13 @@ export async function POST(request: NextRequest) {
       }
 
       default: {
-        console.log("Square Webhook: Unhandled event type:", event.type)
+        logger.info({ eventType: event.type }, "Square Webhook: Unhandled event type")
         return NextResponse.json({ received: true }, { status: 200 })
       }
     }
-  } catch (error: any) {
-    console.error("Square Webhook: Error processing event:", error)
-    
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Square Webhook: Error processing event")
+
     return NextResponse.json(
       { error: "Failed to process webhook" },
       { status: 500 }
@@ -116,21 +115,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handlePaymentEvent(event: any) {
+async function handlePaymentEvent(event: SquareWebhookEvent) {
   try {
-    const payment = event.data?.object?.payment
-    
+    const payment = (event.data?.object as SquarePaymentObject)?.payment
+
     if (!payment) {
-      console.warn("Square Webhook: No payment data in event")
+      logger.warn("Square Webhook: No payment data in event")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
-    console.log("Square Webhook: Payment event", {
-      paymentId: payment.id,
-      status: payment.status,
-      amount: payment.amount_money?.amount,
-      orderId: payment.order_id
-    })
+    logger.info({ paymentId: payment.id, status: payment.status, amount: payment.amount_money?.amount, orderId: payment.order_id }, "Square Webhook: Payment event")
 
     // Find donation by Square payment ID
     const donation = await db.donation.findFirst({
@@ -154,7 +148,7 @@ async function handlePaymentEvent(event: any) {
 
     // Determine payment status
     let paymentStatus: "PENDING" | "COMPLETED" | "FAILED" = "PENDING"
-    
+
     if (payment.status === "COMPLETED" || payment.status === "APPROVED") {
       paymentStatus = "COMPLETED"
     } else if (payment.status === "CANCELED" || payment.status === "FAILED") {
@@ -168,12 +162,12 @@ async function handlePaymentEvent(event: any) {
 
         if (payment.status === "COMPLETED" || payment.status === "APPROVED") {
           newStatus = "COMPLETED"
-          console.log("Square Webhook: Payment completed for donation", donation.id)
+          logger.info({ donationId: donation.id }, "Square Webhook: Payment completed for donation")
         } else if (payment.status === "PENDING") {
           newStatus = "PENDING"
         } else if (payment.status === "CANCELED" || payment.status === "FAILED") {
           newStatus = "FAILED"
-          console.warn("Square Webhook: Payment failed for donation", donation.id)
+          logger.warn({ donationId: donation.id }, "Square Webhook: Payment failed for donation")
         }
 
         await tx.donation.update({
@@ -183,20 +177,24 @@ async function handlePaymentEvent(event: any) {
           }
         })
 
-        console.log("Square Webhook: Updated donation status to", newStatus)
+        logger.info({ donationId: donation.id, newStatus }, "Square Webhook: Updated donation status")
       }
 
       if (duiRegistration) {
-        const updateData: any = {
+        const updateData: {
+          paymentStatus: "PENDING" | "COMPLETED" | "FAILED"
+          paymentId: string
+          status?: "PENDING" | "CONFIRMED" | "CANCELLED" | "ATTENDED" | "NO_SHOW"
+        } = {
           paymentStatus: paymentStatus,
           paymentId: payment.id,
         }
 
         if (paymentStatus === "COMPLETED") {
           updateData.status = "CONFIRMED"
-          console.log("Square Webhook: Payment completed for DUI registration", duiRegistration.id)
+          logger.info({ registrationId: duiRegistration.id }, "Square Webhook: Payment completed for DUI registration")
         } else if (paymentStatus === "FAILED") {
-          console.warn("Square Webhook: Payment failed for DUI registration", duiRegistration.id)
+          logger.warn({ registrationId: duiRegistration.id }, "Square Webhook: Payment failed for DUI registration")
         }
 
         await tx.dUIRegistration.update({
@@ -204,7 +202,7 @@ async function handlePaymentEvent(event: any) {
           data: updateData
         })
 
-        console.log("Square Webhook: Updated DUI registration status to", paymentStatus)
+        logger.info({ registrationId: duiRegistration.id, paymentStatus }, "Square Webhook: Updated DUI registration status")
       }
     })
 
@@ -243,45 +241,42 @@ async function handlePaymentEvent(event: any) {
             </div>
           `,
         })
-        console.log("Square Webhook: Sent DUI confirmation email to", duiRegistration.email)
-      } catch (emailError) {
-        console.error("Square Webhook: Failed to send DUI confirmation email:", emailError)
+        logger.info({ email: duiRegistration.email }, "Square Webhook: Sent DUI confirmation email")
+      } catch (emailError: unknown) {
+        logger.error({ err: emailError }, "Square Webhook: Failed to send DUI confirmation email")
       }
     }
 
     // If neither found, log warning but don't fail
     if (!donation && !duiRegistration) {
-      console.warn("Square Webhook: No donation or DUI registration found for payment", payment.id)
+      logger.warn({ paymentId: payment.id }, "Square Webhook: No donation or DUI registration found for payment")
     }
 
     return NextResponse.json({ received: true }, { status: 200 })
-  } catch (error) {
-    console.error("Square Webhook: Error handling payment event:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Square Webhook: Error handling payment event")
     throw error
   }
 }
 
-async function handleInvoiceEvent(event: any) {
+async function handleInvoiceEvent(event: SquareWebhookEvent) {
   try {
-    const invoice = event.data?.object?.invoice
-    
+    const invoice = (event.data?.object as SquareInvoiceObject)?.invoice
+
     if (!invoice) {
-      console.warn("Square Webhook: No invoice data in event")
+      logger.warn("Square Webhook: No invoice data in event")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
-    console.log("Square Webhook: Invoice event", {
-      invoiceId: invoice.id,
-      status: invoice.status
-    })
+    logger.info({ invoiceId: invoice.id, status: invoice.status }, "Square Webhook: Invoice event")
 
     // Find donation by order ID or custom field
     const donationId = invoice.custom_fields?.find(
-      (field: any) => field.label === "Donation ID"
+      (field) => field.label === "Donation ID"
     )?.value
 
     if (!donationId) {
-      console.warn("Square Webhook: No donation ID found in invoice")
+      logger.warn("Square Webhook: No donation ID found in invoice")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
@@ -290,16 +285,16 @@ async function handleInvoiceEvent(event: any) {
     })
 
     if (!donation) {
-      console.warn("Square Webhook: No donation found for invoice", donationId)
+      logger.warn({ donationId }, "Square Webhook: No donation found for invoice")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
     // Update status based on invoice status
     let newStatus = donation.status
-    
+
     if (invoice.status === "PAID") {
       newStatus = "COMPLETED"
-      console.log("Square Webhook: Invoice paid for donation", donation.id)
+      logger.info({ donationId: donation.id }, "Square Webhook: Invoice paid for donation")
     } else if (invoice.status === "PAYMENT_PENDING") {
       newStatus = "PENDING"
     } else if (invoice.status === "OVERDUE" || invoice.status === "CANCELED") {
@@ -311,28 +306,25 @@ async function handleInvoiceEvent(event: any) {
       data: { status: newStatus as "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED" }
     })
 
-    console.log("Square Webhook: Updated donation status from invoice to", newStatus)
+    logger.info({ donationId: donation.id, newStatus }, "Square Webhook: Updated donation status from invoice")
 
     return NextResponse.json({ received: true }, { status: 200 })
-  } catch (error) {
-    console.error("Square Webhook: Error handling invoice event:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Square Webhook: Error handling invoice event")
     throw error
   }
 }
 
-async function handleSubscriptionEvent(event: any) {
+async function handleSubscriptionEvent(event: SquareWebhookEvent) {
   try {
-    const subscription = event.data?.object?.subscription
-    
+    const subscription = (event.data?.object as SquareSubscriptionObject)?.subscription
+
     if (!subscription) {
-      console.warn("Square Webhook: No subscription data in event")
+      logger.warn("Square Webhook: No subscription data in event")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
-    console.log("Square Webhook: Subscription event", {
-      subscriptionId: subscription.id,
-      status: subscription.status
-    })
+    logger.info({ subscriptionId: subscription.id, status: subscription.status }, "Square Webhook: Subscription event")
 
     // Find donation by Square subscription ID
     const donation = await db.donation.findFirst({
@@ -342,13 +334,17 @@ async function handleSubscriptionEvent(event: any) {
     })
 
     if (!donation) {
-      console.warn("Square Webhook: No donation found for subscription", subscription.id)
+      logger.warn({ subscriptionId: subscription.id }, "Square Webhook: No donation found for subscription")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
     // Update subscription fields
-    const updates: any = {}
-    
+    const updates: {
+      status?: "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED"
+      cancelledAt?: Date
+      nextRenewalDate?: Date
+    } = {}
+
     if (subscription.status === "ACTIVE") {
       updates.status = "COMPLETED"
     } else if (subscription.status === "CANCELED") {
@@ -366,24 +362,21 @@ async function handleSubscriptionEvent(event: any) {
       data: updates
     })
 
-    console.log("Square Webhook: Updated recurring donation", {
-      donationId: donation.id,
-      newStatus: updates.status
-    })
+    logger.info({ donationId: donation.id, newStatus: updates.status }, "Square Webhook: Updated recurring donation")
 
     return NextResponse.json({ received: true }, { status: 200 })
-  } catch (error) {
-    console.error("Square Webhook: Error handling subscription event:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Square Webhook: Error handling subscription event")
     throw error
   }
 }
 
-async function handleSubscriptionCancelled(event: any) {
+async function handleSubscriptionCancelled(event: SquareWebhookEvent) {
   try {
-    const subscription = event.data?.object?.subscription
-    
+    const subscription = (event.data?.object as SquareSubscriptionObject)?.subscription
+
     if (!subscription) {
-      console.warn("Square Webhook: No subscription data in cancellation event")
+      logger.warn("Square Webhook: No subscription data in cancellation event")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
@@ -394,7 +387,7 @@ async function handleSubscriptionCancelled(event: any) {
     })
 
     if (!donation) {
-      console.warn("Square Webhook: No donation found for subscription cancellation", subscription.id)
+      logger.warn({ subscriptionId: subscription.id }, "Square Webhook: No donation found for subscription cancellation")
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
@@ -406,11 +399,11 @@ async function handleSubscriptionCancelled(event: any) {
       }
     })
 
-    console.log("Square Webhook: Subscription cancelled for donation", donation.id)
+    logger.info({ donationId: donation.id }, "Square Webhook: Subscription cancelled for donation")
 
     return NextResponse.json({ received: true }, { status: 200 })
-  } catch (error) {
-    console.error("Square Webhook: Error handling subscription cancellation:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Square Webhook: Error handling subscription cancellation")
     throw error
   }
 }

@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { sendEmail } from "@/lib/email"
+import { encryptJSON, decryptJSON } from "@/lib/encryption"
+import { logger } from '@/lib/logger'
 
 // Simple in-memory rate limiter for assessments (5 per hour per IP)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
@@ -119,16 +121,16 @@ export async function POST(request: NextRequest) {
           </div>
         `
       })
-    } catch (emailError) {
-      console.error("Failed to send assessment notification email:", emailError)
+    } catch (emailError: unknown) {
+      logger.error({ err: emailError }, "Failed to send assessment notification email")
     }
 
     return NextResponse.json({
       success: true,
       recommendedProgram,
     })
-  } catch (error) {
-    console.error("Assessment error:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Assessment error")
     return NextResponse.json(
       { error: "Failed to save assessment" },
       { status: 500 }
@@ -164,8 +166,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       assessment: user.assessment
     })
-  } catch (error) {
-    console.error("Get assessment error:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Get assessment error")
     return NextResponse.json(
       { error: "Failed to fetch assessment" },
       { status: 500 }

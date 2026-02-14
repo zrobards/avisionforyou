@@ -4,10 +4,11 @@ import { sendDonationConfirmationEmail } from "@/lib/email"
 import { v4 as uuidv4 } from "uuid"
 import { DonationSchema, validateRequest, getValidationErrors } from '@/lib/validation'
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
-import { checkRateLimit } from '@/lib/rateLimit'
+import { rateLimit, donateLimiter, getClientIp } from '@/lib/rateLimit'
 import { ZodError } from 'zod'
 import { rateLimitResponse, errorResponse } from '@/lib/apiAuth'
 import { logActivity, notifyByRole } from '@/lib/notifications'
+import { logger } from '@/lib/logger'
 
 // Get Square API base URL
 function getSquareBaseUrl() {
@@ -28,24 +29,24 @@ function getSquareLocationId() {
 // Calculate next renewal date based on start date and frequency
 function getNextRenewalDate(startDate: Date, frequency: string): Date {
   const next = new Date(startDate)
-  
+
   if (frequency === "MONTHLY") {
     next.setMonth(next.getMonth() + 1)
   } else if (frequency === "YEARLY") {
     next.setFullYear(next.getFullYear() + 1)
   }
-  
+
   return next
 }
 
 /**
  * POST /api/donate/square
- * 
+ *
  * Create donation and generate Square payment link
- * 
+ *
  * PHASE 1 HARDENING:
  * - NO authentication required (public endpoint)
- * - Rate limited: 5 per IP per hour
+ * - Rate limited: 5 per IP per hour (via Upstash Redis)
  * - Validates all inputs with Zod
  * - No PII in error messages
  * - No Square API details in responses
@@ -56,15 +57,12 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get client IP for rate limiting
-    const ip = request.headers.get('x-forwarded-for') || 
-               request.headers.get('x-real-ip') || 
-               'unknown'
+    const ip = getClientIp(request)
 
-    // Check rate limit (5 donations per IP per hour)
-    const rateLimitKey = `donate:${ip}`
-    const rateLimit = checkRateLimit(rateLimitKey, 5, 3600)
+    // Check rate limit (5 donations per IP per hour via Upstash Redis)
+    const rl = await rateLimit(donateLimiter, ip)
 
-    if (!rateLimit.allowed) {
+    if (!rl.success) {
       logApiRequest({
         timestamp: new Date(),
         method: 'POST',
@@ -75,7 +73,7 @@ export async function POST(request: NextRequest) {
         requestId,
         error: 'RATE_LIMIT_EXCEEDED'
       })
-      return rateLimitResponse(rateLimit.retryAfter || 60)
+      return rateLimitResponse(60)
     }
 
     // Validate request body with Zod
@@ -112,12 +110,12 @@ export async function POST(request: NextRequest) {
 
     // Amount in cents
     const amountInCents = Math.round(amount * 100)
-    
+
     // Generate a unique donation ID
     const donationSessionId = uuidv4()
     const now = new Date()
     const nextRenewalDate = frequency !== "ONE_TIME" ? getNextRenewalDate(now, frequency) : null
-    
+
     // Save donation record to database first (PENDING status)
     const donation = await db.donation.create({
       data: {
@@ -167,7 +165,7 @@ export async function POST(request: NextRequest) {
 
       if (!response.ok) {
         const errorData = await response.json()
-        console.error("Square payment link error:", JSON.stringify(errorData))
+        logger.error({ errorData }, "Square payment link error")
         throw new Error(`Square API error: ${response.status}`)
       }
 
@@ -190,7 +188,7 @@ export async function POST(request: NextRequest) {
         )
       } catch (emailError) {
         // Log but don't fail - donation was already saved
-        console.error("Email send failed for donation:", donation.id)
+        logger.error({ err: emailError, donationId: donation.id }, "Email send failed for donation")
       }
 
       // Log activity and notify board (non-blocking)
@@ -218,7 +216,7 @@ export async function POST(request: NextRequest) {
         },
         { status: 200 }
       )
-    } catch (squareError: any) {
+    } catch (squareError: unknown) {
       // Mark donation as FAILED since Square API call failed
       try {
         await db.donation.update({
@@ -226,7 +224,7 @@ export async function POST(request: NextRequest) {
           data: { status: "FAILED" }
         })
       } catch (updateError) {
-        console.error("Failed to mark donation as FAILED:", updateError)
+        logger.error({ err: updateError }, "Failed to mark donation as FAILED")
       }
 
       const errorInfo = handleApiError(squareError, 'donate/square', requestId, undefined)
@@ -251,7 +249,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     const errorInfo = handleApiError(error, 'donate/square', requestId, undefined)
 
     logApiRequest({

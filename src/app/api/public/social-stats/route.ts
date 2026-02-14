@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,10 +19,11 @@ export async function GET(request: NextRequest) {
         },
         orderBy: { platform: 'asc' }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If table doesn't exist, return defaults
-      if (error?.message?.includes('does not exist') || error?.code === '42P01') {
-        console.warn('Social stats table does not exist, returning defaults')
+      const err = error as { message?: string; code?: string }
+      if (err?.message?.includes('does not exist') || err?.code === '42P01') {
+        logger.warn('Social stats table does not exist, returning defaults')
         return NextResponse.json({
           facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avisionforyourecovery' },
           instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
@@ -50,11 +52,11 @@ export async function GET(request: NextRequest) {
         url: stat.url
       }
       return acc
-    }, {} as Record<string, any>)
+    }, {} as Record<string, { followers: number; handle: string | null; url: string | null }>)
 
     return NextResponse.json(statsObj)
   } catch (error) {
-    console.error('Error fetching public social stats:', error)
+    logger.error({ err: error }, 'Error fetching public social stats')
     
     // Return defaults on error
     return NextResponse.json({

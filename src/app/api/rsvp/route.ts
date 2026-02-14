@@ -3,8 +3,9 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rateLimit"
+import { rateLimit, rsvpLimiter, getClientIp } from "@/lib/rateLimit"
 import { rateLimitResponse, validationErrorResponse } from "@/lib/apiAuth"
+import { logger } from '@/lib/logger'
 
 const rsvpSchema = z.object({
   sessionId: z.string().min(1),
@@ -14,10 +15,9 @@ const rsvpSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIp(request)
-    const rateKey = `rsvp:${ip}`
-    const rate = checkRateLimit(rateKey, RATE_LIMITS.RSVP.limit, RATE_LIMITS.RSVP.windowSeconds)
-    if (!rate.allowed) {
-      return rateLimitResponse(rate.retryAfter || 60)
+    const rl = await rateLimit(rsvpLimiter, ip)
+    if (!rl.success) {
+      return rateLimitResponse(60)
     }
 
     const session = await getServerSession(authOptions)
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
       rsvps: user.rsvps
     })
   } catch (error) {
-    console.error("Get RSVPs error:", error)
+    logger.error({ err: error }, "Get RSVPs error")
     return NextResponse.json(
       { error: "Failed to fetch RSVPs" },
       { status: 500 }
@@ -191,7 +191,7 @@ export async function DELETE(request: NextRequest) {
       message: "RSVP cancelled"
     })
   } catch (error) {
-    console.error("Cancel RSVP error:", error)
+    logger.error({ err: error }, "Cancel RSVP error")
     return NextResponse.json(
       { error: "Failed to cancel RSVP" },
       { status: 500 }

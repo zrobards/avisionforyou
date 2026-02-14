@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
-import { checkRateLimit, RATE_LIMITS } from '@/lib/rateLimit'
+import { rateLimit, mediaUploadLimiter } from '@/lib/rateLimit'
 import { rateLimitResponse, validationErrorResponse } from '@/lib/apiAuth'
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024 // 10MB
@@ -13,12 +13,12 @@ const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -58,20 +58,19 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const rateKey = `media:upload:${(session.user as any).id || 'unknown'}`
-    const rate = checkRateLimit(rateKey, RATE_LIMITS.MEDIA_UPLOAD.limit, RATE_LIMITS.MEDIA_UPLOAD.windowSeconds)
-    if (!rate.allowed) {
-      return rateLimitResponse(rate.retryAfter || 60)
+    const rl = await rateLimit(mediaUploadLimiter, session.user.id || 'unknown')
+    if (!rl.success) {
+      return rateLimitResponse(60)
     }
 
     const formData = await req.formData()
@@ -105,7 +104,7 @@ export async function POST(req: NextRequest) {
     // Get file info
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    
+
     // Determine file type
     const fileType = isImage ? 'image' : isVideo ? 'video' : 'other'
 
@@ -123,7 +122,7 @@ export async function POST(req: NextRequest) {
         mimeType: file.type,
         tags: tags,
         usage: usage,
-        uploadedById: (session.user as any).id
+        uploadedById: session.user.id
       },
       include: {
         uploadedBy: {

@@ -32,11 +32,11 @@ export default function AdminContactPage() {
         const data = await res.json()
         const items = Array.isArray(data)
           ? data
-          : Array.isArray((data as any)?.data)
-            ? (data as any).data
-            : Array.isArray((data as any)?.data?.data)
-              ? (data as any).data.data
-              : (Array.isArray((data as any)?.inquiries) ? (data as any).inquiries : [])
+          : Array.isArray(data?.data)
+            ? data.data
+            : Array.isArray(data?.data?.data)
+              ? data.data.data
+              : (Array.isArray(data?.inquiries) ? data.inquiries : [])
         setInquiries(items)
       }
     } catch (error) {

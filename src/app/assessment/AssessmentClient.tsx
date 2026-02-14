@@ -93,13 +93,13 @@ const PROGRAM_DESCRIPTIONS = {
 export default function Assessment() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, any>>({})
+  const [answers, setAnswers] = useState<Record<string, string | number | boolean>>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [recommendedProgram, setRecommendedProgram] = useState('')
   const [showResult, setShowResult] = useState(false)
 
-  const handleAnswer = (questionId: string, value: any) => {
+  const handleAnswer = (questionId: string, value: string | number | boolean) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: value
@@ -208,12 +208,12 @@ export default function Assessment() {
 
             {question.type === 'number' && (
               <div className="space-y-3">
-                {question.options?.map((option: any) => (
-                  <label key={option.value} className="flex items-center p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition" style={{borderColor: answers[question.id] === option.value ? '#2563eb' : '#e5e7eb'}}>
+                {question.options?.map((option) => (
+                  <label key={String(option.value)} className="flex items-center p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition" style={{borderColor: answers[question.id] === option.value ? '#2563eb' : '#e5e7eb'}}>
                     <input
                       type="radio"
                       name={question.id}
-                      value={option.value}
+                      value={String(option.value)}
                       checked={answers[question.id] === option.value}
                       onChange={() => handleAnswer(question.id, option.value)}
                       className="w-5 h-5 text-blue-600"
@@ -226,9 +226,9 @@ export default function Assessment() {
 
             {question.type === 'boolean' && (
               <div className="grid grid-cols-2 gap-4">
-                {question.options?.map((option: any) => (
+                {question.options?.map((option) => (
                   <button
-                    key={option.value}
+                    key={String(option.value)}
                     onClick={() => handleAnswer(question.id, option.value)}
                     className={`p-4 sm:p-6 rounded-lg font-semibold transition ${
                       answers[question.id] === option.value

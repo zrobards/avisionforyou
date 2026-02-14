@@ -6,14 +6,14 @@ import { db } from "@/lib/db"
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions)
   
-  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+  if (!session || (session.user.role !== "ALUMNI" && session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   const { searchParams } = new URL(request.url)
   const upcoming = searchParams.get("upcoming") === "true"
   const limit = parseInt(searchParams.get("limit") || "50")
-  const userId = (session.user as any).id
+  const userId = session.user.id
 
   // Fetch Program Sessions (free sessions)
   const sessionWhere = upcoming 

@@ -82,7 +82,7 @@ export function trackProgramView(programId: string, programName: string) {
 // Global types for window.gtag
 declare global {
   interface Window {
-    gtag: any;
-    dataLayer: any[];
+    gtag: (...args: [string, ...unknown[]]) => void;
+    dataLayer: Record<string, unknown>[];
   }
 }

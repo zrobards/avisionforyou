@@ -6,6 +6,7 @@ import { Resend } from 'resend'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { rateLimitResponse } from '@/lib/apiAuth'
+import { logger } from '@/lib/logger'
 
 // Initialize Resend only if API key is provided
 const resend = process.env.RESEND_API_KEY?.trim() ? new Resend(process.env.RESEND_API_KEY.trim()) : null
@@ -23,7 +24,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 })
     }
@@ -81,7 +82,7 @@ export async function POST(
 
     // Check if Resend is configured
     if (!resend) {
-      console.warn('RESEND_API_KEY not configured - newsletter marked as published but emails not sent')
+      logger.warn('RESEND_API_KEY not configured - newsletter marked as published but emails not sent')
       await prisma.newsletter.update({
         where: { id },
         data: { sentCount: 0 }
@@ -195,7 +196,7 @@ export async function POST(
               })
               successCount++
             } catch (emailError) {
-              console.error(`Failed to send to ${subscriber.email}:`, emailError)
+              logger.error({ err: emailError, email: subscriber.email }, 'Failed to send newsletter email')
               failureCount++
             }
           })
@@ -206,7 +207,7 @@ export async function POST(
           await new Promise(resolve => setTimeout(resolve, 1000))
         }
       } catch (batchError) {
-        console.error(`Batch sending error:`, batchError)
+        logger.error({ err: batchError }, 'Batch sending error')
         failureCount += batch.length
       }
     }
@@ -219,14 +220,13 @@ export async function POST(
       }
     })
 
-    console.log('Newsletter sent and published:', {
-      id: updatedNewsletter.id,
+    logger.info({
+      newsletterId: updatedNewsletter.id,
       title: updatedNewsletter.title,
       status: updatedNewsletter.status,
-      publishedAt: updatedNewsletter.publishedAt,
       successCount,
-      failureCount
-    })
+      failureCount,
+    }, 'Newsletter sent and published')
 
     return NextResponse.json({ 
       success: true, 
@@ -236,7 +236,7 @@ export async function POST(
       newsletter: updatedNewsletter
     })
   } catch (error) {
-    console.error('Error sending newsletter:', error)
+    logger.error({ err: error }, 'Error sending newsletter')
     return NextResponse.json({ error: 'Failed to send newsletter' }, { status: 500 })
   }
 }

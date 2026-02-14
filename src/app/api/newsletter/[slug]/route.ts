@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 // GET - Fetch single published newsletter by slug (public)
 export async function GET(
@@ -36,7 +37,7 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Error fetching newsletter:', error)
+    logger.error({ err: error }, 'Error fetching newsletter')
     return NextResponse.json(
       { error: 'Failed to fetch newsletter' },
       { status: 500 }

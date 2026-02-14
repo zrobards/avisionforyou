@@ -1,4 +1,6 @@
 import { ZodError } from 'zod'
+import * as Sentry from '@sentry/nextjs'
+import { logger } from '@/lib/logger'
 
 /**
  * PHASE 1 ERROR HANDLING & LOGGING
@@ -56,11 +58,11 @@ export function logApiRequest(context: {
   ].join(' ')
 
   if (context.statusCode >= 500) {
-    console.error(log)
+    logger.error({ ...context }, log)
   } else if (context.statusCode >= 400) {
-    console.warn(log)
+    logger.warn({ ...context }, log)
   } else {
-    console.log(log)
+    logger.info({ ...context }, log)
   }
 }
 
@@ -145,11 +147,12 @@ export function handleApiError(
     const isDatabaseError = error.message.includes('Prisma') || error.message.includes('database')
 
     // Log full error server-side
-    console.error(`[${timestamp.toISOString()}] Unhandled error in ${context}:`, {
-      requestId,
-      userId,
-      error: error.message,
-      stack: error.stack
+    logger.error({ err: error, requestId, userId, context }, `Unhandled error in ${context}`)
+
+    // Report 500-level errors to Sentry
+    Sentry.captureException(error, {
+      tags: { context, requestId },
+      extra: { userId },
     })
 
     return {
@@ -163,10 +166,12 @@ export function handleApiError(
   }
 
   // Handle unknown errors
-  console.error(`[${timestamp.toISOString()}] Unknown error in ${context}:`, {
-    requestId,
-    userId,
-    error
+  logger.error({ error, requestId, userId, context }, `Unknown error in ${context}`)
+
+  // Report unknown 500-level errors to Sentry
+  Sentry.captureException(error, {
+    tags: { context, requestId },
+    extra: { userId },
   })
 
   return {

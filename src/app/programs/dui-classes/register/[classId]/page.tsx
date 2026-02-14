@@ -68,8 +68,8 @@ export default function DUIRegisterPage({ params }: { params: Promise<{ classId:
       } else {
         router.push("/programs/dui-classes/success");
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
       setSubmitting(false);
     }
   };

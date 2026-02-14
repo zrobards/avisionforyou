@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       return errorResponse('Unauthorized', 'UNAUTHORIZED', 401)
     }
 
-    const userId = (session.user as any)?.id
+    const userId = session.user?.id
 
     // Parse pagination parameters
     const page = Math.max(1, parseInt(req.nextUrl.searchParams.get('page') || '1', 10))
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
       return errorResponse('Unauthorized', 'UNAUTHORIZED', 401)
     }
 
-    const userId = (session.user as any)?.id
+    const userId = session.user?.id
 
     // Validate request body with Zod
     let validatedData

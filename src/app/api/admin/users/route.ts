@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { checkRateLimit, RATE_LIMITS } from '@/lib/rateLimit'
+import { rateLimit, adminMutationLimiter } from '@/lib/rateLimit'
 import { rateLimitResponse, validationErrorResponse } from '@/lib/apiAuth'
 
 const adminUserActionSchema = z.object({
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions)
 
     // Check if user is authenticated and is admin
-    if (!session?.user || (session.user as any)?.role !== 'ADMIN') {
+    if (!session?.user || session.user?.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -57,17 +57,16 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions)
 
     // Check if user is authenticated and is admin
-    if (!session?.user || (session.user as any)?.role !== 'ADMIN') {
+    if (!session?.user || session.user?.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    const rateKey = `admin:users:${(session.user as any)?.id || 'unknown'}`
-    const rate = checkRateLimit(rateKey, RATE_LIMITS.ADMIN_MUTATION.limit, RATE_LIMITS.ADMIN_MUTATION.windowSeconds)
-    if (!rate.allowed) {
-      return rateLimitResponse(rate.retryAfter || 60)
+    const rl = await rateLimit(adminMutationLimiter, session.user?.id || 'unknown')
+    if (!rl.success) {
+      return rateLimitResponse(60)
     }
 
     const parsed = adminUserActionSchema.safeParse(await request.json())
@@ -79,7 +78,7 @@ export async function POST(request: NextRequest) {
     const { userId, action } = parsed.data
 
     // Prevent self-modification
-    if (userId === (session.user as any)?.id) {
+    if (userId === session.user?.id) {
       return NextResponse.json(
         { error: action === 'promote' ? 'You are already an admin' : 'Cannot demote yourself' },
         { status: 400 }

@@ -64,7 +64,7 @@ export default function AdminLayout({
     }
 
     if (status === 'authenticated') {
-      const userRole = (session?.user as any)?.role
+      const userRole = session?.user?.role
       const isAdmin = userRole === 'ADMIN'
       
       if (!isAdmin) {

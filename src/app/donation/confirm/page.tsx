@@ -8,7 +8,7 @@ import Link from 'next/link'
 function DonationConfirmContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [donation, setDonation] = useState<any>(null)
+  const [donation, setDonation] = useState<{ id: string; amount: number; status: string } | null>(null)
   const [loading, setLoading] = useState(true)
 
   const donationId = searchParams.get('id')

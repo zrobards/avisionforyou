@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     // Check if user is admin
-    if (!session?.user || (session.user as any).role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -415,7 +416,7 @@ export async function GET(request: NextRequest) {
       insights
     });
   } catch (error) {
-    console.error('Analytics error:', error);
+    logger.error({ err: error }, 'Analytics error');
     return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
   }
 }

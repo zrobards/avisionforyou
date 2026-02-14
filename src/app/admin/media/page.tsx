@@ -59,9 +59,9 @@ export default function MediaLibrary() {
       const data = await response.json()
       const items = Array.isArray(data) ? data : (data.data || data.items || [])
       setMediaItems(items)
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (loading) {
-        showToast(error.message || 'Failed to load media', 'error')
+        showToast(error instanceof Error ? error.message : 'Failed to load media', 'error')
       }
       console.error('Error fetching media:', error)
     } finally {
@@ -119,8 +119,8 @@ export default function MediaLibrary() {
       setPendingFiles([])
       setUploadTags([])
       setUploadUsage([])
-    } catch (error: any) {
-      showToast(error.message || 'Failed to upload files', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to upload files', 'error')
       console.error('Upload error:', error)
     } finally {
       setUploading(false)
@@ -156,8 +156,8 @@ export default function MediaLibrary() {
       }
       showToast('Tag added successfully', 'success')
       await fetchMedia()
-    } catch (error: any) {
-      showToast(error.message || 'Failed to add tag', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to add tag', 'error')
       console.error('Error adding tag:', error)
     }
   }
@@ -179,8 +179,8 @@ export default function MediaLibrary() {
       }
       showToast('Tag removed successfully', 'success')
       await fetchMedia()
-    } catch (error: any) {
-      showToast(error.message || 'Failed to remove tag', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to remove tag', 'error')
       console.error('Error removing tag:', error)
     }
   }
@@ -198,8 +198,8 @@ export default function MediaLibrary() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
       showToast('Download started', 'success')
-    } catch (error: any) {
-      showToast(error.message || 'Failed to download file', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to download file', 'error')
       console.error('Download error:', error)
     }
   }
@@ -215,8 +215,8 @@ export default function MediaLibrary() {
       }
       showToast('Media deleted successfully', 'success')
       await fetchMedia()
-    } catch (error: any) {
-      showToast(error.message || 'Failed to delete media', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to delete media', 'error')
       console.error('Delete error:', error)
     }
   }

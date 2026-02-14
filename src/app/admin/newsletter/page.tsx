@@ -61,7 +61,7 @@ export default function AdminNewsletter() {
             ? data.data
             : Array.isArray(data?.data?.data)
               ? data.data.data
-              : (Array.isArray((data as any)?.items) ? (data as any).items : (Array.isArray((data as any)?.newsletters) ? (data as any).newsletters : []))
+              : (Array.isArray(data?.items) ? data.items : (Array.isArray(data?.newsletters) ? data.newsletters : []))
         setNewsletters(items)
       } else if (response.status === 401) {
         // Unauthorized - redirect to login
@@ -70,9 +70,9 @@ export default function AdminNewsletter() {
         const error = await response.json()
         showToast(error.error || 'Failed to fetch newsletters', 'error')
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (loading) {
-        showToast(error.message || 'Failed to fetch newsletters', 'error')
+        showToast(error instanceof Error ? error.message : 'Failed to fetch newsletters', 'error')
       }
       console.error('Failed to fetch newsletters:', error)
     } finally {
@@ -132,8 +132,8 @@ export default function AdminNewsletter() {
           showToast(error.error || 'Failed to create newsletter', 'error')
         }
       }
-    } catch (error: any) {
-      showToast(error.message || 'Failed to save newsletter', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to save newsletter', 'error')
       console.error('Failed to save newsletter:', error)
     }
   }
@@ -165,8 +165,8 @@ export default function AdminNewsletter() {
         const error = await response.json()
         showToast(error.error || 'Failed to delete newsletter', 'error')
       }
-    } catch (error: any) {
-      showToast(error.message || 'Failed to delete newsletter', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to delete newsletter', 'error')
       console.error('Failed to delete newsletter:', error)
     }
   }
@@ -188,8 +188,8 @@ export default function AdminNewsletter() {
         const error = await response.json()
         showToast(error.error || 'Failed to send newsletter', 'error')
       }
-    } catch (error: any) {
-      showToast(error.message || 'Failed to send newsletter', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to send newsletter', 'error')
       console.error('Failed to send newsletter:', error)
     } finally {
       setSending(null)
@@ -384,7 +384,7 @@ export default function AdminNewsletter() {
                   id="newsletter-status"
                   name="status"
                   value={formData.status}
-                  onChange={e => setFormData({ ...formData, status: e.target.value as any })}
+                  onChange={e => setFormData({ ...formData, status: e.target.value as 'DRAFT' | 'PUBLISHED' })}
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
                 >
                   <option value="DRAFT">Draft</option>

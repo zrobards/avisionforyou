@@ -6,6 +6,7 @@ import EmailProvider from "next-auth/providers/email"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { db } from "./db"
+import { logger } from "@/lib/logger"
 
 export const authOptions: NextAuthOptions = {
   // Use PrismaAdapter for user/account creation, but JWT for sessions
@@ -80,7 +81,7 @@ export const authOptions: NextAuthOptions = {
             role: user.role
           }
         } catch (error) {
-          console.error('Auth error:', error instanceof Error ? error.message : String(error))
+          logger.error({ err: error }, 'Auth credentials error')
           return null
         }
       }
@@ -112,13 +113,13 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (urlError) {
           // If URL parsing fails, treat as relative
-          console.error('Error parsing redirect URL:', urlError)
+          logger.error({ err: urlError }, 'Error parsing redirect URL')
         }
         
         // Default to dashboard
         return `${baseUrl}/dashboard`
       } catch (error) {
-        console.error('Error in redirect callback:', error)
+        logger.error({ err: error }, 'Error in redirect callback')
         // Always return a valid URL
         return `${baseUrl}/dashboard`
       }
@@ -130,7 +131,7 @@ export const authOptions: NextAuthOptions = {
           try {
             // Ensure user object exists and has required fields
             if (!user || (!user.id && !user.email)) {
-              console.error('Invalid user object in JWT callback:', user)
+              logger.error({ user }, 'Invalid user object in JWT callback')
               // Return token with minimal data
               return token
             }
@@ -145,7 +146,7 @@ export const authOptions: NextAuthOptions = {
             }
             
             // Set default role first to ensure token is always valid
-            token.role = (user as any)?.role || 'USER'
+            token.role = user.role || 'USER'
             
             // Try to fetch user role from database (non-blocking)
             // Only if we have either an ID or email
@@ -166,21 +167,22 @@ export const authOptions: NextAuthOptions = {
                 if (dbUser) {
                   token.role = dbUser.role
                   // If we found user by email, update the ID
-                  if (!token.id && (dbUser as any).id) {
-                    token.id = (dbUser as any).id
-                    token.sub = (dbUser as any).id
+                  const dbUserId = 'id' in dbUser ? (dbUser as { id: string }).id : undefined
+                  if (!token.id && dbUserId) {
+                    token.id = dbUserId
+                    token.sub = dbUserId
                   }
                 }
               } catch (dbError) {
                 // Non-blocking: use default role if DB query fails
-                console.error('Error fetching user role (non-blocking):', dbError)
+                logger.error({ err: dbError }, 'Error fetching user role (non-blocking)')
                 // Ensure token still has a role
                 if (!token.role) token.role = 'USER'
               }
             }
           } catch (error) {
             // Ensure we always return a valid token even if something fails
-            console.error('Error in JWT callback (user block):', error)
+            logger.error({ err: error }, 'Error in JWT callback (user block)')
             // Set minimal required fields
             if (user) {
               if (!token.id && user.id) token.id = user.id
@@ -203,13 +205,13 @@ export const authOptions: NextAuthOptions = {
           } catch (error) {
             // Silently fail - keep existing role from token
             if (process.env.NODE_ENV === 'development') {
-              console.debug('Could not refresh user role (non-blocking):', error)
+              logger.debug({ err: error }, 'Could not refresh user role (non-blocking)')
             }
           }
         }
       } catch (outerError) {
         // Catch-all to ensure we never throw
-        console.error('Critical error in JWT callback:', outerError)
+        logger.error({ err: outerError }, 'Critical error in JWT callback')
         // Ensure token has minimum required fields
         if (!token.role) token.role = 'USER'
         if (!token.sub && token.id) token.sub = String(token.id)
@@ -221,15 +223,15 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       try {
         if (session.user && token) {
-          (session.user as any).id = token.sub || token.id;
-          (session.user as any).role = token.role || 'USER';
+          session.user.id = token.sub || token.id || '';
+          session.user.role = token.role || 'USER';
         }
       } catch (error) {
-        console.error('Error in session callback:', error)
+        logger.error({ err: error }, 'Error in session callback')
         // Ensure session is still returned even on error
         if (session.user && token) {
-          (session.user as any).id = token.sub || token.id || '';
-          (session.user as any).role = token.role || 'USER';
+          session.user.id = token.sub || token.id || '';
+          session.user.role = token.role || 'USER';
         }
       }
       // Always return session - never throw
@@ -258,18 +260,18 @@ export const authOptions: NextAuthOptions = {
                     data: { role: 'ADMIN' },
                   })
                 } catch (updateError) {
-                  console.error('Error promoting user (non-blocking):', updateError)
+                  logger.error({ err: updateError }, 'Error promoting user (non-blocking)')
                 }
               }
             }
           } catch (error) {
             // Don't block sign-in on errors
-            console.error('Error in signIn callback (non-blocking):', error)
+            logger.error({ err: error }, 'Error in signIn callback (non-blocking)')
           }
         }
       } catch (error) {
         // Never block sign-in - log and continue
-        console.error('Unexpected error in signIn callback:', error)
+        logger.error({ err: error }, 'Unexpected error in signIn callback')
       }
       
       // Always return true to allow sign-in

@@ -1,103 +1,124 @@
 /**
- * PHASE 1 RATE LIMITING
- * 
- * Simple in-memory rate limiting for MVP
- * Can be upgraded to Redis/Upstash in Phase 2
+ * RATE LIMITING WITH UPSTASH REDIS
+ *
+ * Uses @upstash/ratelimit with sliding window strategy.
+ * Gracefully degrades to a no-op (always allow) when
+ * UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set.
  */
 
-interface RateLimitEntry {
-  count: number
-  resetAt: number
-}
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
 
-// In-memory store: key -> { count, resetAt }
-const rateLimitStore = new Map<string, RateLimitEntry>()
+// ---------------------------------------------------------------------------
+// Redis client (nullable for graceful degradation)
+// ---------------------------------------------------------------------------
+const redis =
+  process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+    ? new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      })
+    : null
 
-/**
- * Clean up expired entries every 5 minutes
- */
-setInterval(() => {
-  const now = Date.now()
-  const expired: string[] = []
+// ---------------------------------------------------------------------------
+// Helper: build a limiter or null
+// ---------------------------------------------------------------------------
+function createLimiter(
+  tokens: number,
+  windowSeconds: number,
+  prefix: string
+): Ratelimit | null {
+  if (!redis) return null
 
-  rateLimitStore.forEach((entry, key) => {
-    if (entry.resetAt < now) {
-      expired.push(key)
-    }
+  // Upstash Ratelimit accepts a duration string like "10 s", "60 s", etc.
+  const window = `${windowSeconds} s` as Parameters<typeof Ratelimit.slidingWindow>[1]
+
+  return new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(tokens, window),
+    prefix: `ratelimit:${prefix}`,
+    analytics: true,
   })
+}
 
-  expired.forEach(key => rateLimitStore.delete(key))
-}, 5 * 60 * 1000)
+// ---------------------------------------------------------------------------
+// Pre-built limiter instances
+// ---------------------------------------------------------------------------
 
-/**
- * Rate limit result
- */
+/** General API limiter: 10 requests per 10 seconds */
+export const generalLimiter = createLimiter(10, 10, 'general')
+
+/** Auth endpoints (signup / login): 3 requests per 60 seconds */
+export const authLimiter = createLimiter(3, 60, 'auth')
+
+/** Contact form: 5 requests per 60 seconds */
+export const contactLimiter = createLimiter(5, 60, 'contact')
+
+/** Newsletter subscribe: 3 requests per 60 seconds */
+export const newsletterLimiter = createLimiter(3, 60, 'newsletter')
+
+/** Donation endpoint: 5 requests per 3600 seconds (1 hour) */
+export const donateLimiter = createLimiter(5, 3600, 'donate')
+
+/** Admission IP limiter: 10 requests per 86400 seconds (1 day) */
+export const admissionIpLimiter = createLimiter(10, 86400, 'admission-ip')
+
+/** Admission email limiter: 1 request per 86400 seconds (1 day) */
+export const admissionEmailLimiter = createLimiter(1, 86400, 'admission-email')
+
+/** RSVP actions: 10 requests per 60 seconds */
+export const rsvpLimiter = createLimiter(10, 60, 'rsvp')
+
+/** Media uploads: 5 requests per 60 seconds */
+export const mediaUploadLimiter = createLimiter(5, 60, 'media-upload')
+
+/** Admin mutations: 20 requests per 60 seconds */
+export const adminMutationLimiter = createLimiter(20, 60, 'admin-mutation')
+
+// ---------------------------------------------------------------------------
+// Rate limit result type (used by all consumers)
+// ---------------------------------------------------------------------------
 export interface RateLimitResult {
-  allowed: boolean
-  limit: number
+  success: boolean
   remaining: number
-  resetAt: Date
-  retryAfter?: number // seconds
 }
+
+// ---------------------------------------------------------------------------
+// Core rateLimit function
+// ---------------------------------------------------------------------------
 
 /**
- * Check rate limit
- * 
- * @param key - Unique identifier (e.g., "ip:192.168.1.1", "user:123")
- * @param limit - Max requests allowed
- * @param windowSeconds - Time window in seconds
- * @returns Rate limit result
- * 
- * Usage:
- * const result = checkRateLimit('ip:192.168.1.1', 5, 3600)
- * if (!result.allowed) {
- *   return rateLimitResponse(result.retryAfter || 60)
- * }
+ * Check rate limit for a given identifier against a specific limiter.
+ *
+ * If no Redis is configured (limiter is null), requests are always allowed.
+ *
+ * @param limiter  - One of the pre-built Ratelimit instances (or null)
+ * @param identifier - Unique key, typically an IP address or user ID
+ * @returns `{ success, remaining }`
  */
-export function checkRateLimit(
-  key: string,
-  limit: number,
-  windowSeconds: number
-): RateLimitResult {
-  const now = Date.now()
-  const entry = rateLimitStore.get(key)
-
-  // First request in window
-  if (!entry || entry.resetAt < now) {
-    rateLimitStore.set(key, {
-      count: 1,
-      resetAt: now + windowSeconds * 1000
-    })
-
-    return {
-      allowed: true,
-      limit,
-      remaining: limit - 1,
-      resetAt: new Date(now + windowSeconds * 1000)
-    }
+export async function rateLimit(
+  limiter: Ratelimit | null,
+  identifier: string
+): Promise<RateLimitResult> {
+  // Graceful degradation: always allow when Redis is not configured
+  if (!limiter) {
+    return { success: true, remaining: -1 }
   }
 
-  // Within window
-  const remaining = Math.max(0, limit - entry.count - 1)
-  const allowed = entry.count < limit
-  const retryAfter = Math.ceil((entry.resetAt - now) / 1000)
-
-  if (allowed) {
-    entry.count++
-  }
-
+  const result = await limiter.limit(identifier)
   return {
-    allowed,
-    limit,
-    remaining,
-    resetAt: new Date(entry.resetAt),
-    retryAfter
+    success: result.success,
+    remaining: result.remaining,
   }
 }
+
+// ---------------------------------------------------------------------------
+// IP extraction helper (unchanged from previous implementation)
+// ---------------------------------------------------------------------------
 
 /**
  * Get client IP from request
- * 
+ *
  * Handles:
  * - Direct connections
  * - Cloudflare proxy
@@ -119,29 +140,34 @@ export function getClientIp(req: Request): string {
   return 'unknown'
 }
 
+// ---------------------------------------------------------------------------
+// Simple in-memory rate limiter (for admin-only routes)
+// ---------------------------------------------------------------------------
+
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>()
+
 /**
- * Predefined rate limits for common scenarios
+ * Simple in-memory rate limit check.
+ * Used by admin routes where Redis-level limiting is not needed.
  */
-export const RATE_LIMITS = {
-  // Donation endpoint: 5 per IP per hour
-  DONATION: { limit: 5, windowSeconds: 3600 },
+export function checkRateLimit(
+  key: string,
+  limit: number,
+  windowSeconds: number
+): { allowed: boolean; retryAfter?: number } {
+  const now = Date.now()
+  const entry = rateLimitStore.get(key)
 
-  // Admission applications: 10 per IP per day, 1 per email per 24hrs
-  ADMISSION: { limit: 10, windowSeconds: 86400 },
-  ADMISSION_EMAIL: { limit: 1, windowSeconds: 86400 },
+  if (!entry || now > entry.resetAt) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + windowSeconds * 1000 })
+    return { allowed: true }
+  }
 
-  // Contact form: 5 per IP per day
-  CONTACT: { limit: 5, windowSeconds: 86400 },
+  if (entry.count >= limit) {
+    const retryAfter = Math.ceil((entry.resetAt - now) / 1000)
+    return { allowed: false, retryAfter }
+  }
 
-  // Admin endpoints: 100 per user per minute (logging only, not enforcing)
-  ADMIN: { limit: 100, windowSeconds: 60 },
-
-  // RSVP actions: 10 per IP per minute
-  RSVP: { limit: 10, windowSeconds: 60 },
-
-  // Media uploads: 5 per user per minute
-  MEDIA_UPLOAD: { limit: 5, windowSeconds: 60 },
-
-  // Admin mutations: 20 per user per minute
-  ADMIN_MUTATION: { limit: 20, windowSeconds: 60 },
-} as const
+  entry.count++
+  return { allowed: true }
+}

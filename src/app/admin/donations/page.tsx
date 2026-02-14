@@ -54,7 +54,7 @@ export default function AdminDonations() {
   const router = useRouter()
   const [donations, setDonations] = useState<Donation[]>([])
   const [stats, setStats] = useState<DonationStats | null>(null)
-  const [monthlyData, setMonthlyData] = useState<any>(null)
+  const [monthlyData, setMonthlyData] = useState<Record<string, number>[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')

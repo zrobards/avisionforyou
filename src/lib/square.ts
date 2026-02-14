@@ -1,6 +1,6 @@
 import { SquareClient, SquareEnvironment } from "square"
 
-let squareClientInstance: any = null
+let squareClientInstance: SquareClient | null = null
 
 function initializeSquare() {
   if (!squareClientInstance) {

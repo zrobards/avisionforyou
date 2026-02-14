@@ -2,6 +2,7 @@ import { db } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
       headers: { 'Cache-Control': 'no-store, max-age=0' }
     })
   } catch (error) {
-    console.error("Get meetings error:", error)
+    logger.error({ err: error }, "Get meetings error")
     return NextResponse.json(
       { error: "Failed to fetch meetings" },
       { status: 500 }
@@ -148,7 +149,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error("Create meeting error:", error)
+    logger.error({ err: error }, "Create meeting error")
     return NextResponse.json(
       { error: "Failed to create meeting" },
       { status: 500 }

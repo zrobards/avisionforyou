@@ -2,11 +2,12 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { logger } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions)
   
-  if (!session || ((session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+  if (!session || (session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   const category = searchParams.get("category")
 
   const documents = await db.boardDocument.findMany({
-    where: category ? { category: category as any } : undefined,
+    where: category ? { category: category as import('@prisma/client').BoardDocumentCategory } : undefined,
     orderBy: { uploadedAt: "desc" },
     include: {
       uploadedBy: {
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
   
-  if (!session || ((session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+  if (!session || (session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -58,14 +59,14 @@ export async function POST(request: Request) {
         fileName: file.name,
         fileUrl: dataUrl,
         fileSize: file.size,
-        category: category as any,
-        uploadedById: (session.user as any).id,
+        category: category as import('@prisma/client').BoardDocumentCategory,
+        uploadedById: session.user.id,
       },
     })
 
     return NextResponse.json(document)
   } catch (error) {
-    console.error("Error uploading document:", error)
+    logger.error({ err: error }, "Error uploading document")
     return NextResponse.json({ error: "Failed to upload document" }, { status: 500 })
   }
 }

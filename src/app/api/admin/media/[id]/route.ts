@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 // PATCH - Update media tags/usage
 export async function PATCH(
@@ -16,7 +17,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -42,7 +43,7 @@ export async function PATCH(
 
     return NextResponse.json(mediaItem)
   } catch (error) {
-    console.error('Error updating media:', error)
+    logger.error({ err: error }, 'Error updating media')
     return NextResponse.json({ error: 'Failed to update media' }, { status: 500 })
   }
 }
@@ -60,7 +61,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -71,7 +72,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting media:', error)
+    logger.error({ err: error }, 'Error deleting media')
     return NextResponse.json({ error: 'Failed to delete media' }, { status: 500 })
   }
 }

@@ -2,6 +2,7 @@ import { db } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { logger } from '@/lib/logger'
 
 export async function PATCH(
   request: NextRequest,
@@ -52,7 +53,7 @@ export async function PATCH(
 
     return NextResponse.json({ user: updatedUser })
   } catch (error) {
-    console.error("Update user role error:", error)
+    logger.error({ err: error }, "Update user role error")
     return NextResponse.json(
       { error: "Failed to update user role" },
       { status: 500 }
@@ -102,7 +103,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Delete user error:", error)
+    logger.error({ err: error }, "Delete user error")
     return NextResponse.json(
       { error: "Failed to delete user" },
       { status: 500 }

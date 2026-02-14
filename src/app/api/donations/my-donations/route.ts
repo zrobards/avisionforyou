@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { logger } from '@/lib/logger'
 
 export const dynamic = "force-dynamic"
 
@@ -43,8 +44,8 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(donations)
-  } catch (error: any) {
-    console.error("Get donations error:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Get donations error")
     return NextResponse.json(
       { error: "Failed to fetch donations" },
       { status: 500 }

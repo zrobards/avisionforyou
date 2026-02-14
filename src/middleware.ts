@@ -82,7 +82,7 @@ export async function middleware(request: NextRequest) {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https: blob:",
-      "connect-src 'self' https://*.squareup.com https://*.squarecdn.com https://*.google-analytics.com https://*.vercel-insights.com",
+      "connect-src 'self' https://*.squareup.com https://*.squarecdn.com https://*.google-analytics.com https://*.vercel-insights.com https://*.sentry.io",
       "frame-src https://*.squareup.com",
       "object-src 'none'",
       "base-uri 'self'",

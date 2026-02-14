@@ -62,11 +62,11 @@ export default function AdminMeetingsPage() {
       // Handle potential nested successResponse shapes
       const items = Array.isArray(data)
         ? data
-        : Array.isArray((data as any)?.data)
-          ? (data as any).data
-          : Array.isArray((data as any)?.data?.data)
-            ? (data as any).data.data
-            : (Array.isArray((data as any)?.meetings) ? (data as any).meetings : [])
+        : Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data?.data?.data)
+            ? data.data.data
+            : (Array.isArray(data?.meetings) ? data.meetings : [])
       setMeetings(items)
     } catch (err) {
       console.error(err)
@@ -167,8 +167,8 @@ export default function AdminMeetingsPage() {
       setShowCreateForm(false)
 
       setTimeout(() => setCreateSuccess(false), 3000)
-    } catch (err: any) {
-      setCreateError(err.message || 'Network error')
+    } catch (err: unknown) {
+      setCreateError(err instanceof Error ? err.message : 'Network error')
     }
   }
 
@@ -203,8 +203,8 @@ export default function AdminMeetingsPage() {
 
       showToast('success', 'Meeting deleted successfully')
       await fetchMeetings()
-    } catch (err: any) {
-      showToast('error', err.message || 'Failed to delete meeting')
+    } catch (err: unknown) {
+      showToast('error', err instanceof Error ? err.message : 'Failed to delete meeting')
     }
   }
 

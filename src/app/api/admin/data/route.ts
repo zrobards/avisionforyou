@@ -2,6 +2,7 @@ import { db } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic';
 
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
       headers: { 'Cache-Control': 'no-store, max-age=0' }
     })
   } catch (error) {
-    console.error("Admin data error:", error)
+    logger.error({ err: error }, "Admin data error")
     return NextResponse.json(
       { error: "Failed to fetch admin data" },
       { status: 500 }

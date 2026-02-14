@@ -6,11 +6,11 @@ import { db } from "@/lib/db"
 export async function GET() {
   const session = await getServerSession(authOptions)
   
-  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+  if (!session || (session.user.role !== "ALUMNI" && session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const userId = (session.user as any).id
+  const userId = session.user.id
 
   const [attended, upcoming] = await Promise.all([
     // Count RSVPs where status is CONFIRMED and the meeting has passed

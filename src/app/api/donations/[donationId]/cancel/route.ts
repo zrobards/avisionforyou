@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { SquareClient, SquareEnvironment } from "square"
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/donations/[donationId]/cancel
@@ -74,9 +75,9 @@ export async function POST(
           subscriptionId: donation.squareSubscriptionId
         })
 
-        console.log("Square: Subscription cancelled", donation.squareSubscriptionId)
-      } catch (squareError: any) {
-        console.error("Square: Failed to cancel subscription:", squareError)
+        logger.info({ subscriptionId: donation.squareSubscriptionId }, "Square: Subscription cancelled")
+      } catch (squareError: unknown) {
+        logger.error({ err: squareError }, "Square: Failed to cancel subscription")
         // Continue anyway - we'll still mark it as cancelled in our DB
       }
     }
@@ -90,18 +91,14 @@ export async function POST(
       }
     })
 
-    console.log("Donation cancelled:", {
-      donationId: updatedDonation.id,
-      frequency: updatedDonation.frequency,
-      email: updatedDonation.email
-    })
+    logger.info({ donationId: updatedDonation.id, frequency: updatedDonation.frequency }, "Donation cancelled")
 
     return NextResponse.json({
       success: true,
       donation: updatedDonation
     })
-  } catch (error: any) {
-    console.error("Cancel donation error:", error)
+  } catch (error: unknown) {
+    logger.error({ err: error }, "Cancel donation error")
     return NextResponse.json(
       { error: "Failed to cancel donation" },
       { status: 500 }

@@ -122,8 +122,8 @@ export default function AdminBlog() {
           showToast(error.error || 'Failed to create post', 'error')
         }
       }
-    } catch (error: any) {
-      showToast(error.message || 'Failed to save post', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to save post', 'error')
       console.error('Failed to save post:', error)
     }
   }
@@ -158,8 +158,8 @@ export default function AdminBlog() {
         const error = await response.json()
         showToast(error.error || 'Failed to delete post', 'error')
       }
-    } catch (error: any) {
-      showToast(error.message || 'Failed to delete post', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to delete post', 'error')
       console.error('Failed to delete post:', error)
     }
   }
@@ -353,7 +353,7 @@ export default function AdminBlog() {
                 <label className="block text-gray-300 font-semibold mb-2">Status</label>
                 <select
                   value={formData.status}
-                  onChange={e => setFormData({ ...formData, status: e.target.value as any })}
+                  onChange={e => setFormData({ ...formData, status: e.target.value as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' })}
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
                 >
                   <option value="DRAFT">Draft</option>

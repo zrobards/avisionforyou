@@ -29,8 +29,8 @@ export default function CommunityPollsPage() {
       if (!res.ok) throw new Error("Failed to fetch polls");
       const data = await res.json();
       setPolls(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
@@ -56,8 +56,8 @@ export default function CommunityPollsPage() {
       }
 
       fetchPolls(); // Refresh polls to show updated vote counts
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Unknown error');
     }
   };
 

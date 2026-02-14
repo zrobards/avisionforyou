@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 // Get user's RSVPs and send reminders based on timing
 export async function GET(request: NextRequest) {
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
       }))
     })
   } catch (error) {
-    console.error('Get RSVPs error:', error)
+    logger.error({ err: error }, 'Get RSVPs error')
     return NextResponse.json(
       { error: 'Failed to fetch RSVPs' },
       { status: 500 }
@@ -115,7 +116,7 @@ export async function DELETE(request: NextRequest) {
       rsvp: updated
     })
   } catch (error) {
-    console.error('Cancel RSVP error:', error)
+    logger.error({ err: error }, 'Cancel RSVP error')
     return NextResponse.json(
       { error: 'Failed to cancel RSVP' },
       { status: 500 }

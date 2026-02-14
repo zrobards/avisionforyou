@@ -19,11 +19,11 @@ export function AuthProvider({
           id: 'bypass-review',
           name: 'Review Admin',
           email: 'admin@avisionforyou.org',
-          role: 'ADMIN'
+          role: 'ADMIN' as const
         },
         expires: '2099-01-01T00:00:00.000Z'
-      }
+      } satisfies import('next-auth').Session
     : undefined
 
-  return <SessionProvider session={bypassSession as any}>{children}</SessionProvider>
+  return <SessionProvider session={bypassSession}>{children}</SessionProvider>
 }

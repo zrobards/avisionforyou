@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
+import { logger } from '@/lib/logger'
 import { ContactSchema, validateRequest, getValidationErrors } from '@/lib/validation'
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
-import { checkRateLimit } from '@/lib/rateLimit'
+import { rateLimit, contactLimiter, getClientIp } from '@/lib/rateLimit'
 import { ZodError } from 'zod'
 import { escapeHtml } from '@/lib/sanitize'
 
 /**
  * POST /api/contact
- * 
+ *
  * Submit contact inquiry
- * 
+ *
  * PHASE 1 HARDENING:
  * - NO authentication required (public endpoint)
- * - Rate limited: 5 per day per IP
+ * - Rate limited: 5 per minute per IP (via Upstash Redis)
  * - Validates all inputs with Zod
  * - Sanitizes text before storing
  * - No PII in error messages
@@ -25,15 +26,12 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get client IP for rate limiting
-    const ip = request.headers.get('x-forwarded-for') || 
-               request.headers.get('x-real-ip') || 
-               'unknown'
+    const ip = getClientIp(request)
 
-    // Check rate limit (5 per day per IP)
-    const rateLimitKey = `contact:${ip}`
-    const rateLimit = checkRateLimit(rateLimitKey, 5, 86400)
+    // Check rate limit (5 per minute per IP via Upstash Redis)
+    const rl = await rateLimit(contactLimiter, ip)
 
-    if (!rateLimit.allowed) {
+    if (!rl.success) {
       logApiRequest({
         timestamp: new Date(),
         method: 'POST',
@@ -50,7 +48,7 @@ export async function POST(request: NextRequest) {
           error: 'Too many submissions. Please try again later.',
           code: 'RATE_LIMIT_EXCEEDED'
         },
-        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter || 3600) } }
+        { status: 429, headers: { 'Retry-After': '60' } }
       )
     }
 
@@ -147,7 +145,7 @@ export async function POST(request: NextRequest) {
       ])
     } catch (emailError) {
       // Log but don't fail - inquiry was already saved
-      console.error('Email notification failed for contact inquiry:', inquiry.id)
+      logger.error({ err: emailError, inquiryId: inquiry.id }, 'Email notification failed for contact inquiry')
     }
 
     logApiRequest({

@@ -6,7 +6,7 @@ import { db } from "@/lib/db"
 // GET all updates (for admin table)
 export async function GET() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -21,7 +21,7 @@ export async function GET() {
 // POST new update
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       content,
       category,
       priority: priority || false,
-      authorId: (session.user as any).id,
+      authorId: session.user.id,
     },
   })
 

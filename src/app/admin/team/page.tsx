@@ -48,9 +48,9 @@ export default function AdminTeam() {
         const error = await response.json()
         showToast(error.error || 'Failed to fetch team members', 'error')
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (loading) {
-        showToast(error.message || 'Failed to fetch team members', 'error')
+        showToast(error instanceof Error ? error.message : 'Failed to fetch team members', 'error')
       }
       console.error('Failed to fetch team members:', error)
     } finally {
@@ -107,8 +107,8 @@ export default function AdminTeam() {
           showToast(error.error || 'Failed to add team member', 'error')
         }
       }
-    } catch (error: any) {
-      showToast(error.message || 'Failed to save team member', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to save team member', 'error')
       console.error('Failed to save team member:', error)
     }
   }
@@ -142,8 +142,8 @@ export default function AdminTeam() {
         const error = await response.json()
         showToast(error.error || 'Failed to delete team member', 'error')
       }
-    } catch (error: any) {
-      showToast(error.message || 'Failed to delete team member', 'error')
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'Failed to delete team member', 'error')
       console.error('Failed to delete team member:', error)
     }
   }

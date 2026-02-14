@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Heart, Users, Home, BookOpen, FileText } from 'lucide-react'
 import type { ProgramInfo } from '@/lib/cms'
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'surrender-program': Home,
   'mindbodysoul-iop': Users,
   'moving-mountains-ministry': BookOpen,

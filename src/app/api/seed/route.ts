@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -247,7 +248,7 @@ export async function POST(request: NextRequest) {
       programsCreated: programs.length
     })
   } catch (error) {
-    console.error("Seed error:", error)
+    logger.error({ err: error }, "Seed error")
     return NextResponse.json(
       { error: "Failed to seed database" },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { escapeHtml, sanitizeEmail } from '@/lib/sanitize'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -163,7 +164,7 @@ export async function GET(req: NextRequest) {
       true,
     )
   } catch (error) {
-    console.error('Newsletter unsubscribe error:', error)
+    logger.error({ err: error }, 'Newsletter unsubscribe error')
     return htmlResponse(
       'Error',
       'Something Went Wrong',

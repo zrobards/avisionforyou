@@ -201,9 +201,9 @@ export default function UnifiedScheduler({
                       >
                         {isSession ? "Free Session" : "DUI Class"}
                       </span>
-                      {isSession && (event as any).format && (
+                      {isSession && 'format' in event && event.format && (
                         <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
-                          {(event as any).format === "ONLINE" ? "🌐 Online" : "📍 In-Person"}
+                          {event.format === "ONLINE" ? "🌐 Online" : "📍 In-Person"}
                         </span>
                       )}
                     </div>

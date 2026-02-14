@@ -7,7 +7,7 @@ import { db } from "@/lib/db"
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
   
-  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+  if (!session || (session.user.role !== "ALUMNI" && session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Meeting ID required" }, { status: 400 })
   }
 
-  const userId = (session.user as any).id
+  const userId = session.user.id
 
   // Check if already RSVPed
   const existing = await db.rSVP.findFirst({
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const session = await getServerSession(authOptions)
   
-  if (!session || ((session.user as any).role !== "ALUMNI" && (session.user as any).role !== "BOARD" && (session.user as any).role !== "ADMIN")) {
+  if (!session || (session.user.role !== "ALUMNI" && session.user.role !== "BOARD" && session.user.role !== "ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -62,7 +62,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Meeting ID required" }, { status: 400 })
   }
 
-  const userId = (session.user as any).id
+  const userId = session.user.id
 
   // Use deleteMany since we don't have the unique constraint name
   await db.rSVP.deleteMany({

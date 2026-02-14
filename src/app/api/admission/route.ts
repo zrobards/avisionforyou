@@ -4,17 +4,18 @@ import { sendAdmissionConfirmation, sendAdmissionNotificationToAdmin } from '@/l
 import { requireAdminAuth, errorResponse, validationErrorResponse, successResponse } from '@/lib/apiAuth'
 import { AdmissionSchema, validateRequest, getValidationErrors } from '@/lib/validation'
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
-import { checkRateLimit } from '@/lib/rateLimit'
+import { rateLimit, admissionIpLimiter, admissionEmailLimiter, getClientIp } from '@/lib/rateLimit'
 import { ZodError } from 'zod'
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/admission
- * 
+ *
  * Submit admission inquiry
- * 
+ *
  * PHASE 1 HARDENING:
  * - NO authentication required (public endpoint)
- * - Rate limited: 10 per day per IP, 1 per day per email
+ * - Rate limited: 10 per day per IP, 1 per day per email (via Upstash Redis)
  * - Validates all inputs with Zod
  * - Sanitizes text before storing
  * - Prevents duplicate email submissions
@@ -26,9 +27,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get client IP for rate limiting
-    const ip = request.headers.get('x-forwarded-for') || 
-               request.headers.get('x-real-ip') || 
-               'unknown'
+    const ip = getClientIp(request)
 
     // Validate request body with Zod FIRST (to get email for per-email rate limit)
     let validatedData
@@ -62,11 +61,10 @@ export async function POST(request: NextRequest) {
 
     const { name, email, phone, program, message } = validatedData
 
-    // Check IP rate limit (10 per day)
-    const ipLimitKey = `admission:ip:${ip}`
-    const ipLimit = checkRateLimit(ipLimitKey, 10, 86400)
+    // Check IP rate limit (10 per day via Upstash Redis)
+    const ipRl = await rateLimit(admissionIpLimiter, ip)
 
-    if (!ipLimit.allowed) {
+    if (!ipRl.success) {
       logApiRequest({
         timestamp: new Date(),
         method: 'POST',
@@ -83,15 +81,14 @@ export async function POST(request: NextRequest) {
           error: 'Too many submissions. Please try again later.',
           code: 'RATE_LIMIT_EXCEEDED'
         },
-        { status: 429, headers: { 'Retry-After': String(ipLimit.retryAfter || 3600) } }
+        { status: 429, headers: { 'Retry-After': '3600' } }
       )
     }
 
-    // Check email rate limit (1 per day)
-    const emailLimitKey = `admission:email:${email.toLowerCase()}`
-    const emailLimit = checkRateLimit(emailLimitKey, 1, 86400)
+    // Check email rate limit (1 per day via Upstash Redis)
+    const emailRl = await rateLimit(admissionEmailLimiter, email.toLowerCase())
 
-    if (!emailLimit.allowed) {
+    if (!emailRl.success) {
       logApiRequest({
         timestamp: new Date(),
         method: 'POST',
@@ -108,7 +105,7 @@ export async function POST(request: NextRequest) {
           error: 'An inquiry from this email was already submitted today',
           code: 'RATE_LIMIT_EXCEEDED'
         },
-        { status: 429, headers: { 'Retry-After': String(emailLimit.retryAfter || 86400) } }
+        { status: 429, headers: { 'Retry-After': '86400' } }
       )
     }
 
@@ -158,7 +155,7 @@ export async function POST(request: NextRequest) {
       ])
     } catch (emailError) {
       // Log but don't fail - inquiry was already saved
-      console.error("Email send failed for admission inquiry:", inquiry.id)
+      logger.error({ err: emailError, inquiryId: inquiry.id }, "Email send failed for admission inquiry")
     }
 
     logApiRequest({
@@ -206,9 +203,9 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/admission
- * 
+ *
  * Fetch admission inquiries
- * 
+ *
  * PHASE 1 HARDENING:
  * - Requires admin authentication (not fake Bearer check)
  * - Returns paginated results (limit 50)
@@ -225,7 +222,7 @@ export async function GET(request: NextRequest) {
       return errorResponse('Unauthorized', 'UNAUTHORIZED', 401)
     }
 
-    const userId = (session.user as any)?.id
+    const userId = session.user?.id
 
     // Parse pagination parameters
     const page = Math.max(1, parseInt(request.nextUrl.searchParams.get('page') || '1', 10))

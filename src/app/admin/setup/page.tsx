@@ -31,7 +31,7 @@ export default function AdminSetup() {
     }
 
     if (status === 'authenticated') {
-      if ((session?.user as any)?.role !== 'ADMIN') {
+      if (session?.user?.role !== 'ADMIN') {
         router.push('/dashboard')
         return
       }

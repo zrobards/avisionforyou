@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 // PATCH update inquiry status
 export async function PATCH(
@@ -12,7 +13,7 @@ export async function PATCH(
     const { id } = await params
     const session = await getServerSession(authOptions)
 
-    if (!session || !(session.user as any)?.role || (session.user as any).role !== 'ADMIN') {
+    if (!session || !session.user?.role || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -33,7 +34,7 @@ export async function PATCH(
 
     return NextResponse.json({ inquiry })
   } catch (error) {
-    console.error('Failed to update inquiry:', error)
+    logger.error({ err: error }, 'Failed to update inquiry')
     return NextResponse.json(
       { error: 'Failed to update inquiry' },
       { status: 500 }
@@ -50,7 +51,7 @@ export async function DELETE(
     const { id } = await params
     const session = await getServerSession(authOptions)
 
-    if (!session || !(session.user as any)?.role || (session.user as any).role !== 'ADMIN') {
+    if (!session || !session.user?.role || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -63,7 +64,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Failed to delete inquiry:', error)
+    logger.error({ err: error }, 'Failed to delete inquiry')
     return NextResponse.json(
       { error: 'Failed to delete inquiry' },
       { status: 500 }

@@ -2,6 +2,7 @@ import { db } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { logger } from '@/lib/logger'
 
 export async function PATCH(
   request: NextRequest,
@@ -61,7 +62,7 @@ export async function PATCH(
 
     return NextResponse.json({ meeting: updatedMeeting })
   } catch (error) {
-    console.error("Update meeting error:", error)
+    logger.error({ err: error }, "Update meeting error")
     return NextResponse.json(
       { error: "Failed to update meeting" },
       { status: 500 }
@@ -107,7 +108,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Delete meeting error:", error)
+    logger.error({ err: error }, "Delete meeting error")
     return NextResponse.json(
       { error: "Failed to delete meeting" },
       { status: 500 }

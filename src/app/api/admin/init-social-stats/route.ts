@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 // This endpoint creates the social_stats table if it doesn't exist
 // Only accessible to admins
@@ -69,9 +70,10 @@ export async function POST(request: NextRequest) {
         success: true,
         message: 'Social stats table created and initialized successfully'
       })
-    } catch (sqlError: any) {
+    } catch (sqlError: unknown) {
       // If table already exists, that's fine
-      if (sqlError?.message?.includes('already exists') || sqlError?.code === '42P07') {
+      const err = sqlError as { message?: string; code?: string }
+      if (err?.message?.includes('already exists') || err?.code === '42P07') {
         return NextResponse.json({
           success: true,
           message: 'Table already exists'
@@ -80,7 +82,7 @@ export async function POST(request: NextRequest) {
       throw sqlError
     }
   } catch (error) {
-    console.error('Error initializing social stats table:', error)
+    logger.error({ err: error }, 'Error initializing social stats table')
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       { error: 'Failed to initialize social stats table' },

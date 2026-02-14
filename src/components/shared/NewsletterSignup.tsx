@@ -79,11 +79,14 @@ export default function NewsletterSignup() {
             aria-hidden="true"
             className="hidden"
           />
+          <label htmlFor="newsletter-email" className="sr-only">Email address for newsletter</label>
           <input
+            id="newsletter-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
+            aria-required="true"
             disabled={status === 'loading' || status === 'success'}
             className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-white focus:outline-none disabled:opacity-50"
           />

@@ -6,11 +6,12 @@ import { AnnouncementSchema, getValidationErrors } from "@/lib/validation"
 import { ZodError } from "zod"
 import { checkRateLimit } from "@/lib/rateLimit"
 import { rateLimitResponse } from "@/lib/apiAuth"
+import { logger } from '@/lib/logger'
 
 // GET all announcements (for admin table)
 export async function GET() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -25,7 +26,7 @@ export async function GET() {
 // POST new announcement
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
       title,
       content,
       published,
-      authorId: (session.user as any).id
+      authorId: session.user.id
     }
   })
 

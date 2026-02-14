@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,7 +32,7 @@ export async function GET() {
       livesImpacted: livesImpacted
     })
   } catch (error) {
-    console.error('Error fetching impact metrics:', error)
+    logger.error({ err: error }, 'Error fetching impact metrics')
     
     // Return fallback data if database query fails
     return NextResponse.json({

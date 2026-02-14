@@ -6,6 +6,7 @@ import { TeamMemberSchema, getValidationErrors } from "@/lib/validation";
 import { ZodError } from "zod";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { rateLimitResponse } from "@/lib/apiAuth";
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
@@ -20,7 +21,7 @@ export async function GET() {
 
     return NextResponse.json(members);
   } catch (error) {
-    console.error("Error fetching team:", error);
+    logger.error({ err: error }, "Error fetching team");
     return NextResponse.json({ error: "Failed to fetch team members" }, { status: 500 });
   }
 }
@@ -73,7 +74,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(member);
   } catch (error) {
-    console.error("Error creating team member:", error);
+    logger.error({ err: error }, "Error creating team member");
     return NextResponse.json({ error: "Failed to create team member" }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
+import { logger } from '@/lib/logger'
 
 const createPollSchema = z.object({
   title: z.string().min(1).max(200).trim(),
@@ -50,7 +51,7 @@ export async function GET() {
 
     return NextResponse.json(pollsWithStats);
   } catch (error) {
-    console.error("Error fetching polls:", error);
+    logger.error({ err: error }, "Error fetching polls");
     return NextResponse.json(
       { error: "Failed to fetch polls" },
       { status: 500 }
@@ -89,7 +90,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(poll);
   } catch (error) {
-    console.error("Error creating poll:", error);
+    logger.error({ err: error }, "Error creating poll");
     return NextResponse.json(
       { error: "Failed to create poll. Check server logs." },
       { status: 500 }

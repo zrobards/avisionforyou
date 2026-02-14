@@ -1,92 +1,98 @@
-'use client';
+import Link from 'next/link'
+import Image from 'next/image'
+import { ArrowLeft, Eye } from 'lucide-react'
+import { notFound } from 'next/navigation'
+import { db } from '@/lib/db'
+import { ShareButton, BlogContent } from './BlogPostClient'
+import type { Metadata } from 'next'
+import Breadcrumbs from '@/components/shared/Breadcrumbs'
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeft, Share2, Twitter, Facebook, Linkedin, Eye } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import DOMPurify from 'isomorphic-dompurify';
+export const revalidate = 300 // 5 min ISR
 
-interface BlogPost {
-  id: string
-  title: string
-  slug: string
-  content: string
-  excerpt: string
-  category: string
-  readTimeMinutes: number
-  views: number
-  publishedAt: string
-  imageUrl?: string
-  author: {
-    name: string
-    image?: string
+interface BlogPostPageProps {
+  params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const { id } = await params
+  const post = await db.blogPost.findFirst({
+    where: { slug: id, status: 'PUBLISHED' },
+    select: { title: true, excerpt: true, imageUrl: true },
+  })
+
+  if (!post) {
+    return { title: 'Post Not Found - A Vision For You' }
+  }
+
+  return {
+    title: `${post.title} - A Vision For You`,
+    description: post.excerpt || 'Recovery stories, resources, and guidance',
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || 'Recovery stories, resources, and guidance',
+      ...(post.imageUrl ? { images: [{ url: post.imageUrl }] } : {}),
+    },
   }
 }
 
-export default function BlogPostPage() {
-  const params = useParams()
-  const slug = params.id as string
-  const [post, setPost] = useState<BlogPost | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [sharing, setSharing] = useState(false)
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const { id } = await params
 
-  useEffect(() => {
-    fetchPost()
-  }, [slug])
-
-  const fetchPost = async () => {
-    try {
-      const response = await fetch(`/api/blog/${slug}`)
-      if (response.ok) {
-        const data = await response.json()
-        setPost(data)
+  const post = await db.blogPost.findFirst({
+    where: { slug: id, status: 'PUBLISHED' },
+    include: {
+      author: {
+        select: { name: true, image: true }
       }
-    } catch (error) {
-      console.error('Failed to fetch post:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
-
-  const handleShare = (platform: string) => {
-    if (!post) return
-    
-    const text = post.title
-    const urls = {
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
-    }
-    
-    window.open(urls[platform as keyof typeof urls], '_blank', 'width=600,height=400')
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple"></div>
-      </div>
-    )
-  }
+    },
+  })
 
   if (!post) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Post Not Found</h1>
-          <Link href="/blog" className="text-brand-purple hover:text-brand-green">
-            ← Back to Blog
-          </Link>
-        </div>
-      </div>
-    )
+    notFound()
+  }
+
+  // Increment view count (fire-and-forget, don't block render)
+  db.blogPost.update({
+    where: { id: post.id },
+    data: { views: { increment: 1 } },
+  }).catch(() => {})
+
+  // Article JSON-LD structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt || '',
+    image: post.imageUrl || undefined,
+    datePublished: post.publishedAt?.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    author: {
+      '@type': 'Person',
+      name: post.author.name || 'A Vision For You',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'A Vision For You Inc.',
+      url: 'https://avisionforyourecovery.org',
+    },
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+      {/* JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <Breadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Blog', href: '/blog' },
+          { label: post.title },
+        ]}
+      />
+
       {/* Header */}
       <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -111,7 +117,7 @@ export default function BlogPostPage() {
               {(post.views ?? 0)} views
             </span>
           </div>
-          
+
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
             {post.title}
           </h1>
@@ -121,7 +127,7 @@ export default function BlogPostPage() {
               {post.author.image && (
                 <Image
                   src={post.author.image}
-                  alt={post.author.name}
+                  alt={post.author.name || ''}
                   width={48}
                   height={48}
                   className="rounded-full object-cover"
@@ -131,51 +137,19 @@ export default function BlogPostPage() {
               <div>
                 <p className="font-semibold text-gray-900">{post.author.name}</p>
                 <p className="text-gray-500 text-sm">
-                  {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
+                  {post.publishedAt
+                    ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : ''}
                 </p>
               </div>
             </div>
 
-            {/* Share Button */}
-            <div className="relative">
-              <button
-                onClick={() => setSharing(!sharing)}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition"
-              >
-                <Share2 className="w-5 h-5" />
-                Share
-              </button>
-
-              {sharing && (
-                <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg p-4 flex gap-3 z-10">
-                  <button
-                    onClick={() => handleShare('twitter')}
-                    className="p-2 hover:bg-blue-50 rounded-lg transition"
-                    title="Share on Twitter"
-                  >
-                    <Twitter className="w-5 h-5 text-blue-500" />
-                  </button>
-                  <button
-                    onClick={() => handleShare('facebook')}
-                    className="p-2 hover:bg-blue-50 rounded-lg transition"
-                    title="Share on Facebook"
-                  >
-                    <Facebook className="w-5 h-5 text-blue-600" />
-                  </button>
-                  <button
-                    onClick={() => handleShare('linkedin')}
-                    className="p-2 hover:bg-blue-50 rounded-lg transition"
-                    title="Share on LinkedIn"
-                  >
-                    <Linkedin className="w-5 h-5 text-blue-700" />
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Share Button (client component) */}
+            <ShareButton title={post.title} />
           </div>
         </div>
 
@@ -194,11 +168,8 @@ export default function BlogPostPage() {
           </div>
         )}
 
-        {/* Content */}
-        <div
-          className="prose prose-base sm:prose-lg max-w-none text-gray-700 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
-        />
+        {/* Content (client component for DOMPurify) */}
+        <BlogContent content={post.content} title={post.title} />
 
         {/* Call to Action */}
         <div className="mt-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 sm:p-6 md:p-8 text-white text-center">
@@ -207,13 +178,13 @@ export default function BlogPostPage() {
             Connect with our supportive community and discover the programs that can help you thrive.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
+            <Link
               href="/programs"
               className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition"
             >
               Explore Programs
             </Link>
-            <Link 
+            <Link
               href="/meetings"
               className="bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-400 transition"
             >
@@ -223,5 +194,5 @@ export default function BlogPostPage() {
         </div>
       </article>
     </div>
-  );
+  )
 }

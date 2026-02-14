@@ -1,4 +1,6 @@
 import crypto from 'crypto'
+import type { Prisma } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 type EncryptedPayload = {
   encrypted: true
@@ -8,17 +10,19 @@ type EncryptedPayload = {
   data: string
 }
 
-type PlainPayload = Record<string, any>
+type PlainPayload = Record<string, unknown>
+
+type JsonCompatible = Prisma.InputJsonValue
 
 const keyB64 = process.env.ENCRYPTION_KEY
 const key = keyB64 ? Buffer.from(keyB64, 'base64') : null
 
 const isKeyValid = key ? key.length === 32 : false
 
-export function encryptJSON(payload: PlainPayload): EncryptedPayload | PlainPayload {
+export function encryptJSON(payload: PlainPayload): JsonCompatible {
   if (!isKeyValid) {
-    console.warn('ENCRYPTION_KEY missing or invalid length; storing plaintext')
-    return payload
+    logger.warn('ENCRYPTION_KEY missing or invalid length; storing plaintext')
+    return payload as JsonCompatible
   }
 
   const iv = crypto.randomBytes(12)
@@ -33,14 +37,14 @@ export function encryptJSON(payload: PlainPayload): EncryptedPayload | PlainPayl
     iv: iv.toString('base64'),
     tag: tag.toString('base64'),
     data: encrypted.toString('base64'),
-  }
+  } as JsonCompatible
 }
 
-export function decryptJSON(value: any): PlainPayload {
-  if (!value || typeof value !== 'object' || !('encrypted' in value)) return value
+export function decryptJSON(value: unknown): PlainPayload {
+  if (!value || typeof value !== 'object' || !('encrypted' in value)) return value as PlainPayload
   if (!isKeyValid) {
-    console.warn('ENCRYPTION_KEY missing or invalid; returning ciphertext object as-is')
-    return value
+    logger.warn('ENCRYPTION_KEY missing or invalid; returning ciphertext object as-is')
+    return value as PlainPayload
   }
 
   try {
@@ -53,7 +57,7 @@ export function decryptJSON(value: any): PlainPayload {
     ])
     return JSON.parse(decrypted.toString('utf8'))
   } catch (e) {
-    console.error('decryptJSON failed; returning original payload', e)
-    return value
+    logger.error({ err: e }, 'decryptJSON failed; returning original payload')
+    return value as PlainPayload
   }
 }

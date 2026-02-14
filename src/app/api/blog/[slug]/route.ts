@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import fs from 'fs'
 import path from 'path'
+import { logger } from '@/lib/logger'
 
 const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
 
@@ -31,7 +32,7 @@ export async function GET(
     if (!post) {
       if (fs.existsSync(BLOG_POSTS_PATH)) {
         const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-        const fallback = fallbackPosts.find((p: any) => p.slug === slug)
+        const fallback = fallbackPosts.find((p: { slug: string }) => p.slug === slug)
         if (fallback) {
           return NextResponse.json(fallback)
         }
@@ -50,10 +51,10 @@ export async function GET(
 
     return NextResponse.json(post)
   } catch (error) {
-    console.error('Error fetching blog post:', error)
+    logger.error({ err: error }, 'Error fetching blog post')
     if (fs.existsSync(BLOG_POSTS_PATH)) {
       const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-      const fallback = fallbackPosts.find((p: any) => p.slug === slug)
+      const fallback = fallbackPosts.find((p: { slug: string }) => p.slug === slug)
       if (fallback) {
         return NextResponse.json(fallback)
       }
@@ -96,7 +97,7 @@ export async function PATCH(
     const { title, content, excerpt, status, category, tags, imageUrl } = body
 
     // If title changed, update slug
-    let updateData: any = {
+    let updateData: Record<string, unknown> = {
       content,
       excerpt,
       status,
@@ -144,7 +145,7 @@ export async function PATCH(
 
     return NextResponse.json(post)
   } catch (error) {
-    console.error('Error updating blog post:', error)
+    logger.error({ err: error }, 'Error updating blog post')
     return NextResponse.json(
       { error: 'Failed to update blog post' },
       { status: 500 }
@@ -185,7 +186,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting blog post:', error)
+    logger.error({ err: error }, 'Error deleting blog post')
     return NextResponse.json(
       { error: 'Failed to delete blog post' },
       { status: 500 }

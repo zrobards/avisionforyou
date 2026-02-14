@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/logger'
 
 // GET - Fetch single newsletter
 export async function GET(
@@ -35,7 +36,7 @@ export async function GET(
 
     return NextResponse.json(newsletter)
   } catch (error) {
-    console.error('Error fetching newsletter:', error)
+    logger.error({ err: error }, 'Error fetching newsletter')
     return NextResponse.json({ error: 'Failed to fetch newsletter' }, { status: 500 })
   }
 }
@@ -53,7 +54,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -61,7 +62,7 @@ export async function PATCH(
     const body = await req.json()
     const { title, content, excerpt, imageUrl, status } = body
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       title,
       content,
       excerpt,
@@ -109,7 +110,7 @@ export async function PATCH(
 
     return NextResponse.json(newsletter)
   } catch (error) {
-    console.error('Error updating newsletter:', error)
+    logger.error({ err: error }, 'Error updating newsletter')
     return NextResponse.json({ error: 'Failed to update newsletter' }, { status: 500 })
   }
 }
@@ -127,7 +128,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -143,7 +144,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting newsletter:', error)
+    logger.error({ err: error }, 'Error deleting newsletter')
     return NextResponse.json({ error: 'Failed to delete newsletter' }, { status: 500 })
   }
 }

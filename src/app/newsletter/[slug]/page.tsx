@@ -1,74 +1,53 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, User, ArrowLeft, Mail } from 'lucide-react'
-import DOMPurify from 'isomorphic-dompurify'
+import { notFound } from 'next/navigation'
+import { db } from '@/lib/db'
+import { NewsletterContent } from './NewsletterDetailClient'
+import type { Metadata } from 'next'
 
-interface Newsletter {
-  id: string
-  title: string
-  slug: string
-  content: string
-  excerpt: string
-  publishedAt: string
-  imageUrl?: string
-  author: {
-    name: string
-    email: string
+export const revalidate = 300 // 5 min ISR
+
+interface NewsletterDetailPageProps {
+  params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: NewsletterDetailPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const newsletter = await db.newsletter.findFirst({
+    where: { slug, status: 'PUBLISHED' },
+    select: { title: true, excerpt: true, imageUrl: true },
+  })
+
+  if (!newsletter) {
+    return { title: 'Newsletter Not Found - A Vision For You' }
+  }
+
+  return {
+    title: `${newsletter.title} - A Vision For You`,
+    description: newsletter.excerpt || 'Stay updated with our latest news, stories, and community updates',
+    openGraph: {
+      title: newsletter.title,
+      description: newsletter.excerpt || 'Stay updated with our latest news, stories, and community updates',
+      ...(newsletter.imageUrl ? { images: [{ url: newsletter.imageUrl }] } : {}),
+    },
   }
 }
 
-export default function NewsletterDetailPage() {
-  const params = useParams()
-  const router = useRouter()
-  const [newsletter, setNewsletter] = useState<Newsletter | null>(null)
-  const [loading, setLoading] = useState(true)
+export default async function NewsletterDetailPage({ params }: NewsletterDetailPageProps) {
+  const { slug } = await params
 
-  useEffect(() => {
-    if (params.slug) {
-      fetchNewsletter(params.slug as string)
-    }
-  }, [params.slug])
-
-  const fetchNewsletter = async (slug: string) => {
-    try {
-      const response = await fetch(`/api/newsletter/${slug}`, { cache: 'no-store' })
-      if (response.ok) {
-        const data = await response.json()
-        setNewsletter(data)
-      } else if (response.status === 404) {
-        router.push('/newsletter')
+  const newsletter = await db.newsletter.findFirst({
+    where: { slug, status: 'PUBLISHED' },
+    include: {
+      author: {
+        select: { name: true, email: true }
       }
-    } catch (error) {
-      console.error('Failed to fetch newsletter:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple"></div>
-      </div>
-    )
-  }
+    },
+  })
 
   if (!newsletter) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
-        <div className="text-center">
-          <Mail className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg">Newsletter not found</p>
-          <Link href="/newsletter" className="text-brand-purple hover:underline mt-4 inline-block">
-            ← Back to Newsletters
-          </Link>
-        </div>
-      </div>
-    )
+    notFound()
   }
 
   return (
@@ -113,12 +92,14 @@ export default function NewsletterDetailPage() {
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-brand-purple" />
-                <time dateTime={newsletter.publishedAt}>
-                  {new Date(newsletter.publishedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                <time dateTime={newsletter.publishedAt?.toISOString()}>
+                  {newsletter.publishedAt
+                    ? new Date(newsletter.publishedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })
+                    : ''}
                 </time>
               </div>
             </div>
@@ -130,11 +111,8 @@ export default function NewsletterDetailPage() {
               </div>
             )}
 
-            {/* Content */}
-            <div 
-              className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-a:text-brand-purple hover:prose-a:text-purple-800 prose-img:rounded-lg"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(newsletter.content.replace(/\n/g, '<br />')) }}
-            />
+            {/* Content (client component for DOMPurify) */}
+            <NewsletterContent content={newsletter.content} />
           </div>
         </article>
 

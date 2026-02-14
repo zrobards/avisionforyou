@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { logger } from '@/lib/logger'
 
 // Get Square API base URL
 function getSquareBaseUrl() {
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Square payment link error:", errorData);
+        logger.error({ err: errorData }, "Square payment link error");
         throw new Error(`Square API error: ${response.status}`);
       }
 
@@ -158,17 +159,17 @@ export async function POST(request: NextRequest) {
         registrationId: registration.id,
         paymentUrl: paymentUrl,
       });
-    } catch (squareError: any) {
-      console.error("Square payment error:", squareError);
+    } catch (squareError: unknown) {
+      logger.error({ err: squareError }, "Square payment error");
       return NextResponse.json(
         { error: "Failed to create payment link" },
         { status: 500 }
       );
     }
-  } catch (error: any) {
-    console.error("DUI registration error:", error);
+  } catch (error: unknown) {
+    logger.error({ err: error }, "DUI registration error");
     return NextResponse.json(
-      { error: "Registration failed" },
+      { error: error instanceof Error ? error.message : "Registration failed" },
       { status: 500 }
     );
   }

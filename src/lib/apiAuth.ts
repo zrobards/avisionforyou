@@ -50,10 +50,10 @@ export async function getSession() {
         id: 'bypass-review',
         name: 'Review Admin',
         email: 'admin@avisionforyou.org',
-        role: 'ADMIN'
+        role: 'ADMIN' as const
       },
       expires: '2099-01-01T00:00:00.000Z'
-    } as any
+    }
   }
   return await getServerSession(authOptions)
 }
@@ -74,7 +74,7 @@ export async function requireAdminAuth(req: NextRequest) {
     return null
   }
 
-  const userRole = (session.user as any)?.role
+  const userRole = session.user?.role
 
   if (!hasRole(userRole, ADMIN_ONLY)) {
     return null

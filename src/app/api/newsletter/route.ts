@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,14 +25,9 @@ export async function GET(req: NextRequest) {
       }
     })
 
-    console.log(`Public newsletter API: Found ${newsletters.length} published newsletters`)
+    logger.info({ count: newsletters.length }, 'Public newsletter API: fetched published newsletters')
     if (newsletters.length > 0) {
-      console.log('Latest newsletter:', {
-        id: newsletters[0].id,
-        title: newsletters[0].title,
-        status: newsletters[0].status,
-        publishedAt: newsletters[0].publishedAt
-      })
+      logger.debug({ id: newsletters[0].id, title: newsletters[0].title, status: newsletters[0].status }, 'Latest newsletter')
     }
 
     return NextResponse.json(newsletters, {
@@ -40,7 +36,7 @@ export async function GET(req: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error fetching newsletters:', error)
+    logger.error({ err: error }, 'Error fetching newsletters')
     return NextResponse.json(
       { error: 'Failed to fetch newsletters' },
       { status: 500 }

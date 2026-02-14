@@ -5,6 +5,7 @@ import {
   HandHeart, Brain, Home, Users, Utensils, Briefcase,
   ArrowRight, Heart, CheckCircle, Phone, Sparkles
 } from 'lucide-react'
+import Breadcrumbs from '@/components/shared/Breadcrumbs'
 
 export const revalidate = 60
 
@@ -174,6 +175,13 @@ export default async function Programs() {
 
   return (
     <div className="min-h-screen bg-brand-dark">
+      <Breadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Programs' },
+        ]}
+      />
+
       {/* Hero Section */}
       <section className="relative bg-brand-dark overflow-hidden">
         {/* Background glow effects */}

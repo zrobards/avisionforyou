@@ -17,7 +17,7 @@ export default function Navbar() {
   const [showBlogDropdown, setShowBlogDropdown] = useState(false)
   const [showMobileAboutMenu, setShowMobileAboutMenu] = useState(false)
   const [showMobileBlogMenu, setShowMobileBlogMenu] = useState(false)
-  const userRole = (session?.user as any)?.role
+  const userRole = session?.user?.role
   const isAdmin = userRole === 'ADMIN'
   const isBoard = userRole === 'BOARD' || userRole === 'ADMIN'
   const canAccessCommunity = userRole === 'ALUMNI' || userRole === 'BOARD' || userRole === 'ADMIN'

@@ -236,8 +236,46 @@ input, textarea, select {
 
 /* Focus-visible styles for keyboard navigation */
 *:focus-visible {
-  @apply outline-2 outline-offset-2 outline-brand-purple;
-  outline-style: solid;
+  outline: 2px solid #b6e41f;
+  outline-offset: 2px;
+}
+
+/* Reduced motion: disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-down,
+  .animate-slide-left,
+  .animate-slide-right,
+  .animate-scale-in,
+  .animate-float,
+  .animate-glow,
+  .animate-bounce-gentle,
+  .animate-stagger > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .hover-lift,
+  .hover-scale,
+  .card-hover {
+    transform: none !important;
+  }
+
+  .fade-in-scroll {
+    opacity: 1 !important;
+    transition: none !important;
+  }
 }
 
 /* Loading skeleton animation */
