@@ -45,6 +45,13 @@ export async function POST(request: NextRequest) {
     const cleanEmail = sanitizeEmail(email)
     const cleanName = sanitizeString(name, 100)
 
+    if (!cleanEmail) {
+      return NextResponse.json(
+        { error: "Invalid email address" },
+        { status: 400 }
+      )
+    }
+
     // Check if user exists
     const existingUser = await db.user.findUnique({
       where: { email: cleanEmail }

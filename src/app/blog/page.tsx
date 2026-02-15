@@ -10,16 +10,24 @@ export const metadata: Metadata = {
   description: 'Read recovery stories, resources, and guidance for your addiction recovery journey from A Vision For You in Louisville, KY.',
 }
 
+async function getPosts() {
+  try {
+    return await db.blogPost.findMany({
+      where: { status: 'PUBLISHED' },
+      include: {
+        author: {
+          select: { name: true }
+        }
+      },
+      orderBy: { publishedAt: 'desc' },
+    })
+  } catch {
+    return []
+  }
+}
+
 export default async function BlogPage() {
-  const posts = await db.blogPost.findMany({
-    where: { status: 'PUBLISHED' },
-    include: {
-      author: {
-        select: { name: true }
-      }
-    },
-    orderBy: { publishedAt: 'desc' },
-  })
+  const posts = await getPosts()
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">

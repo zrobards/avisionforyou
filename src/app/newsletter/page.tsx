@@ -11,19 +11,27 @@ export const metadata: Metadata = {
   description: 'Stay updated with the latest news, recovery stories, and community updates from A Vision For You in Louisville, KY.',
 }
 
+async function getNewsletters() {
+  try {
+    return await db.newsletter.findMany({
+      where: { status: 'PUBLISHED' },
+      include: {
+        author: {
+          select: { name: true }
+        }
+      },
+      orderBy: [
+        { publishedAt: 'desc' },
+        { createdAt: 'desc' },
+      ],
+    })
+  } catch {
+    return []
+  }
+}
+
 export default async function NewsletterPage() {
-  const newsletters = await db.newsletter.findMany({
-    where: { status: 'PUBLISHED' },
-    include: {
-      author: {
-        select: { name: true }
-      }
-    },
-    orderBy: [
-      { publishedAt: 'desc' },
-      { createdAt: 'desc' },
-    ],
-  })
+  const newsletters = await getNewsletters()
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
