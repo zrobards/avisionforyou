@@ -37,11 +37,7 @@ export default function AdminAdmissions() {
 
   const fetchInquiries = async () => {
     try {
-      const response = await fetch('/api/admission', {
-        headers: {
-          'Authorization': 'Bearer temp_token'
-        }
-      })
+      const response = await fetch('/api/admission')
       
       if (response.ok) {
         const data = await response.json()
@@ -60,7 +56,6 @@ export default function AdminAdmissions() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer temp_token'
         },
         body: JSON.stringify({ status: newStatus })
       })

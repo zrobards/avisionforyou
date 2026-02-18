@@ -4,27 +4,18 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { sendEmail } from "@/lib/email"
 import { encryptJSON, decryptJSON } from "@/lib/encryption"
+import { AssessmentAnswersSchema } from "@/lib/validation"
+import { rateLimit, assessmentLimiter, getClientIp } from "@/lib/rateLimit"
+import { logActivity } from "@/lib/notifications"
 import { logger } from '@/lib/logger'
-
-// Simple in-memory rate limiter for assessments (5 per hour per IP)
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 })
-    return true
-  }
-  if (entry.count >= 5) return false
-  entry.count++
-  return true
-}
+import { ZodError } from "zod"
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-    if (!checkRateLimit(ip)) {
+    // Rate limit by IP
+    const ip = getClientIp(request)
+    const rl = await rateLimit(assessmentLimiter, ip)
+    if (!rl.success) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
         { status: 429 }
@@ -32,13 +23,20 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await getServerSession(authOptions)
-    const { answers } = await request.json()
 
-    if (!answers) {
-      return NextResponse.json(
-        { error: "Assessment answers required" },
-        { status: 400 }
-      )
+    // Validate input with Zod
+    let answers: any
+    try {
+      const validated = await AssessmentAnswersSchema.parseAsync(await request.json())
+      answers = validated.answers
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return NextResponse.json(
+          { error: "Invalid assessment data", details: err.errors.map(e => e.message) },
+          { status: 400 }
+        )
+      }
+      throw err
     }
 
     // Calculate program match based on answers
@@ -69,7 +67,7 @@ export async function POST(request: NextRequest) {
       recommendedProgram = "DUI_CLASSES"
     }
 
-    // If user is logged in, save to database
+    // If user is logged in, save to database (encrypted)
     if (session?.user?.email) {
       const user = await db.user.findUnique({
         where: { email: session.user.email }
@@ -80,43 +78,45 @@ export async function POST(request: NextRequest) {
         await db.assessment.upsert({
           where: { userId: user.id },
           update: {
-            answers: answers,
+            answers: encryptJSON(answers),
             recommendedProgram,
             completed: true,
           },
           create: {
             userId: user.id,
-            answers: answers,
+            answers: encryptJSON(answers),
             recommendedProgram,
             completed: true,
           }
         })
+
+        // Audit log: PHI write
+        await logActivity(
+          'PHI_WRITE',
+          'Assessment submitted',
+          `User ${user.id} submitted assessment. Recommended: ${recommendedProgram}`,
+          '/admin/admissions'
+        )
       }
     }
 
-    // Send notification email to admissions (non-blocking)
+    // Send HIPAA-safe notification email to admissions (no PHI)
     try {
       await sendEmail({
         to: 'admissions@avisionforyourecovery.org',
-        subject: `New Assessment Submission - Recommended: ${recommendedProgram}`,
+        subject: `New Assessment Submission - Action Required`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background-color: #7f3d8b; padding: 20px; border-radius: 8px 8px 0 0;">
               <h1 style="color: white; margin: 0;">New Assessment Submission</h1>
             </div>
             <div style="background-color: #f9fafb; padding: 30px;">
-              <h2 style="color: #1f2937;">Recommended Program: ${recommendedProgram.replace(/_/g, ' ')}</h2>
-              <p style="color: #374151;">Score: ${score}/10</p>
-              <h3 style="color: #1f2937;">Answers:</h3>
-              <ul style="color: #374151; line-height: 1.8;">
-                <li>Substance-free days: ${['Less than 7 days', '1-2 weeks', '2-4 weeks', '1-3 months', '3-6 months', '6+ months'][sobrietyLevel] || 'Unknown'}</li>
-                <li>Mental health concerns: ${answers.mentalHealthConcerns ? 'Yes' : 'No'}</li>
-                <li>Needs housing: ${answers.needsHousing ? 'Yes' : 'No'}</li>
-                <li>Spiritual interest: ${answers.spiritualInterest ? 'Yes' : 'No'}</li>
-                <li>Prior treatment: ${answers.priorTreatment ? 'Yes' : 'No'}</li>
-                <li>Currently employed: ${answers.employment ? 'Yes' : 'No'}</li>
-              </ul>
-              ${session?.user?.email ? `<p style="color: #374151;">User: ${session.user.name || ''} (${session.user.email})</p>` : '<p style="color: #6b7280;">Anonymous submission</p>'}
+              <p style="color: #374151;">A new assessment has been received.</p>
+              <p style="color: #374151;"><strong>Recommended Program:</strong> ${recommendedProgram.replace(/_/g, ' ')}</p>
+              <p style="color: #374151;">Please view the full details in the <a href="${process.env.NEXTAUTH_URL || 'https://avisionforyou.org'}/admin/admissions">admin panel</a>.</p>
+              <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin-top: 20px; border-radius: 4px;">
+                <p style="color: #92400e; margin: 0; font-size: 12px;">This email intentionally omits personal health information for HIPAA compliance.</p>
+              </div>
             </div>
           </div>
         `
@@ -163,8 +163,19 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Audit log: PHI read
+    await logActivity(
+      'PHI_READ',
+      'Assessment accessed',
+      `User ${user.id} accessed their assessment`,
+      '/assessment'
+    )
+
     return NextResponse.json({
-      assessment: user.assessment
+      assessment: {
+        ...user.assessment,
+        answers: decryptJSON(user.assessment.answers),
+      }
     })
   } catch (error: unknown) {
     logger.error({ err: error }, "Get assessment error")

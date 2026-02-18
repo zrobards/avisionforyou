@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { DUIRegistrationSchema } from "@/lib/validation";
+import { rateLimit, duiRegistrationLimiter, getClientIp } from "@/lib/rateLimit";
 import { logger } from '@/lib/logger'
+import { ZodError } from "zod";
 
 // Get Square API base URL
 function getSquareBaseUrl() {
@@ -22,15 +25,31 @@ function getSquareLocationId() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const { classId, firstName, lastName, email, phone } = await request.json();
-
-    // Validate required fields
-    if (!classId || !firstName || !lastName || !email) {
+    // Rate limit by IP
+    const ip = getClientIp(request);
+    const rl = await rateLimit(duiRegistrationLimiter, ip);
+    if (!rl.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
       );
+    }
+
+    const session = await getServerSession(authOptions);
+
+    // Validate with Zod
+    let classId: string, firstName: string, lastName: string, email: string, phone: string | undefined;
+    try {
+      const validated = DUIRegistrationSchema.parse(await request.json());
+      ({ classId, firstName, lastName, email, phone } = validated);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return NextResponse.json(
+          { error: "Invalid registration data", details: err.errors.map(e => e.message) },
+          { status: 400 }
+        );
+      }
+      throw err;
     }
 
     // Use transaction to prevent race condition on capacity check

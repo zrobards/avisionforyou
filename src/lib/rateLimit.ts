@@ -75,6 +75,12 @@ export const mediaUploadLimiter = createLimiter(5, 60, 'media-upload')
 /** Admin mutations: 20 requests per 60 seconds */
 export const adminMutationLimiter = createLimiter(20, 60, 'admin-mutation')
 
+/** Assessment submissions: 5 requests per hour */
+export const assessmentLimiter = createLimiter(5, 3600, 'assessment')
+
+/** DUI class registrations: 5 requests per hour */
+export const duiRegistrationLimiter = createLimiter(5, 3600, 'dui-registration')
+
 // ---------------------------------------------------------------------------
 // Rate limit result type (used by all consumers)
 // ---------------------------------------------------------------------------

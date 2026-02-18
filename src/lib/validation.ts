@@ -69,6 +69,27 @@ export const AdmissionSchema = z.object({
   message: z.string().min(10).max(5000),
 })
 
+// Assessment Answers Schema (PHI fields)
+export const AssessmentAnswersSchema = z.object({
+  answers: z.object({
+    substanceFreeDays: z.number().int().min(0).max(5),
+    mentalHealthConcerns: z.boolean(),
+    needsHousing: z.boolean(),
+    spiritualInterest: z.boolean(),
+    priorTreatment: z.boolean(),
+    employment: z.boolean(),
+  }),
+})
+
+// DUI Class Registration Schema
+export const DUIRegistrationSchema = z.object({
+  classId: z.string().min(1),
+  firstName: z.string().min(1).max(200),
+  lastName: z.string().min(1).max(200),
+  email: z.string().email(),
+  phone: z.string().min(10).max(20).optional(),
+})
+
 // Contact Form Schema
 export const ContactSchema = z.object({
   name: z.string().min(1).max(200),

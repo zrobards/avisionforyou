@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { rateLimitResponse } from '@/lib/apiAuth'
+import DOMPurify from 'isomorphic-dompurify'
 import fs from 'fs'
 import path from 'path'
 import { logger } from '@/lib/logger'
@@ -87,12 +88,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit: 30 per hour per user
-    const rateLimit = checkRateLimit(`admin-blog:${user.id}`, 30, 3600)
-    if (!rateLimit.allowed) {
-      return rateLimitResponse(rateLimit.retryAfter || 60)
+    const rl = checkRateLimit(`admin-blog:${user.id}`, 30, 3600)
+    if (!rl.allowed) {
+      return rateLimitResponse(rl.retryAfter || 60)
     }
 
-    const { title, content, excerpt, status, category, tags, imageUrl } = await request.json()
+    const body = await request.json()
+    const { title, excerpt, status, category, tags, imageUrl } = body
+    const content = body.content ? DOMPurify.sanitize(body.content) : body.content
 
     if (!title || !content) {
       return NextResponse.json(

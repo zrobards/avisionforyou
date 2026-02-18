@@ -37,6 +37,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    // File size limit: 10MB
+    const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024
+    if (file.size > MAX_DOCUMENT_BYTES) {
+      return NextResponse.json(
+        { error: `File too large. Maximum size is 10MB.` },
+        { status: 400 }
+      )
+    }
+
+    // Allowed document types
+    const ALLOWED_DOCUMENT_TYPES = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'text/plain',
+    ]
+    if (!ALLOWED_DOCUMENT_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Invalid file type. Allowed: PDF, Word, Excel, PowerPoint, and text files." },
+        { status: 400 }
+      )
+    }
+
     // Convert file to base64 (matching existing media upload pattern)
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)

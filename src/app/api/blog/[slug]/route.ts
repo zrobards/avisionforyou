@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import DOMPurify from 'isomorphic-dompurify'
 import fs from 'fs'
 import path from 'path'
 import { logger } from '@/lib/logger'
@@ -94,7 +95,8 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const { title, content, excerpt, status, category, tags, imageUrl } = body
+    const { title, excerpt, status, category, tags, imageUrl } = body
+    const content = body.content ? DOMPurify.sanitize(body.content) : body.content
 
     // If title changed, update slug
     let updateData: Record<string, unknown> = {
