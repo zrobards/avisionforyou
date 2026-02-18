@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Heart, CheckCircle, AlertCircle } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { Heart, CheckCircle, AlertCircle, RotateCcw } from 'lucide-react'
 import { trackAssessmentComplete } from '@/components/analytics/GoogleAnalytics'
 
 const ASSESSMENT_QUESTIONS = [
@@ -92,12 +93,41 @@ const PROGRAM_DESCRIPTIONS = {
 
 export default function Assessment() {
   const router = useRouter()
+  const { data: session, status: sessionStatus } = useSession()
   const [currentStep, setCurrentStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string | number | boolean>>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [recommendedProgram, setRecommendedProgram] = useState('')
   const [showResult, setShowResult] = useState(false)
+  const [checkingExisting, setCheckingExisting] = useState(true)
+
+  useEffect(() => {
+    if (sessionStatus === 'loading') return
+
+    if (sessionStatus === 'authenticated') {
+      fetch('/api/assessment')
+        .then(res => res.json())
+        .then(data => {
+          if (data.assessment?.completed) {
+            setRecommendedProgram(data.assessment.recommendedProgram)
+            setShowResult(true)
+          }
+        })
+        .catch(() => {})
+        .finally(() => setCheckingExisting(false))
+    } else {
+      setCheckingExisting(false)
+    }
+  }, [sessionStatus])
+
+  const handleRetake = () => {
+    setShowResult(false)
+    setRecommendedProgram('')
+    setCurrentStep(0)
+    setAnswers({})
+    setError('')
+  }
 
   const handleAnswer = (questionId: string, value: string | number | boolean) => {
     setAnswers(prev => ({
@@ -136,6 +166,17 @@ export default function Assessment() {
     }
   }
 
+  if (checkingExisting) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your assessment...</p>
+        </div>
+      </div>
+    )
+  }
+
   if (showResult) {
     const program = PROGRAM_DESCRIPTIONS[recommendedProgram as keyof typeof PROGRAM_DESCRIPTIONS]
 
@@ -162,6 +203,13 @@ export default function Assessment() {
                 <Link href="/dashboard" className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition">
                   Go to Dashboard
                 </Link>
+                <button
+                  onClick={handleRetake}
+                  className="flex items-center justify-center gap-2 text-gray-500 hover:text-gray-700 px-8 py-3 rounded-lg font-medium transition"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Retake Assessment
+                </button>
               </div>
             </div>
           </div>

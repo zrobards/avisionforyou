@@ -243,6 +243,7 @@ export async function GET(request: NextRequest) {
           program: true,
           message: true,
           status: true,
+          notes: true,
           createdAt: true,
           updatedAt: true
         }

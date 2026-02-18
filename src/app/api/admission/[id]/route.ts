@@ -30,18 +30,35 @@ export async function PATCH(
       );
     }
 
-    const { status } = await request.json();
+    const body = await request.json();
+    const { status, notes } = body;
 
-    if (!['pending', 'contacted', 'accepted', 'rejected'].includes(status)) {
+    const updateData: Record<string, string> = {};
+
+    if (status !== undefined) {
+      if (!['pending', 'contacted', 'accepted', 'rejected'].includes(status)) {
+        return NextResponse.json(
+          { error: 'Invalid status' },
+          { status: 400 }
+        );
+      }
+      updateData.status = status;
+    }
+
+    if (notes !== undefined) {
+      updateData.notes = notes;
+    }
+
+    if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
-        { error: 'Invalid status' },
+        { error: 'No valid fields to update' },
         { status: 400 }
       );
     }
 
     const inquiry = await db.admissionInquiry.update({
       where: { id },
-      data: { status },
+      data: updateData,
     });
 
     return NextResponse.json(inquiry);

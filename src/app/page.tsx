@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import HomeClient from '@/components/home/HomeClient'
 import { buildPageMetadata } from '@/lib/metadata'
 
@@ -77,7 +76,7 @@ export default function Home() {
 
       {/* Hero Section with Video Background - Eager (above the fold) */}
       <section className="relative h-screen min-h-[600px] overflow-hidden">
-        {/* Video Background (desktop) */}
+        {/* Video Background */}
         <video
           autoPlay
           loop
@@ -85,21 +84,10 @@ export default function Home() {
           playsInline
           preload="auto"
           poster="/AVFY%20LOGO.jpg"
-          className="absolute top-0 left-0 hidden h-full w-full object-cover md:block"
+          className="absolute top-0 left-0 w-full h-full object-cover"
         >
           <source src={HERO_VIDEO_SRC} type="video/mp4" />
         </video>
-
-        {/* Fallback Image (mobile) */}
-        <div className="absolute inset-0 md:hidden">
-          <Image
-            src="/AVFY%20LOGO.jpg"
-            alt="A Vision For You"
-            fill
-            priority
-            className="object-cover"
-          />
-        </div>
 
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />

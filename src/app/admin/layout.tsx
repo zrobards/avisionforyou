@@ -2,7 +2,7 @@
 
 import { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image, Share2, Briefcase, ChevronDown, ChevronRight, GraduationCap, UsersRound } from 'lucide-react'
+import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image, Share2, Briefcase, ChevronDown, ChevronRight, GraduationCap, UsersRound, ClipboardList } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
 import { ToastProvider } from '@/components/ui/toast'
@@ -17,6 +17,7 @@ const adminMenuItems = [
   { href: '/admin/newsletter', label: 'Newsletter', icon: Mail },
   { href: '/admin/team', label: 'Team', icon: Users },
   { href: '/admin/contact', label: 'Contact', icon: Mail },
+  { href: '/admin/admissions', label: 'Admissions', icon: ClipboardList },
   { href: '/admin/donations', label: 'Donations', icon: Heart },
   { href: '/admin/dui-classes', label: 'DUI Classes', icon: GraduationCap },
   { href: '/admin/social-stats', label: 'Social Stats', icon: Share2 },
