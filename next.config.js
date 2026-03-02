@@ -58,20 +58,22 @@ const nextConfig = {
   },
 };
 
-module.exports = withSentryConfig(nextConfig, {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
-  hideSourceMaps: true,
-  sourcemaps: {
-    deleteSourceMapsAfterUpload: true,
-  },
-  bundleSizeOptimizations: {
-    excludeDebugStatements: true,
-  },
-  webpack: {
-    automaticVercelMonitors: true,
-  },
-});
+// Only wrap with Sentry if auth token is available
+const sentryEnabled = !!process.env.SENTRY_AUTH_TOKEN;
+
+module.exports = sentryEnabled
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: true,
+      widenClientFileUpload: true,
+      hideSourceMaps: true,
+      sourcemaps: {
+        deleteSourceMapsAfterUpload: true,
+      },
+      bundleSizeOptimizations: {
+        excludeDebugStatements: true,
+      },
+    })
+  : nextConfig;

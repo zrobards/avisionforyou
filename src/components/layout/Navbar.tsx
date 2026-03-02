@@ -66,7 +66,7 @@ export default function Navbar() {
     (
       e: React.KeyboardEvent,
       isOpen: boolean,
-      setOpen: (v: boolean) => void,
+      setOpen: (_v: boolean) => void,
       dropdownRef: React.RefObject<HTMLDivElement | null>
     ) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -91,7 +91,7 @@ export default function Navbar() {
   const handleMenuItemKeyDown = useCallback(
     (
       e: React.KeyboardEvent,
-      setOpen: (v: boolean) => void,
+      setOpen: (_v: boolean) => void,
       dropdownRef: React.RefObject<HTMLDivElement | null>
     ) => {
       const items = dropdownRef.current?.querySelectorAll('[role="menuitem"]') as NodeListOf<HTMLElement> | undefined

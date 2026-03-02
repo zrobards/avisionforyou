@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, MapPin, Clock, Bell, X } from 'lucide-react'
+import { Calendar, MapPin, Clock, Bell } from 'lucide-react'
 
 interface Meeting {
   id: string

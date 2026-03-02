@@ -5,7 +5,7 @@ import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/toast'
-import { Shield, ShieldOff, Trash2, User, Search } from 'lucide-react'
+import { Trash2, User, Search } from 'lucide-react'
 
 interface UserData {
   id: string
@@ -123,19 +123,6 @@ export default function AdminUsersPage() {
     } catch (error: unknown) {
       showToast(error instanceof Error ? error.message : 'Failed to delete user', 'error')
       console.error(error)
-    }
-  }
-
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case 'ADMIN':
-        return 'bg-red-100 text-red-800'
-      case 'BOARD':
-        return 'bg-purple-100 text-purple-800'
-      case 'ALUMNI':
-        return 'bg-green-100 text-green-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
     }
   }
 

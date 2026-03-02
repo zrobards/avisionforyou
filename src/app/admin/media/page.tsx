@@ -21,7 +21,7 @@ interface MediaItem {
 }
 
 export default function MediaLibrary() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const { showToast } = useToast()
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([])

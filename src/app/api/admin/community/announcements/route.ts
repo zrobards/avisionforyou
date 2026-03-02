@@ -6,7 +6,6 @@ import { AnnouncementSchema, getValidationErrors } from "@/lib/validation"
 import { ZodError } from "zod"
 import { checkRateLimit } from "@/lib/rateLimit"
 import { rateLimitResponse } from "@/lib/apiAuth"
-import { logger } from '@/lib/logger'
 
 // GET all announcements (for admin table)
 export async function GET() {

@@ -2,7 +2,7 @@
 
 import { Send } from "lucide-react"
 
-export function SendButton({ sending, onSend, id }: { sending: string | null; onSend: (id: string) => void; id: string }) {
+export function SendButton({ sending, onSend, id }: { sending: string | null; onSend: (_id: string) => void; id: string }) {
   return (
     <button
       onClick={() => onSend(id)}

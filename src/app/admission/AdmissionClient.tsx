@@ -35,7 +35,7 @@ export default function AdmissionPage() {
       } else {
         setError('Failed to submit. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);

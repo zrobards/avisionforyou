@@ -124,7 +124,7 @@ export const authOptions: NextAuthOptions = {
         return `${baseUrl}/dashboard`
       }
     },
-    async jwt({ token, user, account, trigger }) {
+    async jwt({ token, user, account: _account, trigger: _trigger }) {
       try {
         // Initial sign in - user object is available
         if (user) {
@@ -237,7 +237,7 @@ export const authOptions: NextAuthOptions = {
       // Always return session - never throw
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account, profile: _profile }) {
       try {
         // Always allow sign-in - PrismaAdapter will handle user creation
         // Only do non-blocking role updates if user exists

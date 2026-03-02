@@ -67,7 +67,7 @@ export async function getSession() {
  * @returns Session object if authorized
  * @throws If not authenticated or not admin
  */
-export async function requireAdminAuth(req: NextRequest) {
+export async function requireAdminAuth(_req: NextRequest) {
   const session = await getSession()
 
   if (!session || !session.user) {
@@ -90,7 +90,7 @@ export async function requireAdminAuth(req: NextRequest) {
  * @returns Session object if authenticated
  * @throws If not authenticated
  */
-export async function requireAuth(req: NextRequest) {
+export async function requireAuth(_req: NextRequest) {
   const session = await getSession()
 
   if (!session || !session.user) {
@@ -156,7 +156,7 @@ export function notFoundResponse() {
   )
 }
 
-export function serverErrorResponse(requestId: string) {
+export function serverErrorResponse(_requestId: string) {
   return errorResponse(
     'Server error. Please contact support.',
     'SERVER_ERROR',

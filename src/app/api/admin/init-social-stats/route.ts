@@ -6,7 +6,7 @@ import { logger } from '@/lib/logger'
 
 // This endpoint creates the social_stats table if it doesn't exist
 // Only accessible to admins
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Check if user is authenticated and is admin
     const session = await getServerSession(authOptions)
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     logger.error({ err: error }, 'Error initializing social stats table')
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const _errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       { error: 'Failed to initialize social stats table' },
       { status: 500 }

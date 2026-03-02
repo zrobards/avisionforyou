@@ -17,7 +17,6 @@ interface SocialPost {
 
 export default function AdminSocialPage() {
   const [posts, setPosts] = useState<SocialPost[]>([])
-  const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   
   // Form state

@@ -4,8 +4,7 @@ import Link from 'next/link'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, Suspense, useEffect } from 'react'
-import { Heart, ArrowRight, Lock, Mail } from 'lucide-react'
-import Image from 'next/image'
+import { Heart, ArrowRight, Lock } from 'lucide-react'
 
 function LoginContent() {
   const router = useRouter()

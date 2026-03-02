@@ -24,7 +24,7 @@ export default function SocialMediaPage() {
     tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery' }
   })
 
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
 
   useEffect(() => {
     // Fetch social stats from database

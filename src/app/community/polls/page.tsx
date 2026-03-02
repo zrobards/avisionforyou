@@ -18,7 +18,7 @@ interface Poll {
 }
 
 export default function CommunityPollsPage() {
-  const { data: session } = useSession();
+  useSession();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

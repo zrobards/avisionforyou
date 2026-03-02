@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 // GET - Fetch all published newsletters (public)
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const newsletters = await db.newsletter.findMany({
       where: {

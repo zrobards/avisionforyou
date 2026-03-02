@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Plus, Edit, Trash2, Users, Calendar, DollarSign, X, Save } from 'lucide-react'
+import { Plus, Edit, Trash2, Users, Calendar, X, Save } from 'lucide-react'
 
 interface DUIClass {
   id: string
@@ -37,7 +37,7 @@ interface Registration {
 }
 
 export default function AdminDUIClassesPage() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const [classes, setClasses] = useState<DUIClass[]>([])
   const [loading, setLoading] = useState(true)

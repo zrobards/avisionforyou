@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Plus, Edit, Trash2, Eye, EyeOff, Save, Upload, X, ImageIcon } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Save, Upload, X } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
 interface BlogPost {
@@ -29,7 +29,7 @@ interface BlogPost {
 }
 
 export default function AdminBlog() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const { showToast } = useToast()
   const [posts, setPosts] = useState<BlogPost[]>([])

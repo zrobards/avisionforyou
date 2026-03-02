@@ -21,7 +21,7 @@ interface TeamMember {
 }
 
 export default function AdminTeam() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const { showToast } = useToast()
   const [members, setMembers] = useState<TeamMember[]>([])

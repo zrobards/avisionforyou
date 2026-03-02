@@ -277,22 +277,22 @@ describe('validation', () => {
     })
 
     it('rejects when name is missing', () => {
-      const { name, ...rest } = validContact
+      const { name: _name, ...rest } = validContact
       expect(() => ContactSchema.parse(rest)).toThrow(ZodError)
     })
 
     it('rejects when email is missing', () => {
-      const { email, ...rest } = validContact
+      const { email: _email, ...rest } = validContact
       expect(() => ContactSchema.parse(rest)).toThrow(ZodError)
     })
 
     it('rejects when subject is missing', () => {
-      const { subject, ...rest } = validContact
+      const { subject: _subject, ...rest } = validContact
       expect(() => ContactSchema.parse(rest)).toThrow(ZodError)
     })
 
     it('rejects when message is missing', () => {
-      const { message, ...rest } = validContact
+      const { message: _message, ...rest } = validContact
       expect(() => ContactSchema.parse(rest)).toThrow(ZodError)
     })
 
@@ -449,7 +449,7 @@ describe('validation', () => {
     })
 
     it('rejects a missing name', () => {
-      const { name, ...rest } = validDonation
+      const { name: _name, ...rest } = validDonation
       expect(() => DonationSchema.parse(rest)).toThrow(ZodError)
     })
 
@@ -466,17 +466,17 @@ describe('validation', () => {
     })
 
     it('rejects a missing email', () => {
-      const { email, ...rest } = validDonation
+      const { email: _email, ...rest } = validDonation
       expect(() => DonationSchema.parse(rest)).toThrow(ZodError)
     })
 
     it('rejects a missing amount', () => {
-      const { amount, ...rest } = validDonation
+      const { amount: _amount, ...rest } = validDonation
       expect(() => DonationSchema.parse(rest)).toThrow(ZodError)
     })
 
     it('rejects a missing frequency', () => {
-      const { frequency, ...rest } = validDonation
+      const { frequency: _frequency, ...rest } = validDonation
       expect(() => DonationSchema.parse(rest)).toThrow(ZodError)
     })
 

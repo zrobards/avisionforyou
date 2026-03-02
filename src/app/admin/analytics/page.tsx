@@ -5,10 +5,10 @@ import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import {
-  DollarSign, Users, TrendingUp, TrendingDown, Calendar, BarChart3,
+  DollarSign, Users, TrendingDown, Calendar, BarChart3,
   Target, AlertCircle, CheckCircle, Info, ArrowUpRight, ArrowDownRight,
   Heart, Mail, BookOpen, UserCheck, RefreshCw, Globe, Monitor, Smartphone,
-  Tablet, MapPin, Clock, Eye, ExternalLink
+  Tablet, MapPin, Clock, Eye
 } from 'lucide-react'
 
 interface AnalyticsData {
@@ -156,29 +156,8 @@ function SimpleBarChart({ data, labelKey, valueKey, prefix = '', color = 'bg-bra
   )
 }
 
-function FunnelStep({ label, value, rate, isLast = false }: {
-  label: string
-  value: number
-  rate?: number
-  isLast?: boolean
-}) {
-  return (
-    <div className="flex-1 text-center">
-      <div className="bg-gradient-to-b from-purple-100 to-purple-50 rounded-xl p-4 border border-purple-200">
-        <p className="text-2xl font-bold text-brand-purple">{value}</p>
-        <p className="text-xs text-gray-600 mt-1">{label}</p>
-      </div>
-      {!isLast && rate !== undefined && (
-        <div className="my-2 text-xs font-semibold text-gray-500">
-          → {rate}% →
-        </div>
-      )}
-    </div>
-  )
-}
-
 export default function AdminAnalyticsPage() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [ga4Data, setGa4Data] = useState<GA4Data | null>(null)

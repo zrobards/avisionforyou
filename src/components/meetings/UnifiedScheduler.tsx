@@ -47,7 +47,7 @@ export default function UnifiedScheduler({
   userRsvps,
   userDuiRegistrations,
   isLoggedIn,
-  userId,
+  userId: _userId,
 }: Props) {
   const [filter, setFilter] = useState<FilterType>("all");
   const [rsvpLoading, setRsvpLoading] = useState<string | null>(null);

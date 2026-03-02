@@ -22,7 +22,7 @@ interface BoardSidebarProps {
   onCloseMobile?: () => void
 }
 
-export default function BoardSidebar({ collapsed = false, mobileOpen = false }: BoardSidebarProps) {
+export default function BoardSidebar({ collapsed = false, mobileOpen: _mobileOpen = false }: BoardSidebarProps) {
   const pathname = usePathname()
 
   return (

@@ -10,7 +10,7 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
 
 // GET - Fetch all media
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(media, {
       headers: { 'Cache-Control': 'no-store, max-age=0' }
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch media' }, { status: 500 })
   }
 }
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(mediaItem)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to upload media' }, { status: 500 })
   }
 }

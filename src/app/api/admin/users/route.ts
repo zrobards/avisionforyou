@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(users, {
       headers: { 'Cache-Control': 'no-store, max-age=0' }
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch users' },
       { status: 500 }
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(user)
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update user' },
       { status: 500 }

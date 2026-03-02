@@ -79,10 +79,6 @@ export default function Donate() {
   const stripeConfigured =
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY &&
     !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.includes('placeholder')
-  const squareConfigured =
-    process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT &&
-    (process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === 'sandbox' ||
-      process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === 'production')
 
   /* ─── Derived values ─── */
   const finalAmount = customAmount ? parseFloat(customAmount) : selectedAmount

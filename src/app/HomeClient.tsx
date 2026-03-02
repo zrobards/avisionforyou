@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, Phone, ArrowRight, Shield, Users, Home, Utensils, Briefcase, Brain, HandHeart, ExternalLink, Star, CheckCircle, TrendingUp, Award, Clock } from 'lucide-react'
+import { Heart, Phone, ArrowRight, Shield, Users, Home, Utensils, Brain, HandHeart, ExternalLink, Star, CheckCircle, TrendingUp, Award, Clock } from 'lucide-react'
 import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 import CountUpNumber from '@/components/shared/CountUpNumber'
 import TestimonialsCarousel from '@/components/home/TestimonialsCarousel'

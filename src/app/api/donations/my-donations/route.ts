@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic"
  * GET /api/donations/my-donations
  * Fetch all donations for the authenticated user
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 

@@ -27,7 +27,7 @@ export default function Footer() {
           const data = await response.json();
           setSocialStats(data);
         }
-      } catch (error) {
+      } catch {
         // silently fail - use defaults
       }
     };

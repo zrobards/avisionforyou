@@ -99,7 +99,7 @@ export async function PATCH(
     const content = body.content ? DOMPurify.sanitize(body.content) : body.content
 
     // If title changed, update slug
-    let updateData: Record<string, unknown> = {
+    const updateData: Record<string, unknown> = {
       content,
       excerpt,
       status,

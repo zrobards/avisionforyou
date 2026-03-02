@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Mail, Calendar, User, ChevronRight } from 'lucide-react'
 import { db } from '@/lib/db'
 import type { Metadata } from 'next'
@@ -71,10 +72,12 @@ export default async function NewsletterPage() {
               >
                 {newsletter.imageUrl && (
                   <div className="relative h-48 bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
-                    <img
+                    <Image
                       src={newsletter.imageUrl}
                       alt={newsletter.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
                 )}

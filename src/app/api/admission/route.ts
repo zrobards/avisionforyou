@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sendAdmissionConfirmation, sendAdmissionNotificationToAdmin } from '@/lib/email';
-import { requireAdminAuth, errorResponse, validationErrorResponse, successResponse } from '@/lib/apiAuth'
+import { requireAdminAuth, errorResponse, successResponse } from '@/lib/apiAuth'
 import { AdmissionSchema, validateRequest, getValidationErrors } from '@/lib/validation'
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
 import { rateLimit, admissionIpLimiter, admissionEmailLimiter, getClientIp } from '@/lib/rateLimit'

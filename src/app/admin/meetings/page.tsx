@@ -5,7 +5,7 @@ import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/shared/ToastProvider'
-import { Search, Plus, Filter, X, Calendar, Users, Clock, MapPin, Edit2, Trash2, ChevronDown } from 'lucide-react'
+import { Search, Plus, Filter, X, Calendar, Users, Clock, MapPin, Edit2, Trash2 } from 'lucide-react'
 
 interface RSVP {
   id: string

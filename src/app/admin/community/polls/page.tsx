@@ -33,7 +33,7 @@ export default function AdminPollsPage() {
       if (!res.ok) throw new Error("Failed to fetch polls");
       const data = await res.json();
       setPolls(data);
-    } catch (error) {
+    } catch {
       console.error("Error fetching polls:", error);
     } finally {
       setLoading(false);
@@ -62,7 +62,7 @@ export default function AdminPollsPage() {
       setForm({ title: "", description: "", closesAt: "" });
       setShowForm(false);
       fetchPolls();
-    } catch (error) {
+    } catch {
       alert("Failed to create poll");
     } finally {
       setSubmitting(false);
@@ -79,7 +79,7 @@ export default function AdminPollsPage() {
 
       if (!res.ok) throw new Error("Failed to toggle poll");
       fetchPolls();
-    } catch (error) {
+    } catch {
       alert("Failed to toggle poll");
     }
   };
@@ -96,7 +96,7 @@ export default function AdminPollsPage() {
 
       if (!res.ok) throw new Error("Failed to delete poll");
       fetchPolls();
-    } catch (error) {
+    } catch {
       alert("Failed to delete poll");
     }
   };

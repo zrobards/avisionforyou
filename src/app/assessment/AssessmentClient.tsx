@@ -2,9 +2,8 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Heart, CheckCircle, AlertCircle, RotateCcw } from 'lucide-react'
+import { CheckCircle, AlertCircle, RotateCcw } from 'lucide-react'
 import { trackAssessmentComplete } from '@/components/analytics/GoogleAnalytics'
 
 const ASSESSMENT_QUESTIONS = [
@@ -92,8 +91,7 @@ const PROGRAM_DESCRIPTIONS = {
 }
 
 export default function Assessment() {
-  const router = useRouter()
-  const { data: session, status: sessionStatus } = useSession()
+  const { status: sessionStatus } = useSession()
   const [currentStep, setCurrentStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string | number | boolean>>({})
   const [loading, setLoading] = useState(false)
@@ -156,7 +154,7 @@ export default function Assessment() {
         setRecommendedProgram(data.recommendedProgram)
         trackAssessmentComplete(data.recommendedProgram)
         setShowResult(true)
-      } catch (err) {
+      } catch {
         setError('Failed to save your assessment. Please try again.')
       } finally {
         setLoading(false)

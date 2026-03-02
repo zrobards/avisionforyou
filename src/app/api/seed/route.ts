@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
 import { logger } from '@/lib/logger'
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
         } else {
           programs.push(p)
         }
-      } catch (e) {
+      } catch {
         // Duplicate slug, find existing
         const existing = await db.program.findFirst({ 
           where: { name: prog.name }
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           })
         }
         testUsers.push(user)
-      } catch (e) {
+      } catch {
         // User exists
       }
     }
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
               status: 'CONFIRMED'
             }
           })
-        } catch (e) {
+        } catch {
           // Skip duplicates
         }
       }
@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
             }
           })
         }
-      } catch (e) {
+      } catch {
         // Skip
       }
     }
@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
           }
         })
         donationsCreated++
-      } catch (e) {
+      } catch {
         // Skip duplicates
       }
     }

@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 
 // Get user's RSVPs and send reminders based on timing
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 

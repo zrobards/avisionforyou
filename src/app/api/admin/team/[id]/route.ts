@@ -42,7 +42,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, title, bio, role, imageUrl, email, phone } = body;
+    const { name, title, bio, imageUrl, email, phone } = body;
 
     const member = await db.teamMember.update({
       where: { id },

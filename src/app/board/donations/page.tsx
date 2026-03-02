@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { DollarSign, TrendingUp, Users, Download } from 'lucide-react'
+import { DollarSign, TrendingUp, Download } from 'lucide-react'
 
 interface DonationStats {
   totalAllTime: number

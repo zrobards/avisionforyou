@@ -6,7 +6,7 @@ import { DonationSchema, validateRequest, getValidationErrors } from '@/lib/vali
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
 import { rateLimit, donateLimiter, getClientIp } from '@/lib/rateLimit'
 import { ZodError } from 'zod'
-import { rateLimitResponse, errorResponse } from '@/lib/apiAuth'
+import { rateLimitResponse } from '@/lib/apiAuth'
 import { logActivity, notifyByRole } from '@/lib/notifications'
 import { logger } from '@/lib/logger'
 
@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
         logger.error({ err: updateError }, "Failed to mark donation as FAILED")
       }
 
-      const errorInfo = handleApiError(squareError, 'donate/square', requestId, undefined)
+      handleApiError(squareError, 'donate/square', requestId, undefined)
 
       logApiRequest({
         timestamp: new Date(),

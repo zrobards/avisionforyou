@@ -1,13 +1,12 @@
 'use client'
 
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import { CheckCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 function DonationConfirmContent() {
   const searchParams = useSearchParams()
-  const router = useRouter()
   const [donation, setDonation] = useState<{ id: string; amount: number; status: string } | null>(null)
   const [loading, setLoading] = useState(true)
 

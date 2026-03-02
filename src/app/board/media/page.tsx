@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
-import { Upload, Download, Image as ImageIcon, FileText, X } from 'lucide-react'
+import { Upload, Download, FileText, X } from 'lucide-react'
 
 interface MediaItem {
   id: string
@@ -38,11 +38,7 @@ export default function MediaLibraryPage() {
   const [uploadTags, setUploadTags] = useState('')
   const [uploadUsage, setUploadUsage] = useState('')
 
-  useEffect(() => {
-    fetchMedia()
-  }, [selectedCategory])
-
-  async function fetchMedia() {
+  const fetchMedia = useCallback(async () => {
     try {
       const url = selectedCategory === 'all'
         ? '/api/board/media'
@@ -58,7 +54,11 @@ export default function MediaLibraryPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedCategory])
+
+  useEffect(() => {
+    fetchMedia()
+  }, [fetchMedia])
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault()

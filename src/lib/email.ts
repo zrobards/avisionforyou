@@ -247,7 +247,7 @@ export async function sendAdmissionNotificationToAdmin(
   email: string,
   phone: string,
   program: string,
-  message: string
+  _message: string
 ) {
   try {
     const resendClient = getResendClient()
@@ -576,7 +576,7 @@ export async function sendDonationConfirmationEmail(
       </html>
     `
 
-    const result = await sendEmail({
+    await sendEmail({
       to: recipientEmail,
       subject: `Thank You for Your ${amount < 100 ? 'Generous' : 'Major'} Donation - A Vision For You`,
       html,

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
-import { Heart, Users, Home, BookOpen, FileText } from 'lucide-react'
+import { Users, Home, BookOpen, FileText } from 'lucide-react'
 import type { ProgramInfo } from '@/lib/cms'
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {

@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Plus, Edit, Trash2, Eye, Save, Mail, Upload, X } from 'lucide-react'
+import { Plus, Edit, Trash2, Save, Mail, Upload, X } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
 interface Newsletter {
@@ -30,7 +30,7 @@ interface Newsletter {
 const SendButton = dynamic(() => import('./send-button').then(mod => mod.SendButton), { ssr: false })
 
 export default function AdminNewsletter() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const { showToast } = useToast()
   const [newsletters, setNewsletters] = useState<Newsletter[]>([])

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Handle file upload if provided
     if (file) {
-      const buffer = await file.arrayBuffer()
+      const _buffer = await file.arrayBuffer()
       const fileName = `social-media/${uuidv4()}-${file.name}`
       
       // In production, upload to cloud storage (S3, Cloudinary, etc.)

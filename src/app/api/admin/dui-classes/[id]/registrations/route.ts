@@ -58,7 +58,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: _id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {

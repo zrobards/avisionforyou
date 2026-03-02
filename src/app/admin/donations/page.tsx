@@ -6,12 +6,11 @@ import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { 
-  DollarSign, 
-  Download, 
-  Filter, 
-  Search, 
+  DollarSign,
+  Download,
+  Filter,
+  Search,
   TrendingUp,
-  Users,
   CheckCircle,
   AlertCircle,
   Clock,
@@ -50,11 +49,11 @@ interface DonationStats {
 }
 
 export default function AdminDonations() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const [donations, setDonations] = useState<Donation[]>([])
   const [stats, setStats] = useState<DonationStats | null>(null)
-  const [monthlyData, setMonthlyData] = useState<Record<string, number>[] | null>(null)
+  const [_monthlyData, setMonthlyData] = useState<Record<string, number>[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')

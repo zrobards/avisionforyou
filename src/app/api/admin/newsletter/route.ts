@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
       throw error
     }
 
-    let status = validatedData.status || 'DRAFT'
+    const status = validatedData.status || 'DRAFT'
 
     // Generate slug from title with timestamp for uniqueness
     const baseSlug = validatedData.title
