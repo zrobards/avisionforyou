@@ -33,7 +33,7 @@ export default function AdminPollsPage() {
       if (!res.ok) throw new Error("Failed to fetch polls");
       const data = await res.json();
       setPolls(data);
-    } catch {
+    } catch (error) {
       console.error("Error fetching polls:", error);
     } finally {
       setLoading(false);
