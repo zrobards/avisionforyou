@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit: 30 per hour per user
-    const userId = (session.user as any)?.id || session.user?.email || "unknown";
+    const userId = session.user.id || session.user.email || "unknown";
     const rateLimit = checkRateLimit(`admin-dui-classes:${userId}`, 30, 3600);
     if (!rateLimit.allowed) {
       return rateLimitResponse(rateLimit.retryAfter || 60);

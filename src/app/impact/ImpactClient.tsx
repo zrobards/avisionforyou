@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { TrendingUp, Users, Heart, Award, CheckCircle, Download, Target, Clock, Home, Briefcase } from 'lucide-react'
+import SocialShareButtons from '@/components/shared/SocialShareButtons'
+import { trackImpactReportDownload } from '@/components/analytics/GoogleAnalytics'
 
 interface ImpactMetrics {
   totalMeetings: number
@@ -235,10 +237,20 @@ export default function ImpactPage() {
       {/* Success Stories */}
       <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">Success Stories</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900">Success Stories</h2>
+          </div>
+          <p className="text-center text-gray-600 mb-4 max-w-3xl mx-auto">
             Real people, real transformation: Hear from graduates who rebuilt their lives
           </p>
+          <div className="flex justify-center mb-12">
+            <SocialShareButtons
+              url="https://avisionforyou.org/impact"
+              title="See the real impact of A Vision For You recovery programs"
+              description="83% success rate, 89% retention, real lives transformed through evidence-based recovery."
+              contentType="impact"
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((story, idx) => (
               <div key={idx} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
@@ -307,7 +319,13 @@ export default function ImpactPage() {
             For foundations, grant reviewers, and institutional donors: Download our detailed annual impact report with full financial statements, program evaluations, and longitudinal outcome data.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-purple to-purple-700 text-white font-bold rounded-lg hover:shadow-xl transition">
+            <button
+              onClick={() => {
+                trackImpactReportDownload()
+                window.open('/AVFY-2024-Impact-Report.pdf', '_blank')
+              }}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-purple to-purple-700 text-white font-bold rounded-lg hover:shadow-xl transition"
+            >
               <Download className="w-5 h-5" />
               Download 2024 Impact Report (PDF)
             </button>
@@ -316,8 +334,7 @@ export default function ImpactPage() {
             </Link>
           </div>
           <p className="text-sm text-gray-500 mt-6">
-{/* TODO: Replace with actual EIN */}
-            EIN: Available upon request | 501(c)(3) Nonprofit Organization
+EIN: 87-1066569 | 501(c)(3) Nonprofit Organization
           </p>
         </div>
       </section>

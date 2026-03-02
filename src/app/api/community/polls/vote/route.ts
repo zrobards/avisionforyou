@@ -48,8 +48,8 @@ export async function POST(request: Request) {
         },
       });
       return NextResponse.json({ success: true, vote: newVote });
-    } catch (createError: any) {
-      if (createError?.code === 'P2002') {
+    } catch (createError: unknown) {
+      if (createError instanceof Error && 'code' in createError && (createError as { code: string }).code === 'P2002') {
         return NextResponse.json(
           { error: "You have already voted on this poll" },
           { status: 400 }

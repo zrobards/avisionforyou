@@ -30,7 +30,7 @@ export async function POST(
     }
 
     // Rate limit: 10 newsletter sends per hour per user (critical - sends to all subscribers)
-    const userId = (session.user as any)?.id || session.user?.email || 'unknown'
+    const userId = session.user.id || session.user.email || 'unknown'
     const rateLimit = checkRateLimit(`admin-newsletter-send:${userId}`, 10, 3600)
     if (!rateLimit.allowed) {
       return rateLimitResponse(rateLimit.retryAfter || 60)

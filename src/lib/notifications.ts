@@ -1,4 +1,5 @@
 import { db } from "./db"
+import { UserRole } from "@prisma/client"
 
 /**
  * Log an activity to the shared activity feed
@@ -30,7 +31,7 @@ export async function notifyByRole(
 ) {
   try {
     const users = await db.user.findMany({
-      where: { role: { in: roles as any } },
+      where: { role: { in: roles as UserRole[] } },
       select: { id: true },
     })
 

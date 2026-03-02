@@ -373,7 +373,7 @@ export async function sendDonationThankYou(
               Tax-deductible receipt will be sent separately
             </p>
             <p style="color: #6b7280; font-size: 12px; margin: 0;">
-              A Vision For You | 501(c)(3) Nonprofit<!-- TODO: Replace with actual EIN --><br>
+              A Vision For You | 501(c)(3) EIN: 87-1066569<br>
               1675 Story Ave, Louisville, KY 40206
             </p>
           </div>
@@ -555,7 +555,7 @@ export async function sendDonationConfirmationEmail(
                 <strong>Status:</strong> Received & Processing
               </p>
 
-              <p>You'll receive a formal tax receipt via email shortly. A Vision For You is a 501(c)(3) nonprofit organization - your donation is tax-deductible.</p>
+              <p>You'll receive a formal tax receipt via email shortly. A Vision For You is a 501(c)(3) nonprofit organization (EIN: 87-1066569) - your donation is tax-deductible.</p>
 
               <h2>Questions?</h2>
               <p>If you have any questions about your donation or want to learn more about our programs, please don't hesitate to reach out to us at <strong>admin@avisionforyou.org</strong></p>

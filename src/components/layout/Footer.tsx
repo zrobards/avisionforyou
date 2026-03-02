@@ -84,7 +84,7 @@ export default function Footer() {
               </p>
               <div className="flex items-center gap-2 bg-brand-green/10 border border-brand-green/20 rounded-lg px-3 py-2">
                 <Shield className="w-4 h-4 text-brand-green flex-shrink-0" aria-hidden="true" />
-                <span className="text-brand-green text-xs font-semibold">501(c)(3) Tax-Exempt Organization</span>
+                <span className="text-brand-green text-xs font-semibold">501(c)(3) Tax-Exempt | EIN: 87-1066569</span>
               </div>
             </div>
 

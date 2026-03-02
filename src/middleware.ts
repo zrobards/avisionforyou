@@ -2,7 +2,7 @@ import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function middleware(request: NextRequest) {
-  if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+  if (process.env.NODE_ENV === 'development' && process.env.BYPASS_AUTH === "true") {
     return NextResponse.next()
   }
 
@@ -43,6 +43,18 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/dashboard")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url))
+    }
+  }
+
+  // CSRF protection for state-changing requests on public endpoints
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+    const origin = request.headers.get('origin')
+    const host = request.headers.get('host')
+    if (origin && host) {
+      const originHost = new URL(origin).host
+      if (originHost !== host) {
+        return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+      }
     }
   }
 

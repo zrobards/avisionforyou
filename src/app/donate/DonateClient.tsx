@@ -153,8 +153,8 @@ export default function Donate() {
       } else {
         setError('Failed to create payment session. Please try again.')
       }
-    } catch (err: any) {
-      const errorMessage = err.message || 'An error occurred. Please try again.'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred. Please try again.'
       console.error('Donation: Exception caught', err)
       setError(errorMessage)
     } finally {

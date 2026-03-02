@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -28,10 +29,10 @@ export default async function DashboardPage() {
   }
 
   // Fetch dashboard data with graceful fallbacks
-  let upcomingRsvps: any[] = [];
-  let duiRegistrations: any[] = [];
-  let recentDonations: any[] = [];
-  let assessment: any = null;
+  let upcomingRsvps: Prisma.RSVPGetPayload<{ include: { session: { include: { program: true } } } }>[] = [];
+  let duiRegistrations: Prisma.DUIRegistrationGetPayload<{ include: { class: true } }>[] = [];
+  let recentDonations: Prisma.DonationGetPayload<{}>[] = [];
+  let assessment: Prisma.AssessmentGetPayload<{}> | null = null;
 
   try {
     [upcomingRsvps, duiRegistrations, recentDonations, assessment] = await Promise.all([

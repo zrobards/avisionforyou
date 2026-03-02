@@ -260,6 +260,7 @@ model Donation {
   @@index([squareSubscriptionId])
   @@index([nextRenewalDate])
   @@index([squarePaymentId])
+  @@index([createdAt])
   @@map("donations")
 }
 
@@ -362,6 +363,9 @@ model AuditLog {
   
   createdAt         DateTime @default(now())
 
+  @@index([createdAt])
+  @@index([userId])
+  @@index([entity])
   @@map("audit_logs")
 }
 

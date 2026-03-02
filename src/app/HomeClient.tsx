@@ -2,98 +2,13 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect, useCallback } from 'react'
-import { Heart, Phone, ArrowRight, Shield, Users, Home, Utensils, Briefcase, Brain, HandHeart, ChevronLeft, ChevronRight, ExternalLink, Star, CheckCircle, TrendingUp, Award, Clock } from 'lucide-react'
+import { Heart, Phone, ArrowRight, Shield, Users, Home, Utensils, Briefcase, Brain, HandHeart, ExternalLink, Star, CheckCircle, TrendingUp, Award, Clock } from 'lucide-react'
 import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 import CountUpNumber from '@/components/shared/CountUpNumber'
-
-const HERO_VIDEO_SRC = process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/videos/cloud-background.mp4"
-
-const TESTIMONIALS = [
-  {
-    name: "Josh J.",
-    role: "Client / Intern",
-    quote: "A Vision for You is the best treatment center I have ever been to. It is the longest amount of sobriety in my life. I struggle with mental illness, and I am allowed to take my medication, and the staff is very accommodating.",
-    initials: "JJ",
-  },
-  {
-    name: "Laura F.",
-    role: "Alumni / Staff",
-    quote: "I moved here from Georgia seeking help with my addiction. After trying many facilities, AVFY has succeeded in showing me a new way to live. They've given me hope and I'm now employed and a full-time student.",
-    initials: "LF",
-  },
-  {
-    name: "Johnny M.",
-    role: "Alumni / Staff",
-    quote: "14 months ago, I was hopeless, jobless, and homeless. AVFY took me in with open arms. I now work there helping others. AVFY has given me my life back, and I am eternally grateful.",
-    initials: "JM",
-  },
-  {
-    name: "Marcus T.",
-    role: "Surrender Program Graduate",
-    quote: "The Surrender Program saved my life. Having housing, meals, and a supportive community while I got back on my feet made all the difference. I now have my own apartment and a steady job.",
-    initials: "MT",
-  },
-  {
-    name: "Sarah K.",
-    role: "Family Member",
-    quote: "Watching my brother transform through AVFY's programs has been incredible. The staff truly cares and the holistic approach to recovery is unlike anything we'd found before.",
-    initials: "SK",
-  },
-]
-
-const PROGRAMS = [
-  { title: "Surrender Program", description: "Voluntary, self-help, social model recovery grounded in 12-step principles", icon: HandHeart, href: "/programs/surrender-program", badge: "100% FREE", badgeColor: "bg-green-500" },
-  { title: "MindBodySoul IOP", description: "Intensive Outpatient combining therapy, psychiatry, and evidence-based practices", icon: Brain, href: "/programs/mindbodysoul-iop", badge: "Insurance Accepted", badgeColor: "bg-blue-500" },
-  { title: "Housing & Shelter", description: "Safe, supportive residential recovery spaces with community living", icon: Home, href: "/programs/housing", badge: "7 Residences", badgeColor: "bg-purple-500" },
-  { title: "Meetings & Groups", description: "Peer-driven recovery meetings, support groups, and community building", icon: Users, href: "/programs/self-help", badge: "Open to All", badgeColor: "bg-amber-500" },
-  { title: "Food & Nutrition", description: "Nutritious meals and dietary support as part of holistic recovery", icon: Utensils, href: "/programs/food", badge: "Daily Meals", badgeColor: "bg-orange-500" },
-  { title: "Career Reentry", description: "Job training, placement assistance, and employment support", icon: Briefcase, href: "/programs/career", badge: "Job Placement", badgeColor: "bg-teal-500" },
-]
-
-const SOCIAL_IMAGES = [
-  { src: "/programs/surrender-gathering-1.png", alt: "Recovery community gathering" },
-  { src: "/programs/mindbodysoul-group-1.png", alt: "MindBodySoul IOP group session" },
-  { src: "/programs/surrender-facility.png", alt: "Surrender program facility" },
-  { src: "/programs/mindbodysoul-education.png", alt: "Education session" },
-  { src: "/programs/surrender-gathering-2.png", alt: "Peer support meeting" },
-  { src: "/programs/mindbodysoul-teaching.png", alt: "Recovery teaching session" },
-]
-
-const SOCIAL_CHANNELS = [
-  { name: "Facebook", followers: "869", url: "https://www.facebook.com/avisionforyourecovery", color: "from-blue-600 to-blue-700", hoverColor: "hover:from-blue-700 hover:to-blue-800" },
-  { name: "Instagram", followers: "112", url: "https://www.instagram.com/avision_foryourecovery/", color: "from-pink-500 to-purple-600", hoverColor: "hover:from-pink-600 hover:to-purple-700" },
-  { name: "TikTok", followers: "41", url: "https://www.tiktok.com/@avisionforyourecovery", color: "from-gray-900 to-gray-800", hoverColor: "hover:from-gray-800 hover:to-gray-700" },
-  { name: "LinkedIn", followers: "23", url: "https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/", color: "from-blue-700 to-blue-800", hoverColor: "hover:from-blue-800 hover:to-blue-900" },
-]
+import TestimonialsCarousel from '@/components/home/TestimonialsCarousel'
+import { HERO_VIDEO_SRC, PROGRAMS, SOCIAL_IMAGES, SOCIAL_CHANNELS } from './home/constants'
 
 export default function HomeClient() {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0)
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-
-  useEffect(() => {
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReducedMotion(mql.matches)
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
-    mql.addEventListener('change', handler)
-    return () => mql.removeEventListener('change', handler)
-  }, [])
-
-  const nextTestimonial = useCallback(() => {
-    setCurrentTestimonial((prev) => (prev + 1) % TESTIMONIALS.length)
-  }, [])
-
-  const prevTestimonial = useCallback(() => {
-    setCurrentTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)
-  }, [])
-
-  // Auto-rotate testimonials (disabled if user prefers reduced motion)
-  useEffect(() => {
-    if (prefersReducedMotion) return
-    const interval = setInterval(nextTestimonial, 6000)
-    return () => clearInterval(interval)
-  }, [nextTestimonial, prefersReducedMotion])
-
   return (
     <div className="min-h-screen bg-brand-dark">
       {/* ==================== HERO SECTION ==================== */}
@@ -290,87 +205,7 @@ export default function HomeClient() {
       </section>
 
       {/* ==================== TESTIMONIALS / SOCIAL PROOF ==================== */}
-      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
-        <div className="max-w-5xl mx-auto px-4">
-          <AnimateOnScroll>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                Stories of <span className="text-brand-green">Transformation</span>
-              </h2>
-              <p className="text-lg text-white/60">Real people. Real recovery. Real hope.</p>
-            </div>
-          </AnimateOnScroll>
-
-          {/* Testimonial Carousel */}
-          <div className="relative">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6 sm:p-10 min-h-[280px] flex flex-col justify-center">
-              <div className="text-brand-green text-5xl sm:text-6xl font-serif leading-none mb-4">&ldquo;</div>
-              <p className="text-lg sm:text-xl md:text-2xl text-white/90 leading-relaxed mb-8 italic">
-                {TESTIMONIALS[currentTestimonial].quote}
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-purple to-brand-green flex items-center justify-center text-white font-bold text-lg">
-                  {TESTIMONIALS[currentTestimonial].initials}
-                </div>
-                <div>
-                  <p className="font-bold text-white text-lg">{TESTIMONIALS[currentTestimonial].name}</p>
-                  <p className="text-white/50">{TESTIMONIALS[currentTestimonial].role}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation */}
-            <div className="flex items-center justify-between mt-6">
-              <button
-                onClick={prevTestimonial}
-                className="p-3 bg-white/10 border border-white/20 rounded-full hover:bg-white/20 transition text-white"
-                aria-label="Previous testimonial"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-
-              <div className="flex gap-2">
-                {TESTIMONIALS.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentTestimonial(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      idx === currentTestimonial ? 'w-8 bg-brand-green' : 'w-2 bg-white/30 hover:bg-white/50'
-                    }`}
-                    aria-label={`Go to testimonial ${idx + 1}`}
-                  />
-                ))}
-              </div>
-
-              <button
-                onClick={nextTestimonial}
-                className="p-3 bg-white/10 border border-white/20 rounded-full hover:bg-white/20 transition text-white"
-                aria-label="Next testimonial"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Trust Badges */}
-          <AnimateOnScroll delay={0.2}>
-            <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                { label: "501(c)(3) Verified", sub: "Tax-Exempt Nonprofit" },
-                { label: "State Licensed", sub: "Commonwealth of Kentucky" },
-                { label: "Evidence-Based", sub: "Clinical Best Practices" },
-                { label: "Peer Accredited", sub: "Recovery Community" },
-              ].map((badge, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-                  <CheckCircle className="w-6 h-6 text-brand-green mx-auto mb-2" />
-                  <p className="text-white font-semibold text-sm">{badge.label}</p>
-                  <p className="text-white/40 text-xs">{badge.sub}</p>
-                </div>
-              ))}
-            </div>
-          </AnimateOnScroll>
-        </div>
-      </section>
+      <TestimonialsCarousel />
 
       {/* ==================== SOCIAL MEDIA FEED ==================== */}
       <section className="py-16 sm:py-24 bg-brand-dark">

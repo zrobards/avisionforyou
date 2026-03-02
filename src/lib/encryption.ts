@@ -21,7 +21,10 @@ const isKeyValid = key ? key.length === 32 : false
 
 export function encryptJSON(payload: PlainPayload): JsonCompatible {
   if (!isKeyValid) {
-    logger.warn('ENCRYPTION_KEY missing or invalid length; storing plaintext')
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('ENCRYPTION_KEY is required in production for HIPAA compliance')
+    }
+    logger.warn('ENCRYPTION_KEY missing or invalid length; storing plaintext (dev only)')
     return payload as JsonCompatible
   }
 
@@ -43,7 +46,10 @@ export function encryptJSON(payload: PlainPayload): JsonCompatible {
 export function decryptJSON(value: unknown): PlainPayload {
   if (!value || typeof value !== 'object' || !('encrypted' in value)) return value as PlainPayload
   if (!isKeyValid) {
-    logger.warn('ENCRYPTION_KEY missing or invalid; returning ciphertext object as-is')
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('ENCRYPTION_KEY is required in production for HIPAA compliance')
+    }
+    logger.warn('ENCRYPTION_KEY missing or invalid; returning ciphertext object as-is (dev only)')
     return value as PlainPayload
   }
 

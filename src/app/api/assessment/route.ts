@@ -8,7 +8,9 @@ import { AssessmentAnswersSchema } from "@/lib/validation"
 import { rateLimit, assessmentLimiter, getClientIp } from "@/lib/rateLimit"
 import { logActivity } from "@/lib/notifications"
 import { logger } from '@/lib/logger'
-import { ZodError } from "zod"
+import { ZodError, z } from "zod"
+
+type AssessmentAnswers = z.infer<typeof AssessmentAnswersSchema>["answers"];
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions)
 
     // Validate input with Zod
-    let answers: any
+    let answers: AssessmentAnswers
     try {
       const validated = await AssessmentAnswersSchema.parseAsync(await request.json())
       answers = validated.answers
