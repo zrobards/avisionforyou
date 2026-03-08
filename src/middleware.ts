@@ -95,7 +95,7 @@ export async function middleware(request: NextRequest) {
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https: blob:",
       "connect-src 'self' https://*.squareup.com https://*.squarecdn.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://*.googletagmanager.com https://*.vercel-insights.com https://*.sentry.io https://www.facebook.com",
-      "frame-src https://*.squareup.com https://www.facebook.com",
+      "frame-src https://*.squareup.com https://www.facebook.com https://*.facebook.com https://web.facebook.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

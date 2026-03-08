@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Facebook } from 'lucide-react'
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -7,12 +8,24 @@ import { Facebook } from 'lucide-react'
 const FACEBOOK_PAGE_URL = 'https://www.facebook.com/avisionforyourecovery'
 const FACEBOOK_HANDLE = 'A Vision For You Recovery'
 
-// Build the iframe embed URL for the Facebook Page Plugin
-const EMBED_URL = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(FACEBOOK_PAGE_URL)}&tabs=timeline%2Cevents&width=500&height=800&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId`
+// Facebook Page Plugin iframe — no App ID or SDK required
+const EMBED_URL =
+  'https://www.facebook.com/plugins/page.php?' +
+  'href=https%3A%2F%2Fwww.facebook.com%2Favisionforyourecovery' +
+  '&tabs=timeline%2Cevents' +
+  '&width=500' +
+  '&height=700' +
+  '&small_header=false' +
+  '&adapt_container_width=true' +
+  '&hide_cover=false' +
+  '&show_facepile=true'
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 export default function FacebookFeed() {
+  const [iframeLoaded, setIframeLoaded] = useState(false)
+  const [iframeFailed, setIframeFailed] = useState(false)
+
   return (
     <section
       className="py-16 bg-gradient-to-b from-white to-blue-50/50"
@@ -36,17 +49,59 @@ export default function FacebookFeed() {
           </p>
         </div>
 
-        {/* Facebook Page Plugin — direct iframe embed (no SDK/App ID needed) */}
+        {/* Facebook Page Plugin iframe embed */}
         <div className="flex justify-center">
-          <iframe
-            src={EMBED_URL}
-            width="500"
-            height="800"
-            style={{ border: 'none', overflow: 'hidden', maxWidth: '100%' }}
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            allowFullScreen
-            title="A Vision For You Recovery Facebook Page"
-          />
+          {!iframeFailed ? (
+            <div className="relative w-full max-w-[500px]">
+              {/* Loading skeleton while iframe loads */}
+              {!iframeLoaded && (
+                <div className="absolute inset-0 bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-center gap-4 z-10">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+                  <p className="text-gray-500 text-sm">Loading Facebook feed...</p>
+                </div>
+              )}
+              <iframe
+                src={EMBED_URL}
+                width="500"
+                height="700"
+                style={{
+                  border: 'none',
+                  overflow: 'hidden',
+                  maxWidth: '100%',
+                  borderRadius: '12px',
+                  background: '#fff',
+                }}
+                scrolling="no"
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                allowFullScreen
+                title="A Vision For You Recovery Facebook Page"
+                onLoad={() => setIframeLoaded(true)}
+                onError={() => setIframeFailed(true)}
+              />
+            </div>
+          ) : (
+            /* Fallback if iframe fails */
+            <div className="w-full max-w-[500px] bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+              <div className="bg-[#1877F2] px-5 py-4 flex items-center gap-3">
+                <Facebook className="w-6 h-6 text-white" aria-hidden="true" />
+                <span className="text-white font-semibold text-lg">{FACEBOOK_HANDLE}</span>
+              </div>
+              <div className="p-8 text-center">
+                <p className="text-gray-600 mb-4">
+                  Visit our Facebook page to see our latest posts, events, and community updates.
+                </p>
+                <a
+                  href={FACEBOOK_PAGE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#1877F2] text-white rounded-lg font-semibold hover:bg-[#166FE5] transition-colors"
+                >
+                  <Facebook className="w-5 h-5" aria-hidden="true" />
+                  View on Facebook
+                </a>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* CTA button */}
