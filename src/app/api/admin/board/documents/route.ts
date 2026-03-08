@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { logger } from '@/lib/logger'
+import { put } from '@vercel/blob'
 
 // GET all documents
 export async function GET() {
@@ -64,18 +65,20 @@ export async function POST(request: Request) {
       )
     }
 
-    // Convert file to base64 (matching existing media upload pattern)
+    // Upload to Vercel Blob storage
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const base64Data = buffer.toString('base64')
-    const dataUrl = `data:${file.type};base64,${base64Data}`
+    const blob = await put(`documents/${Date.now()}-${file.name}`, buffer, {
+      access: 'public',
+      contentType: file.type,
+    })
 
     const document = await db.boardDocument.create({
       data: {
         title,
         description,
         fileName: file.name,
-        fileUrl: dataUrl,
+        fileUrl: blob.url,
         fileSize: file.size,
         category: category as import('@prisma/client').BoardDocumentCategory,
         uploadedById: session.user.id,

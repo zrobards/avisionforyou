@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
 import { rateLimit, mediaUploadLimiter } from '@/lib/rateLimit'
 import { rateLimitResponse, validationErrorResponse } from '@/lib/apiAuth'
+import { put } from '@vercel/blob'
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024 // 10MB
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -108,16 +109,17 @@ export async function POST(req: NextRequest) {
     // Determine file type
     const fileType = isImage ? 'image' : isVideo ? 'video' : 'other'
 
-    // For now, we'll store the file info in the database
-    // In production, you'd upload to cloud storage (AWS S3, Cloudinary, etc.)
-    const base64Data = buffer.toString('base64')
-    const dataUrl = `data:${file.type};base64,${base64Data}`
+    // Upload to Vercel Blob storage
+    const blob = await put(`media/${Date.now()}-${file.name}`, buffer, {
+      access: 'public',
+      contentType: file.type,
+    })
 
     const mediaItem = await prisma.mediaItem.create({
       data: {
         filename: file.name,
         type: fileType,
-        url: dataUrl, // In production, this would be a cloud storage URL
+        url: blob.url,
         size: file.size,
         mimeType: file.type,
         tags: tags,

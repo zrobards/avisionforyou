@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Facebook, ExternalLink } from 'lucide-react'
+import { Facebook } from 'lucide-react'
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -15,8 +15,10 @@ function useFacebookSDK() {
   const [sdkError, setSdkError] = useState(false)
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     // If already loaded
-    if (typeof window !== 'undefined' && window.FB) {
+    if (window.FB) {
       setSdkLoaded(true)
       return
     }
@@ -25,7 +27,7 @@ function useFacebookSDK() {
     window.fbAsyncInit = function () {
       window.FB.init({
         xfbml: true,
-        version: 'v19.0',
+        version: 'v21.0',
       })
       setSdkLoaded(true)
     }
@@ -43,61 +45,13 @@ function useFacebookSDK() {
     script.defer = true
     script.crossOrigin = 'anonymous'
     script.onerror = () => {
-      console.error('Failed to load Facebook SDK')
       setSdkError(true)
     }
 
     document.body.appendChild(script)
-
-    return () => {
-      // Cleanup not needed — SDK persists across navigations
-    }
   }, [])
 
   return { sdkLoaded, sdkError }
-}
-
-// ── Fallback Component ─────────────────────────────────────────────────────────
-
-function FacebookFallback() {
-  return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-center">
-        <Facebook className="w-12 h-12 text-white mx-auto mb-3" aria-hidden="true" />
-        <h3 className="text-xl font-bold text-white mb-2">Follow Us on Facebook</h3>
-        <p className="text-white/80 text-sm max-w-md mx-auto">
-          Stay connected with our community — see events, recovery stories, program
-          updates, and daily inspiration on our Facebook page.
-        </p>
-      </div>
-      <div className="p-6 space-y-4">
-        {[
-          { title: 'Community Events', desc: 'Workshops, gatherings, and celebrations.' },
-          { title: 'Recovery Stories', desc: 'Real journeys of hope and transformation.' },
-          { title: 'Program Updates', desc: 'Latest news from our IOP, Surrender Program, and more.' },
-        ].map((item) => (
-          <a
-            key={item.title}
-            href={FACEBOOK_PAGE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors"
-          >
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-              <Facebook className="w-4 h-4 text-blue-600" aria-hidden="true" />
-            </div>
-            <div>
-              <p className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
-                {item.title}
-              </p>
-              <p className="text-sm text-gray-500">{item.desc}</p>
-            </div>
-            <ExternalLink className="w-4 h-4 text-gray-300 group-hover:text-blue-500 mt-1 ml-auto flex-shrink-0 transition-colors" aria-hidden="true" />
-          </a>
-        ))}
-      </div>
-    </div>
-  )
 }
 
 // ── Main Component ─────────────────────────────────────────────────────────────
@@ -153,16 +107,39 @@ export default function FacebookFeed() {
         </div>
 
         {/* Facebook Page Plugin embed */}
-        <div ref={containerRef} className="flex justify-center">
+        <div
+          ref={containerRef}
+          className="flex justify-center"
+        >
           {sdkError ? (
-            <FacebookFallback />
+            /* Fallback: direct iframe to Facebook page if SDK is blocked */
+            <div className="w-full max-w-[500px] bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+              <div className="bg-[#1877F2] px-5 py-3 flex items-center gap-3">
+                <Facebook className="w-6 h-6 text-white" aria-hidden="true" />
+                <span className="text-white font-semibold text-lg">{FACEBOOK_HANDLE}</span>
+              </div>
+              <div className="p-8 text-center">
+                <p className="text-gray-600 mb-4">
+                  Visit our Facebook page to see our latest posts, events, and community updates.
+                </p>
+                <a
+                  href={FACEBOOK_PAGE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#1877F2] text-white rounded-lg font-semibold hover:bg-[#166FE5] transition-colors"
+                >
+                  <Facebook className="w-5 h-5" aria-hidden="true" />
+                  View on Facebook
+                </a>
+              </div>
+            </div>
           ) : (
             <div
               className="fb-page"
               data-href={FACEBOOK_PAGE_URL}
-              data-tabs="timeline"
+              data-tabs="timeline,events"
               data-width={containerWidth}
-              data-height="600"
+              data-height="800"
               data-small-header="false"
               data-adapt-container-width="true"
               data-hide-cover="false"

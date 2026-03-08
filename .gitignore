@@ -40,3 +40,6 @@ next-env.d.ts
 
 # Blog migration data
 /data/wix-posts.json
+
+# Nested project copies (may contain secrets)
+Downloads/

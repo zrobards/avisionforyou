@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { put } from "@vercel/blob";
 
 export async function GET() {
   try {
@@ -67,17 +68,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // Convert file to base64
+    // Upload to Vercel Blob storage
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const base64Data = buffer.toString("base64");
-    const dataUrl = `data:${file.type};base64,${base64Data}`;
+    const blob = await put(`minutes/${Date.now()}-${file.name}`, buffer, {
+      access: "public",
+      contentType: file.type,
+    });
 
     const minutes = await db.meetingMinutes.create({
       data: {
         title,
         meetingDate: new Date(meetingDate),
-        fileUrl: dataUrl,
+        fileUrl: blob.url,
         fileName: file.name,
         attendees,
         uploadedById: user.id,

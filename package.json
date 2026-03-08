@@ -37,6 +37,7 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.2",
     "@vercel/analytics": "^1.6.1",
+    "@vercel/blob": "^2.3.1",
     "autoprefixer": "^10.4.22",
     "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.5",
@@ -54,6 +55,7 @@
     "square": "^43.2.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
+    "uuid": "^11.1.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
