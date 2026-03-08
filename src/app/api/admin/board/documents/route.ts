@@ -3,7 +3,18 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { logger } from '@/lib/logger'
-import { put } from '@vercel/blob'
+
+async function uploadFile(filename: string, buffer: Buffer, contentType: string): Promise<string> {
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const { put } = await import('@vercel/blob')
+    const blob = await put(`documents/${Date.now()}-${filename}`, buffer, {
+      access: 'public',
+      contentType,
+    })
+    return blob.url
+  }
+  return `data:${contentType};base64,${buffer.toString('base64')}`
+}
 
 // GET all documents
 export async function GET() {
@@ -65,20 +76,17 @@ export async function POST(request: Request) {
       )
     }
 
-    // Upload to Vercel Blob storage
+    // Upload to Vercel Blob (or fallback to base64)
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const blob = await put(`documents/${Date.now()}-${file.name}`, buffer, {
-      access: 'public',
-      contentType: file.type,
-    })
+    const fileUrl = await uploadFile(file.name, buffer, file.type)
 
     const document = await db.boardDocument.create({
       data: {
         title,
         description,
         fileName: file.name,
-        fileUrl: blob.url,
+        fileUrl,
         fileSize: file.size,
         category: category as import('@prisma/client').BoardDocumentCategory,
         uploadedById: session.user.id,

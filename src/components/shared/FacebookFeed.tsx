@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
 import { Facebook } from 'lucide-react'
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -8,81 +7,12 @@ import { Facebook } from 'lucide-react'
 const FACEBOOK_PAGE_URL = 'https://www.facebook.com/avisionforyourecovery'
 const FACEBOOK_HANDLE = 'A Vision For You Recovery'
 
-// ── Facebook SDK Loader ────────────────────────────────────────────────────────
-
-function useFacebookSDK() {
-  const [sdkLoaded, setSdkLoaded] = useState(false)
-  const [sdkError, setSdkError] = useState(false)
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    // If already loaded
-    if (window.FB) {
-      setSdkLoaded(true)
-      return
-    }
-
-    // Set up the async init callback
-    window.fbAsyncInit = function () {
-      window.FB.init({
-        xfbml: true,
-        version: 'v21.0',
-      })
-      setSdkLoaded(true)
-    }
-
-    // Check if the script is already being loaded
-    if (document.getElementById('facebook-jssdk')) {
-      return
-    }
-
-    // Load the SDK
-    const script = document.createElement('script')
-    script.id = 'facebook-jssdk'
-    script.src = 'https://connect.facebook.net/en_US/sdk.js'
-    script.async = true
-    script.defer = true
-    script.crossOrigin = 'anonymous'
-    script.onerror = () => {
-      setSdkError(true)
-    }
-
-    document.body.appendChild(script)
-  }, [])
-
-  return { sdkLoaded, sdkError }
-}
+// Build the iframe embed URL for the Facebook Page Plugin
+const EMBED_URL = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(FACEBOOK_PAGE_URL)}&tabs=timeline%2Cevents&width=500&height=800&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId`
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 export default function FacebookFeed() {
-  const { sdkLoaded, sdkError } = useFacebookSDK()
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [containerWidth, setContainerWidth] = useState(500)
-
-  // Measure container width for responsive embed
-  const updateWidth = useCallback(() => {
-    if (containerRef.current) {
-      const width = containerRef.current.offsetWidth
-      // Facebook Page Plugin max width is 500px
-      setContainerWidth(Math.min(width, 500))
-    }
-  }, [])
-
-  useEffect(() => {
-    updateWidth()
-    window.addEventListener('resize', updateWidth)
-    return () => window.removeEventListener('resize', updateWidth)
-  }, [updateWidth])
-
-  // Re-parse XFBML when SDK loads or container width changes
-  useEffect(() => {
-    if (sdkLoaded && window.FB) {
-      window.FB.XFBML.parse(containerRef.current ?? undefined)
-    }
-  }, [sdkLoaded, containerWidth])
-
   return (
     <section
       className="py-16 bg-gradient-to-b from-white to-blue-50/50"
@@ -106,55 +36,17 @@ export default function FacebookFeed() {
           </p>
         </div>
 
-        {/* Facebook Page Plugin embed */}
-        <div
-          ref={containerRef}
-          className="flex justify-center"
-        >
-          {sdkError ? (
-            /* Fallback: direct iframe to Facebook page if SDK is blocked */
-            <div className="w-full max-w-[500px] bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-              <div className="bg-[#1877F2] px-5 py-3 flex items-center gap-3">
-                <Facebook className="w-6 h-6 text-white" aria-hidden="true" />
-                <span className="text-white font-semibold text-lg">{FACEBOOK_HANDLE}</span>
-              </div>
-              <div className="p-8 text-center">
-                <p className="text-gray-600 mb-4">
-                  Visit our Facebook page to see our latest posts, events, and community updates.
-                </p>
-                <a
-                  href={FACEBOOK_PAGE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#1877F2] text-white rounded-lg font-semibold hover:bg-[#166FE5] transition-colors"
-                >
-                  <Facebook className="w-5 h-5" aria-hidden="true" />
-                  View on Facebook
-                </a>
-              </div>
-            </div>
-          ) : (
-            <div
-              className="fb-page"
-              data-href={FACEBOOK_PAGE_URL}
-              data-tabs="timeline,events"
-              data-width={containerWidth}
-              data-height="800"
-              data-small-header="false"
-              data-adapt-container-width="true"
-              data-hide-cover="false"
-              data-show-facepile="true"
-            >
-              <blockquote
-                cite={FACEBOOK_PAGE_URL}
-                className="fb-xfbml-parse-ignore"
-              >
-                <a href={FACEBOOK_PAGE_URL} target="_blank" rel="noopener noreferrer">
-                  {FACEBOOK_HANDLE}
-                </a>
-              </blockquote>
-            </div>
-          )}
+        {/* Facebook Page Plugin — direct iframe embed (no SDK/App ID needed) */}
+        <div className="flex justify-center">
+          <iframe
+            src={EMBED_URL}
+            width="500"
+            height="800"
+            style={{ border: 'none', overflow: 'hidden', maxWidth: '100%' }}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            title="A Vision For You Recovery Facebook Page"
+          />
         </div>
 
         {/* CTA button */}
@@ -173,18 +65,4 @@ export default function FacebookFeed() {
       </div>
     </section>
   )
-}
-
-// ── Type Augmentation ──────────────────────────────────────────────────────────
-
-declare global {
-  interface Window {
-    FB: {
-      init: (params: { xfbml: boolean; version: string }) => void
-      XFBML: {
-        parse: (element?: Element) => void
-      }
-    }
-    fbAsyncInit: () => void
-  }
 }

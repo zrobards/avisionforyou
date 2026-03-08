@@ -2,7 +2,18 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { put } from "@vercel/blob";
+
+async function uploadFile(filename: string, buffer: Buffer, contentType: string): Promise<string> {
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const { put } = await import("@vercel/blob");
+    const blob = await put(`minutes/${Date.now()}-${filename}`, buffer, {
+      access: "public",
+      contentType,
+    });
+    return blob.url;
+  }
+  return `data:${contentType};base64,${buffer.toString("base64")}`;
+}
 
 export async function GET() {
   try {
@@ -68,19 +79,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Upload to Vercel Blob storage
+    // Upload to Vercel Blob (or fallback to base64)
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const blob = await put(`minutes/${Date.now()}-${file.name}`, buffer, {
-      access: "public",
-      contentType: file.type,
-    });
+    const fileUrl = await uploadFile(file.name, buffer, file.type);
 
     const minutes = await db.meetingMinutes.create({
       data: {
         title,
         meetingDate: new Date(meetingDate),
-        fileUrl: blob.url,
+        fileUrl,
         fileName: file.name,
         attendees,
         uploadedById: user.id,

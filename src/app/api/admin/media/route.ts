@@ -4,11 +4,24 @@ import { authOptions } from '@/lib/auth'
 import { db as prisma } from '@/lib/db'
 import { rateLimit, mediaUploadLimiter } from '@/lib/rateLimit'
 import { rateLimitResponse, validationErrorResponse } from '@/lib/apiAuth'
-import { put } from '@vercel/blob'
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024 // 10MB
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
+
+async function uploadFile(filename: string, buffer: Buffer, contentType: string): Promise<string> {
+  // Use Vercel Blob if token is configured, otherwise fall back to base64
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const { put } = await import('@vercel/blob')
+    const blob = await put(`media/${Date.now()}-${filename}`, buffer, {
+      access: 'public',
+      contentType,
+    })
+    return blob.url
+  }
+  // Fallback: base64 data URL
+  return `data:${contentType};base64,${buffer.toString('base64')}`
+}
 
 // GET - Fetch all media
 export async function GET(_req: NextRequest) {
@@ -109,17 +122,14 @@ export async function POST(req: NextRequest) {
     // Determine file type
     const fileType = isImage ? 'image' : isVideo ? 'video' : 'other'
 
-    // Upload to Vercel Blob storage
-    const blob = await put(`media/${Date.now()}-${file.name}`, buffer, {
-      access: 'public',
-      contentType: file.type,
-    })
+    // Upload to Vercel Blob (or fallback to base64)
+    const fileUrl = await uploadFile(file.name, buffer, file.type)
 
     const mediaItem = await prisma.mediaItem.create({
       data: {
         filename: file.name,
         type: fileType,
-        url: blob.url,
+        url: fileUrl,
         size: file.size,
         mimeType: file.type,
         tags: tags,
