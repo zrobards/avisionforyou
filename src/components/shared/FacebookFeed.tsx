@@ -1,30 +1,84 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Facebook } from 'lucide-react'
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const FACEBOOK_PAGE_URL = 'https://www.facebook.com/avisionforyourecovery'
-const FACEBOOK_HANDLE = 'A Vision For You Recovery'
+const FACEBOOK_PAGE_URL = 'https://www.facebook.com/avisionforyou'
+const FACEBOOK_HANDLE = 'A Vision For You'
+const FACEBOOK_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || ''
 
-// Facebook Page Plugin iframe — no App ID or SDK required
-const EMBED_URL =
-  'https://www.facebook.com/plugins/page.php?' +
-  'href=https%3A%2F%2Fwww.facebook.com%2Favisionforyourecovery' +
-  '&tabs=timeline%2Cevents' +
-  '&width=500' +
-  '&height=700' +
-  '&small_header=false' +
-  '&adapt_container_width=true' +
-  '&hide_cover=false' +
-  '&show_facepile=true'
+// ── Facebook SDK Loader ────────────────────────────────────────────────────────
+
+function useFacebookSDK() {
+  const [sdkLoaded, setSdkLoaded] = useState(false)
+  const [sdkError, setSdkError] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    if (window.FB) {
+      setSdkLoaded(true)
+      return
+    }
+
+    window.fbAsyncInit = function () {
+      window.FB.init({
+        appId: FACEBOOK_APP_ID,
+        xfbml: true,
+        version: 'v25.0',
+      })
+      setSdkLoaded(true)
+    }
+
+    if (document.getElementById('facebook-jssdk')) return
+
+    const script = document.createElement('script')
+    script.id = 'facebook-jssdk'
+    script.src = `https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v25.0&appId=${FACEBOOK_APP_ID}`
+    script.async = true
+    script.defer = true
+    script.crossOrigin = 'anonymous'
+    script.onerror = () => setSdkError(true)
+
+    // Insert right after fb-root if it exists, otherwise append to body
+    const fbRoot = document.getElementById('fb-root')
+    if (fbRoot?.parentNode) {
+      fbRoot.parentNode.insertBefore(script, fbRoot.nextSibling)
+    } else {
+      document.body.appendChild(script)
+    }
+  }, [])
+
+  return { sdkLoaded, sdkError }
+}
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 export default function FacebookFeed() {
-  const [iframeLoaded, setIframeLoaded] = useState(false)
-  const [iframeFailed, setIframeFailed] = useState(false)
+  const { sdkLoaded, sdkError } = useFacebookSDK()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerWidth, setContainerWidth] = useState(800)
+
+  const updateWidth = useCallback(() => {
+    if (containerRef.current) {
+      setContainerWidth(Math.min(containerRef.current.offsetWidth, 800))
+    }
+  }, [])
+
+  useEffect(() => {
+    updateWidth()
+    window.addEventListener('resize', updateWidth)
+    return () => window.removeEventListener('resize', updateWidth)
+  }, [updateWidth])
+
+  // Re-parse when SDK loads or width changes
+  useEffect(() => {
+    if (sdkLoaded && window.FB) {
+      window.FB.XFBML.parse(containerRef.current ?? undefined)
+    }
+  }, [sdkLoaded, containerWidth])
 
   return (
     <section
@@ -49,39 +103,13 @@ export default function FacebookFeed() {
           </p>
         </div>
 
-        {/* Facebook Page Plugin iframe embed */}
-        <div className="flex justify-center">
-          {!iframeFailed ? (
-            <div className="relative w-full max-w-[500px]">
-              {/* Loading skeleton while iframe loads */}
-              {!iframeLoaded && (
-                <div className="absolute inset-0 bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-center gap-4 z-10">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
-                  <p className="text-gray-500 text-sm">Loading Facebook feed...</p>
-                </div>
-              )}
-              <iframe
-                src={EMBED_URL}
-                width="500"
-                height="700"
-                style={{
-                  border: 'none',
-                  overflow: 'hidden',
-                  maxWidth: '100%',
-                  borderRadius: '12px',
-                  background: '#fff',
-                }}
-                scrolling="no"
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                allowFullScreen
-                title="A Vision For You Recovery Facebook Page"
-                onLoad={() => setIframeLoaded(true)}
-                onError={() => setIframeFailed(true)}
-              />
-            </div>
-          ) : (
-            /* Fallback if iframe fails */
-            <div className="w-full max-w-[500px] bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        {/* fb-root required by Facebook SDK */}
+        <div id="fb-root" />
+
+        {/* Facebook Page Plugin */}
+        <div ref={containerRef} className="flex justify-center">
+          {sdkError ? (
+            <div className="w-full max-w-[800px] bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
               <div className="bg-[#1877F2] px-5 py-4 flex items-center gap-3">
                 <Facebook className="w-6 h-6 text-white" aria-hidden="true" />
                 <span className="text-white font-semibold text-lg">{FACEBOOK_HANDLE}</span>
@@ -100,6 +128,27 @@ export default function FacebookFeed() {
                   View on Facebook
                 </a>
               </div>
+            </div>
+          ) : (
+            <div
+              className="fb-page"
+              data-href={FACEBOOK_PAGE_URL}
+              data-tabs="timeline"
+              data-width={containerWidth}
+              data-height="1100"
+              data-small-header="false"
+              data-adapt-container-width="true"
+              data-hide-cover="false"
+              data-show-facepile="true"
+            >
+              <blockquote
+                cite={FACEBOOK_PAGE_URL}
+                className="fb-xfbml-parse-ignore"
+              >
+                <a href={FACEBOOK_PAGE_URL} target="_blank" rel="noopener noreferrer">
+                  {FACEBOOK_HANDLE}
+                </a>
+              </blockquote>
             </div>
           )}
         </div>
@@ -120,4 +169,18 @@ export default function FacebookFeed() {
       </div>
     </section>
   )
+}
+
+// ── Type Augmentation ──────────────────────────────────────────────────────────
+
+declare global {
+  interface Window {
+    FB: {
+      init: (params: { appId: string; xfbml: boolean; version: string }) => void
+      XFBML: {
+        parse: (element?: Element) => void
+      }
+    }
+    fbAsyncInit: () => void
+  }
 }

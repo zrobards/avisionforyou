@@ -25,7 +25,7 @@ export default function AdminSocialSettingsPage() {
   
   const [settings, setSettings] = useState<SocialSettings>({
     instagramUrl: 'https://www.instagram.com/avision_foryourecovery/',
-    facebookPageUrl: 'https://www.facebook.com/avisionforyourecovery',
+    facebookPageUrl: 'https://www.facebook.com/avisionforyou',
     tiktokUsername: 'avisionforyourecovery',
     snapWidgetId: ''
   })
@@ -147,7 +147,7 @@ export default function AdminSocialSettingsPage() {
               type="url"
               value={settings.facebookPageUrl || ''}
               onChange={(e) => setSettings({ ...settings, facebookPageUrl: e.target.value })}
-                placeholder="https://www.facebook.com/avisionforyourecovery"
+                placeholder="https://www.facebook.com/avisionforyou"
             />
             <p className="text-sm text-gray-500 mt-2">
               Make sure your Facebook page is public for the embed to work.

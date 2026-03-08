@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Store each platform's stats in the database (as integers)
     const platforms = [
-      { platform: 'facebook', followers: validatedData.facebook, url: 'https://www.facebook.com/avisionforyourecovery', handle: '@AVisionForYouRecovery' },
+      { platform: 'facebook', followers: validatedData.facebook, url: 'https://www.facebook.com/avisionforyou', handle: '@AVisionForYouRecovery' },
       { platform: 'instagram', followers: validatedData.instagram, url: 'https://www.instagram.com/avision_foryourecovery/', handle: '@avisionforyourecovery' },
       { platform: 'linkedin', followers: validatedData.linkedin, url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/', handle: 'A Vision For You' },
       { platform: 'tiktok', followers: validatedData.tiktok, url: 'https://www.tiktok.com/@avisionforyourecovery', handle: '@avisionforyourecovery' }

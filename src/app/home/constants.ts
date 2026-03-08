@@ -54,7 +54,7 @@ export const SOCIAL_IMAGES = [
 ]
 
 export const SOCIAL_CHANNELS = [
-  { name: "Facebook", followers: "869", url: "https://www.facebook.com/avisionforyourecovery", color: "from-blue-600 to-blue-700", hoverColor: "hover:from-blue-700 hover:to-blue-800" },
+  { name: "Facebook", followers: "869", url: "https://www.facebook.com/avisionforyou", color: "from-blue-600 to-blue-700", hoverColor: "hover:from-blue-700 hover:to-blue-800" },
   { name: "Instagram", followers: "112", url: "https://www.instagram.com/avision_foryourecovery/", color: "from-pink-500 to-purple-600", hoverColor: "hover:from-pink-600 hover:to-purple-700" },
   { name: "TikTok", followers: "41", url: "https://www.tiktok.com/@avisionforyourecovery", color: "from-gray-900 to-gray-800", hoverColor: "hover:from-gray-800 hover:to-gray-700" },
   { name: "LinkedIn", followers: "23", url: "https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/", color: "from-blue-700 to-blue-800", hoverColor: "hover:from-blue-800 hover:to-blue-900" },

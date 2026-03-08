@@ -1265,7 +1265,7 @@ export const openApiSpec: OpenAPISpec = {
           url: {
             type: "string",
             nullable: true,
-            example: "https://www.facebook.com/avisionforyourecovery",
+            example: "https://www.facebook.com/avisionforyou",
           },
         },
       },
