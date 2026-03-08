@@ -95,10 +95,16 @@ export async function PATCH(
     if (name !== undefined) {
       updateData.name = name;
       // Regenerate slug if name changes
-      updateData.slug = name
+      let newSlug = name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
+      // Check for slug collision with a different campaign
+      const existingWithSlug = await db.campaign.findUnique({ where: { slug: newSlug } });
+      if (existingWithSlug && existingWithSlug.id !== id) {
+        newSlug = `${newSlug}-${Date.now()}`;
+      }
+      updateData.slug = newSlug;
     }
     if (description !== undefined) updateData.description = description;
     if (goalAmount !== undefined) updateData.goalAmount = parseFloat(goalAmount);

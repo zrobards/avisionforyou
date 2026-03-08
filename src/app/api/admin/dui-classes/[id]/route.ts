@@ -72,8 +72,16 @@ export async function PATCH(
     if (body.startTime !== undefined) updateData.startTime = body.startTime;
     if (body.endTime !== undefined) updateData.endTime = body.endTime;
     if (body.location !== undefined) updateData.location = body.location;
-    if (body.price !== undefined) updateData.price = Math.round(parseFloat(body.price) * 100);
-    if (body.capacity !== undefined) updateData.capacity = parseInt(body.capacity);
+    if (body.price !== undefined) {
+      const price = parseFloat(body.price)
+      if (isNaN(price)) return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
+      updateData.price = Math.round(price * 100)
+    }
+    if (body.capacity !== undefined) {
+      const capacity = parseInt(body.capacity)
+      if (isNaN(capacity)) return NextResponse.json({ error: 'Invalid capacity' }, { status: 400 })
+      updateData.capacity = capacity
+    }
     if (body.instructor !== undefined) updateData.instructor = body.instructor;
     if (body.active !== undefined) updateData.active = body.active;
 

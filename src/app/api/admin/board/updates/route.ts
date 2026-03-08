@@ -31,6 +31,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
   }
 
+  const validCategories = ["EXECUTIVE_DIRECTIVE", "BOARD_UPDATE", "FINANCIAL_SUMMARY", "GOVERNANCE"]
+  if (!validCategories.includes(category)) {
+    return NextResponse.json({ error: "Invalid category. Must be one of: EXECUTIVE_DIRECTIVE, BOARD_UPDATE, FINANCIAL_SUMMARY, GOVERNANCE" }, { status: 400 })
+  }
+
   const update = await db.boardUpdate.create({
     data: {
       title,

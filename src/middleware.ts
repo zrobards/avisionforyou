@@ -90,12 +90,12 @@ export async function middleware(request: NextRequest) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://js.squareup.com https://sandbox.web.squarecdn.com https://www.googletagmanager.com https://va.vercel-scripts.com",
+      "script-src 'self' 'unsafe-inline' https://js.squareup.com https://sandbox.web.squarecdn.com https://www.googletagmanager.com https://va.vercel-scripts.com https://connect.facebook.net",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https: blob:",
-      "connect-src 'self' https://*.squareup.com https://*.squarecdn.com https://*.google-analytics.com https://*.vercel-insights.com https://*.sentry.io",
-      "frame-src https://*.squareup.com",
+      "connect-src 'self' https://*.squareup.com https://*.squarecdn.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://*.googletagmanager.com https://*.vercel-insights.com https://*.sentry.io https://www.facebook.com",
+      "frame-src https://*.squareup.com https://www.facebook.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -107,11 +107,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/admin/:path*',
-    '/board/:path*',
-    '/community/:path*',
-    '/dashboard/:path*',
-    '/api/:path*',
-    '/:path*.(jpg|jpeg|png|gif|svg|webp|ico|woff|woff2|ttf|eot)'
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ]
 }

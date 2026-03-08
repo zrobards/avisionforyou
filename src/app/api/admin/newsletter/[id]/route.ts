@@ -73,10 +73,16 @@ export async function PATCH(
 
     // Update slug if title changed
     if (title) {
-      updateData.slug = title
+      let newSlug = title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
+      // Check for slug collision with a different newsletter
+      const existingWithSlug = await prisma.newsletter.findUnique({ where: { slug: newSlug } })
+      if (existingWithSlug && existingWithSlug.id !== id) {
+        newSlug = `${newSlug}-${Date.now()}`
+      }
+      updateData.slug = newSlug
     }
 
     // Set publishedAt if publishing

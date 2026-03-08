@@ -15,7 +15,8 @@ function LoginContent() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
+  const rawCallbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
+  const callbackUrl = rawCallbackUrl.startsWith('/') && !rawCallbackUrl.startsWith('//') ? rawCallbackUrl : '/dashboard'
   const errorParam = searchParams?.get('error')
 
   // Show error from URL if present

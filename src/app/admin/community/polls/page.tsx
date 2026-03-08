@@ -51,10 +51,16 @@ export default function AdminPollsPage() {
     setSubmitting(true);
 
     try {
+      const payload = {
+        title: form.title,
+        description: form.description || undefined,
+        closesAt: form.closesAt ? new Date(form.closesAt).toISOString() : undefined,
+      };
+
       const res = await fetch("/api/admin/community/polls", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("Failed to create poll");

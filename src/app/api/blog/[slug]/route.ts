@@ -110,10 +110,17 @@ export async function PATCH(
 
     if (title) {
       updateData.title = title
-      updateData.slug = title
+      let newSlug = title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
+      // Check for slug collision with a different post
+      const post = await db.blogPost.findUnique({ where: { slug } })
+      const existingWithSlug = await db.blogPost.findUnique({ where: { slug: newSlug } })
+      if (existingWithSlug && post && existingWithSlug.id !== post.id) {
+        newSlug = `${newSlug}-${Date.now()}`
+      }
+      updateData.slug = newSlug
     }
 
     if (content) {

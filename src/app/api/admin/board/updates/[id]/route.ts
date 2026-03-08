@@ -32,6 +32,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   const { title, content, category, priority } = await request.json()
 
+  if (category !== undefined) {
+    const validCategories = ["EXECUTIVE_DIRECTIVE", "BOARD_UPDATE", "FINANCIAL_SUMMARY", "GOVERNANCE"]
+    if (!validCategories.includes(category)) {
+      return NextResponse.json({ error: "Invalid category. Must be one of: EXECUTIVE_DIRECTIVE, BOARD_UPDATE, FINANCIAL_SUMMARY, GOVERNANCE" }, { status: 400 })
+    }
+  }
+
   const update = await db.boardUpdate.update({
     where: { id },
     data: { title, content, category, priority },

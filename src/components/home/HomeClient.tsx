@@ -38,7 +38,7 @@ const DonationCTA = dynamic(() => import('@/components/home/DonationCTA'), {
   loading: () => <SectionSkeleton minHeight={250} bg="bg-green-50" />,
 })
 
-const InstagramFeed = dynamic(() => import('@/components/shared/InstagramFeed'), {
+const FacebookFeed = dynamic(() => import('@/components/shared/FacebookFeed'), {
   loading: () => <SectionSkeleton minHeight={400} bg="bg-gray-50" />,
 })
 
@@ -66,8 +66,8 @@ export default function HomeClient() {
       {/* Donation CTA */}
       <DonationCTA />
 
-      {/* Instagram Feed */}
-      <InstagramFeed />
+      {/* Facebook Feed */}
+      <FacebookFeed />
     </>
   )
 }

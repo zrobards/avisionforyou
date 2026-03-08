@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import BoardShell from "@/components/board/BoardShell"
 
 export default async function BoardLayout({ children }: { children: React.ReactNode }) {
-  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true'
+  const bypassAuth = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true'
   const session = await getServerSession(authOptions)
 
   if (!bypassAuth) {

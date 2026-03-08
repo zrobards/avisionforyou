@@ -7,7 +7,7 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function CommunityDashboardPage() {
-  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true'
+  const bypassAuth = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true'
   const session = bypassAuth
     ? {
         user: {

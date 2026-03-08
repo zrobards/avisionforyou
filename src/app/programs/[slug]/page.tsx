@@ -128,6 +128,51 @@ const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       'Receive daily nutrition support as part of your recovery plan.'
     ]
   },
+  'surrender-program': {
+    title: 'Surrender Program',
+    subtitle: 'Long-Term Residential Recovery',
+    description:
+      'Based on our original flagship model, the Surrender Program is a 6–9 month voluntary self-help social model recovery program. Participants are immersed in a peer-led community that builds life skills and guides one another through the twelve steps. This program is 100% free and does not accept insurance of any kind.',
+    howItWorks: [
+      'Residential living at no cost to the client with food, shelter, and literature provided through donations.',
+      'Daily recovery-oriented classes, weekly behavioral modification programming, and weekly career education.',
+      'Onsite IOP services, peer and staff accountability, and daily 12-step meeting attendance.',
+      'Weekly random substance screening and onsite primary care through partner physicians.',
+      'Cell phones, vehicles, and employment are prohibited in this phase so clients can focus fully on recovery.'
+    ],
+    whoItsFor: [
+      'Individuals needing a structured, immersive recovery environment.',
+      'People experiencing homelessness or housing instability who need safe shelter.',
+      'Those ready to engage in a peer-driven, twelve-step recovery community.'
+    ],
+    getStarted: [
+      'Complete the confidential assessment so we can understand your needs.',
+      'Speak with admissions to review eligibility and availability.',
+      'Begin your recovery in a supportive, residential community.'
+    ]
+  },
+  'mindbodysoul-iop': {
+    title: 'MindBodySoul IOP',
+    subtitle: 'Intensive Outpatient Treatment',
+    description:
+      'In our outpatient treatment program, clients receive services through the MindBodySoul Intensive Outpatient Program (IOP). This 90-day program combines evidence-based therapy, psychiatric support, and peer-driven recovery while allowing you to maintain work, school, and family responsibilities.',
+    howItWorks: [
+      'Comprehensive 90-day treatment plan with daily group counseling and educational workshops.',
+      'Weekly one-on-one sessions with licensed counselors and access to psychiatric care as needed.',
+      'Peer support groups and community-based recovery activities to strengthen accountability.',
+      'Insurance-accepting program (including KY Medicaid and select private insurers).'
+    ],
+    whoItsFor: [
+      'Individuals seeking structured clinical support without full-time residential care.',
+      'People balancing recovery with work, school, or family commitments.',
+      'Those needing therapy, psychiatric support, and relapse-prevention tools.'
+    ],
+    getStarted: [
+      'Complete the confidential assessment to determine if MindBodySoul IOP is the right fit.',
+      'Connect with our admissions team to verify coverage and schedule intake.',
+      'Begin your personalized recovery plan with our clinical and peer-support teams.'
+    ]
+  },
   career: {
     title: 'Career Reentry',
     subtitle: 'Employment Support & Aftercare',
