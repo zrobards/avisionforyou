@@ -119,8 +119,7 @@ export default function Donate() {
     setLoading(true)
 
     try {
-      const endpoint =
-        paymentMethod === 'square' ? '/api/donate/square' : '/api/donate/checkout'
+      const endpoint = '/api/donate/square'
 
       const response = await fetch(endpoint, {
         method: 'POST',
