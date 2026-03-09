@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { Mail, Heart, Award, Users, Shield } from 'lucide-react'
 import { db } from '@/lib/db'
+import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 
 export const revalidate = 60
 
@@ -147,7 +148,7 @@ export default async function Team() {
       {/* Hero Section */}
       <header className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center">
+          <AnimateOnScroll variant="fadeUp" className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-green rounded-full mb-6">
               <Users className="w-8 h-8 text-white" />
             </div>
@@ -155,14 +156,14 @@ export default async function Team() {
             <p className="text-xl text-purple-100 max-w-3xl mx-auto">
               Experienced professionals dedicated to transparency, accountability, and measurable outcomes in recovery services
             </p>
-          </div>
+          </AnimateOnScroll>
         </div>
       </header>
 
       {/* Executive Leadership */}
       <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
+          <AnimateOnScroll variant="fadeUp" className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-purple rounded-full mb-4">
               <Shield className="w-6 h-6 text-white" />
             </div>
@@ -170,10 +171,12 @@ export default async function Team() {
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Our leadership team provides strategic direction, governance oversight, and ensures we fulfill our mission to serve those in recovery
             </p>
-          </div>
+          </AnimateOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {leadership.map((member, idx) => (
-              <MemberCard key={idx} member={member} variant="leadership" />
+              <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.15}>
+                <MemberCard member={member} variant="leadership" />
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -182,7 +185,7 @@ export default async function Team() {
       {/* Staff Team */}
       <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
+          <AnimateOnScroll variant="fadeUp" className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-green rounded-full mb-4">
               <Award className="w-6 h-6 text-white" />
             </div>
@@ -190,10 +193,12 @@ export default async function Team() {
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Dedicated professionals committed to providing exceptional care and support for individuals in recovery
             </p>
-          </div>
+          </AnimateOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             {staff.map((member, idx) => (
-              <MemberCard key={idx} member={member} variant="staff" />
+              <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.15}>
+                <MemberCard member={member} variant="staff" />
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -202,52 +207,56 @@ export default async function Team() {
       {/* Governance Statement */}
       <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="bg-gradient-to-r from-brand-purple to-purple-900 text-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-12">
-            <div className="flex items-start gap-4 mb-6">
-              <Heart className="w-8 h-8 text-brand-green flex-shrink-0" />
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold mb-4">Our Commitment to Governance</h2>
-                <div className="space-y-4 text-purple-100 leading-relaxed">
-                  <p>
-                    A Vision For You operates with full transparency and accountability as a 501(c)(3) nonprofit organization. Our Board of Directors meets quarterly to review program outcomes, financial performance, and strategic direction.
-                  </p>
-                  <p>
-                    <strong className="text-white">Financial Oversight:</strong> Our Finance Committee reviews all financial statements monthly. We maintain independent audits and make our Form 990 publicly available.
-                  </p>
-                  <p>
-                    <strong className="text-white">Ethical Standards:</strong> All board members and staff adhere to our code of ethics and conflict of interest policy. We maintain strict confidentiality protocols and trauma-informed practices.
-                  </p>
-                  <p>
-                    <strong className="text-white">Community Accountability:</strong> We welcome feedback from clients, donors, and community partners. Our annual reports detail both successes and areas for improvement.
-                  </p>
+          <AnimateOnScroll variant="fadeUp">
+            <div className="bg-gradient-to-r from-brand-purple to-purple-900 text-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-12">
+              <div className="flex items-start gap-4 mb-6">
+                <Heart className="w-8 h-8 text-brand-green flex-shrink-0" />
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4">Our Commitment to Governance</h2>
+                  <div className="space-y-4 text-purple-100 leading-relaxed">
+                    <p>
+                      A Vision For You operates with full transparency and accountability as a 501(c)(3) nonprofit organization. Our Board of Directors meets quarterly to review program outcomes, financial performance, and strategic direction.
+                    </p>
+                    <p>
+                      <strong className="text-white">Financial Oversight:</strong> Our Finance Committee reviews all financial statements monthly. We maintain independent audits and make our Form 990 publicly available.
+                    </p>
+                    <p>
+                      <strong className="text-white">Ethical Standards:</strong> All board members and staff adhere to our code of ethics and conflict of interest policy. We maintain strict confidentiality protocols and trauma-informed practices.
+                    </p>
+                    <p>
+                      <strong className="text-white">Community Accountability:</strong> We welcome feedback from clients, donors, and community partners. Our annual reports detail both successes and areas for improvement.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </AnimateOnScroll>
         </div>
       </section>
 
       {/* Join Our Team CTA */}
       <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Join Our Mission</h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            We&apos;re always looking for passionate professionals to join our team. Whether you&apos;re a clinician, administrator, or support staff, your skills can make a difference.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-purple to-purple-700 text-white font-bold rounded-lg hover:shadow-xl transition"
-            >
-              Career Opportunities
-            </a>
-            <a
-              href="/donate"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-green to-green-600 text-white font-bold rounded-lg hover:shadow-xl transition"
-            >
-              Support Our Work
-            </a>
-          </div>
+          <AnimateOnScroll variant="fadeUp">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Join Our Mission</h2>
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              We&apos;re always looking for passionate professionals to join our team. Whether you&apos;re a clinician, administrator, or support staff, your skills can make a difference.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-purple to-purple-700 text-white font-bold rounded-lg hover:shadow-xl transition"
+              >
+                Career Opportunities
+              </a>
+              <a
+                href="/donate"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-green to-green-600 text-white font-bold rounded-lg hover:shadow-xl transition"
+              >
+                Support Our Work
+              </a>
+            </div>
+          </AnimateOnScroll>
         </div>
       </section>
     </div>

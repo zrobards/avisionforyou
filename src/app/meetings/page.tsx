@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import UnifiedScheduler from "@/components/meetings/UnifiedScheduler";
+import AnimateOnScroll from "@/components/shared/AnimateOnScroll";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 60
@@ -66,48 +67,54 @@ export default async function MeetingsPage() {
     <div className="min-h-screen bg-white">
       <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Meetings & Groups</h1>
-          <p className="text-xl text-purple-100">
-            Browse upcoming meetings, support groups, and DUI education classes. 
-            RSVP to free groups or register and pay for classes.
-          </p>
+          <AnimateOnScroll variant="fadeUp">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Meetings & Groups</h1>
+            <p className="text-xl text-purple-100">
+              Browse upcoming meetings, support groups, and DUI education classes.
+              RSVP to free groups or register and pay for classes.
+            </p>
+          </AnimateOnScroll>
         </div>
       </section>
 
       <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <UnifiedScheduler
-            sessions={sessions}
-            duiClasses={duiClasses}
-            userRsvps={userRsvps}
-            userDuiRegistrations={userDuiRegistrations}
-            isLoggedIn={!!session}
-            userId={session?.user?.email || undefined}
-          />
+          <AnimateOnScroll variant="fadeUp" delay={0.1}>
+            <UnifiedScheduler
+              sessions={sessions}
+              duiClasses={duiClasses}
+              userRsvps={userRsvps}
+              userDuiRegistrations={userDuiRegistrations}
+              isLoggedIn={!!session}
+              userId={session?.user?.email || undefined}
+            />
+          </AnimateOnScroll>
         </div>
       </section>
 
       <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Join?</h2>
-          <p className="text-lg text-gray-700 mb-8">
-            Create an account to track your RSVPs and stay connected with our community.
-          </p>
-          {!session ? (
-            <a
-              href="/signup"
-              className="inline-block px-8 py-4 bg-brand-purple text-white rounded-lg font-bold hover:bg-purple-800 transition"
-            >
-              Create Account
-            </a>
-          ) : (
-            <a
-              href="/dashboard"
-              className="inline-block px-8 py-4 bg-brand-purple text-white rounded-lg font-bold hover:bg-purple-800 transition"
-            >
-              View My Dashboard
-            </a>
-          )}
+          <AnimateOnScroll variant="fadeUp">
+            <h2 className="text-3xl font-bold mb-6">Ready to Join?</h2>
+            <p className="text-lg text-gray-700 mb-8">
+              Create an account to track your RSVPs and stay connected with our community.
+            </p>
+            {!session ? (
+              <a
+                href="/signup"
+                className="inline-block px-8 py-4 bg-brand-purple text-white rounded-lg font-bold hover:bg-purple-800 transition"
+              >
+                Create Account
+              </a>
+            ) : (
+              <a
+                href="/dashboard"
+                className="inline-block px-8 py-4 bg-brand-purple text-white rounded-lg font-bold hover:bg-purple-800 transition"
+              >
+                View My Dashboard
+              </a>
+            )}
+          </AnimateOnScroll>
         </div>
       </section>
     </div>

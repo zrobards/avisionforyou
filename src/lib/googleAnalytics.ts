@@ -1,4 +1,5 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data'
+import { logger } from '@/lib/logger'
 
 let analyticsClient: BetaAnalyticsDataClient | null = null
 
@@ -159,7 +160,7 @@ export async function getGA4Metrics(days: number = 30): Promise<GA4Metrics | nul
 
     return { visitors, trafficSources, topPages, devices, demographics }
   } catch (err) {
-    console.error('GA4 Data API error:', err)
+    logger.error({ err }, "GA4 Data API error")
     return null
   }
 }

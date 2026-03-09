@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Send welcome email
     try {
       await resend?.emails.send({
-        from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
+        from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyourecovery.org>',
         to: cleanEmail,
         subject: 'Welcome to A Vision For You Newsletter',
         html: `

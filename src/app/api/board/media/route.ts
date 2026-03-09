@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import type { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(mediaItems);
   } catch (error) {
-    console.error("Error fetching media items:", error);
+    logger.error({ err: error }, "Error fetching media items");
     return NextResponse.json(
       { error: "Failed to fetch media items" },
       { status: 500 }
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(mediaItem);
   } catch (error) {
-    console.error("Error uploading media:", error);
+    logger.error({ err: error }, "Error uploading media");
     return NextResponse.json(
       { error: "Failed to upload media" },
       { status: 500 }

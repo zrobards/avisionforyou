@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { rateLimitResponse } from "@/lib/apiAuth";
 
@@ -56,7 +57,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Error exporting donations:", error);
+    logger.error({ err: error }, "Error exporting donations");
     return NextResponse.json(
       { error: "Failed to export donations" },
       { status: 500 }

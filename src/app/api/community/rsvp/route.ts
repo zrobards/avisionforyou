@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { logger } from "@/lib/logger"
 
 // POST - Create RSVP
 export async function POST(request: Request) {
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(rsvp)
   } catch (error) {
-    console.error('Error:', error)
+    logger.error({ err: error }, "RSVP error")
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -77,7 +78,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error:', error)
+    logger.error({ err: error }, "RSVP error")
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

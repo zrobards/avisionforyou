@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
             <div style="background-color: #f9fafb; padding: 30px;">
               <p style="color: #374151;">A new assessment has been received.</p>
               <p style="color: #374151;"><strong>Recommended Program:</strong> ${recommendedProgram.replace(/_/g, ' ')}</p>
-              <p style="color: #374151;">Please view the full details in the <a href="${process.env.NEXTAUTH_URL || 'https://avisionforyou.org'}/admin/admissions">admin panel</a>.</p>
+              <p style="color: #374151;">Please view the full details in the <a href="${process.env.NEXTAUTH_URL || 'https://avisionforyourecovery.org'}/admin/admissions">admin panel</a>.</p>
               <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin-top: 20px; border-radius: 4px;">
                 <p style="color: #92400e; margin: 0; font-size: 12px;">This email intentionally omits personal health information for HIPAA compliance.</p>
               </div>

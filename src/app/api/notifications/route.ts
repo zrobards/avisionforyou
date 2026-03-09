@@ -2,6 +2,7 @@ import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 
 export async function GET() {
   try {
@@ -25,7 +26,7 @@ export async function GET() {
 
     return NextResponse.json({ notifications, unreadCount })
   } catch (error) {
-    console.error("Notifications GET error:", error)
+    logger.error({ err: error }, "Notifications GET error")
     return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 })
   }
 }
@@ -48,7 +49,7 @@ export async function PATCH() {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Notifications PATCH error:", error)
+    logger.error({ err: error }, "Notifications PATCH error")
     return NextResponse.json({ error: "Failed to mark notifications as read" }, { status: 500 })
   }
 }

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { sendDonationConfirmationEmail } from "@/lib/email"
 import { v4 as uuidv4 } from "uuid"
@@ -116,6 +118,21 @@ export async function POST(request: NextRequest) {
     const now = new Date()
     const nextRenewalDate = frequency !== "ONE_TIME" ? getNextRenewalDate(now, frequency) : null
 
+    // Link to authenticated user if logged in
+    let userId: string | undefined
+    try {
+      const session = await getServerSession(authOptions)
+      if (session?.user?.email) {
+        const user = await db.user.findUnique({
+          where: { email: session.user.email },
+          select: { id: true }
+        })
+        if (user) userId = user.id
+      }
+    } catch {
+      // Non-blocking — proceed without user linkage
+    }
+
     // Save donation record to database first (PENDING status)
     const donation = await db.donation.create({
       data: {
@@ -127,7 +144,8 @@ export async function POST(request: NextRequest) {
         squarePaymentId: donationSessionId,
         nextRenewalDate: nextRenewalDate,
         recurringStartDate: frequency !== "ONE_TIME" ? now : null,
-        renewalSchedule: "anniversary"
+        renewalSchedule: "anniversary",
+        ...(userId && { userId }),
       }
     })
 
@@ -148,7 +166,7 @@ export async function POST(request: NextRequest) {
           location_id: locationId
         },
         checkout_options: {
-          redirect_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donation/confirm?id=${donation.id}&amount=${amount}`,
+          redirect_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/donate/success?session_id=${donation.id}`,
           ask_for_shipping_address: false
         }
       }

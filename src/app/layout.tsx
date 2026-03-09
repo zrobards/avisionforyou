@@ -9,14 +9,14 @@ import CookieConsent from "@/components/shared/CookieConsent"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://avisionforyou.org'),
+  metadataBase: new URL('https://avisionforyourecovery.org'),
   title: {
     default: "A Vision For You | Addiction Recovery & Treatment in Louisville, KY",
     template: "%s | A Vision For You"
   },
   description: "A nonprofit providing comprehensive recovery support, treatment, and community services in Louisville, Kentucky.",
   keywords: ["recovery", "addiction treatment", "mental health", "housing assistance", "Louisville Kentucky", "nonprofit", "peer support", "community resources"],
-  authors: [{ name: "A Vision For You", url: "https://avisionforyou.org" }],
+  authors: [{ name: "A Vision For You", url: "https://avisionforyourecovery.org" }],
   creator: "A Vision For You",
   publisher: "A Vision For You",
   robots: {
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://avisionforyou.org',
+    url: 'https://avisionforyourecovery.org',
     siteName: 'A Vision For You',
     title: 'A Vision For You | Addiction Recovery & Treatment in Louisville, KY',
     description: 'Comprehensive recovery support for individuals and families in Louisville, Kentucky.',
@@ -82,7 +82,9 @@ export default function RootLayout({
         <AuthProvider>
           <ToastProvider>
             <ConditionalLayout>
-              {children}
+              <main id="main-content">
+                {children}
+              </main>
             </ConditionalLayout>
           </ToastProvider>
         </AuthProvider>

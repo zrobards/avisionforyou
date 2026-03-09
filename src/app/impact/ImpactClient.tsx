@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { TrendingUp, Users, Heart, Award, CheckCircle, Download, Target, Clock, Home, Briefcase } from 'lucide-react'
+import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 import SocialShareButtons from '@/components/shared/SocialShareButtons'
 import { trackImpactReportDownload } from '@/components/analytics/GoogleAnalytics'
 
@@ -135,22 +136,26 @@ export default function ImpactPage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-brand-purple to-purple-900 text-white py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-green rounded-full mb-6">
-              <TrendingUp className="w-8 h-8 text-white" />
+          <AnimateOnScroll variant="fadeUp">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-green rounded-full mb-6">
+                <TrendingUp className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Our Impact</h1>
+              <p className="text-xl text-purple-100 max-w-3xl mx-auto">
+                Measuring what matters: Real outcomes, real lives transformed through evidence-based recovery programs
+              </p>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Our Impact</h1>
-            <p className="text-xl text-purple-100 max-w-3xl mx-auto">
-              Measuring what matters: Real outcomes, real lives transformed through evidence-based recovery programs
-            </p>
-          </div>
+          </AnimateOnScroll>
         </div>
       </section>
 
       {/* Live Metrics Dashboard */}
       <section className="py-8 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 text-gray-900">Real-Time Community Impact</h2>
+          <AnimateOnScroll variant="fadeUp">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 text-gray-900">Real-Time Community Impact</h2>
+          </AnimateOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
               { label: 'Community Members', value: metrics.livesImpacted, icon: Users },
@@ -158,13 +163,15 @@ export default function ImpactPage() {
               { label: 'Member Connections', value: metrics.totalRSVPs, icon: CheckCircle },
               { label: 'Community Support Raised', value: `$${metrics.totalDonations.toLocaleString()}`, icon: Award }
             ].map((metric, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-purple-50 to-green-50 rounded-xl p-6 text-center shadow-lg border-2 border-brand-purple">
-                <metric.icon className="w-12 h-12 mx-auto mb-4 text-brand-purple" />
-                <div className="text-4xl font-bold text-brand-purple mb-2">
-                  {loading ? '...' : metric.value}
+              <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.1}>
+                <div className="bg-gradient-to-br from-purple-50 to-green-50 rounded-xl p-6 text-center shadow-lg border-2 border-brand-purple">
+                  <metric.icon className="w-12 h-12 mx-auto mb-4 text-brand-purple" />
+                  <div className="text-4xl font-bold text-brand-purple mb-2">
+                    {loading ? '...' : metric.value}
+                  </div>
+                  <p className="text-gray-700 font-semibold">{metric.label}</p>
                 </div>
-                <p className="text-gray-700 font-semibold">{metric.label}</p>
-              </div>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -173,22 +180,26 @@ export default function ImpactPage() {
       {/* Key Outcome Metrics */}
       <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Measurable Outcomes</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our commitment to transparency: Data-driven results that demonstrate program effectiveness
-            </p>
-          </div>
+          <AnimateOnScroll variant="fadeUp">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Measurable Outcomes</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Our commitment to transparency: Data-driven results that demonstrate program effectiveness
+              </p>
+            </div>
+          </AnimateOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {keyMetrics.map((metric, idx) => (
-              <div key={idx} className="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition">
-                <div className={`w-16 h-16 mx-auto mb-4 bg-gradient-to-br ${metric.color} rounded-full flex items-center justify-center`}>
-                  <metric.icon className="w-8 h-8 text-white" />
+              <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.1}>
+                <div className="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition">
+                  <div className={`w-16 h-16 mx-auto mb-4 bg-gradient-to-br ${metric.color} rounded-full flex items-center justify-center`}>
+                    <metric.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-4xl font-bold text-brand-purple mb-2">{metric.value}</div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{metric.label}</h3>
+                  <p className="text-sm text-gray-600">{metric.description}</p>
                 </div>
-                <div className="text-4xl font-bold text-brand-purple mb-2">{metric.value}</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{metric.label}</h3>
-                <p className="text-sm text-gray-600">{metric.description}</p>
-              </div>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -197,13 +208,16 @@ export default function ImpactPage() {
       {/* Program-Specific Outcomes */}
       <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">Program Effectiveness</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
-            Each program is evaluated on completion rates, retention, and long-term outcomes
-          </p>
+          <AnimateOnScroll variant="fadeUp">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">Program Effectiveness</h2>
+            <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+              Each program is evaluated on completion rates, retention, and long-term outcomes
+            </p>
+          </AnimateOnScroll>
           <div className="space-y-8">
             {programOutcomes.map((program, idx) => (
-              <div key={idx} className="bg-gradient-to-r from-purple-50 to-white rounded-xl shadow-lg p-8 border-l-4 border-brand-purple">
+              <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.15}>
+                <div className="bg-gradient-to-r from-purple-50 to-white rounded-xl shadow-lg p-8 border-l-4 border-brand-purple">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{program.program}</h3>
@@ -229,6 +243,7 @@ export default function ImpactPage() {
                   ))}
                 </div>
               </div>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -237,23 +252,26 @@ export default function ImpactPage() {
       {/* Success Stories */}
       <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900">Success Stories</h2>
-          </div>
-          <p className="text-center text-gray-600 mb-4 max-w-3xl mx-auto">
-            Real people, real transformation: Hear from graduates who rebuilt their lives
-          </p>
-          <div className="flex justify-center mb-12">
-            <SocialShareButtons
-              url="https://avisionforyou.org/impact"
-              title="See the real impact of A Vision For You recovery programs"
-              description="83% success rate, 89% retention, real lives transformed through evidence-based recovery."
-              contentType="impact"
-            />
-          </div>
+          <AnimateOnScroll variant="fadeUp">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900">Success Stories</h2>
+            </div>
+            <p className="text-center text-gray-600 mb-4 max-w-3xl mx-auto">
+              Real people, real transformation: Hear from graduates who rebuilt their lives
+            </p>
+            <div className="flex justify-center mb-12">
+              <SocialShareButtons
+                url="https://avisionforyourecovery.org/impact"
+                title="See the real impact of A Vision For You recovery programs"
+                description="83% success rate, 89% retention, real lives transformed through evidence-based recovery."
+                contentType="impact"
+              />
+            </div>
+          </AnimateOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((story, idx) => (
-              <div key={idx} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+              <AnimateOnScroll key={idx} variant="fadeUp" delay={idx * 0.15}>
+                <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
                 <div className="mb-4">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-12 h-12 bg-gradient-to-br from-brand-purple to-purple-600 rounded-full flex items-center justify-center">
@@ -282,6 +300,7 @@ export default function ImpactPage() {
                   </div>
                 </div>
               </div>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -290,52 +309,58 @@ export default function ImpactPage() {
       {/* Grant Narrative Section */}
       <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-brand-purple to-purple-900 text-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-6">Our Approach to Measurable Impact</h2>
-            <div className="space-y-4 text-purple-100 leading-relaxed">
-              <p>
-                A Vision For You operates with a commitment to evidence-based practices and transparent outcome measurement. Our comprehensive programs address the full spectrum of community needs—from immediate crisis intervention to long-term support planning.
-              </p>
-              <p>
-                <strong className="text-white">Cost-Effectiveness:</strong> With an average cost of $4,200 per client served, we deliver outcomes that exceed industry benchmarks. Our 83% program completion rate surpasses the national average of 68% for residential recovery programs.
-              </p>
-              <p>
-                <strong className="text-white">Long-Term Outcomes:</strong> We track graduates at 6 months, 12 months, and annually thereafter. Our 1-year sobriety retention rate of 72% demonstrates the lasting impact of comprehensive, community-based recovery support.
-              </p>
-              <p>
-                <strong className="text-white">Evaluation Methodology:</strong> All outcome data is collected through standardized assessments, third-party employment verification, and voluntary graduate surveys. We partner with local universities for external program evaluation.
-              </p>
+          <AnimateOnScroll variant="fadeUp">
+            <div className="bg-gradient-to-r from-brand-purple to-purple-900 text-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-12">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6">Our Approach to Measurable Impact</h2>
+              <div className="space-y-4 text-purple-100 leading-relaxed">
+                <p>
+                  A Vision For You operates with a commitment to evidence-based practices and transparent outcome measurement. Our comprehensive programs address the full spectrum of community needs—from immediate crisis intervention to long-term support planning.
+                </p>
+                <p>
+                  <strong className="text-white">Cost-Effectiveness:</strong> With an average cost of $4,200 per client served, we deliver outcomes that exceed industry benchmarks. Our 83% program completion rate surpasses the national average of 68% for residential recovery programs.
+                </p>
+                <p>
+                  <strong className="text-white">Long-Term Outcomes:</strong> We track graduates at 6 months, 12 months, and annually thereafter. Our 1-year sobriety retention rate of 72% demonstrates the lasting impact of comprehensive, community-based recovery support.
+                </p>
+                <p>
+                  <strong className="text-white">Evaluation Methodology:</strong> All outcome data is collected through standardized assessments, third-party employment verification, and voluntary graduate surveys. We partner with local universities for external program evaluation.
+                </p>
+              </div>
             </div>
-          </div>
+          </AnimateOnScroll>
         </div>
       </section>
 
       {/* Annual Report CTA */}
       <section className="py-10 sm:py-16 bg-gradient-to-br from-purple-50 to-green-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Target className="w-16 h-16 mx-auto mb-6 text-brand-purple" />
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Comprehensive Impact Reporting</h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            For foundations, grant reviewers, and institutional donors: Download our detailed annual impact report with full financial statements, program evaluations, and longitudinal outcome data.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => {
-                trackImpactReportDownload()
-                window.open('/AVFY-2024-Impact-Report.pdf', '_blank')
-              }}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-purple to-purple-700 text-white font-bold rounded-lg hover:shadow-xl transition"
-            >
-              <Download className="w-5 h-5" />
-              Download 2024 Impact Report (PDF)
-            </button>
-            <Link href="/donate" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-green to-green-600 text-white font-bold rounded-lg hover:shadow-xl transition">
-              Support Our Programs
-            </Link>
-          </div>
-          <p className="text-sm text-gray-500 mt-6">
+          <AnimateOnScroll variant="fadeUp">
+            <Target className="w-16 h-16 mx-auto mb-6 text-brand-purple" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Comprehensive Impact Reporting</h2>
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              For foundations, grant reviewers, and institutional donors: Download our detailed annual impact report with full financial statements, program evaluations, and longitudinal outcome data.
+            </p>
+          </AnimateOnScroll>
+          <AnimateOnScroll variant="fadeUp" delay={0.2}>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => {
+                  trackImpactReportDownload()
+                  window.open('/AVFY-2024-Impact-Report.pdf', '_blank')
+                }}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-purple to-purple-700 text-white font-bold rounded-lg hover:shadow-xl transition"
+              >
+                <Download className="w-5 h-5" />
+                Download 2024 Impact Report (PDF)
+              </button>
+              <Link href="/donate" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-green to-green-600 text-white font-bold rounded-lg hover:shadow-xl transition">
+                Support Our Programs
+              </Link>
+            </div>
+            <p className="text-sm text-gray-500 mt-6">
 EIN: 87-1066569 | 501(c)(3) Nonprofit Organization
-          </p>
+            </p>
+          </AnimateOnScroll>
         </div>
       </section>
     </div>

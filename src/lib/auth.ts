@@ -38,7 +38,7 @@ export const authOptions: NextAuthOptions = {
             pass: process.env.RESEND_API_KEY.trim(),
           },
         },
-        from: process.env.EMAIL_FROM?.trim() || 'noreply@avisionforyou.org',
+        from: process.env.EMAIL_FROM?.trim() || 'noreply@avisionforyourecovery.org',
       })
     ] : []),
     // Credentials provider - proper password validation

@@ -40,7 +40,7 @@ export async function POST(_request: NextRequest) {
         schedule: 'Residential',
         location: '1675 Story Ave, Louisville, KY 40206',
         phone: '(502) 555-0100',
-        email: 'surrender@avisionforyou.org',
+        email: 'surrender@avisionforyourecovery.org',
         capacity: 50
       },
       {
@@ -52,7 +52,7 @@ export async function POST(_request: NextRequest) {
         schedule: 'Evening & Weekends',
         location: '1675 Story Ave, Louisville, KY 40206',
         phone: '(502) 555-0101',
-        email: 'iop@avisionforyou.org',
+        email: 'iop@avisionforyourecovery.org',
         capacity: 30
       },
       {
@@ -64,7 +64,7 @@ export async function POST(_request: NextRequest) {
         schedule: 'Weekly Classes',
         location: '1675 Story Ave, Louisville, KY 40206',
         phone: '(502) 555-0102',
-        email: 'ministry@avisionforyou.org',
+        email: 'ministry@avisionforyourecovery.org',
         capacity: 100
       },
       {
@@ -76,7 +76,7 @@ export async function POST(_request: NextRequest) {
         schedule: 'Flex Hours',
         location: '1675 Story Ave, Louisville, KY 40206',
         phone: '(502) 555-0103',
-        email: 'dui@avisionforyou.org',
+        email: 'dui@avisionforyourecovery.org',
         capacity: 50
       }
     ]

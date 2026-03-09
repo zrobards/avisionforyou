@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { trackEvent } from '@/components/analytics/GoogleAnalytics';
+import AnimateOnScroll from '@/components/shared/AnimateOnScroll';
 
 export default function AdmissionPage() {
   const [formData, setFormData] = useState({
@@ -67,43 +68,55 @@ export default function AdmissionPage() {
       {/* Header Section */}
       <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-8 sm:py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Start Your Journey to Recovery</h1>
-          <p className="text-xl text-indigo-100">
-            Take the first step. We're here to support you every step of the way.
-          </p>
+          <AnimateOnScroll variant="fadeUp">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Start Your Journey to Recovery</h1>
+          </AnimateOnScroll>
+          <AnimateOnScroll variant="fadeUp" delay={0.15}>
+            <p className="text-xl text-indigo-100">
+              Take the first step. We're here to support you every step of the way.
+            </p>
+          </AnimateOnScroll>
         </div>
       </div>
 
       {/* Contact Info Cards */}
       <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-16">
-          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition">
-            <Phone className="w-8 h-8 text-indigo-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Call Us</h3>
-            <p className="text-gray-600">(502) 749-6344</p>
-            <p className="text-sm text-gray-500 mt-2">Available 24/7</p>
-          </div>
+          <AnimateOnScroll variant="fadeUp" delay={0}>
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition h-full">
+              <Phone className="w-8 h-8 text-indigo-600 mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Call Us</h3>
+              <p className="text-gray-600">(502) 749-6344</p>
+              <p className="text-sm text-gray-500 mt-2">Available 24/7</p>
+            </div>
+          </AnimateOnScroll>
 
-          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition">
-            <Mail className="w-8 h-8 text-indigo-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-            <p className="text-gray-600">info@avisionforyourecovery.org</p>
-            <p className="text-sm text-gray-500 mt-2">Quick response</p>
-          </div>
+          <AnimateOnScroll variant="fadeUp" delay={0.1}>
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition h-full">
+              <Mail className="w-8 h-8 text-indigo-600 mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
+              <p className="text-gray-600">info@avisionforyourecovery.org</p>
+              <p className="text-sm text-gray-500 mt-2">Quick response</p>
+            </div>
+          </AnimateOnScroll>
 
-          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition">
-            <MapPin className="w-8 h-8 text-indigo-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Location</h3>
-            <p className="text-gray-600">1675 Story Ave</p>
-            <p className="text-sm text-gray-500">Louisville, KY 40206</p>
-          </div>
+          <AnimateOnScroll variant="fadeUp" delay={0.2}>
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition h-full">
+              <MapPin className="w-8 h-8 text-indigo-600 mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Location</h3>
+              <p className="text-gray-600">1675 Story Ave</p>
+              <p className="text-sm text-gray-500">Louisville, KY 40206</p>
+            </div>
+          </AnimateOnScroll>
 
-          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition">
-            <Clock className="w-8 h-8 text-indigo-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Hours</h3>
-            <p className="text-gray-600">Mon-Fri: 8am-6pm</p>
-            <p className="text-sm text-gray-500">Sat: 9am-2pm · Sun: Closed</p>
-          </div>
+          <AnimateOnScroll variant="fadeUp" delay={0.3}>
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition h-full">
+              <Clock className="w-8 h-8 text-indigo-600 mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Hours</h3>
+              <p className="text-gray-600">Mon-Fri: 8am-6pm</p>
+              <p className="text-sm text-gray-500">Sat: 9am-2pm · Sun: Closed</p>
+            </div>
+          </AnimateOnScroll>
         </div>
 
         {/* Two Column Layout */}
@@ -112,7 +125,9 @@ export default function AdmissionPage() {
           <div className="lg:col-span-2">
             {/* Admission Process */}
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">Our Admission Process</h2>
+              <AnimateOnScroll variant="fadeUp">
+                <h2 className="text-3xl font-bold text-gray-900 mb-8">Our Admission Process</h2>
+              </AnimateOnScroll>
               <div className="space-y-6">
                 {[
                   {
@@ -136,24 +151,28 @@ export default function AdmissionPage() {
                     desc: 'Begin your recovery journey with our supportive community and expert guidance.',
                   },
                 ].map((step) => (
-                  <div key={step.num} className="flex gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-600 text-white font-bold text-lg">
-                        {step.num}
+                  <AnimateOnScroll key={step.num} variant="fadeUp" delay={step.num * 0.1}>
+                    <div className="flex gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-600 text-white font-bold text-lg">
+                          {step.num}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{step.title}</h3>
+                        <p className="text-gray-600">{step.desc}</p>
                       </div>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{step.title}</h3>
-                      <p className="text-gray-600">{step.desc}</p>
-                    </div>
-                  </div>
+                  </AnimateOnScroll>
                 ))}
               </div>
             </div>
 
             {/* What to Expect */}
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">What to Expect</h2>
+              <AnimateOnScroll variant="fadeUp">
+                <h2 className="text-3xl font-bold text-gray-900 mb-8">What to Expect</h2>
+              </AnimateOnScroll>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
                   'Personalized recovery programs',
@@ -164,11 +183,13 @@ export default function AdmissionPage() {
                   'Family involvement options',
                   'Holistic wellness approach',
                   'Career and education support',
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-3 p-3 bg-white rounded-lg">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-gray-700">{item}</span>
-                  </div>
+                ].map((item, index) => (
+                  <AnimateOnScroll key={item} variant="fadeUp" delay={index * 0.05}>
+                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">{item}</span>
+                    </div>
+                  </AnimateOnScroll>
                 ))}
               </div>
             </div>
@@ -176,6 +197,7 @@ export default function AdmissionPage() {
 
           {/* Right Column - Form */}
           <div className="lg:col-span-1">
+            <AnimateOnScroll variant="fadeUp" delay={0.2}>
             <div className="static lg:sticky lg:top-24 bg-white rounded-2xl shadow-2xl p-4 sm:p-6">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Start Now</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -278,18 +300,21 @@ export default function AdmissionPage() {
                 </p>
               </form>
             </div>
+            </AnimateOnScroll>
           </div>
         </div>
 
         {/* Crisis Section */}
-        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 sm:p-6 text-center">
-          <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
-          <h3 className="text-lg font-bold text-red-900 mb-2">In Crisis?</h3>
-          <p className="text-red-700 mb-3">
-            If you're in immediate danger or having thoughts of suicide, please call 911 or the National Suicide Prevention Lifeline:
-          </p>
-          <p className="text-2xl font-bold text-red-600">988</p>
-        </div>
+        <AnimateOnScroll variant="fadeUp" delay={0.1}>
+          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 sm:p-6 text-center">
+            <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
+            <h3 className="text-lg font-bold text-red-900 mb-2">In Crisis?</h3>
+            <p className="text-red-700 mb-3">
+              If you're in immediate danger or having thoughts of suicide, please call 911 or the National Suicide Prevention Lifeline:
+            </p>
+            <p className="text-2xl font-bold text-red-600">988</p>
+          </div>
+        </AnimateOnScroll>
       </div>
     </div>
   );

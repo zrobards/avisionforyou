@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/admin/', '/dashboard/', '/board/', '/community/'],
       },
     ],
-    sitemap: 'https://avisionforyou.org/sitemap.xml',
+    sitemap: 'https://avisionforyourecovery.org/sitemap.xml',
   }
 }

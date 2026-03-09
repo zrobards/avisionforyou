@@ -6,6 +6,7 @@ import {
   ArrowRight, Heart, CheckCircle, Phone, Sparkles
 } from 'lucide-react'
 import Breadcrumbs from '@/components/shared/Breadcrumbs'
+import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 
 export const revalidate = 60
 
@@ -190,51 +191,55 @@ export default async function Programs() {
           <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-[#b6e41f]/10 rounded-full blur-3xl" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#b6e41f]/10 border border-[#b6e41f]/20 rounded-full text-[#b6e41f] text-sm font-semibold mb-6">
-              <Sparkles className="w-4 h-4" />
-              A Comprehensive Recovery Ecosystem
+          <AnimateOnScroll variant="fadeUp">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#b6e41f]/10 border border-[#b6e41f]/20 rounded-full text-[#b6e41f] text-sm font-semibold mb-6">
+                <Sparkles className="w-4 h-4" />
+                A Comprehensive Recovery Ecosystem
+              </div>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+                Our Programs
+              </h1>
+              <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
+                From residential treatment and clinical outpatient care to housing, peer support, nutrition, and career reentry, our integrated programs meet you where you are and walk with you every step forward.
+              </p>
+              <div className="flex flex-wrap gap-4 justify-center">
+                <Link
+                  href="/assessment"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-[#b6e41f] text-slate-950 font-bold rounded-lg hover:bg-[#c9f24d] hover:shadow-lg hover:shadow-[#b6e41f]/20 transition"
+                >
+                  Apply Now
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+                <a
+                  href="tel:+15027496344"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-lg hover:bg-white/20 transition"
+                >
+                  <Phone className="w-5 h-5" />
+                  Call (502) 749-6344
+                </a>
+              </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-              Our Programs
-            </h1>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
-              From residential treatment and clinical outpatient care to housing, peer support, nutrition, and career reentry, our integrated programs meet you where you are and walk with you every step forward.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Link
-                href="/assessment"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[#b6e41f] text-slate-950 font-bold rounded-lg hover:bg-[#c9f24d] hover:shadow-lg hover:shadow-[#b6e41f]/20 transition"
-              >
-                Apply Now
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <a
-                href="tel:+15027496344"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-lg hover:bg-white/20 transition"
-              >
-                <Phone className="w-5 h-5" />
-                Call (502) 749-6344
-              </a>
-            </div>
-          </div>
+          </AnimateOnScroll>
         </div>
       </section>
 
       {/* Programs Grid */}
       <section className="bg-brand-dark-lighter py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Six Pillars of Recovery
-            </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">
-              Each program is designed to address a critical dimension of the recovery journey. Together, they form a complete support system.
-            </p>
-          </div>
+          <AnimateOnScroll variant="fadeUp">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Six Pillars of Recovery
+              </h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">
+                Each program is designed to address a critical dimension of the recovery journey. Together, they form a complete support system.
+              </p>
+            </div>
+          </AnimateOnScroll>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {programs.map((program) => {
+            {programs.map((program, index) => {
               const meta = programMeta[program.slug]
               const IconComponent = meta ? iconComponents[meta.icon] : Home
               const badge = meta?.badge
@@ -242,8 +247,8 @@ export default async function Programs() {
               const oneLiner = meta?.oneLiner || program.description
 
               return (
+                <AnimateOnScroll key={program.slug} variant="fadeUp" delay={index * 0.1}>
                 <div
-                  key={program.slug}
                   className="group bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300"
                 >
                   {/* Header: Icon + Badge */}
@@ -303,6 +308,7 @@ export default async function Programs() {
                     </Link>
                   </div>
                 </div>
+                </AnimateOnScroll>
               )
             })}
           </div>
@@ -312,25 +318,29 @@ export default async function Programs() {
       {/* How It Works / Journey */}
       <section className="bg-brand-dark py-16 sm:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Your Path Forward</h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">
-              Recovery is not one-size-fits-all. Our team works with you to build a personalized plan that addresses your unique needs.
-            </p>
-          </div>
+          <AnimateOnScroll variant="fadeUp">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Your Path Forward</h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">
+                Recovery is not one-size-fits-all. Our team works with you to build a personalized plan that addresses your unique needs.
+              </p>
+            </div>
+          </AnimateOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { step: '01', title: 'Reach Out', desc: 'Call us or complete a confidential assessment. Our team will listen and help you explore your options.' },
               { step: '02', title: 'Build Your Plan', desc: 'Work one-on-one with a counselor to identify the right combination of programs for your situation.' },
               { step: '03', title: 'Begin Recovery', desc: 'Enter a supportive community with the structure, mentorship, and resources you need to thrive.' }
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#b6e41f]/10 border border-[#b6e41f]/20 rounded-full mb-4">
-                  <span className="text-[#b6e41f] text-xl font-bold">{item.step}</span>
+            ].map((item, index) => (
+              <AnimateOnScroll key={item.step} variant="fadeUp" delay={index * 0.1}>
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-[#b6e41f]/10 border border-[#b6e41f]/20 rounded-full mb-4">
+                    <span className="text-[#b6e41f] text-xl font-bold">{item.step}</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
-              </div>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -342,28 +352,30 @@ export default async function Programs() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7f3d8b]/15 rounded-full blur-3xl" />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Ready to Take the Next Step?
-          </h2>
-          <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
-            Contact us today to learn more about how we can support your recovery journey. No judgment, no pressure -- just honest conversation about your future.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link
-              href="/assessment"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#b6e41f] text-slate-950 font-bold rounded-lg hover:bg-[#c9f24d] hover:shadow-lg hover:shadow-[#b6e41f]/20 transition"
-            >
-              Begin Your Journey
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/donate"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-lg hover:bg-white/20 transition"
-            >
-              <Heart className="w-5 h-5" />
-              Support Our Mission
-            </Link>
-          </div>
+          <AnimateOnScroll variant="fadeUp">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Ready to Take the Next Step?
+            </h2>
+            <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
+              Contact us today to learn more about how we can support your recovery journey. No judgment, no pressure -- just honest conversation about your future.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link
+                href="/assessment"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-[#b6e41f] text-slate-950 font-bold rounded-lg hover:bg-[#c9f24d] hover:shadow-lg hover:shadow-[#b6e41f]/20 transition"
+              >
+                Begin Your Journey
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/donate"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-lg hover:bg-white/20 transition"
+              >
+                <Heart className="w-5 h-5" />
+                Support Our Mission
+              </Link>
+            </div>
+          </AnimateOnScroll>
         </div>
       </section>
     </div>

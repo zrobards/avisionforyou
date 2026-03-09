@@ -18,7 +18,7 @@ export async function sendEmail({
   to,
   subject,
   html,
-  from = process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
+  from = process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyourecovery.org>',
 }: {
   to: string
   subject: string
@@ -86,7 +86,7 @@ export async function sendMeetingReminder(
       : 'in 1 hour'
 
     const result = await resendClient.emails.send({
-      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyourecovery.org>',
       to: rsvp.user.email,
       subject: `Reminder: ${escapeHtml(rsvp.session.title)} Meeting ${reminderType.type === '24h' ? 'Tomorrow' : 'Starting Soon'}`,
       html: `
@@ -135,7 +135,7 @@ export async function sendMeetingReminder(
           </p>
 
           <div style="background-color: #f0fdf4; border: 1px solid #86efac; padding: 12px; border-radius: 4px; margin: 20px 0; text-align: center;">
-            <a href="https://avisionforyou.org/notifications" style="color: #16a34a; text-decoration: none; font-weight: bold;">
+            <a href="https://avisionforyourecovery.org/notifications" style="color: #16a34a; text-decoration: none; font-weight: bold;">
               Manage Your RSVPs →
             </a>
           </div>
@@ -143,7 +143,7 @@ export async function sendMeetingReminder(
           <div style="border-top: 1px solid #e5e7eb; margin-top: 30px; padding-top: 20px; color: #6b7280; font-size: 12px;">
             <p style="margin: 0;">
               A Vision For You<br/>
-              <a href="https://avisionforyou.org" style="color: #3b82f6; text-decoration: none;">Visit our website</a>
+              <a href="https://avisionforyourecovery.org" style="color: #3b82f6; text-decoration: none;">Visit our website</a>
             </p>
           </div>
         </div>
@@ -178,7 +178,7 @@ export async function sendAdmissionConfirmation(
     if (!resendClient) return false
 
     const result = await resendClient.emails.send({
-      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyourecovery.org>',
       to: email,
       subject: 'Thank You for Your Interest in A Vision For You',
       html: `
@@ -223,7 +223,7 @@ export async function sendAdmissionConfirmation(
             <p style="color: #6b7280; font-size: 14px; margin: 0;">
               A Vision For You<br>
               1675 Story Ave, Louisville, KY 40206<br>
-              <a href="https://avisionforyou.org" style="color: #3b82f6; text-decoration: none;">avisionforyou.org</a>
+              <a href="https://avisionforyourecovery.org" style="color: #3b82f6; text-decoration: none;">avisionforyourecovery.org</a>
             </p>
           </div>
         </div>
@@ -253,11 +253,11 @@ export async function sendAdmissionNotificationToAdmin(
     const resendClient = getResendClient()
     if (!resendClient) return false
 
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@avisionforyou.org'
-    const adminPanelUrl = process.env.NEXTAUTH_URL || 'https://avisionforyou.org'
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@avisionforyourecovery.org'
+    const adminPanelUrl = process.env.NEXTAUTH_URL || 'https://avisionforyourecovery.org'
 
     const result = await resendClient.emails.send({
-      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyourecovery.org>',
       to: adminEmail,
       subject: `New Admission Inquiry - ${escapeHtml(program)}`,
       html: `
@@ -319,7 +319,7 @@ export async function sendDonationThankYou(
     const isRecurring = frequency !== 'ONE_TIME'
 
     const result = await resendClient.emails.send({
-      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>',
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyourecovery.org>',
       to: email,
       subject: `Thank You for Your ${isRecurring ? 'Recurring ' : ''}Donation!`,
       html: `
@@ -362,7 +362,7 @@ export async function sendDonationThankYou(
             </p>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://avisionforyou.org/dashboard" style="background-color: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+              <a href="https://avisionforyourecovery.org/dashboard" style="background-color: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
                 View Your Impact Dashboard
               </a>
             </div>
@@ -558,14 +558,14 @@ export async function sendDonationConfirmationEmail(
               <p>You'll receive a formal tax receipt via email shortly. A Vision For You is a 501(c)(3) nonprofit organization (EIN: 87-1066569) - your donation is tax-deductible.</p>
 
               <h2>Questions?</h2>
-              <p>If you have any questions about your donation or want to learn more about our programs, please don't hesitate to reach out to us at <strong>admin@avisionforyou.org</strong></p>
+              <p>If you have any questions about your donation or want to learn more about our programs, please don't hesitate to reach out to us at <strong>admin@avisionforyourecovery.org</strong></p>
 
               <p style="margin-top: 30px;">With deep gratitude,<br><strong>The A Vision For You Team</strong></p>
 
               <div class="footer">
                 <p>A Vision For You<br>
                 1675 Story Ave, Louisville, KY 40206<br>
-                <a href="https://avisionforyou.org" style="color: #3b82f6;">avisionforyou.org</a></p>
+                <a href="https://avisionforyourecovery.org" style="color: #3b82f6;">avisionforyourecovery.org</a></p>
                 <p style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px;">
                   This email was sent to ${escapeHtml(recipientEmail)} because you made a donation to A Vision For You.
                 </p>
@@ -580,7 +580,7 @@ export async function sendDonationConfirmationEmail(
       to: recipientEmail,
       subject: `Thank You for Your ${amount < 100 ? 'Generous' : 'Major'} Donation - A Vision For You`,
       html,
-      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyou.org>'
+      from: process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyourecovery.org>'
     })
 
     logger.info({ recipientEmail }, 'Donation confirmation email sent successfully')

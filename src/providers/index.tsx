@@ -18,7 +18,7 @@ export function AuthProvider({
         user: {
           id: 'bypass-review',
           name: 'Review Admin',
-          email: 'admin@avisionforyou.org',
+          email: 'admin@avisionforyourecovery.org',
           role: 'ADMIN' as const
         },
         expires: '2099-01-01T00:00:00.000Z'

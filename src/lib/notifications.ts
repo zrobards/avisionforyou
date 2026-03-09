@@ -1,5 +1,6 @@
 import { db } from "./db"
 import { UserRole } from "@prisma/client"
+import { logger } from "@/lib/logger"
 
 /**
  * Log an activity to the shared activity feed
@@ -15,7 +16,7 @@ export async function logActivity(
       data: { type, title, detail, link },
     })
   } catch (error) {
-    console.error("Failed to log activity:", error)
+    logger.error({ err: error }, "Failed to log activity")
   }
 }
 
@@ -47,7 +48,7 @@ export async function notifyByRole(
       })),
     })
   } catch (error) {
-    console.error("Failed to send notifications:", error)
+    logger.error({ err: error }, "Failed to send notifications")
   }
 }
 
@@ -66,6 +67,6 @@ export async function notifyUser(
       data: { userId, type, title, message, link },
     })
   } catch (error) {
-    console.error("Failed to send notification:", error)
+    logger.error({ err: error }, "Failed to send notification")
   }
 }

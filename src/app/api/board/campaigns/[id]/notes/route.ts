@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 export async function POST(
   request: Request,
@@ -49,7 +50,7 @@ export async function POST(
 
     return NextResponse.json(note);
   } catch (error) {
-    console.error("Error creating campaign note:", error);
+    logger.error({ err: error }, "Error creating campaign note");
     return NextResponse.json(
       { error: "Failed to create note" },
       { status: 500 }

@@ -276,7 +276,7 @@ export default function DonationsDashboard() {
           <div className="space-y-4 text-sm text-blue-900">
             <div>
               <p className="font-semibold">How do I cancel my recurring donation?</p>
-              <p className="mt-1">Click the "Cancel Recurring Donation" button on any active recurring donation. You can also contact us at <a href="mailto:donate@avisionforyou.org" className="underline">donate@avisionforyou.org</a></p>
+              <p className="mt-1">Click the "Cancel Recurring Donation" button on any active recurring donation. You can also contact us at <a href="mailto:donate@avisionforyourecovery.org" className="underline">donate@avisionforyourecovery.org</a></p>
             </div>
             <div>
               <p className="font-semibold">When will my next donation be charged?</p>
@@ -284,7 +284,7 @@ export default function DonationsDashboard() {
             </div>
             <div>
               <p className="font-semibold">Can I change my donation amount?</p>
-              <p className="mt-1">Please contact us at <a href="mailto:donate@avisionforyou.org" className="underline">donate@avisionforyou.org</a> to modify your recurring donation amount.</p>
+              <p className="mt-1">Please contact us at <a href="mailto:donate@avisionforyourecovery.org" className="underline">donate@avisionforyourecovery.org</a> to modify your recurring donation amount.</p>
             </div>
           </div>
         </div>

@@ -33,10 +33,13 @@ export async function GET(_request: NextRequest) {
       )
     }
 
-    // Get all donations for this user
+    // Get all donations for this user (by userId or matching email)
     const donations = await db.donation.findMany({
       where: {
-        userId: user.id
+        OR: [
+          { userId: user.id },
+          { email: session.user.email },
+        ]
       },
       orderBy: {
         createdAt: "desc"

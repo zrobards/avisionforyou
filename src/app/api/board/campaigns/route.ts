@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import { z } from "zod";
 
 const createCampaignSchema = z.object({
@@ -45,7 +46,7 @@ export async function GET() {
 
     return NextResponse.json(campaigns);
   } catch (error) {
-    console.error("Error fetching campaigns:", error);
+    logger.error({ err: error }, "Error fetching campaigns");
     return NextResponse.json(
       { error: "Failed to fetch campaigns" },
       { status: 500 }
@@ -112,7 +113,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(campaign);
   } catch (error) {
-    console.error("Error creating campaign:", error);
+    logger.error({ err: error }, "Error creating campaign");
     return NextResponse.json(
       { error: "Failed to create campaign" },
       { status: 500 }

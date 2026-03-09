@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { Mail, Calendar, User, ChevronRight } from 'lucide-react'
+import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 
 interface Newsletter {
   id: string
@@ -51,15 +52,17 @@ export default function NewsletterPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Mail className="w-12 h-12 text-brand-purple" />
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">Newsletters</h1>
+        <AnimateOnScroll variant="fadeUp">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Mail className="w-12 h-12 text-brand-purple" />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">Newsletters</h1>
+            </div>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Stay updated with our latest news, stories, and community updates
+            </p>
           </div>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Stay updated with our latest news, stories, and community updates
-          </p>
-        </div>
+        </AnimateOnScroll>
 
         {/* Newsletter Grid */}
         {newsletters.length === 0 ? (
@@ -70,53 +73,58 @@ export default function NewsletterPage() {
           </div>
         ) : (
           <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {newsletters.map((newsletter) => (
-              <Link
+            {newsletters.map((newsletter, index) => (
+              <AnimateOnScroll
                 key={newsletter.id}
-                href={`/newsletter/${newsletter.slug}`}
-                className="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-brand-purple"
+                variant="fadeUp"
+                delay={index % 3 * 0.15}
               >
-                {newsletter.imageUrl && (
-                  <div className="relative h-48 bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
-                    <Image
-                      src={newsletter.imageUrl}
-                      alt={newsletter.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-300"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      unoptimized={newsletter.imageUrl.startsWith('data:')}
-                    />
-                  </div>
-                )}
-
-                <div className="p-4 sm:p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand-purple transition-colors line-clamp-2">
-                    {newsletter.title}
-                  </h2>
-
-                  {newsletter.excerpt && (
-                    <p className="text-gray-600 mb-4 line-clamp-3">{newsletter.excerpt}</p>
+                <Link
+                  href={`/newsletter/${newsletter.slug}`}
+                  className="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-brand-purple block h-full"
+                >
+                  {newsletter.imageUrl && (
+                    <div className="relative h-48 bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
+                      <Image
+                        src={newsletter.imageUrl}
+                        alt={newsletter.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        unoptimized={newsletter.imageUrl.startsWith('data:')}
+                      />
+                    </div>
                   )}
 
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        <span>{newsletter.author.name}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>{new Date(newsletter.publishedAt).toLocaleDateString()}</span>
+                  <div className="p-4 sm:p-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand-purple transition-colors line-clamp-2">
+                      {newsletter.title}
+                    </h2>
+
+                    {newsletter.excerpt && (
+                      <p className="text-gray-600 mb-4 line-clamp-3">{newsletter.excerpt}</p>
+                    )}
+
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          <span>{newsletter.author.name}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date(newsletter.publishedAt).toLocaleDateString()}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="mt-4 flex items-center gap-2 text-brand-purple font-semibold group-hover:gap-3 transition-all">
-                    <span>Read More</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <div className="mt-4 flex items-center gap-2 text-brand-purple font-semibold group-hover:gap-3 transition-all">
+                      <span>Read More</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </AnimateOnScroll>
             ))}
           </div>
         )}

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { CheckCircle, AlertCircle, RotateCcw } from 'lucide-react'
 import { trackAssessmentComplete } from '@/components/analytics/GoogleAnalytics'
+import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 
 const ASSESSMENT_QUESTIONS = [
   {
@@ -182,34 +183,40 @@ export default function Assessment() {
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 text-center">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Application Submitted!</h1>
+            <AnimateOnScroll variant="fadeUp">
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">Application Submitted!</h1>
+            </AnimateOnScroll>
 
-            <div className="bg-blue-50 rounded-lg p-4 sm:p-6 mb-8 text-left">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Your Recommended Program:</h2>
-              <h3 className="text-2xl font-bold text-blue-600 mb-2">{program?.name}</h3>
-              <p className="text-gray-600 mb-4">{program?.description}</p>
-              <p className="text-gray-700 leading-relaxed">{program?.details}</p>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-gray-600">Ready to take the next step? Our team will help you get started.</p>
-              <div className="flex gap-4 flex-col">
-                <Link href="/admission" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
-                  Continue to Admission
-                </Link>
-                <Link href="/dashboard" className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition">
-                  Go to Dashboard
-                </Link>
-                <button
-                  onClick={handleRetake}
-                  className="flex items-center justify-center gap-2 text-gray-500 hover:text-gray-700 px-8 py-3 rounded-lg font-medium transition"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Retake Assessment
-                </button>
+            <AnimateOnScroll variant="fadeUp" delay={0.15}>
+              <div className="bg-blue-50 rounded-lg p-4 sm:p-6 mb-8 text-left">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Your Recommended Program:</h2>
+                <h3 className="text-2xl font-bold text-blue-600 mb-2">{program?.name}</h3>
+                <p className="text-gray-600 mb-4">{program?.description}</p>
+                <p className="text-gray-700 leading-relaxed">{program?.details}</p>
               </div>
-            </div>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll variant="fadeUp" delay={0.3}>
+              <div className="space-y-4">
+                <p className="text-gray-600">Ready to take the next step? Our team will help you get started.</p>
+                <div className="flex gap-4 flex-col">
+                  <Link href="/admission" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                    Continue to Admission
+                  </Link>
+                  <Link href="/dashboard" className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition">
+                    Go to Dashboard
+                  </Link>
+                  <button
+                    onClick={handleRetake}
+                    className="flex items-center justify-center gap-2 text-gray-500 hover:text-gray-700 px-8 py-3 rounded-lg font-medium transition"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Retake Assessment
+                  </button>
+                </div>
+              </div>
+            </AnimateOnScroll>
           </div>
         </div>
       </div>
@@ -222,24 +229,28 @@ export default function Assessment() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
-        <Link href="/" className="text-blue-600 font-semibold mb-8 inline-block hover:text-blue-700">
-          ← Back to Home
-        </Link>
+        <AnimateOnScroll variant="fadeUp">
+          <Link href="/" className="text-blue-600 font-semibold mb-8 inline-block hover:text-blue-700">
+            ← Back to Home
+          </Link>
+        </AnimateOnScroll>
 
         <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
           {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h1 className="text-2xl font-bold text-gray-900">Application for Services</h1>
-              <span className="text-sm text-gray-600">{currentStep + 1} of {ASSESSMENT_QUESTIONS.length}</span>
+          <AnimateOnScroll variant="fadeUp" delay={0.1}>
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold text-gray-900">Application for Services</h1>
+                <span className="text-sm text-gray-600">{currentStep + 1} of {ASSESSMENT_QUESTIONS.length}</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-          </div>
+          </AnimateOnScroll>
 
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
@@ -249,63 +260,67 @@ export default function Assessment() {
           )}
 
           {/* Question */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">{question.question}</h2>
+          <AnimateOnScroll variant="fadeUp" delay={0.2}>
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">{question.question}</h2>
 
-            {question.type === 'number' && (
-              <div className="space-y-3">
-                {question.options?.map((option) => (
-                  <label key={String(option.value)} className="flex items-center p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition" style={{borderColor: answers[question.id] === option.value ? '#2563eb' : '#e5e7eb'}}>
-                    <input
-                      type="radio"
-                      name={question.id}
-                      value={String(option.value)}
-                      checked={answers[question.id] === option.value}
-                      onChange={() => handleAnswer(question.id, option.value)}
-                      className="w-5 h-5 text-blue-600"
-                    />
-                    <span className="ml-4 text-gray-700">{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            )}
+              {question.type === 'number' && (
+                <div className="space-y-3">
+                  {question.options?.map((option) => (
+                    <label key={String(option.value)} className="flex items-center p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition" style={{borderColor: answers[question.id] === option.value ? '#2563eb' : '#e5e7eb'}}>
+                      <input
+                        type="radio"
+                        name={question.id}
+                        value={String(option.value)}
+                        checked={answers[question.id] === option.value}
+                        onChange={() => handleAnswer(question.id, option.value)}
+                        className="w-5 h-5 text-blue-600"
+                      />
+                      <span className="ml-4 text-gray-700">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
 
-            {question.type === 'boolean' && (
-              <div className="grid grid-cols-2 gap-4">
-                {question.options?.map((option) => (
-                  <button
-                    key={String(option.value)}
-                    onClick={() => handleAnswer(question.id, option.value)}
-                    className={`p-4 sm:p-6 rounded-lg font-semibold transition ${
-                      answers[question.id] === option.value
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+              {question.type === 'boolean' && (
+                <div className="grid grid-cols-2 gap-4">
+                  {question.options?.map((option) => (
+                    <button
+                      key={String(option.value)}
+                      onClick={() => handleAnswer(question.id, option.value)}
+                      className={`p-4 sm:p-6 rounded-lg font-semibold transition ${
+                        answers[question.id] === option.value
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </AnimateOnScroll>
 
           {/* Navigation */}
-          <div className="flex gap-4">
-            <button
-              onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
-              disabled={currentStep === 0}
-              className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              Back
-            </button>
-            <button
-              onClick={handleNext}
-              disabled={answers[question.id] === undefined || loading}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              {loading ? 'Saving...' : currentStep === ASSESSMENT_QUESTIONS.length - 1 ? 'Complete' : 'Next'}
-            </button>
-          </div>
+          <AnimateOnScroll variant="fadeUp" delay={0.3}>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
+                disabled={currentStep === 0}
+                className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={answers[question.id] === undefined || loading}
+                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {loading ? 'Saving...' : currentStep === ASSESSMENT_QUESTIONS.length - 1 ? 'Complete' : 'Next'}
+              </button>
+            </div>
+          </AnimateOnScroll>
         </div>
       </div>
     </div>

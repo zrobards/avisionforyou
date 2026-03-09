@@ -152,6 +152,19 @@ export function getClientIp(req: Request): string {
 
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>()
 
+// Periodic cleanup of expired entries to prevent memory leaks
+let lastCleanup = Date.now()
+const CLEANUP_INTERVAL_MS = 60_000 // 1 minute
+
+function cleanupExpiredEntries() {
+  const now = Date.now()
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return
+  lastCleanup = now
+  for (const [key, entry] of rateLimitStore) {
+    if (now > entry.resetAt) rateLimitStore.delete(key)
+  }
+}
+
 /**
  * Simple in-memory rate limit check.
  * Used by admin routes where Redis-level limiting is not needed.
@@ -161,6 +174,7 @@ export function checkRateLimit(
   limit: number,
   windowSeconds: number
 ): { allowed: boolean; retryAfter?: number } {
+  cleanupExpiredEntries()
   const now = Date.now()
   const entry = rateLimitStore.get(key)
 
