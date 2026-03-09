@@ -89,7 +89,7 @@ export default function Footer() {
             </div>
 
             {/* Quick Links */}
-            <div>
+            <nav aria-label="Quick links">
               <h3 className="text-white font-bold text-lg mb-4">Quick Links</h3>
               <ul className="space-y-2.5">
                 {[
@@ -107,10 +107,10 @@ export default function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
 
             {/* Get Involved */}
-            <div>
+            <nav aria-label="Get involved">
               <h3 className="text-white font-bold text-lg mb-4">Get Involved</h3>
               <ul className="space-y-2.5">
                 {[
@@ -128,7 +128,7 @@ export default function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
 
             {/* Contact */}
             <div>
@@ -181,11 +181,11 @@ export default function Footer() {
             <div className="text-gray-300 text-sm text-center md:text-left">
               <p>&copy; {new Date().getFullYear()} A Vision For You Inc. All rights reserved.</p>
             </div>
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-gray-300">
+            <nav aria-label="Legal" className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-gray-300">
               <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-white transition">Terms of Use</Link>
               <Link href="/donate" className="hover:text-white transition">Donate</Link>
-            </div>
+            </nav>
             <div className="flex items-center gap-2 text-gray-300 text-sm">
               <span>Made with</span>
               <Heart className="w-4 h-4 text-red-500 fill-current" aria-hidden="true" />

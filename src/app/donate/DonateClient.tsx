@@ -58,7 +58,7 @@ const CAMPAIGN_PERCENT = Math.round((CAMPAIGN_RAISED / CAMPAIGN_GOAL) * 100)
 const SHARE_TEXT = encodeURIComponent(
   'I just donated to @avisionforyourecovery to support addiction recovery in Louisville. Join me:'
 )
-const SHARE_URL = encodeURIComponent('https://avfy-main.vercel.app/donate')
+const SHARE_URL = encodeURIComponent('https://avisionforyourecovery.org/donate')
 const FACEBOOK_SHARE = `https://www.facebook.com/sharer/sharer.php?u=${SHARE_URL}&quote=${SHARE_TEXT}`
 const TWITTER_SHARE = `https://twitter.com/intent/tweet?text=${SHARE_TEXT}&url=${SHARE_URL}`
 const LINKEDIN_SHARE = `https://www.linkedin.com/sharing/share-offsite/?url=${SHARE_URL}`
@@ -307,9 +307,10 @@ export default function Donate() {
               {/* ── Frequency ── */}
               <div className="mb-8">
                 <label className="block text-sm font-semibold text-white/70 mb-3">Donation Frequency</label>
-                <div className="flex gap-3 sm:gap-4">
+                <div className="flex gap-3 sm:gap-4" role="group" aria-label="Donation frequency">
                   <button
                     onClick={() => setFrequency('ONE_TIME')}
+                    aria-pressed={frequency === 'ONE_TIME'}
                     className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all ${
                       frequency === 'ONE_TIME'
                         ? 'bg-white text-slate-950 shadow-lg'
@@ -320,6 +321,7 @@ export default function Donate() {
                   </button>
                   <button
                     onClick={() => setFrequency('MONTHLY')}
+                    aria-pressed={frequency === 'MONTHLY'}
                     className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all relative ${
                       frequency === 'MONTHLY'
                         ? 'bg-[#b6e41f] text-slate-950 shadow-lg shadow-[#b6e41f]/20'
@@ -333,6 +335,7 @@ export default function Donate() {
                   </button>
                   <button
                     onClick={() => setFrequency('YEARLY')}
+                    aria-pressed={frequency === 'YEARLY'}
                     className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all relative ${
                       frequency === 'YEARLY'
                         ? 'bg-white text-slate-950 shadow-lg'
@@ -360,7 +363,7 @@ export default function Donate() {
               {/* ── Amount Preset Buttons ── */}
               <div className="mb-6 sm:mb-8">
                 <label className="block text-sm font-semibold text-white/70 mb-3">Select Impact Level</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4" role="group" aria-label="Preset donation amounts">
                   {impactLevels.map(({ amount, label, impact, icon: Icon, color }) => (
                     <button
                       key={amount}
@@ -368,6 +371,8 @@ export default function Donate() {
                         setSelectedAmount(amount)
                         setCustomAmount('')
                       }}
+                      aria-label={`${label} - ${impact}`}
+                      aria-pressed={selectedAmount === amount && !customAmount}
                       className={`p-3 sm:p-4 rounded-xl border-2 transition-all transform active:scale-95 sm:hover:scale-105 ${
                         selectedAmount === amount && !customAmount
                           ? 'border-[#b6e41f] bg-[#b6e41f]/10 shadow-lg shadow-[#b6e41f]/10'
@@ -448,8 +453,8 @@ export default function Donate() {
 
               {/* ── Error ── */}
               {error && (
-                <div className="bg-red-900/30 border border-red-500/40 text-red-300 px-4 py-3 rounded-xl mb-6 flex gap-2">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div className="bg-red-900/30 border border-red-500/40 text-red-300 px-4 py-3 rounded-xl mb-6 flex gap-2" role="alert">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" aria-hidden="true" />
                   <p className="text-sm">{error}</p>
                 </div>
               )}
@@ -626,7 +631,7 @@ export default function Donate() {
             <div className="rounded-xl border border-white/10 bg-brand-dark-lighter/60 p-5 mb-6 text-left">
               <p className="text-sm text-white/70 leading-relaxed italic">
                 &ldquo;I just donated to @avisionforyourecovery to support addiction recovery in Louisville. Join me:
-                avfy-main.vercel.app/donate&rdquo;
+                avisionforyourecovery.org/donate&rdquo;
               </p>
             </div>
 
@@ -636,27 +641,30 @@ export default function Donate() {
                 href={FACEBOOK_SHARE}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Share on Facebook (opens in new tab)"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1877F2] text-white text-sm font-semibold hover:bg-[#1877F2]/80 transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-4 h-4" aria-hidden="true" />
                 Facebook
               </a>
               <a
                 href={TWITTER_SHARE}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Share on X / Twitter (opens in new tab)"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-slate-950 text-sm font-semibold hover:bg-white/80 transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-4 h-4" aria-hidden="true" />
                 X / Twitter
               </a>
               <a
                 href={LINKEDIN_SHARE}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Share on LinkedIn (opens in new tab)"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#0A66C2] text-white text-sm font-semibold hover:bg-[#0A66C2]/80 transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-4 h-4" aria-hidden="true" />
                 LinkedIn
               </a>
             </div>

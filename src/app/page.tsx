@@ -82,7 +82,7 @@ export default function Home() {
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           poster="/AVFY%20LOGO.jpg"
           className="absolute top-0 left-0 w-full h-full object-cover"
         >

@@ -366,6 +366,7 @@ export default function MediaLibrary() {
                         alt={media.filename}
                         fill
                         className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">
@@ -491,6 +492,7 @@ export default function MediaLibrary() {
                     alt={selectedMedia.filename}
                     fill
                     className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 ) : (
                   <video src={selectedMedia.url} controls className="w-full h-full" />

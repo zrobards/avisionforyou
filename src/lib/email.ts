@@ -544,7 +544,7 @@ export async function sendDonationConfirmationEmail(
               <p>For the same amount you just gave, imagine the impact of that donation recurring every month. A $50 one-time gift becomes $600/year in life-changing support.</p>
 
               <center>
-                <a href="https://avisionforyou.vercel.app/donate" class="button">💚 Become a Monthly Donor</a>
+                <a href="https://avisionforyourecovery.org/donate" class="button">💚 Become a Monthly Donor</a>
               </center>
 
               <h2>Your Donation Receipt</h2>

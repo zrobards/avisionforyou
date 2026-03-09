@@ -51,12 +51,16 @@ export default function AdminBlog() {
   const fetchPosts = useCallback(async () => {
     try {
       const response = await fetch('/api/blog?drafts=true', { cache: 'no-store' })
+      const data = await response.json()
       if (response.ok) {
-        const data = await response.json()
-        setPosts(data)
+        setPosts(Array.isArray(data) ? data : [])
+      } else {
+        console.error('Blog API error:', response.status, data)
+        showToast(data?.error || 'Failed to load blog posts', 'error')
       }
     } catch (error) {
       console.error('Failed to fetch posts:', error)
+      showToast('Failed to connect to blog API', 'error')
     } finally {
       setLoading(false)
     }

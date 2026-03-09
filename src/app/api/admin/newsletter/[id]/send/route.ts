@@ -97,8 +97,8 @@ export async function POST(
     }
 
     // Send emails in batches (Resend allows batch sending)
-    const fromEmail = process.env.EMAIL_FROM || 'noreply@avisionforyourecovery.org'
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://avisionforyou.vercel.app'
+    const fromEmail = process.env.EMAIL_FROM || 'A Vision For You <noreply@avisionforyourecovery.org>'
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://avisionforyourecovery.org'
     
     let successCount = 0
     let failureCount = 0

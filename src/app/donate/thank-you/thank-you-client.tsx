@@ -23,7 +23,7 @@ export default function ThankYouClient() {
   const shareText = encodeURIComponent(
     'I just donated to A Vision For You — a nonprofit helping people recover from addiction through housing, treatment, and community support. Join me in making a difference!'
   )
-  const shareUrl = encodeURIComponent('https://avisionforyou.vercel.app/donate')
+  const shareUrl = encodeURIComponent('https://avisionforyourecovery.org/donate')
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900">

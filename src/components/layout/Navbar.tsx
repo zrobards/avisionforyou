@@ -116,11 +116,11 @@ export default function Navbar() {
   )
 
   return (
-    <nav className="sticky top-0 z-50 bg-brand-dark border-b border-white/10 shadow-lg shadow-black/20">
+    <nav className="sticky top-0 z-50 bg-brand-dark border-b border-white/10 shadow-lg shadow-black/20" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:opacity-80 transition-opacity" aria-label="A Vision For You - Home">
             <Image
               src="/avsf-logo.png"
               alt="A Vision For You"
@@ -135,8 +135,8 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-3 xl:gap-5">
-            <Link href="/" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/')}`}>
-              <Home className="w-4 h-4" />
+            <Link href="/" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/')}`} aria-label="Home" aria-current={isActive('/') ? 'page' : undefined}>
+              <Home className="w-4 h-4" aria-hidden="true" />
               <span className="hidden xl:inline">Home</span>
             </Link>
 
@@ -172,6 +172,7 @@ export default function Navbar() {
                         }`}
                         onClick={() => setShowAboutDropdown(false)}
                         onKeyDown={(e) => handleMenuItemKeyDown(e, setShowAboutDropdown, aboutDropdownRef)}
+                        aria-current={isActive(item.href) ? 'page' : undefined}
                       >
                         {item.label}
                       </Link>
@@ -181,12 +182,12 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link href="/programs" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/programs')}`}>
-              <Calendar className="w-4 h-4" />
+            <Link href="/programs" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/programs')}`} aria-label="Programs" aria-current={isActive('/programs') ? 'page' : undefined}>
+              <Calendar className="w-4 h-4" aria-hidden="true" />
               <span className="hidden xl:inline">Programs</span>
             </Link>
-            <Link href="/meetings" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/meetings')}`}>
-              <Users className="w-4 h-4" />
+            <Link href="/meetings" className={`flex items-center gap-1.5 hover:text-white transition-colors text-sm ${activeLinkClass('/meetings')}`} aria-label="Meetings" aria-current={isActive('/meetings') ? 'page' : undefined}>
+              <Users className="w-4 h-4" aria-hidden="true" />
               <span className="hidden xl:inline">Meetings</span>
             </Link>
 
@@ -204,10 +205,11 @@ export default function Navbar() {
                 aria-haspopup="true"
                 aria-expanded={showBlogDropdown}
                 onKeyDown={(e) => handleDropdownKeyDown(e, showBlogDropdown, setShowBlogDropdown, blogDropdownRef)}
+                aria-label="Blog"
               >
-                <BookOpen className="w-4 h-4" />
+                <BookOpen className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden xl:inline">Blog</span>
-                <ChevronDown className="w-3.5 h-3.5" />
+                <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
               {showBlogDropdown && (
                 <div className="absolute top-full left-0 pt-2 z-50">
@@ -223,6 +225,7 @@ export default function Navbar() {
                         }`}
                         onClick={() => setShowBlogDropdown(false)}
                         onKeyDown={(e) => handleMenuItemKeyDown(e, setShowBlogDropdown, blogDropdownRef)}
+                        aria-current={isActive(item.href) ? 'page' : undefined}
                       >
                         {item.label}
                       </Link>
@@ -232,7 +235,7 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link href="/contact" className={`hover:text-white transition-colors text-sm ${activeLinkClass('/contact')}`}>
+            <Link href="/contact" className={`hover:text-white transition-colors text-sm ${activeLinkClass('/contact')}`} aria-current={isActive('/contact') ? 'page' : undefined}>
               Contact
             </Link>
 
@@ -242,8 +245,9 @@ export default function Navbar() {
                 href="tel:+15027496344"
                 className="flex items-center gap-1.5 px-3 py-2 bg-red-600/90 text-white rounded-lg hover:bg-red-600 transition-all text-xs xl:text-sm font-semibold"
                 title="Get Help Now"
+                aria-label="Get Help Now - Call (502) 749-6344"
               >
-                <Phone className="w-4 h-4" />
+                <Phone className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden xl:inline">Get Help</span>
               </a>
               <Link
@@ -252,8 +256,10 @@ export default function Navbar() {
                   isActive('/donate') ? 'ring-2 ring-white/50' : ''
                 }`}
                 title="Donate"
+                aria-label="Donate"
+                aria-current={isActive('/donate') ? 'page' : undefined}
               >
-                <Heart className="w-4 h-4" />
+                <Heart className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden xl:inline">Donate</span>
               </Link>
             </div>
@@ -388,7 +394,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="lg:hidden absolute left-0 right-0 top-full bg-brand-dark border-t border-white/10 shadow-xl max-h-[calc(100vh-80px)] overflow-y-auto">
+          <div className="lg:hidden absolute left-0 right-0 top-full bg-brand-dark border-t border-white/10 shadow-xl max-h-[calc(100vh-80px)] overflow-y-auto" role="navigation" aria-label="Mobile navigation">
             <div className="px-4 py-4 space-y-1">
               {/* Prominent CTAs at top */}
               <div className="grid grid-cols-2 gap-3 mb-4 pb-4 border-b border-white/10">
@@ -411,8 +417,8 @@ export default function Navbar() {
               </div>
 
               {/* Navigation Links */}
-              <Link href="/" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
-                <Home className="w-5 h-5" />
+              <Link href="/" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)} aria-current={isActive('/') ? 'page' : undefined}>
+                <Home className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium">Home</span>
               </Link>
 
@@ -448,12 +454,12 @@ export default function Navbar() {
                 )}
               </div>
 
-              <Link href="/programs" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/programs') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
-                <Calendar className="w-5 h-5" />
+              <Link href="/programs" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/programs') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)} aria-current={isActive('/programs') ? 'page' : undefined}>
+                <Calendar className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium">Programs</span>
               </Link>
-              <Link href="/meetings" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/meetings') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
-                <Users className="w-5 h-5" />
+              <Link href="/meetings" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/meetings') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)} aria-current={isActive('/meetings') ? 'page' : undefined}>
+                <Users className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium">Meetings & Groups</span>
               </Link>
 
@@ -492,7 +498,7 @@ export default function Navbar() {
                 )}
               </div>
 
-              <Link href="/contact" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/contact') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)}>
+              <Link href="/contact" className={`flex items-center gap-3 hover:bg-white/10 px-4 py-3 rounded-lg transition-colors ${isActive('/contact') ? 'text-white bg-white/5 border-l-2 border-brand-green' : 'text-white/80'}`} onClick={() => setShowMobileMenu(false)} aria-current={isActive('/contact') ? 'page' : undefined}>
                 <span className="font-medium">Contact</span>
               </Link>
 

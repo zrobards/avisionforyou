@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: { publishedAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: 50
     })
 
