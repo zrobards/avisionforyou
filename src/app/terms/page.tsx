@@ -22,7 +22,7 @@ export default function Terms() {
           <div className="space-y-12">
             {/* Last Updated */}
             <div className="text-gray-600 mb-8 pb-8 border-b border-gray-200">
-              <p className="text-sm">Last Updated: February 2026</p>
+              <p className="text-sm">Last Updated: March 2026</p>
               <p className="text-sm mt-2">These Terms of Use govern your access to and use of the A Vision For You website and services. By accessing or using our website, you agree to be bound by these terms. If you do not agree with any part of these terms, please do not use our website.</p>
             </div>
 
@@ -110,12 +110,11 @@ export default function Terms() {
               <div className="space-y-3 text-gray-700">
                 <p className="leading-relaxed">This website may contain links to third-party websites and services, including payment processors and external resources. <strong>A Vision For You is not responsible for the content, accuracy, or practices of external websites.</strong> Your use of third-party services is governed by their own terms and privacy policies.</p>
                 <div className="bg-blue-50 p-4 rounded-lg mt-4 space-y-2 text-sm">
-                  <p><strong>Third-Party Payment Processors:</strong></p>
+                  <p><strong>Third-Party Payment Processor:</strong></p>
                   <ul className="list-disc list-inside space-y-1 ml-2">
-                    <li>Stripe - <a href="https://stripe.com/ssa" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">stripe.com/ssa</a></li>
                     <li>Square - <a href="https://squareup.com/legal/ssa" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">squareup.com/legal/ssa</a></li>
                   </ul>
-                  <p className="mt-2">These services have their own terms, privacy policies, and security standards. By using our donation system, you agree to their terms as well.</p>
+                  <p className="mt-2">Square has its own terms, privacy policy, and security standards. By using our donation system, you agree to their terms as well.</p>
                 </div>
               </div>
             </div>

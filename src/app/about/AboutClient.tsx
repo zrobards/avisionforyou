@@ -51,23 +51,23 @@ const CORE_VALUES = [
 const LEADERSHIP = [
   {
     name: 'Lucas Bennett',
-    title: 'President & Founder',
+    title: 'President & Executive Director',
     initials: 'LB',
     bio: 'With a heart for the homeless and hurting, Lucas founded A Vision for You to provide the comprehensive support he saw was lacking. His vision transformed from an idea into a movement helping hundreds find hope and recovery.',
     gradient: 'from-[#7f3d8b] to-[#b6e41f]',
   },
   {
     name: 'Dr. Evan Massey',
-    title: 'VP Medical Director',
+    title: 'Vice President',
     initials: 'EM',
-    bio: 'As a medical doctor and addiction specialist, Dr. Massey brings clinical expertise to our treatment programs, ensuring evidence-based care and compassionate medical support for all clients.',
+    bio: 'Dr. Massey provides strategic leadership and oversight, ensuring the organization maintains its mission and vision while expanding services to meet community needs.',
     gradient: 'from-[#b6e41f] to-blue-500',
   },
   {
     name: 'Charles Moore',
-    title: 'Board Member',
+    title: 'Treasurer',
     initials: 'CM',
-    bio: 'Charles brings years of community leadership and a deep commitment to service. His strategic guidance and connections strengthen our ability to reach and serve those in need across Louisville.',
+    bio: 'Charles oversees the financial operations and ensures fiscal responsibility and transparency across all programs and services.',
     gradient: 'from-blue-500 to-[#7f3d8b]',
   },
 ]

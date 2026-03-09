@@ -22,7 +22,7 @@ export default function Privacy() {
           <div className="space-y-12">
             {/* Last Updated */}
             <div className="text-gray-600 mb-8 pb-8 border-b border-gray-200">
-              <p className="text-sm">Last Updated: February 2026</p>
+              <p className="text-sm">Last Updated: March 2026</p>
               <p className="text-sm mt-2">A Vision For You ("we," "us," "our," or "the Organization") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.</p>
             </div>
 
@@ -81,12 +81,8 @@ export default function Privacy() {
                 <p className="leading-relaxed">A Vision For You uses third-party payment processors for secure donation and payment handling:</p>
                 <div className="bg-blue-50 p-4 sm:p-6 rounded-lg mt-4 space-y-3">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Stripe</h4>
-                    <p className="text-sm">Credit card payments are processed through Stripe. We do not store full credit card information on our servers. Stripe handles Payment Card Industry (PCI) compliance and data security. For Stripe's privacy practices, visit <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">stripe.com/privacy</a></p>
-                  </div>
-                  <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Square</h4>
-                    <p className="text-sm">Recurring donations and additional payment methods are processed through Square. Square securely handles payment data in compliance with PCI DSS standards. For Square's privacy practices, visit <a href="https://squareup.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">squareup.com/privacy</a></p>
+                    <p className="text-sm">All donations and payments are processed through Square. We do not store full credit card information on our servers. Square securely handles payment data in compliance with PCI DSS standards. For Square's privacy practices, visit <a href="https://squareup.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">squareup.com/privacy</a></p>
                   </div>
                 </div>
                 <p className="leading-relaxed mt-4">We collect and retain donor information (name, email, donation amount, frequency) for tax receipts, donor recognition, and impact reporting. This information is kept confidential and is not shared with external parties except as required by law.</p>
@@ -179,6 +175,10 @@ export default function Privacy() {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Neon (Database)</h4>
                     <p className="text-sm">Provides secure cloud database storage for application data. For Neon's privacy practices, visit <a href="https://neon.tech/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">neon.tech/privacy</a></p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Facebook (Social Media Embed)</h4>
+                    <p className="text-sm">Our homepage embeds a Facebook Page Plugin to display our community feed. Facebook may collect browsing data through this embed. For Facebook's privacy practices, visit <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">facebook.com/privacy/policy</a></p>
                   </div>
                 </div>
                 <p className="leading-relaxed mt-3">We encourage you to review the privacy policies of these third-party services. We are not responsible for their privacy practices.</p>

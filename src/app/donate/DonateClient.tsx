@@ -72,13 +72,8 @@ export default function Donate() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'square'>('square')
   const isSandbox = process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === 'sandbox'
   const ein = process.env.NEXT_PUBLIC_EIN?.trim()
-
-  const stripeConfigured =
-    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY &&
-    !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.includes('placeholder')
 
   /* ─── Derived values ─── */
   const finalAmount = customAmount ? parseFloat(customAmount) : selectedAmount
@@ -298,29 +293,12 @@ export default function Donate() {
                 <label className="block text-sm font-semibold text-white/70 mb-3">Payment Method</label>
                 <div className="flex gap-3 sm:gap-4">
                   <button
-                    onClick={() => setPaymentMethod('square')}
-                    className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all ${
-                      paymentMethod === 'square'
-                        ? 'bg-[#b6e41f] text-slate-950 shadow-lg shadow-[#b6e41f]/20'
-                        : 'bg-slate-700 text-white/70 hover:bg-slate-600'
-                    }`}
+                    className="flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base bg-[#b6e41f] text-slate-950 shadow-lg shadow-[#b6e41f]/20"
                   >
                     Square{isSandbox ? ' (Sandbox)' : ''}
                   </button>
-                  {stripeConfigured && (
-                    <button
-                      onClick={() => setPaymentMethod('stripe')}
-                      className={`flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all ${
-                        paymentMethod === 'stripe'
-                          ? 'bg-[#b6e41f] text-slate-950 shadow-lg shadow-[#b6e41f]/20'
-                          : 'bg-slate-700 text-white/70 hover:bg-slate-600'
-                      }`}
-                    >
-                      Stripe
-                    </button>
-                  )}
                 </div>
-                {paymentMethod === 'square' && isSandbox && (
+                {isSandbox && (
                   <p className="text-xs sm:text-sm text-[#b6e41f]/80 mt-2">
                     Sandbox mode - Use test card: 4532 0151 1283 0366
                   </p>
@@ -546,7 +524,7 @@ export default function Donate() {
               <div className="mt-6 flex flex-col items-center gap-2.5 text-center">
                 <p className="text-sm text-white/40 flex items-center gap-2">
                   <Lock className="w-4 h-4 text-[#b6e41f]" />
-                  Secure payment powered by {paymentMethod === 'square' ? 'Square' : 'Stripe'}
+                  Secure payment powered by Square
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/30">
                   <span className="flex items-center gap-1">
