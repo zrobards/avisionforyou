@@ -4,6 +4,35 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { logger } from '@/lib/logger'
 
+// DELETE all donations (admin only — for clearing test/seed data)
+export async function DELETE() {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const user = await db.user.findUnique({
+      where: { email: session.user.email }
+    })
+
+    if (user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Only admins can delete donations" }, { status: 403 })
+    }
+
+    const result = await db.donation.deleteMany({})
+
+    return NextResponse.json({
+      message: `Deleted ${result.count} donations`,
+      count: result.count
+    })
+  } catch (error) {
+    logger.error({ err: error }, "Error deleting donations")
+    return NextResponse.json({ error: "Failed to delete donations" }, { status: 500 })
+  }
+}
+
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {

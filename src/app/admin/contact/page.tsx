@@ -265,10 +265,12 @@ export default function AdminContactPage() {
                     </Button>
                   )}
                   <a
-                    href={`mailto:${inquiry.email}?subject=Re: ${inquiry.subject}`}
+                    href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(inquiry.email)}&su=${encodeURIComponent('Re: ' + inquiry.subject)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-brand-purple rounded-md hover:bg-brand-purple/90 transition-colors"
                   >
-                    Reply via Email
+                    Reply via Gmail
                   </a>
                 </div>
               </div>

@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { 
+import {
   DollarSign,
   Download,
   Filter,
@@ -15,7 +15,8 @@ import {
   AlertCircle,
   Clock,
   Heart,
-  ArrowLeft
+  ArrowLeft,
+  Trash2
 } from 'lucide-react'
 
 interface Donation {
@@ -155,13 +156,35 @@ export default function AdminDonations() {
                 <p className="text-slate-400 mt-1">Professional donation management and reporting</p>
               </div>
             </div>
-            <button
-              onClick={downloadCSV}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 hover-scale"
-            >
-              <Download className="w-4 h-4" />
-              Export CSV
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={async () => {
+                  if (!confirm('Are you sure you want to delete ALL donations? This cannot be undone.')) return
+                  try {
+                    const res = await fetch('/api/admin/donations', { method: 'DELETE' })
+                    if (res.ok) {
+                      const data = await res.json()
+                      alert(`Cleared ${data.count} donations.`)
+                      setDonations([])
+                      setStats(null)
+                    } else {
+                      alert('Failed to clear donations.')
+                    }
+                  } catch { alert('Failed to clear donations.') }
+                }}
+                className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-5 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/50"
+              >
+                <Trash2 className="w-4 h-4" />
+                Clear All
+              </button>
+              <button
+                onClick={downloadCSV}
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 hover-scale"
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </button>
+            </div>
           </div>
         </div>
       </header>
