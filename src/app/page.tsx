@@ -38,7 +38,7 @@ export default function Home() {
           containedInPlace: { "@type": "State", name: "Kentucky" }
         },
         sameAs: [
-          "https://www.facebook.com/avisionforyou",
+          "https://www.facebook.com/avfyrecovery",
           "https://www.instagram.com/avision_foryourecovery/",
           "https://www.tiktok.com/@avisionforyourecovery",
           "https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/"

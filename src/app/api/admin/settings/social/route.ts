@@ -19,7 +19,7 @@ export async function GET() {
       const defaultSettings = await db.siteSettings.create({
         data: {
           instagramUrl: "https://www.instagram.com/avision_foryourecovery/",
-          facebookPageUrl: "https://www.facebook.com/avisionforyou",
+          facebookPageUrl: "https://www.facebook.com/avfyrecovery",
           tiktokUsername: "avisionforyourecovery",
         },
       });

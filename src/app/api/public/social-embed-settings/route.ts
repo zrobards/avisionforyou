@@ -12,7 +12,7 @@ export async function GET() {
       settings = await db.siteSettings.create({
         data: {
           instagramUrl: "https://www.instagram.com/avision_foryourecovery/",
-          facebookPageUrl: "https://www.facebook.com/avisionforyou",
+          facebookPageUrl: "https://www.facebook.com/avfyrecovery",
           tiktokUsername: "avisionforyourecovery",
         },
       });
@@ -24,7 +24,7 @@ export async function GET() {
     return NextResponse.json(
       { 
         instagramUrl: "https://www.instagram.com/avision_foryourecovery/",
-        facebookPageUrl: "https://www.facebook.com/avisionforyou",
+        facebookPageUrl: "https://www.facebook.com/avfyrecovery",
         tiktokUsername: "avisionforyourecovery",
       },
       { status: 200 }

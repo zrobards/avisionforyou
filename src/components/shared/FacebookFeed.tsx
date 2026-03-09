@@ -5,7 +5,7 @@ import { Facebook } from 'lucide-react'
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const FACEBOOK_PAGE_URL = 'https://www.facebook.com/avisionforyou'
+const FACEBOOK_PAGE_URL = 'https://www.facebook.com/avfyrecovery'
 const FACEBOOK_HANDLE = 'A Vision For You'
 const FACEBOOK_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || ''
 

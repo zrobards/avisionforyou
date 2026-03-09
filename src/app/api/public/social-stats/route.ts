@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest) {
       if (err?.message?.includes('does not exist') || err?.code === '42P01') {
         logger.warn('Social stats table does not exist, returning defaults')
         return NextResponse.json({
-          facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avisionforyou' },
+          facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avfyrecovery' },
           instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
           linkedin: { followers: 23, handle: 'A Vision For You', url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/' },
           tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery' }
@@ -37,7 +37,7 @@ export async function GET(_request: NextRequest) {
     // If no stats in database, return defaults
     if (stats.length === 0) {
       return NextResponse.json({
-        facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avisionforyou' },
+        facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avfyrecovery' },
         instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
         linkedin: { followers: 23, handle: 'A Vision For You', url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/' },
         tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery' }
@@ -60,7 +60,7 @@ export async function GET(_request: NextRequest) {
     
     // Return defaults on error
     return NextResponse.json({
-      facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avisionforyou' },
+      facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avfyrecovery' },
       instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
       linkedin: { followers: 23, handle: 'A Vision For You Recovery', url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/' },
       tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery' }
