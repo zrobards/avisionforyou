@@ -92,10 +92,10 @@ function LoginContent() {
           <div className="flex items-center gap-4">
             <p className="text-purple-200 text-sm hidden sm:block">New to our community?</p>
             <Link
-              href="/"
+              href="/signup"
               className="text-brand-green hover:text-green-300 font-medium transition-colors flex items-center gap-1"
             >
-              Learn More <ArrowRight className="w-4 h-4" />
+              Sign Up <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -216,9 +216,9 @@ function LoginContent() {
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-purple-200 text-sm">
-              Don't have an account?{' '}
-              <Link href="/" className="text-brand-green hover:text-green-300 font-semibold transition-colors">
-                Contact us
+              Don&apos;t have an account?{' '}
+              <Link href="/signup" className="text-brand-green hover:text-green-300 font-semibold transition-colors">
+                Create one
               </Link>
             </p>
           </div>
