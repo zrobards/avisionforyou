@@ -256,7 +256,7 @@ export default async function DashboardPage() {
                   >
                     <div>
                       <p className="font-medium">
-                        ${donation.amount.toFixed(2)}
+                        ${Number(donation.amount).toFixed(2)}
                         {donation.frequency && donation.frequency !== 'ONE_TIME' && (
                           <span className="text-xs text-brand-purple ml-1.5 font-normal">
                             / {donation.frequency.toLowerCase()}

@@ -85,7 +85,7 @@ export default function MyDonations() {
 
   const totalDonated = donations
     .filter(d => d.status === 'COMPLETED')
-    .reduce((sum, d) => sum + d.amount, 0)
+    .reduce((sum, d) => sum + Number(d.amount), 0)
 
   const totalCount = donations.filter(d => d.status === 'COMPLETED').length
 
@@ -159,7 +159,7 @@ export default function MyDonations() {
               {pendingDonations.map(donation => (
                 <div key={donation.id} className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-gray-900">${donation.amount.toFixed(2)}</p>
+                    <p className="font-semibold text-gray-900">${Number(donation.amount).toFixed(2)}</p>
                     <p className="text-sm text-gray-500">
                       {donation.frequency === 'ONE_TIME' ? 'One-time' : donation.frequency} &middot; {new Date(donation.createdAt).toLocaleDateString()}
                     </p>
@@ -187,7 +187,7 @@ export default function MyDonations() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
                         <p className="text-2xl font-bold text-gray-900">
-                          ${donation.amount.toFixed(2)}
+                          ${Number(donation.amount).toFixed(2)}
                         </p>
                         <span className="px-3 py-1 text-xs font-medium bg-brand-purple/10 text-brand-purple rounded-full">
                           {donation.frequency === 'MONTHLY' ? 'Monthly' : 'Yearly'}
@@ -268,7 +268,7 @@ export default function MyDonations() {
                   <tbody className="divide-y divide-gray-100">
                     {[...completedOneTime, ...cancelledDonations, ...failedDonations].map(donation => (
                       <tr key={donation.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 font-medium">${donation.amount.toFixed(2)}</td>
+                        <td className="px-6 py-4 font-medium">${Number(donation.amount).toFixed(2)}</td>
                         <td className="px-6 py-4 text-gray-500">
                           {donation.frequency === 'ONE_TIME' ? 'One-time' :
                            donation.frequency === 'MONTHLY' ? 'Monthly' :
@@ -297,7 +297,7 @@ export default function MyDonations() {
                 {[...completedOneTime, ...cancelledDonations, ...failedDonations].map(donation => (
                   <div key={donation.id} className="p-4 flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">${donation.amount.toFixed(2)}</p>
+                      <p className="font-medium text-gray-900">${Number(donation.amount).toFixed(2)}</p>
                       <p className="text-xs text-gray-500">
                         {donation.frequency === 'ONE_TIME' ? 'One-time' : donation.frequency} &middot; {new Date(donation.createdAt).toLocaleDateString()}
                       </p>
