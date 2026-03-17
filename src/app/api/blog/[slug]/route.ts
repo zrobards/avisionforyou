@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/apiAuth'
-import DOMPurify from 'isomorphic-dompurify'
-import fs from 'fs'
-import path from 'path'
 import { logger } from '@/lib/logger'
 
-const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
+// Lazy-load DOMPurify to avoid crashes if jsdom isn't available on serverless
+let sanitize: (html: string) => string
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const DOMPurify = require('isomorphic-dompurify')
+  sanitize = (html: string) => DOMPurify.sanitize(html)
+} catch {
+  sanitize = (html: string) =>
+    html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+}
 
 // GET /api/blog/[slug] - Get single post by slug
 export async function GET(
@@ -30,35 +36,21 @@ export async function GET(
     })
 
     if (!post) {
-      if (fs.existsSync(BLOG_POSTS_PATH)) {
-        const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-        const fallback = fallbackPosts.find((p: { slug: string }) => p.slug === slug)
-        if (fallback) {
-          return NextResponse.json(fallback)
-        }
-      }
       return NextResponse.json(
         { error: 'Post not found' },
         { status: 404 }
       )
     }
 
-    // Increment view count
-    await db.blogPost.update({
+    // Increment view count (fire-and-forget)
+    db.blogPost.update({
       where: { id: post.id },
       data: { views: { increment: 1 } }
-    })
+    }).catch(() => {})
 
     return NextResponse.json(post)
   } catch (error) {
     logger.error({ err: error }, 'Error fetching blog post')
-    if (fs.existsSync(BLOG_POSTS_PATH)) {
-      const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-      const fallback = fallbackPosts.find((p: { slug: string }) => p.slug === slug)
-      if (fallback) {
-        return NextResponse.json(fallback)
-      }
-    }
     return NextResponse.json(
       { error: 'Failed to fetch blog post' },
       { status: 500 }
@@ -95,7 +87,7 @@ export async function PATCH(
 
     const body = await request.json()
     const { title, excerpt, status, category, tags, imageUrl } = body
-    const content = body.content ? DOMPurify.sanitize(body.content) : body.content
+    const content = body.content ? sanitize(body.content) : body.content
 
     // If title changed, update slug
     const updateData: Record<string, unknown> = {

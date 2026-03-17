@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { getSession, rateLimitResponse } from '@/lib/apiAuth'
-import DOMPurify from 'isomorphic-dompurify'
-import fs from 'fs'
-import path from 'path'
 import { logger } from '@/lib/logger'
 
-const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
+// Lazy-load DOMPurify to avoid crashes if jsdom isn't available
+let sanitize: (html: string) => string
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const DOMPurify = require('isomorphic-dompurify')
+  sanitize = (html: string) => DOMPurify.sanitize(html)
+} catch {
+  // Fallback: basic HTML entity escaping for script tags
+  sanitize = (html: string) =>
+    html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+}
 
 // GET /api/blog - List all published posts (public) or all posts (admin)
 export async function GET(request: NextRequest) {
@@ -51,14 +58,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error: unknown) {
     logger.error({ err: error }, 'Error fetching blog posts')
-    if (fs.existsSync(BLOG_POSTS_PATH)) {
-      const fallbackPosts = JSON.parse(fs.readFileSync(BLOG_POSTS_PATH, 'utf-8'))
-      return NextResponse.json(fallbackPosts, {
-        headers: {
-          'Cache-Control': 'no-store, max-age=0'
-        }
-      })
-    }
     return NextResponse.json(
       { error: 'Failed to fetch blog posts' },
       { status: 500 }
@@ -97,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const { title, excerpt, status, category, tags, imageUrl } = body
-    const content = body.content ? DOMPurify.sanitize(body.content) : body.content
+    const content = body.content ? sanitize(body.content) : body.content
 
     if (!title || !content) {
       return NextResponse.json(
@@ -126,7 +125,7 @@ export async function POST(request: NextRequest) {
         title,
         slug,
         content,
-        excerpt: excerpt || content.substring(0, 200) + '...',
+        excerpt: excerpt || content.replace(/<[^>]+>/g, '').substring(0, 200) + '...',
         authorId: user.id,
         status: status || 'DRAFT',
         category,

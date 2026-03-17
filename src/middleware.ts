@@ -39,8 +39,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protect dashboard - any authenticated user
-  if (pathname.startsWith("/dashboard")) {
+  // Protect dashboard and user donation management - any authenticated user
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/donations/my-donations")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url))
     }
