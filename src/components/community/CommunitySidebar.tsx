@@ -37,6 +37,7 @@ export default function CommunitySidebar() {
                     ? 'bg-white/20 text-white font-semibold'
                     : 'text-green-100 hover:bg-white/10 hover:text-white'
                 }`}
+                aria-current={isActive ? 'page' : undefined}
               >
                 <Icon className="w-5 h-5" />
                 {item.label}

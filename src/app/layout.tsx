@@ -73,6 +73,43 @@ export default function RootLayout({
         <GoogleAnalytics />
       </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": ["Organization", "LocalBusiness"],
+              "name": "A Vision For You Inc.",
+              "alternateName": "AVFY",
+              "url": "https://avisionforyourecovery.org",
+              "logo": "https://avisionforyourecovery.org/AVFY%20LOGO.jpg",
+              "description": "Nonprofit addiction recovery organization providing housing, treatment, education, and community support in Louisville, KY.",
+              "telephone": "+1-502-749-6344",
+              "email": "info@avisionforyourecovery.org",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "1675 Story Ave",
+                "addressLocality": "Louisville",
+                "addressRegion": "KY",
+                "postalCode": "40206",
+                "addressCountry": "US"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": "38.2527",
+                "longitude": "-85.7185"
+              },
+              "sameAs": [
+                "https://www.facebook.com/avfyrecovery",
+                "https://www.instagram.com/avision_foryourecovery/",
+                "https://www.tiktok.com/@avisionforyourecovery",
+                "https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/"
+              ],
+              "nonprofitStatus": "Nonprofit501c3",
+              "taxID": "87-1066569"
+            })
+          }}
+        />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-brand-purple focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold"

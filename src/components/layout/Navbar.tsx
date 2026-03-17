@@ -156,7 +156,7 @@ export default function Navbar() {
                 onKeyDown={(e) => handleDropdownKeyDown(e, showAboutDropdown, setShowAboutDropdown, aboutDropdownRef)}
               >
                 About
-                <ChevronDown className="w-3.5 h-3.5" />
+                <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
               {showAboutDropdown && (
                 <div className="absolute top-full left-0 pt-2 z-50">
@@ -275,6 +275,7 @@ export default function Navbar() {
                       isActive('/board') ? 'ring-2 ring-brand-green/50' : ''
                     }`}
                     title="Board Portal"
+                    aria-current={isActive('/board') ? 'page' : undefined}
                   >
                     <span className="hidden xl:inline">Board</span>
                     <span className="xl:hidden">B</span>
@@ -287,6 +288,7 @@ export default function Navbar() {
                       isActive('/community') ? 'ring-2 ring-brand-green/50' : ''
                     }`}
                     title="Community"
+                    aria-current={isActive('/community') ? 'page' : undefined}
                   >
                     <span className="hidden xl:inline">Community</span>
                     <span className="xl:hidden">C</span>
@@ -310,7 +312,7 @@ export default function Navbar() {
                   aria-expanded={showUserMenu}
                   onKeyDown={(e) => handleDropdownKeyDown(e, showUserMenu, setShowUserMenu, userMenuRef)}
                 >
-                  <User className="w-4 h-4" />
+                  <User className="w-4 h-4" aria-hidden="true" />
                   <span className="hidden lg:inline max-w-[120px] truncate">{session.user?.name || 'Account'}</span>
                 </button>
 
@@ -328,7 +330,7 @@ export default function Navbar() {
                       onClick={() => setShowUserMenu(false)}
                       onKeyDown={(e) => handleMenuItemKeyDown(e, setShowUserMenu, userMenuRef)}
                     >
-                      <Settings className="w-4 h-4" />
+                      <Settings className="w-4 h-4" aria-hidden="true" />
                       My Dashboard
                     </Link>
                     {isAdmin && (
@@ -340,7 +342,7 @@ export default function Navbar() {
                         onClick={() => setShowUserMenu(false)}
                         onKeyDown={(e) => handleMenuItemKeyDown(e, setShowUserMenu, userMenuRef)}
                       >
-                        <Users className="w-4 h-4" />
+                        <Users className="w-4 h-4" aria-hidden="true" />
                         Admin Panel
                       </Link>
                     )}
@@ -354,7 +356,7 @@ export default function Navbar() {
                       className="flex items-center gap-2 w-full px-4 py-2.5 text-red-400 hover:bg-red-500/10 transition-colors text-sm"
                       onKeyDown={(e) => handleMenuItemKeyDown(e, setShowUserMenu, userMenuRef)}
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-4 h-4" aria-hidden="true" />
                       Sign Out
                     </button>
                   </div>
@@ -433,7 +435,7 @@ export default function Navbar() {
                   aria-expanded={showMobileAboutMenu}
                 >
                   <span className="font-medium">About</span>
-                  <ChevronDown className={`w-5 h-5 transition-transform ${showMobileAboutMenu ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-5 h-5 transition-transform ${showMobileAboutMenu ? 'rotate-180' : ''}`} aria-hidden="true" />
                 </button>
                 {showMobileAboutMenu && (
                   <div className="ml-4 mt-1 space-y-1" role="menu">
@@ -446,6 +448,7 @@ export default function Navbar() {
                           isActive(item.href) ? 'text-white bg-white/5 font-semibold' : 'text-white/60'
                         }`}
                         onClick={() => { setShowMobileMenu(false); setShowMobileAboutMenu(false) }}
+                        aria-current={isActive(item.href) ? 'page' : undefined}
                       >
                         <span className="text-sm">{item.label}</span>
                       </Link>
@@ -474,10 +477,10 @@ export default function Navbar() {
                   aria-expanded={showMobileBlogMenu}
                 >
                   <div className="flex items-center gap-3">
-                    <BookOpen className="w-5 h-5" />
+                    <BookOpen className="w-5 h-5" aria-hidden="true" />
                     <span className="font-medium">Blog</span>
                   </div>
-                  <ChevronDown className={`w-5 h-5 transition-transform ${showMobileBlogMenu ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-5 h-5 transition-transform ${showMobileBlogMenu ? 'rotate-180' : ''}`} aria-hidden="true" />
                 </button>
                 {showMobileBlogMenu && (
                   <div className="ml-4 mt-1 space-y-1" role="menu">
@@ -490,6 +493,7 @@ export default function Navbar() {
                           isActive(item.href) ? 'text-white bg-white/5 font-semibold' : 'text-white/60'
                         }`}
                         onClick={() => { setShowMobileMenu(false); setShowMobileBlogMenu(false) }}
+                        aria-current={isActive(item.href) ? 'page' : undefined}
                       >
                         <span className="text-sm">{item.label}</span>
                       </Link>
@@ -512,12 +516,12 @@ export default function Navbar() {
                   </div>
 
                   {isBoard && (
-                    <Link href="/board" className={`flex items-center gap-3 bg-white/10 text-white hover:bg-white/20 px-4 py-3 rounded-lg transition-colors font-medium ${isActive('/board') ? 'border-l-2 border-brand-green' : ''}`} onClick={() => setShowMobileMenu(false)}>
+                    <Link href="/board" className={`flex items-center gap-3 bg-white/10 text-white hover:bg-white/20 px-4 py-3 rounded-lg transition-colors font-medium ${isActive('/board') ? 'border-l-2 border-brand-green' : ''}`} onClick={() => setShowMobileMenu(false)} aria-current={isActive('/board') ? 'page' : undefined}>
                       <span>Board Portal</span>
                     </Link>
                   )}
                   {canAccessCommunity && (
-                    <Link href="/community" className={`flex items-center gap-3 bg-brand-green/20 text-brand-green hover:bg-brand-green/30 px-4 py-3 rounded-lg transition-colors font-medium mt-1 ${isActive('/community') ? 'border-l-2 border-brand-green' : ''}`} onClick={() => setShowMobileMenu(false)}>
+                    <Link href="/community" className={`flex items-center gap-3 bg-brand-green/20 text-brand-green hover:bg-brand-green/30 px-4 py-3 rounded-lg transition-colors font-medium mt-1 ${isActive('/community') ? 'border-l-2 border-brand-green' : ''}`} onClick={() => setShowMobileMenu(false)} aria-current={isActive('/community') ? 'page' : undefined}>
                       <span>Community</span>
                     </Link>
                   )}

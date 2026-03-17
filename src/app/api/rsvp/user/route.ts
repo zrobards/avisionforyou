@@ -1,13 +1,12 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/apiAuth'
 import { logger } from '@/lib/logger'
 
 // Get user's RSVPs and send reminders based on timing
 export async function GET(_request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -70,7 +69,7 @@ export async function GET(_request: NextRequest) {
 // Cancel an RSVP
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session?.user?.email) {
       return NextResponse.json(

@@ -51,6 +51,7 @@ export default function BoardSidebar({ collapsed = false, mobileOpen: _mobileOpe
                     : 'text-indigo-100 hover:bg-white/10 hover:text-white'
                 }`}
                 title={collapsed ? item.label : undefined}
+                aria-current={isActive ? 'page' : undefined}
               >
                 <Icon className="w-5 h-5" />
                 {!collapsed && item.label}

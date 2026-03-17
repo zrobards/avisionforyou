@@ -9,7 +9,7 @@ export function buildPageMetadata(title: string, description: string): Metadata 
     openGraph: {
       title,
       description,
-      images: [{ url: DEFAULT_OG_IMAGE }],
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: 'A Vision For You' }],
     },
     twitter: {
       card: 'summary_large_image',

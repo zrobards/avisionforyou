@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/apiAuth'
 import { db } from '@/lib/db'
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
@@ -12,7 +11,7 @@ const profileUpdateSchema = z.object({
 // GET /api/user/profile - Get current user profile
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session || !session.user?.email) {
       return NextResponse.json(
@@ -53,7 +52,7 @@ export async function GET() {
 // PATCH /api/user/profile - Update current user profile
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session || !session.user?.email) {
       return NextResponse.json(

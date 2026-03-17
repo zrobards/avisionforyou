@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/apiAuth'
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
 
@@ -9,7 +8,7 @@ export const dynamic = 'force-dynamic';
 // GET /api/user/donations - Get current user's donations
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session || !session.user?.email) {
       return NextResponse.json(

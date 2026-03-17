@@ -31,6 +31,13 @@ interface BlogPost {
   }
 }
 
+/** Safely parse a response as JSON — returns null if the response is HTML or unparseable */
+async function safeJson(response: Response) {
+  const ct = response.headers.get('content-type') || ''
+  if (!ct.includes('application/json')) return null
+  try { return await response.json() } catch { return null }
+}
+
 export default function AdminBlog() {
   const { status } = useSession()
   const router = useRouter()
@@ -54,33 +61,28 @@ export default function AdminBlog() {
   const fetchPosts = useCallback(async () => {
     try {
       const response = await fetch('/api/blog?drafts=true', { cache: 'no-store' })
-      // Handle non-JSON responses (e.g. auth redirects)
-      const contentType = response.headers.get('content-type')
-      if (!contentType?.includes('application/json')) {
-        if (response.status === 401 || response.status === 403) {
-          // Auth not ready yet — will retry on next poll
-          return
-        }
-        console.error('Blog API returned non-JSON:', response.status)
+      // Handle non-JSON responses (auth redirects return HTML)
+      const contentType = response.headers.get('content-type') || ''
+      if (!contentType.includes('application/json')) {
+        // Silently skip — auth may not be ready yet, polling will retry
         return
       }
       const data = await response.json()
       if (response.ok) {
         setPosts(Array.isArray(data) ? data : [])
-      } else if (response.status !== 401 && response.status !== 403) {
+      } else if (response.status === 401 || response.status === 403) {
+        // Auth issue — silently skip, polling will retry
+        return
+      } else {
         console.error('Blog API error:', response.status, data)
         showToast(data?.error || 'Failed to load blog posts', 'error')
       }
-    } catch (error) {
-      console.error('Failed to fetch posts:', error)
-      // Don't show toast for network errors during initial load
-      if (!loading) {
-        showToast('Failed to connect to blog API', 'error')
-      }
+    } catch {
+      // Silently handle — polling will retry
     } finally {
       setLoading(false)
     }
-  }, [loading])
+  }, [])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -114,16 +116,15 @@ export default function AdminBlog() {
         })
 
         if (response.ok) {
-          const updated = await response.json()
-          // Update currentSlug in case title changed
-          setCurrentSlug(updated.slug)
+          const updated = await safeJson(response)
+          if (updated?.slug) setCurrentSlug(updated.slug)
           showToast('Blog post updated successfully', 'success')
           setEditing(null)
           resetForm()
           fetchPosts()
         } else {
-          const error = await response.json()
-          showToast(error.error || 'Failed to update post', 'error')
+          const error = await safeJson(response)
+          showToast(error?.error || 'Failed to update post', 'error')
         }
       } else {
         const response = await fetch('/api/blog', {
@@ -138,8 +139,8 @@ export default function AdminBlog() {
           resetForm()
           fetchPosts()
         } else {
-          const error = await response.json()
-          showToast(error.error || 'Failed to create post', 'error')
+          const error = await safeJson(response)
+          showToast(error?.error || 'Failed to create post', 'error')
         }
       }
     } catch (error: unknown) {
@@ -175,8 +176,8 @@ export default function AdminBlog() {
         showToast('Blog post deleted successfully', 'success')
         fetchPosts()
       } else {
-        const error = await response.json()
-        showToast(error.error || 'Failed to delete post', 'error')
+        const error = await safeJson(response)
+        showToast(error?.error || 'Failed to delete post', 'error')
       }
     } catch (error: unknown) {
       showToast(error instanceof Error ? error.message : 'Failed to delete post', 'error')

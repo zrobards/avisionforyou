@@ -110,8 +110,9 @@ export default function AdminLayout({
                     ? 'bg-white/20 text-white font-semibold'
                     : 'text-purple-100 hover:bg-white/10 hover:text-white'
                 }`}
+                aria-current={isActive ? 'page' : undefined}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5" aria-hidden="true" />
                 {item.label}
               </Link>
             )
@@ -122,15 +123,16 @@ export default function AdminLayout({
             <button
               onClick={() => setBoardMenuOpen(!boardMenuOpen)}
               className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-purple-100 hover:text-white"
+              aria-expanded={boardMenuOpen}
             >
               <div className="flex items-center gap-3">
-                <Briefcase className="w-5 h-5" />
+                <Briefcase className="w-5 h-5" aria-hidden="true" />
                 Board
               </div>
               {boardMenuOpen ? (
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4" aria-hidden="true" />
               ) : (
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
               )}
             </button>
 
@@ -146,6 +148,7 @@ export default function AdminLayout({
                         ? 'bg-white/20 text-white font-semibold'
                         : 'text-purple-100 hover:bg-white/10 hover:text-white'
                     }`}
+                    aria-current={pathname === item.href ? 'page' : undefined}
                   >
                     {item.label}
                   </Link>
@@ -159,15 +162,16 @@ export default function AdminLayout({
             <button
               onClick={() => setCommunityMenuOpen(!communityMenuOpen)}
               className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-purple-100 hover:text-white"
+              aria-expanded={communityMenuOpen}
             >
               <div className="flex items-center gap-3">
-                <UsersRound className="w-5 h-5" />
+                <UsersRound className="w-5 h-5" aria-hidden="true" />
                 Community
               </div>
               {communityMenuOpen ? (
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4" aria-hidden="true" />
               ) : (
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
               )}
             </button>
 
@@ -183,6 +187,7 @@ export default function AdminLayout({
                         ? 'bg-white/20 text-white font-semibold'
                         : 'text-purple-100 hover:bg-white/10 hover:text-white'
                     }`}
+                    aria-current={pathname === item.href ? 'page' : undefined}
                   >
                     {item.label}
                   </Link>
