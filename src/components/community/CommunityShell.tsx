@@ -6,72 +6,79 @@ import Footer from '@/components/layout/Footer'
 import { Menu, X } from 'lucide-react'
 
 export default function CommunityShell({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         {/* Desktop Sidebar - Fixed position, below navbar */}
         <div className={`hidden lg:block fixed top-[80px] left-0 h-[calc(100vh-80px)] z-30 transition-all duration-300 ${
-          sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
+          isCollapsed ? 'w-0 overflow-hidden' : 'w-64'
         }`}>
           <CommunitySidebar />
         </div>
 
         {/* Desktop toggle button */}
         <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="hidden lg:block fixed top-[88px] z-30 p-2 rounded-lg bg-green-600 text-white shadow-lg hover:bg-green-700 transition-all duration-300"
-          aria-label="Toggle sidebar"
-          style={{ left: sidebarOpen ? '16px' : '16px' }}
+          onClick={() => setIsCollapsed(prev => !prev)}
+          className={`hidden lg:flex fixed top-[88px] z-30 items-center gap-2 rounded-lg p-2 bg-green-600 text-white shadow-lg hover:bg-green-700 transition-all duration-300`}
+          aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
+          style={{ left: isCollapsed ? '24px' : '272px' }}
         >
-          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {isCollapsed ? (
+            <Menu className="h-5 w-5" />
+          ) : (
+            <X className="h-5 w-5" />
+          )}
         </button>
 
         {/* Main content area with proper margin */}
         <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
-          sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'
+          isCollapsed ? 'lg:ml-0' : 'lg:ml-64'
         }`}>
           {/* Mobile Header */}
-          <header className="lg:hidden sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
+          <header className="sticky top-0 z-20 bg-white border-b border-gray-200 lg:hidden shadow-sm">
             <div className="px-4 py-3 flex items-center justify-between">
               <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg bg-green-600 text-white shadow-lg"
-                aria-label="Toggle sidebar"
+                onClick={() => setIsMobileOpen(true)}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                aria-label="Open navigation"
               >
-                {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                <Menu className="h-4 w-4" />
+                Menu
               </button>
               <h1 className="text-lg font-semibold text-gray-900">Community Portal</h1>
             </div>
           </header>
 
-          <main className="flex-1 w-full">
+          {/* Main Content */}
+          <main className="flex-1 w-full pt-16 lg:pt-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
               {children}
             </div>
           </main>
-          
+
           {/* Footer */}
           <div className="w-full">
             <Footer />
           </div>
         </div>
 
+        {/* Mobile Overlay */}
+        {isMobileOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+            onClick={() => setIsMobileOpen(false)}
+          />
+        )}
+
         {/* Mobile Sidebar */}
         <div className={`lg:hidden fixed top-[80px] left-0 h-[calc(100vh-80px)] z-40 transition-transform duration-300 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <CommunitySidebar />
         </div>
-
-        {/* Overlay for mobile */}
-        {sidebarOpen && (
-          <div
-            className="lg:hidden fixed inset-0 bg-black/50 z-30"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
       </div>
     </div>
   )

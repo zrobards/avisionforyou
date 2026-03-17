@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSession } from '@/lib/apiAuth'
 import { db as prisma } from '@/lib/db'
 import { rateLimit, mediaUploadLimiter } from '@/lib/rateLimit'
 import { rateLimitResponse, validationErrorResponse } from '@/lib/apiAuth'
@@ -26,7 +25,7 @@ async function uploadFile(filename: string, buffer: Buffer, contentType: string)
 // GET - Fetch all media
 export async function GET(_req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -71,7 +70,7 @@ export async function GET(_req: NextRequest) {
 // POST - Upload new media
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

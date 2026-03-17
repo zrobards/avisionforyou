@@ -63,11 +63,39 @@ export function ShareButton({ title }: { title: string }) {
   )
 }
 
+/**
+ * Formats raw blog content that may be plain text (no HTML tags) into
+ * properly structured HTML with paragraphs.
+ */
+function formatContent(raw: string): string {
+  const sanitized = DOMPurify.sanitize(raw)
+
+  // If content already has block-level HTML tags, return as-is
+  if (/<(p|h[1-6]|div|ul|ol|li|blockquote|table|figure|pre|hr)\b/i.test(sanitized)) {
+    return sanitized
+  }
+
+  // Plain text — split by double newlines into paragraphs
+  return sanitized
+    .split(/\n{2,}/)
+    .map(block => {
+      const trimmed = block.trim()
+      if (!trimmed) return ''
+      // Preserve single newlines as <br> within paragraphs
+      const withBreaks = trimmed.replace(/\n/g, '<br />')
+      return `<p>${withBreaks}</p>`
+    })
+    .filter(Boolean)
+    .join('\n')
+}
+
 export function BlogContent({ content }: BlogPostClientProps) {
+  const formatted = formatContent(content)
+
   return (
     <div
-      className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
-      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+      className="blog-content prose prose-lg max-w-none"
+      dangerouslySetInnerHTML={{ __html: formatted }}
     />
   )
 }

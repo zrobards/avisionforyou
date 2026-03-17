@@ -8,6 +8,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Edit, Trash2, Eye, Save, Upload, X } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
+import dynamic from 'next/dynamic'
+
+const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor'), { ssr: false })
 
 interface BlogPost {
   id: string
@@ -264,12 +267,9 @@ export default function AdminBlog() {
 
               <div>
                 <label className="block text-gray-300 font-semibold mb-2">Content</label>
-                <textarea
-                  value={formData.content}
-                  onChange={e => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white font-mono text-sm max-h-[40vh] sm:max-h-none"
-                  rows={15}
-                  required
+                <RichTextEditor
+                  content={formData.content}
+                  onChange={(html) => setFormData(prev => ({ ...prev, content: html }))}
                   placeholder="Write your blog post content here..."
                 />
               </div>

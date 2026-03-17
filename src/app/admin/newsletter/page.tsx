@@ -2,6 +2,8 @@
 
 import dynamic from 'next/dynamic'
 import { useEffect, useState, useCallback } from 'react'
+
+const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor'), { ssr: false })
 import { usePolling } from '@/hooks/usePolling'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -307,15 +309,10 @@ export default function AdminNewsletter() {
               </div>
 
               <div>
-                <label htmlFor="newsletter-content" className="block text-gray-300 font-semibold mb-2">Content</label>
-                <textarea
-                  id="newsletter-content"
-                  name="content"
-                  value={formData.content}
-                  onChange={e => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white font-mono text-sm max-h-[40vh] sm:max-h-none"
-                  rows={20}
-                  required
+                <label className="block text-gray-300 font-semibold mb-2">Content</label>
+                <RichTextEditor
+                  content={formData.content}
+                  onChange={(html) => setFormData(prev => ({ ...prev, content: html }))}
                   placeholder="Write your newsletter content here..."
                 />
               </div>

@@ -45,14 +45,22 @@ export function hasRole(userRole: string | undefined, allowedRoles: readonly str
  */
 export async function getSession() {
   if (process.env.NODE_ENV === 'development' && process.env.BYPASS_AUTH === 'true') {
+    // Find any real admin in the DB so all API routes work
+    const { db } = await import('./db')
+    const admin = await db.user.findFirst({
+      where: { role: 'ADMIN' },
+      select: { id: true, name: true, email: true, role: true },
+    })
+    if (admin) {
+      return {
+        user: { id: admin.id, name: admin.name, email: admin.email, role: admin.role as 'ADMIN' },
+        expires: '2099-01-01T00:00:00.000Z',
+      }
+    }
+    // Fallback if no admin exists yet
     return {
-      user: {
-        id: 'bypass-review',
-        name: 'Review Admin',
-        email: 'admin@avisionforyourecovery.org',
-        role: 'ADMIN' as const
-      },
-      expires: '2099-01-01T00:00:00.000Z'
+      user: { id: 'bypass-dev', name: 'Dev Admin', email: 'dev@localhost', role: 'ADMIN' as const },
+      expires: '2099-01-01T00:00:00.000Z',
     }
   }
   return await getServerSession(authOptions)

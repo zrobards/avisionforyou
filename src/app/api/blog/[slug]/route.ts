@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { getSession } from '@/lib/apiAuth'
 import DOMPurify from 'isomorphic-dompurify'
 import fs from 'fs'
 import path from 'path'
@@ -74,7 +73,7 @@ export async function PATCH(
 ) {
   try {
     const { slug } = await params
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session || !session.user?.email) {
       return NextResponse.json(
@@ -87,7 +86,7 @@ export async function PATCH(
       where: { email: session.user.email }
     })
 
-    if (user?.role !== 'ADMIN') {
+    if (!user || (user.role !== 'ADMIN' && session.user?.role !== 'ADMIN')) {
       return NextResponse.json(
         { error: 'Unauthorized - Admin only' },
         { status: 403 }
@@ -169,7 +168,7 @@ export async function DELETE(
 ) {
   try {
     const { slug } = await params
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session || !session.user?.email) {
       return NextResponse.json(
@@ -182,7 +181,7 @@ export async function DELETE(
       where: { email: session.user.email }
     })
 
-    if (user?.role !== 'ADMIN') {
+    if (!user || (user.role !== 'ADMIN' && session.user?.role !== 'ADMIN')) {
       return NextResponse.json(
         { error: 'Unauthorized - Admin only' },
         { status: 403 }

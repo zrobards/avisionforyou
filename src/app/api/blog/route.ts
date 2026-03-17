@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rateLimit'
-import { rateLimitResponse } from '@/lib/apiAuth'
+import { getSession, rateLimitResponse } from '@/lib/apiAuth'
 import DOMPurify from 'isomorphic-dompurify'
 import fs from 'fs'
 import path from 'path'
@@ -14,7 +12,7 @@ const BLOG_POSTS_PATH = path.join(process.cwd(), 'data', 'blog-posts.json')
 // GET /api/blog - List all published posts (public) or all posts (admin)
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     const { searchParams } = new URL(request.url)
     const includesDrafts = searchParams.get('drafts') === 'true'
 
@@ -25,6 +23,10 @@ export async function GET(request: NextRequest) {
         where: { email: session.user.email }
       })
       isAdmin = user?.role === 'ADMIN'
+    }
+    // Also check session role directly (for bypass auth)
+    if (session?.user?.role === 'ADMIN') {
+      isAdmin = true
     }
 
     const posts = await db.blogPost.findMany({
@@ -67,7 +69,7 @@ export async function GET(request: NextRequest) {
 // POST /api/blog - Create new blog post (admin only)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
 
     if (!session || !session.user?.email) {
       return NextResponse.json(
@@ -80,7 +82,7 @@ export async function POST(request: NextRequest) {
       where: { email: session.user.email }
     })
 
-    if (user?.role !== 'ADMIN') {
+    if (!user || (user.role !== 'ADMIN' && session.user?.role !== 'ADMIN')) {
       return NextResponse.json(
         { error: 'Unauthorized - Admin only' },
         { status: 403 }

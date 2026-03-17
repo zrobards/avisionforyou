@@ -2,7 +2,7 @@
 
 import { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image, Share2, Briefcase, ChevronDown, ChevronRight, GraduationCap, UsersRound, ClipboardList } from 'lucide-react'
+import { Menu, X, Users, Calendar, FileText, Heart, BarChart3, Mail, LogOut, Home, Image, Share2, Briefcase, ChevronDown, ChevronRight, GraduationCap, UsersRound, ClipboardList, ArrowLeft } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
 import { ToastProvider } from '@/components/ui/toast'
@@ -40,7 +40,8 @@ export default function AdminLayout({
 }: {
   children: ReactNode
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [boardMenuOpen, setBoardMenuOpen] = useState(false)
   const [communityMenuOpen, setCommunityMenuOpen] = useState(false)
   const router = useRouter()
@@ -67,12 +68,12 @@ export default function AdminLayout({
     if (status === 'authenticated') {
       const userRole = session?.user?.role
       const isAdmin = userRole === 'ADMIN'
-      
+
       if (!isAdmin) {
         router.push('/dashboard')
         return
       }
-      
+
       setIsAuthorized(true)
     }
   }, [status, session, router])
@@ -87,165 +88,207 @@ export default function AdminLayout({
     )
   }
 
+  const SidebarContent = () => (
+    <aside className="w-64 bg-gradient-to-b from-brand-purple via-purple-800 to-purple-900 text-white h-full shadow-lg overflow-y-auto">
+      <div className="px-4 py-6 h-full flex flex-col">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white">Admin</h2>
+          <p className="text-purple-200 text-sm mt-1">Dashboard</p>
+        </div>
+
+        <nav className="space-y-1 flex-1">
+          {adminMenuItems.map(item => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsMobileOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-white/20 text-white font-semibold'
+                    : 'text-purple-100 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                {item.label}
+              </Link>
+            )
+          })}
+
+          {/* Board Management Section */}
+          <div className="pt-2">
+            <button
+              onClick={() => setBoardMenuOpen(!boardMenuOpen)}
+              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-purple-100 hover:text-white"
+            >
+              <div className="flex items-center gap-3">
+                <Briefcase className="w-5 h-5" />
+                Board
+              </div>
+              {boardMenuOpen ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+
+            {boardMenuOpen && (
+              <div className="ml-8 mt-1 space-y-1">
+                {boardMenuItems.map(item => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={`block px-4 py-2.5 rounded-lg transition-colors ${
+                      pathname === item.href
+                        ? 'bg-white/20 text-white font-semibold'
+                        : 'text-purple-100 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Community Management Section */}
+          <div className="pt-2">
+            <button
+              onClick={() => setCommunityMenuOpen(!communityMenuOpen)}
+              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-purple-100 hover:text-white"
+            >
+              <div className="flex items-center gap-3">
+                <UsersRound className="w-5 h-5" />
+                Community
+              </div>
+              {communityMenuOpen ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+
+            {communityMenuOpen && (
+              <div className="ml-8 mt-1 space-y-1">
+                {communityMenuItems.map(item => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={`block px-4 py-2.5 rounded-lg transition-colors ${
+                      pathname === item.href
+                        ? 'bg-white/20 text-white font-semibold'
+                        : 'text-purple-100 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </nav>
+
+        {/* Footer links */}
+        <div className="pt-4 border-t border-white/20 space-y-1">
+          <Link
+            href="/"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-purple-100 hover:text-white"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Main Site
+          </Link>
+          <button
+            onClick={async () => {
+              await signOut({ redirect: false })
+              router.push('/login')
+            }}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors w-full text-left text-purple-100 hover:text-white"
+          >
+            <LogOut className="w-5 h-5" />
+            Logout
+          </button>
+        </div>
+      </div>
+    </aside>
+  )
+
   return (
     <ToastProvider>
-    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? 'w-56' : 'w-0'
-        } bg-gradient-to-b from-brand-purple via-purple-800 to-purple-900 text-white transition-all duration-300 overflow-hidden fixed h-screen z-40 shadow-lg`}
-      >
-        <div className="px-4 py-4 h-full flex flex-col">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-white">Admin</h2>
-            <p className="text-purple-200 text-xs mt-0.5">Dashboard</p>
-          </div>
-          <nav className="space-y-0.5 flex-1 overflow-y-auto">
-            {adminMenuItems.map(item => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-white/20 transition-colors text-xs font-medium text-white/90 hover:text-white"
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
-              )
-            })}
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+        {/* Desktop Sidebar - Fixed position, below navbar */}
+        <div className={`hidden lg:block fixed top-[80px] left-0 h-[calc(100vh-80px)] z-30 transition-all duration-300 ${
+          isCollapsed ? 'w-0 overflow-hidden' : 'w-64'
+        }`}>
+          <SidebarContent />
+        </div>
 
-            {/* Board Management Section */}
-            <div className="pt-2">
+        {/* Desktop toggle button */}
+        <button
+          onClick={() => setIsCollapsed(prev => !prev)}
+          className={`hidden lg:flex fixed top-[88px] z-30 items-center gap-2 rounded-lg p-2 bg-brand-purple text-white shadow-lg hover:bg-purple-800 transition-all duration-300`}
+          aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
+          style={{ left: isCollapsed ? '24px' : '272px' }}
+        >
+          {isCollapsed ? (
+            <Menu className="h-5 w-5" />
+          ) : (
+            <X className="h-5 w-5" />
+          )}
+        </button>
+
+        {/* Main content area with proper margin */}
+        <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+          isCollapsed ? 'lg:ml-0' : 'lg:ml-64'
+        }`}>
+          {/* Mobile Header */}
+          <header className="sticky top-0 z-20 bg-white border-b border-gray-200 lg:hidden shadow-sm">
+            <div className="px-4 py-3 flex items-center justify-between">
               <button
-                onClick={() => setBoardMenuOpen(!boardMenuOpen)}
-                className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-white/20 transition-colors text-xs font-medium text-white/90 hover:text-white"
+                onClick={() => setIsMobileOpen(true)}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                aria-label="Open navigation"
               >
-                <div className="flex items-center gap-2">
-                  <Briefcase className="w-4 h-4" />
-                  Board Management
-                </div>
-                {boardMenuOpen ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
+                <Menu className="h-4 w-4" />
+                Menu
               </button>
-              
-              {boardMenuOpen && (
-                <div className="ml-6 mt-1 space-y-0.5">
-                  {boardMenuItems.map(item => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`block px-3 py-2 rounded-lg hover:bg-white/20 transition-colors text-xs font-medium ${
-                        pathname === item.href
-                          ? 'bg-white/20 text-white'
-                          : 'text-white/90 hover:text-white'
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <h1 className="text-lg font-semibold text-gray-900">Admin Dashboard</h1>
             </div>
+          </header>
 
-            {/* Community Management Section */}
-            <div className="pt-2">
-              <button
-                onClick={() => setCommunityMenuOpen(!communityMenuOpen)}
-                className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-white/20 transition-colors text-xs font-medium text-white/90 hover:text-white"
-              >
-                <div className="flex items-center gap-2">
-                  <UsersRound className="w-4 h-4" />
-                  Community Management
-                </div>
-                {communityMenuOpen ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-              </button>
-              
-              {communityMenuOpen && (
-                <div className="ml-6 mt-1 space-y-0.5">
-                  {communityMenuItems.map(item => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`block px-3 py-2 rounded-lg hover:bg-white/20 transition-colors text-xs font-medium ${
-                        pathname === item.href
-                          ? 'bg-white/20 text-white'
-                          : 'text-white/90 hover:text-white'
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
+          {/* Main Content */}
+          <main className="flex-1 w-full">
+            <div className="min-h-[calc(100vh-4rem)]">
+              {children}
             </div>
-          </nav>
+          </main>
 
-          {/* Logout Button */}
-          <div className="pt-4 border-t border-white/20">
-            <button
-              onClick={async () => {
-                await signOut({ redirect: false })
-                router.push('/login')
-              }}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-white/20 transition-colors text-xs w-full text-left font-medium text-white/90 hover:text-white"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+          {/* Footer */}
+          <div className="w-full">
+            <Footer />
           </div>
         </div>
-      </aside>
 
-      {/* Main Content */}
-      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-56' : 'ml-0'} transition-all duration-300`}>
-        {/* Top Bar */}
-        <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30 h-16 flex items-center">
-          <div className="flex items-center justify-between px-6 w-full">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              {sidebarOpen ? (
-                <X className="w-6 h-6 text-gray-700" />
-              ) : (
-                <Menu className="w-6 h-6 text-gray-700" />
-              )}
-            </button>
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                ← Back to Dashboard
-              </Link>
-            </div>
-          </div>
-        </header>
+        {/* Mobile Overlay */}
+        {isMobileOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+            onClick={() => setIsMobileOpen(false)}
+          />
+        )}
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-gray-50">
-          <div className="min-h-[calc(100vh-4rem)]">
-            {children}
-          </div>
-          <Footer />
-        </main>
+        {/* Mobile Sidebar */}
+        <div className={`lg:hidden fixed top-[80px] left-0 h-[calc(100vh-80px)] z-40 transition-transform duration-300 ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <SidebarContent />
+        </div>
       </div>
-
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </div>
     </ToastProvider>
   )
 }
-

@@ -6,6 +6,7 @@ import { Heart, Phone, ArrowRight, Shield, Users, Home, Utensils, Brain, HandHea
 import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
 import CountUpNumber from '@/components/shared/CountUpNumber'
 import TestimonialsCarousel from '@/components/home/TestimonialsCarousel'
+import FacebookEmbed from '@/components/home/FacebookEmbed'
 import { HERO_VIDEO_SRC, PROGRAMS, SOCIAL_IMAGES, SOCIAL_CHANNELS } from './home/constants'
 
 export default function HomeClient() {
@@ -207,37 +208,47 @@ export default function HomeClient() {
       {/* ==================== TESTIMONIALS / SOCIAL PROOF ==================== */}
       <TestimonialsCarousel />
 
-      {/* ==================== SOCIAL MEDIA FEED ==================== */}
+      {/* ==================== SEE WHAT WE'RE UP TO ==================== */}
       <section className="py-16 sm:py-24 bg-brand-dark">
         <div className="max-w-7xl mx-auto px-4">
           <AnimateOnScroll>
             <div className="text-center mb-12">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                See Recovery <span className="text-brand-green">in Action</span>
+                See What We&apos;re <span className="text-brand-green">Up To</span>
               </h2>
               <p className="text-lg text-white/60">Follow our journey and share our mission</p>
             </div>
           </AnimateOnScroll>
 
-          {/* Image Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-12">
-            {SOCIAL_IMAGES.map((img, idx) => (
-              <AnimateOnScroll key={idx} delay={idx * 0.08} variant="scaleUp">
-                <div className="relative aspect-square overflow-hidden rounded-2xl group cursor-pointer">
-                  <Image
-                    src={img.src}
-                    alt={img.alt}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 33vw"
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                    <p className="text-white text-sm font-medium">{img.alt}</p>
+          {/* Facebook Feed + Image Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-12">
+            {/* Facebook Page Embed */}
+            <AnimateOnScroll variant="fadeUp">
+              <div className="bg-white rounded-2xl overflow-hidden shadow-xl h-full min-h-[500px]">
+                <FacebookEmbed />
+              </div>
+            </AnimateOnScroll>
+
+            {/* Image Grid */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {SOCIAL_IMAGES.map((img, idx) => (
+                <AnimateOnScroll key={idx} delay={idx * 0.08} variant="scaleUp">
+                  <div className="relative aspect-square overflow-hidden rounded-2xl group cursor-pointer">
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                      <p className="text-white text-sm font-medium">{img.alt}</p>
+                    </div>
                   </div>
-                </div>
-              </AnimateOnScroll>
-            ))}
+                </AnimateOnScroll>
+              ))}
+            </div>
           </div>
 
           {/* Social Channel Cards */}
