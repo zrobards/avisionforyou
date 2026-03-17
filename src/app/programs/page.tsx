@@ -73,10 +73,7 @@ const iconComponents: Record<string, typeof HandHeart> = {
 export default async function Programs() {
   const rawPrograms = await getPrograms()
 
-  // Remove Women's Program and ensure DUI program is present
-  const filtered = rawPrograms.filter(
-    (p) => p.slug !== 'womens-program' && !/women/i.test(p.title)
-  )
+  const filtered = rawPrograms
   // All 6 core programs that must always appear on the programs page
   const requiredPrograms = [
     {

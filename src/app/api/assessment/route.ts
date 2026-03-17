@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (answers.needsHousing && sobrietyLevel <= 2) {
       recommendedProgram = "SURRENDER_PROGRAM"
     } else if (answers.spiritualInterest && score >= 4) {
-      recommendedProgram = "MOVING_MOUNTAINS"
+      recommendedProgram = "MEETINGS_GROUPS"
     } else if (answers.mentalHealthConcerns || score >= 5) {
       recommendedProgram = "MINDBODYSOUL_IOP"
     } else if (score <= 2 && sobrietyLevel >= 4) {

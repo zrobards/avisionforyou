@@ -79,10 +79,10 @@ const PROGRAM_DESCRIPTIONS = {
     description: "Intensive Outpatient Treatment",
     details: "Clinical treatment combining therapy, psychiatry, and holistic wellness while maintaining your current living situation."
   },
-  MOVING_MOUNTAINS: {
-    name: "Moving Mountains Ministry",
-    description: "Faith-based recovery program",
-    details: "Christian-centered recovery focusing on spiritual transformation and building a relationship with Christ."
+  MEETINGS_GROUPS: {
+    name: "Meetings & Support Groups",
+    description: "Peer-driven recovery meetings",
+    details: "Join a supportive community of peers with regular meetings, accountability groups, and spiritual growth opportunities."
   },
   DUI_CLASSES: {
     name: "DUI Education & Supervision",

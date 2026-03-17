@@ -88,8 +88,8 @@ export default async function DUIClassesPage() {
       <div className="mt-12 bg-gray-50 rounded-lg p-6">
         <h2 className="font-semibold mb-2">Questions?</h2>
         <p className="text-gray-600">
-          Contact us at <a href="mailto:info@avfy.org" className="text-blue-600">info@avfy.org</a> or 
-          call <a href="tel:+1234567890" className="text-blue-600">(123) 456-7890</a>
+          Contact us at <a href="mailto:info@avisionforyourecovery.org" className="text-blue-600">info@avisionforyourecovery.org</a> or
+          call <a href="tel:+15027496344" className="text-blue-600">(502) 749-6344</a>
         </p>
       </div>
     </div>

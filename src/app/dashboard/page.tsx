@@ -250,20 +250,45 @@ export default async function DashboardPage() {
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                   >
                     <div>
-                      <p className="font-medium">${donation.amount.toFixed(2)}</p>
+                      <p className="font-medium">
+                        ${donation.amount.toFixed(2)}
+                        {donation.frequency && donation.frequency !== 'ONE_TIME' && (
+                          <span className="text-xs text-brand-purple ml-1.5 font-normal">
+                            / {donation.frequency.toLowerCase()}
+                          </span>
+                        )}
+                      </p>
                       <p className="text-sm text-gray-600">
                         {new Date(donation.createdAt).toLocaleDateString()}
+                        {donation.nextRenewalDate && donation.status === 'COMPLETED' && (
+                          <span className="ml-2 text-xs text-gray-400">
+                            Next: {new Date(donation.nextRenewalDate).toLocaleDateString()}
+                          </span>
+                        )}
                       </p>
                     </div>
-                    <span
-                      className={`px-2 py-1 text-xs rounded ${
-                        donation.status === "COMPLETED"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {donation.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-2 py-1 text-xs rounded ${
+                          donation.status === "COMPLETED"
+                            ? "bg-green-100 text-green-700"
+                            : donation.status === "CANCELLED"
+                              ? "bg-gray-100 text-gray-500"
+                              : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {donation.status}
+                      </span>
+                      {donation.frequency && donation.frequency !== 'ONE_TIME' && donation.status === 'COMPLETED' && (
+                        <Link
+                          href={`/donations/my-donations`}
+                          className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                          title="Manage subscription"
+                        >
+                          Manage
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
