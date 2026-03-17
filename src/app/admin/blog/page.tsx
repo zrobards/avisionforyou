@@ -54,20 +54,33 @@ export default function AdminBlog() {
   const fetchPosts = useCallback(async () => {
     try {
       const response = await fetch('/api/blog?drafts=true', { cache: 'no-store' })
+      // Handle non-JSON responses (e.g. auth redirects)
+      const contentType = response.headers.get('content-type')
+      if (!contentType?.includes('application/json')) {
+        if (response.status === 401 || response.status === 403) {
+          // Auth not ready yet — will retry on next poll
+          return
+        }
+        console.error('Blog API returned non-JSON:', response.status)
+        return
+      }
       const data = await response.json()
       if (response.ok) {
         setPosts(Array.isArray(data) ? data : [])
-      } else {
+      } else if (response.status !== 401 && response.status !== 403) {
         console.error('Blog API error:', response.status, data)
         showToast(data?.error || 'Failed to load blog posts', 'error')
       }
     } catch (error) {
       console.error('Failed to fetch posts:', error)
-      showToast('Failed to connect to blog API', 'error')
+      // Don't show toast for network errors during initial load
+      if (!loading) {
+        showToast('Failed to connect to blog API', 'error')
+      }
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [loading])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
