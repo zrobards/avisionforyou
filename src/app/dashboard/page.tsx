@@ -230,9 +230,14 @@ export default async function DashboardPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Recent Donations</h2>
-              <Link href="/donate" className="text-brand-purple hover:underline text-sm">
-                Donate →
-              </Link>
+              <div className="flex gap-3">
+                <Link href="/donations/my-donations" className="text-brand-purple hover:underline text-sm">
+                  Manage Donations
+                </Link>
+                <Link href="/donate" className="text-brand-green hover:underline text-sm font-semibold">
+                  Donate →
+                </Link>
+              </div>
             </div>
 
             {recentDonations.length === 0 ? (
