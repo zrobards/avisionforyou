@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, Suspense, useEffect } from 'react'
-import { Heart, ArrowRight, Lock } from 'lucide-react'
+import { Heart, ArrowRight, Lock, Mail } from 'lucide-react'
 
 function LoginContent() {
   const router = useRouter()
@@ -14,6 +14,9 @@ function LoginContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [showResendVerification, setShowResendVerification] = useState(false)
+  const [resendingVerification, setResendingVerification] = useState(false)
+  const [resendMessage, setResendMessage] = useState('')
 
   const rawCallbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
   const callbackUrl = rawCallbackUrl.startsWith('/') && !rawCallbackUrl.startsWith('//') ? rawCallbackUrl : '/dashboard'
@@ -61,6 +64,23 @@ function LoginContent() {
     setError('')
 
     try {
+      // Pre-check: is the account unverified?
+      const checkRes = await fetch('/api/auth/check-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (checkRes.ok) {
+        const checkData = await checkRes.json()
+        if (checkData.needsVerification) {
+          setError('Please verify your email before signing in. Check your inbox for a verification link.')
+          setShowResendVerification(true)
+          setLoading(false)
+          return
+        }
+      }
+
+      setShowResendVerification(false)
       const result = await signIn('credentials', {
         email,
         password,
@@ -162,6 +182,39 @@ function LoginContent() {
               {error && (
                 <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
                   <p className="text-red-400 text-sm">{error}</p>
+                  {showResendVerification && (
+                    <div className="mt-3">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!email) return
+                          setResendingVerification(true)
+                          setResendMessage('')
+                          try {
+                            const res = await fetch('/api/auth/resend-verification', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ email }),
+                            })
+                            const data = await res.json()
+                            setResendMessage(data.message || 'Verification email sent.')
+                          } catch {
+                            setResendMessage('Failed to resend. Please try again.')
+                          } finally {
+                            setResendingVerification(false)
+                          }
+                        }}
+                        disabled={resendingVerification}
+                        className="flex items-center gap-1 text-purple-300 hover:text-white text-sm font-medium transition-colors disabled:opacity-50"
+                      >
+                        <Mail className="w-4 h-4" />
+                        {resendingVerification ? 'Sending...' : 'Resend verification email'}
+                      </button>
+                      {resendMessage && (
+                        <p className="text-green-400 text-xs mt-2">{resendMessage}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

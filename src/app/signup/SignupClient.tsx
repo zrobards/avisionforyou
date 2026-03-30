@@ -53,21 +53,10 @@ export default function SignupClient() {
         return
       }
 
-      // Auto sign in after successful signup
-      const signInResult = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (signInResult?.error) {
-        setError('Account created but sign in failed. Please log in manually.')
-        setLoading(false)
-        return
-      }
-
       trackSignup('email')
-      router.push('/dashboard')
+
+      // Redirect to verify-email page (account requires email verification)
+      router.push('/verify-email')
     } catch {
       setError('An unexpected error occurred. Please try again.')
       setLoading(false)
