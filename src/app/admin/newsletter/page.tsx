@@ -9,8 +9,16 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Plus, Edit, Trash2, Save, Mail, Upload, X } from 'lucide-react'
+import { Plus, Edit, Trash2, Save, Mail, Upload, X, Users, UserPlus, UserMinus } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
+
+interface Subscriber {
+  id: string
+  email: string
+  subscribed: boolean
+  subscribedAt: string
+  unsubscribedAt?: string
+}
 
 interface Newsletter {
   id: string
@@ -42,6 +50,10 @@ export default function AdminNewsletter() {
   const [sending, setSending] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [dragging, setDragging] = useState(false)
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([])
+  const [showSubscribers, setShowSubscribers] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [addingSubscriber, setAddingSubscriber] = useState(false)
   const displayNewsletters = Array.isArray(newsletters) ? newsletters : []
   const [formData, setFormData] = useState({
     title: '',
@@ -93,6 +105,68 @@ export default function AdminNewsletter() {
   }, [status, router, fetchNewsletters])
 
   usePolling(fetchNewsletters, 30000, status === 'authenticated')
+
+  const fetchSubscribers = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/newsletter/subscribers', { cache: 'no-store' })
+      if (response.ok) {
+        const data = await response.json()
+        setSubscribers(data.subscribers || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch subscribers:', error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (showSubscribers) {
+      fetchSubscribers()
+    }
+  }, [showSubscribers, fetchSubscribers])
+
+  const handleAddSubscriber = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newEmail.trim()) return
+    setAddingSubscriber(true)
+    try {
+      const response = await fetch('/api/admin/newsletter/subscribers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail.trim() })
+      })
+      if (response.ok) {
+        showToast('Subscriber added', 'success')
+        setNewEmail('')
+        fetchSubscribers()
+      } else {
+        const error = await response.json()
+        showToast(error.error || 'Failed to add subscriber', 'error')
+      }
+    } catch {
+      showToast('Failed to add subscriber', 'error')
+    } finally {
+      setAddingSubscriber(false)
+    }
+  }
+
+  const handleRemoveSubscriber = async (id: string, email: string) => {
+    if (!confirm(`Remove ${email} from the newsletter?`)) return
+    try {
+      const response = await fetch('/api/admin/newsletter/subscribers', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      })
+      if (response.ok) {
+        showToast('Subscriber removed', 'success')
+        fetchSubscribers()
+      } else {
+        showToast('Failed to remove subscriber', 'error')
+      }
+    } catch {
+      showToast('Failed to remove subscriber', 'error')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -257,6 +331,13 @@ export default function AdminNewsletter() {
             <p className="text-gray-400">Create and send newsletters to subscribers</p>
           </div>
           <div className="flex gap-3">
+            <button
+              onClick={() => setShowSubscribers(!showSubscribers)}
+              className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition"
+            >
+              <Users className="w-4 h-4" />
+              Subscribers
+            </button>
             {!creating && (
               <button
                 onClick={() => setCreating(true)}
@@ -274,6 +355,71 @@ export default function AdminNewsletter() {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
+        {showSubscribers && (
+          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-8 border border-gray-700">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Users className="w-6 h-6" />
+                Subscribers ({subscribers.filter(s => s.subscribed).length})
+              </h2>
+              <button
+                onClick={() => setShowSubscribers(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddSubscriber} className="flex gap-3 mb-6">
+              <input
+                type="email"
+                value={newEmail}
+                onChange={e => setNewEmail(e.target.value)}
+                placeholder="Add email address..."
+                className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400"
+                required
+              />
+              <button
+                type="submit"
+                disabled={addingSubscriber}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg transition"
+              >
+                <UserPlus className="w-4 h-4" />
+                {addingSubscriber ? 'Adding...' : 'Add'}
+              </button>
+            </form>
+
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {subscribers.filter(s => s.subscribed).length === 0 ? (
+                <p className="text-gray-400 text-center py-4">No subscribers yet.</p>
+              ) : (
+                subscribers
+                  .filter(s => s.subscribed)
+                  .map(subscriber => (
+                    <div
+                      key={subscriber.id}
+                      className="flex items-center justify-between bg-gray-700/50 rounded-lg px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-white">{subscriber.email}</p>
+                        <p className="text-gray-500 text-xs">
+                          Subscribed {new Date(subscriber.subscribedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveSubscriber(subscriber.id, subscriber.email)}
+                        className="flex items-center gap-1 text-red-400 hover:text-red-300 hover:bg-red-600/20 px-3 py-1 rounded-lg transition text-sm"
+                      >
+                        <UserMinus className="w-4 h-4" />
+                        Remove
+                      </button>
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+        )}
+
         {creating && (
           <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-8 border border-gray-700">
             <h2 className="text-2xl font-bold text-white mb-6">
