@@ -67,7 +67,7 @@ export default function Donate() {
   /* ─── State (preserved from original) ─── */
   const [selectedAmount, setSelectedAmount] = useState(50)
   const [customAmount, setCustomAmount] = useState('')
-  const [frequency, setFrequency] = useState('ONE_TIME')
+  const [frequency, setFrequency] = useState('MONTHLY')
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)

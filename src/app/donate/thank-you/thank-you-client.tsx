@@ -76,6 +76,30 @@ export default function ThankYouClient() {
           </p>
         </div>
 
+        {/* Recurring upsell for one-time donors */}
+        {frequency === 'ONE_TIME' && (
+          <div className="bg-gradient-to-br from-emerald-500/20 to-green-600/20 border border-emerald-400/30 rounded-2xl p-8 text-left mb-10">
+            <h3 className="text-lg font-bold text-white mb-3">Double Your Impact With Monthly Giving</h3>
+            <p className="text-purple-200 text-sm leading-relaxed mb-4">
+              {formattedAmount
+                ? `Your ${formattedAmount} gift today is amazing. Imagine that same impact every single month — that's ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((amount || 0) * 12)}/year in life-changing support.`
+                : 'Monthly donors provide the predictable funding that lets us plan long-term programs and help more people.'}
+            </p>
+            <ul className="text-purple-200 text-sm space-y-2 mb-6">
+              <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">&#10003;</span> Sustainable support for recovery programs</li>
+              <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">&#10003;</span> Cancel anytime from your dashboard</li>
+              <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">&#10003;</span> Automatic tax receipts every month</li>
+            </ul>
+            <Link
+              href="/donate"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold hover:from-emerald-600 hover:to-green-600 transition shadow-lg"
+            >
+              <Heart className="w-5 h-5 mr-2" />
+              Become a Monthly Donor
+            </Link>
+          </div>
+        )}
+
         {/* Social sharing */}
         <div className="mb-10">
           <p className="text-purple-200 mb-4">Share your support and inspire others</p>
