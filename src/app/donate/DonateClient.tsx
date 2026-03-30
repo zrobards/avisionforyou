@@ -287,23 +287,6 @@ export default function Donate() {
                 Every donation directly transforms lives in our community
               </p>
 
-              {/* ── Payment Method ── */}
-              <div className="mb-8 rounded-xl border border-white/10 bg-slate-800/50 p-5">
-                <label className="block text-sm font-semibold text-white/70 mb-3">Payment Method</label>
-                <div className="flex gap-3 sm:gap-4">
-                  <button
-                    className="flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base bg-[#b6e41f] text-slate-950 shadow-lg shadow-[#b6e41f]/20"
-                  >
-                    Square{isSandbox ? ' (Sandbox)' : ''}
-                  </button>
-                </div>
-                {isSandbox && (
-                  <p className="text-xs sm:text-sm text-[#b6e41f]/80 mt-2">
-                    Sandbox mode - Use test card: 4532 0151 1283 0366
-                  </p>
-                )}
-              </div>
-
               {/* ── Frequency ── */}
               <div className="mb-8">
                 <label className="block text-sm font-semibold text-white/70 mb-3">Donation Frequency</label>
