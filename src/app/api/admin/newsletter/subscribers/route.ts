@@ -4,7 +4,7 @@ import { getSession } from '@/lib/apiAuth'
 import { logger } from '@/lib/logger'
 
 // GET - List all newsletter subscribers
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const session = await getSession()
     if (!session?.user || session.user.role !== 'ADMIN') {

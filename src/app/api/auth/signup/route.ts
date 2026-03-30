@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     const passwordHash = await bcrypt.hash(password, salt)
 
     // Create user (emailVerified is null — unverified)
-    const user = await db.user.create({
+    await db.user.create({
       data: {
         email: cleanEmail,
         name: cleanName,

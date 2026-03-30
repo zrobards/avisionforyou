@@ -82,7 +82,7 @@ export default function AdminBlog() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [showToast])
 
   useEffect(() => {
     if (status === 'unauthenticated') {

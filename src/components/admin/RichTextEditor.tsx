@@ -8,7 +8,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import { useEffect, useCallback, useRef } from 'react'
 import {
   Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3,
-  Link as LinkIcon, Image as ImageIcon, Undo, Redo, Minus, Code, Upload,
+  Link as LinkIcon, Undo, Redo, Minus, Code, Upload,
 } from 'lucide-react'
 
 interface RichTextEditorProps {
