@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Heart, Shield, ExternalLink } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Instagram, Heart, Shield, ExternalLink } from 'lucide-react';
 import NewsletterSignup from '@/components/shared/NewsletterSignup';
 
 interface SocialStat {
@@ -16,7 +16,7 @@ export default function Footer() {
     facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avfyrecovery' },
     instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
     linkedin: { followers: 23, handle: 'A Vision For You', url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/' },
-    tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery' }
+    tiktok: { followers: 41, handle: '@lucasbennett1996', url: 'https://www.tiktok.com/@lucasbennett1996' }
   });
 
   useEffect(() => {
@@ -41,25 +41,19 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 py-10">
           <h3 className="text-white font-bold text-xl mb-2 text-center">Follow Our Journey</h3>
           <p className="text-gray-300 text-sm text-center mb-8">Every follow helps us reach someone in need</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            <a href={socialStats.facebook.url} target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook" className="group bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-600/20">
-              <Facebook className="w-7 h-7 mx-auto mb-2 text-white" aria-hidden="true" />
-              <p className="text-white font-bold text-sm">Facebook</p>
-              <p className="text-white/70 text-xs">{socialStats.facebook.followers} followers</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            <a href={socialStats.tiktok.url} target="_blank" rel="noopener noreferrer" aria-label="Follow Lucas Bennett on TikTok" className="group bg-gradient-to-br from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-gray-600/20">
+              <svg className="w-7 h-7 mx-auto mb-2 fill-white" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.74 2.89 2.89 0 0 1 2.31-4.64 2.86 2.86 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.54-.05z" />
+              </svg>
+              <p className="text-white font-bold text-sm">TikTok</p>
+              <p className="text-white/70 text-xs">{socialStats.tiktok.followers} followers</p>
               <span className="inline-flex items-center gap-1 text-white/50 text-xs mt-2 group-hover:text-white/80 transition-colors">Follow <ExternalLink className="w-3 h-3" aria-hidden="true" /></span>
             </a>
             <a href={socialStats.instagram.url} target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="group bg-gradient-to-br from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/20">
               <Instagram className="w-7 h-7 mx-auto mb-2 text-white" aria-hidden="true" />
               <p className="text-white font-bold text-sm">Instagram</p>
               <p className="text-white/70 text-xs">{socialStats.instagram.followers} followers</p>
-              <span className="inline-flex items-center gap-1 text-white/50 text-xs mt-2 group-hover:text-white/80 transition-colors">Follow <ExternalLink className="w-3 h-3" aria-hidden="true" /></span>
-            </a>
-            <a href={socialStats.tiktok.url} target="_blank" rel="noopener noreferrer" aria-label="Follow us on TikTok" className="group bg-gradient-to-br from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-gray-600/20">
-              <svg className="w-7 h-7 mx-auto mb-2 fill-white" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.74 2.89 2.89 0 0 1 2.31-4.64 2.86 2.86 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.54-.05z" />
-              </svg>
-              <p className="text-white font-bold text-sm">TikTok</p>
-              <p className="text-white/70 text-xs">{socialStats.tiktok.followers} followers</p>
               <span className="inline-flex items-center gap-1 text-white/50 text-xs mt-2 group-hover:text-white/80 transition-colors">Follow <ExternalLink className="w-3 h-3" aria-hidden="true" /></span>
             </a>
             <a href={socialStats.linkedin.url} target="_blank" rel="noopener noreferrer" aria-label="Follow us on LinkedIn" className="group bg-gradient-to-br from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 rounded-xl p-4 sm:p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-700/20">
