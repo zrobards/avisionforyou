@@ -4,12 +4,22 @@ import { useEffect, useRef, useState } from 'react'
 
 const FACEBOOK_PAGE_URL = 'https://www.facebook.com/avfyrecovery'
 
+type FacebookWindow = Window & {
+  FB?: {
+    XFBML: {
+      parse: () => void
+    }
+  }
+}
+
 export default function FacebookEmbed() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [loaded, setLoaded] = useState(false)
   const [width, setWidth] = useState(500)
 
   useEffect(() => {
+    const fbWindow = window as FacebookWindow
+
     // Measure container width for responsive embed
     if (containerRef.current) {
       const w = containerRef.current.offsetWidth
@@ -18,7 +28,7 @@ export default function FacebookEmbed() {
     }
 
     // Load Facebook SDK if not already loaded
-    if (!('FB' in window)) {
+    if (!fbWindow.FB) {
       const script = document.createElement('script')
       script.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v21.0'
       script.async = true
@@ -29,7 +39,7 @@ export default function FacebookEmbed() {
       }
       document.body.appendChild(script)
     } else {
-      window.FB.XFBML.parse()
+      fbWindow.FB.XFBML.parse()
       setLoaded(true)
     }
 
@@ -47,8 +57,9 @@ export default function FacebookEmbed() {
 
   // Re-parse when loaded state changes
   useEffect(() => {
-    if (loaded && 'FB' in window) {
-      window.FB.XFBML.parse()
+    const fbWindow = window as FacebookWindow
+    if (loaded && fbWindow.FB) {
+      fbWindow.FB.XFBML.parse()
     }
   }, [loaded, width])
 

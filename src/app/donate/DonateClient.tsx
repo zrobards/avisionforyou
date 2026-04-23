@@ -72,7 +72,6 @@ export default function Donate() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const isSandbox = process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === 'sandbox'
   const ein = process.env.NEXT_PUBLIC_EIN?.trim()
 
   /* ─── Derived values ─── */
