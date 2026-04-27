@@ -11,22 +11,7 @@ import { ZodError } from 'zod'
 import { rateLimitResponse } from '@/lib/apiAuth'
 import { logActivity, notifyByRole } from '@/lib/notifications'
 import { logger } from '@/lib/logger'
-
-// Get Square API base URL
-function getSquareBaseUrl() {
-  return process.env.SQUARE_ENVIRONMENT?.trim() === "production"
-    ? "https://connect.squareup.com"
-    : "https://connect.squareupsandbox.com"
-}
-
-// Get Square Location ID from environment
-function getSquareLocationId() {
-  const locationId = process.env.SQUARE_LOCATION_ID?.trim()
-  if (!locationId) {
-    throw new Error("SQUARE_LOCATION_ID environment variable is required")
-  }
-  return locationId
-}
+import { getSquareApiBaseUrl, getSquareLocationId } from '@/lib/square'
 
 // Calculate next renewal date based on start date and frequency
 function getNextRenewalDate(startDate: Date, frequency: string): Date {
@@ -171,7 +156,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const response = await fetch(`${getSquareBaseUrl()}/v2/online-checkout/payment-links`, {
+      const response = await fetch(`${getSquareApiBaseUrl()}/v2/online-checkout/payment-links`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${process.env.SQUARE_ACCESS_TOKEN?.trim()}`,
@@ -194,6 +179,14 @@ export async function POST(request: NextRequest) {
       }
 
       const paymentUrl = paymentLinkData.payment_link.url
+      const squareOrderId = paymentLinkData.payment_link.order_id as string | undefined
+
+      if (squareOrderId) {
+        await db.donation.update({
+          where: { id: donation.id },
+          data: { squarePaymentId: squareOrderId }
+        })
+      }
 
       // Send confirmation email (non-blocking)
       try {

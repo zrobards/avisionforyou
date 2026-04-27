@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { logger } from "@/lib/logger"
-import crypto from "crypto"
 import { escapeHtml } from "@/lib/sanitize"
 import type { Prisma } from "@prisma/client"
+import { WebhooksHelper } from "square"
 import type { SquareWebhookEvent, SquarePaymentObject, SquareInvoiceObject, SquareSubscriptionObject } from "@/types/square"
+import { getSquareWebhookNotificationUrl } from "@/lib/square"
 
 /**
  * Square Webhook Handler
@@ -17,7 +18,6 @@ async function verifySquareWebhookSignature(
   body: string,
   signatureHeader: string
 ): Promise<boolean> {
-  // Get webhook signing key from environment
   const webhookSignatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY
 
   if (!webhookSignatureKey) {
@@ -25,17 +25,17 @@ async function verifySquareWebhookSignature(
     return false
   }
 
-  // Compute HMAC-SHA256 signature
-  const hash = crypto
-    .createHmac("sha256", webhookSignatureKey)
-    .update(body)
-    .digest("base64")
-
-  // Compare with provided signature (constant-time comparison to prevent timing attacks)
-  return crypto.timingSafeEqual(
-    Buffer.from(hash),
-    Buffer.from(signatureHeader)
-  ).valueOf()
+  try {
+    return await WebhooksHelper.verifySignature({
+      requestBody: body,
+      signatureHeader,
+      signatureKey: webhookSignatureKey,
+      notificationUrl: getSquareWebhookNotificationUrl()
+    })
+  } catch (error) {
+    logger.error({ err: error }, "Square Webhook: Signature verification threw")
+    return false
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -127,11 +127,17 @@ async function handlePaymentEvent(event: SquareWebhookEvent) {
     logger.info({ paymentId: payment.id, status: payment.status, amount: payment.amount_money?.amount, orderId: payment.order_id }, "Square Webhook: Payment event")
 
     // Find donation by Square payment ID
-    const donation = await db.donation.findFirst({
-      where: {
-        squarePaymentId: payment.id
-      }
-    })
+    const paymentLookupIds = [payment.order_id, payment.id].filter((value): value is string => Boolean(value))
+
+    const donation = paymentLookupIds.length > 0
+      ? await db.donation.findFirst({
+          where: {
+            squarePaymentId: {
+              in: paymentLookupIds
+            }
+          }
+        })
+      : null
 
     // Also check for DUI registration by order ID (we store order ID in paymentId initially)
     const duiRegistration = payment.order_id
