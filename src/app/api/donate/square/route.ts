@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { sendDonationConfirmationEmail } from "@/lib/email"
 import { v4 as uuidv4 } from "uuid"
 import { DonationSchema, validateRequest, getValidationErrors } from '@/lib/validation'
 import { handleApiError, generateRequestId, logApiRequest } from '@/lib/apiErrors'
 import { rateLimit, donateLimiter, getClientIp } from '@/lib/rateLimit'
 import { ZodError } from 'zod'
 import { rateLimitResponse } from '@/lib/apiAuth'
-import { logActivity, notifyByRole } from '@/lib/notifications'
 import { logger } from '@/lib/logger'
 import { getSquareApiBaseUrl, getSquareLocationId } from '@/lib/square'
 
@@ -187,25 +185,6 @@ export async function POST(request: NextRequest) {
           data: { squarePaymentId: squareOrderId }
         })
       }
-
-      // Send confirmation email (non-blocking)
-      try {
-        await sendDonationConfirmationEmail(
-          donation.id,
-          email,
-          name,
-          amount,
-          frequency as "ONE_TIME" | "MONTHLY" | "YEARLY"
-        )
-      } catch (emailError) {
-        // Log but don't fail - donation was already saved
-        logger.error({ err: emailError, donationId: donation.id }, "Email send failed for donation")
-      }
-
-      // Log activity and notify board (non-blocking)
-      const freqLabel = frequency === "ONE_TIME" ? "one-time" : frequency === "MONTHLY" ? "monthly" : "annual"
-      logActivity("donation", `New $${amount} ${freqLabel} donation`, name || "Anonymous", `/admin/donations`)
-      notifyByRole(["BOARD", "ADMIN"], "donation", "New Donation Received", `$${amount} ${freqLabel} donation from ${name || "Anonymous"}`, `/admin/donations`)
 
       logApiRequest({
         timestamp: new Date(),

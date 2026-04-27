@@ -552,7 +552,7 @@ export async function sendDonationConfirmationEmail(
                 <strong>Donation ID:</strong> ${isDonationIdValid ? donationId : 'Pending'}<br>
                 <strong>Amount:</strong> $${amount.toFixed(2)}<br>
                 <strong>Type:</strong> ${frequency === 'MONTHLY' ? 'Monthly Recurring' : 'One-Time Gift'}<br>
-                <strong>Status:</strong> Received & Processing
+                <strong>Status:</strong> Confirmed
               </p>
 
               <p>You'll receive a formal tax receipt via email shortly. A Vision For You is a 501(c)(3) nonprofit organization (EIN: 87-1066569) - your donation is tax-deductible.</p>

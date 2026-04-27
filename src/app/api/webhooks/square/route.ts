@@ -6,6 +6,7 @@ import type { Prisma } from "@prisma/client"
 import { WebhooksHelper } from "square"
 import type { SquareWebhookEvent, SquarePaymentObject, SquareInvoiceObject, SquareSubscriptionObject } from "@/types/square"
 import { getSquareWebhookNotificationUrl } from "@/lib/square"
+import { applyDonationPaymentStatus } from "@/lib/donations"
 
 /**
  * Square Webhook Handler
@@ -175,15 +176,6 @@ async function handlePaymentEvent(event: SquareWebhookEvent) {
           newStatus = "FAILED"
           logger.warn({ donationId: donation.id }, "Square Webhook: Payment failed for donation")
         }
-
-        await tx.donation.update({
-          where: { id: donation.id },
-          data: {
-            status: newStatus as "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED"
-          }
-        })
-
-        logger.info({ donationId: donation.id, newStatus }, "Square Webhook: Updated donation status")
       }
 
       if (duiRegistration) {
@@ -211,6 +203,14 @@ async function handlePaymentEvent(event: SquareWebhookEvent) {
         logger.info({ registrationId: duiRegistration.id, paymentStatus }, "Square Webhook: Updated DUI registration status")
       }
     })
+
+    if (donation && paymentStatus === "COMPLETED") {
+      await applyDonationPaymentStatus(donation.id, "COMPLETED")
+      logger.info({ donationId: donation.id }, "Square Webhook: Confirmed donation completion")
+    } else if (donation && paymentStatus === "FAILED") {
+      await applyDonationPaymentStatus(donation.id, "FAILED")
+      logger.info({ donationId: donation.id }, "Square Webhook: Confirmed donation failure")
+    }
 
     // Send confirmation email for completed DUI payments
     if (paymentStatus === "COMPLETED" && duiRegistration?.email) {
@@ -307,10 +307,7 @@ async function handleInvoiceEvent(event: SquareWebhookEvent) {
       newStatus = "FAILED"
     }
 
-    await db.donation.update({
-      where: { id: donation.id },
-      data: { status: newStatus as "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED" }
-    })
+    await applyDonationPaymentStatus(donation.id, newStatus as "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED")
 
     logger.info({ donationId: donation.id, newStatus }, "Square Webhook: Updated donation status from invoice")
 

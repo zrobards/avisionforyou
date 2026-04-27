@@ -3,11 +3,56 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+
+type ConfirmationState = 'checking' | 'confirmed' | 'pending' | 'failed'
 
 function DonationSuccessContent() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
+  const [confirmationState, setConfirmationState] = useState<ConfirmationState>('checking')
+
+  useEffect(() => {
+    if (!sessionId) {
+      setConfirmationState('pending')
+      return
+    }
+
+    const confirmDonation = async () => {
+      try {
+        const response = await fetch('/api/donate/confirm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ donationId: sessionId })
+        })
+
+        if (!response.ok) {
+          setConfirmationState('failed')
+          return
+        }
+
+        const data = await response.json()
+
+        if (data.confirmed || data.status === 'COMPLETED') {
+          setConfirmationState('confirmed')
+          return
+        }
+
+        if (data.status === 'FAILED') {
+          setConfirmationState('failed')
+          return
+        }
+
+        setConfirmationState('pending')
+      } catch {
+        setConfirmationState('failed')
+      }
+    }
+
+    confirmDonation()
+  }, [sessionId])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center px-6">
@@ -21,11 +66,14 @@ function DonationSuccessContent() {
 
           {/* Thank You Message */}
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Thank You for Your Generosity!
+            {confirmationState === 'confirmed' ? 'Thank You for Your Generosity!' : 'Donation Status Received'}
           </h1>
           
           <p className="text-lg text-gray-600 mb-8">
-            Your donation has been successfully processed. You will receive a confirmation email shortly with your donation receipt.
+            {confirmationState === 'checking' && 'We are verifying your Square payment now.'}
+            {confirmationState === 'confirmed' && 'Your donation has been confirmed. You will receive a confirmation email shortly with your donation receipt.'}
+            {confirmationState === 'pending' && 'Your checkout return was received, but the payment is still pending confirmation. Refresh this page in a moment or check your donor dashboard shortly.'}
+            {confirmationState === 'failed' && 'We could not confirm this donation yet. If you were charged, please contact us and we will reconcile it manually.'}
           </p>
 
           {/* Impact Statement */}
