@@ -1,128 +1,90 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { logger } from "@/lib/logger";
+import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { db } from "@/lib/db"
+import { logger } from "@/lib/logger"
+import { getVisibleDonationsForDashboard } from "@/lib/donations"
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions)
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const user = await db.user.findUnique({
-      where: { email: session.user.email },
-    });
+      where: { email: session.user.email }
+    })
 
     if (!user || (user.role !== "BOARD" && user.role !== "ADMIN")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay());
+    const donations = await db.donation.findMany({
+      take: 100,
+      orderBy: { createdAt: "desc" }
+    })
 
-    // Use DB-level aggregation instead of client-side loops
-    const [
-      totalAllTimeAgg,
-      totalThisYearAgg,
-      totalThisMonthAgg,
-      totalThisWeekAgg,
-      donationCountByFrequency,
-      recentDonations,
-    ] = await Promise.all([
-      db.donation.aggregate({
-        where: { status: "COMPLETED" },
-        _sum: { amount: true },
-        _count: true,
-      }),
-      db.donation.aggregate({
-        where: { status: "COMPLETED", createdAt: { gte: startOfYear } },
-        _sum: { amount: true },
-      }),
-      db.donation.aggregate({
-        where: { status: "COMPLETED", createdAt: { gte: startOfMonth } },
-        _sum: { amount: true },
-      }),
-      db.donation.aggregate({
-        where: { status: "COMPLETED", createdAt: { gte: startOfWeek } },
-        _sum: { amount: true },
-      }),
-      db.donation.groupBy({
-        by: ["frequency"],
-        where: { status: "COMPLETED" },
-        _count: true,
-      }),
-      db.donation.findMany({
-        where: { status: "COMPLETED" },
-        select: {
-          id: true,
-          amount: true,
-          frequency: true,
-          createdAt: true,
-          name: true,
-        },
-        orderBy: { createdAt: "desc" },
-        take: 20,
-      }),
-    ]);
+    const visibleDonations = await getVisibleDonationsForDashboard(donations)
 
-    const totalAllTime = Number(totalAllTimeAgg._sum.amount ?? 0);
-    const totalCount = totalAllTimeAgg._count;
-    const avgAmount = totalCount > 0 ? totalAllTime / totalCount : 0;
+    const stats = {
+      totalDonations: visibleDonations.length,
+      totalAmount: visibleDonations.reduce((sum, donation) => sum + Number(donation.amount), 0),
+      averageDonation: visibleDonations.length > 0
+        ? Math.round((visibleDonations.reduce((sum, donation) => sum + Number(donation.amount), 0) / visibleDonations.length) * 100) / 100
+        : 0,
+      oneTimeDonations: visibleDonations.filter((donation) => donation.frequency === "ONE_TIME").length,
+      recurringDonations: visibleDonations.filter((donation) => donation.frequency !== "ONE_TIME").length,
+      totalRecurring: visibleDonations
+        .filter((donation) => donation.frequency !== "ONE_TIME")
+        .reduce((sum, donation) => sum + Number(donation.amount), 0),
+      completedDonations: visibleDonations.filter((donation) => donation.status === "COMPLETED").length,
+      failedDonations: visibleDonations.filter((donation) => donation.status === "FAILED").length,
+      pendingDonations: visibleDonations.filter((donation) => donation.status === "PENDING").length,
+      anonymousDonations: visibleDonations.filter((donation) => !donation.userId).length
+    }
 
-    // Monthly trend via DB grouping (last 12 months)
-    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
-    const monthlyDonations = await db.donation.findMany({
-      where: { status: "COMPLETED", createdAt: { gte: twelveMonthsAgo } },
-      select: { amount: true, createdAt: true },
-      orderBy: { createdAt: "asc" },
-    });
+    const monthlyDonations: Record<string, { count: number; amount: number }> = {}
+    const today = new Date()
 
-    // Group by month in a single pass
-    const monthlyMap = new Map<string, { total: number; count: number }>();
     for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = d.toLocaleDateString("en-US", { year: "numeric", month: "short" });
-      monthlyMap.set(key, { total: 0, count: 0 });
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1)
+      const monthKey = date.toLocaleString("default", { month: "short", year: "numeric" })
+      monthlyDonations[monthKey] = { count: 0, amount: 0 }
     }
 
-    for (const d of monthlyDonations) {
-      const key = d.createdAt.toLocaleDateString("en-US", { year: "numeric", month: "short" });
-      const entry = monthlyMap.get(key);
-      if (entry) {
-        entry.total += Number(d.amount);
-        entry.count += 1;
+    visibleDonations.forEach((donation) => {
+      const monthKey = donation.createdAt.toLocaleString("default", { month: "short", year: "numeric" })
+      if (monthlyDonations[monthKey]) {
+        monthlyDonations[monthKey].count++
+        monthlyDonations[monthKey].amount += Number(donation.amount)
       }
-    }
+    })
 
-    const monthlyTrend = Array.from(monthlyMap.entries()).map(([month, data]) => ({
-      month,
-      total: data.total,
-      count: data.count,
-    }));
+    const topDonors = Array.from(
+      visibleDonations.reduce((map, donation) => {
+        const donorKey = donation.name?.trim() || donation.email?.trim() || "Anonymous"
+        const current = map.get(donorKey) || 0
+        map.set(donorKey, current + Number(donation.amount))
+        return map
+      }, new Map<string, number>())
+    )
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name, total]) => ({ name, total }))
 
     return NextResponse.json({
-      totalAllTime,
-      totalThisYear: Number(totalThisYearAgg._sum.amount ?? 0),
-      totalThisMonth: Number(totalThisMonthAgg._sum.amount ?? 0),
-      totalThisWeek: Number(totalThisWeekAgg._sum.amount ?? 0),
-      donationCountByFrequency: Object.fromEntries(
-        donationCountByFrequency.map((g) => [g.frequency, g._count])
-      ),
-      avgAmount,
-      recentDonations,
-      monthlyTrend,
-    });
+      donations: visibleDonations,
+      stats,
+      monthlyDonations,
+      topDonors
+    })
   } catch (error) {
-    logger.error({ err: error }, "Error fetching donation analytics");
+    logger.error({ err: error }, "Error fetching board donation analytics")
     return NextResponse.json(
       { error: "Failed to fetch donation analytics" },
       { status: 500 }
-    );
+    )
   }
 }

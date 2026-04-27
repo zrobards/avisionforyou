@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { rateLimitResponse } from "@/lib/apiAuth";
+import { getVisibleDonationsForDashboard } from "@/lib/donations";
 
 export async function GET() {
   try {
@@ -32,9 +33,11 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
+    const visibleDonations = await getVisibleDonationsForDashboard(donations)
+
     // Create CSV content
     const headers = ["Date", "Name", "Email", "Amount", "Frequency", "Status"];
-    const rows = donations.map((d) => [
+    const rows = visibleDonations.map((d) => [
       d.createdAt.toLocaleDateString(),
       d.name || "Anonymous",
       d.email || "",
