@@ -226,7 +226,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* OUR STORY */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
+      <section className="overflow-hidden py-16 sm:py-24 bg-brand-dark-lighter">
         <div className="max-w-4xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-12">Our Story</h2>
@@ -304,7 +304,7 @@ export default function AboutClient() {
       {/* ================================================================== */}
       {/* FINANCIAL TRANSPARENCY - PIE CHART */}
       {/* ================================================================== */}
-      <section className="py-16 sm:py-24 bg-brand-dark-lighter">
+      <section className="overflow-hidden py-16 sm:py-24 bg-brand-dark-lighter">
         <div className="max-w-5xl mx-auto px-4">
           <AnimateOnScroll variant="fadeUp">
             <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-4">
