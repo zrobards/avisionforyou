@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { TIKTOK_HANDLE, TIKTOK_URL, TIKTOK_USERNAME, normalizeTikTokStat } from '@/lib/social'
+import { TIKTOK_HANDLE, TIKTOK_USERNAME, normalizeTikTokStat } from '@/lib/social'
 
 interface SocialStat {
   followers: number
@@ -83,25 +83,15 @@ export default function TikTokProfileEmbed() {
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white p-2 sm:p-3 shadow-2xl">
-            <div className="flex min-h-[480px] justify-center overflow-hidden rounded-xl bg-white">
-              <blockquote
-                className="tiktok-embed m-0"
-                cite={TIKTOK_URL}
-                data-unique-id={TIKTOK_USERNAME}
-                data-embed-type="creator"
-                style={{ maxWidth: '780px', minWidth: '288px', width: '100%', margin: '0 auto' }}
-              >
-                <section>
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={`${TIKTOK_URL}?refer=creator_embed`}
-                  >
-                    {TIKTOK_HANDLE}
-                  </a>
-                </section>
-              </blockquote>
-              <script async src="https://www.tiktok.com/embed.js"></script>
+            <div className="flex min-h-[390px] justify-center overflow-hidden rounded-xl bg-white sm:min-h-[480px]">
+              <iframe
+                title={`${TIKTOK_HANDLE} TikTok profile`}
+                src={`https://www.tiktok.com/embed/@${TIKTOK_USERNAME}`}
+                className="h-[390px] w-full max-w-[780px] border-0 bg-white sm:h-[480px]"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
             </div>
           </div>
         </div>
