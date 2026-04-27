@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { TIKTOK_HANDLE, TIKTOK_URL, normalizeTikTokStat } from '@/lib/social'
+import { TIKTOK_HANDLE, TIKTOK_URL, TIKTOK_USERNAME, normalizeTikTokStat } from '@/lib/social'
 
 interface SocialStat {
   followers: number
@@ -10,20 +10,11 @@ interface SocialStat {
   url: string
 }
 
-declare global {
-  interface Window {
-    __avfyTikTokEmbedLoading?: boolean
-  }
-}
-
 const FALLBACK_TIKTOK: SocialStat = normalizeTikTokStat()
 
 export default function TikTokProfileEmbed() {
   const [tiktok, setTikTok] = useState<SocialStat>(FALLBACK_TIKTOK)
   const [loading, setLoading] = useState(true)
-  const [embedHtml, setEmbedHtml] = useState<string | null>(null)
-  const [embedFailed, setEmbedFailed] = useState(false)
-  const embedContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchTikTokStats = async () => {
@@ -46,67 +37,6 @@ export default function TikTokProfileEmbed() {
 
     fetchTikTokStats()
   }, [])
-
-  useEffect(() => {
-    const fetchEmbed = async () => {
-      try {
-        const response = await fetch('/api/public/tiktok-profile', { cache: 'no-store' })
-        if (!response.ok) {
-          setEmbedFailed(true)
-          return
-        }
-
-        const data = await response.json()
-        if (!data?.html) {
-          setEmbedFailed(true)
-          return
-        }
-
-        setEmbedHtml(data.html)
-      } catch (error) {
-        console.error('Failed to load TikTok embed:', error)
-        setEmbedFailed(true)
-      }
-    }
-
-    fetchEmbed()
-  }, [])
-
-  useEffect(() => {
-    if (!embedContainerRef.current || !embedHtml || window.__avfyTikTokEmbedLoading) {
-      return
-    }
-
-    window.__avfyTikTokEmbedLoading = true
-
-    embedContainerRef.current.innerHTML = embedHtml
-
-    const inlineScripts = embedContainerRef.current.querySelectorAll('script')
-    inlineScripts.forEach((scriptNode) => scriptNode.remove())
-
-    const existingScript = document.getElementById('avfy-tiktok-embed-script')
-    if (existingScript) {
-      existingScript.remove()
-    }
-
-    const script = document.createElement('script')
-    script.id = 'avfy-tiktok-embed-script'
-    script.src = 'https://www.tiktok.com/embed.js'
-    script.async = true
-    script.onload = () => {
-      window.__avfyTikTokEmbedLoading = false
-    }
-    script.onerror = () => {
-      window.__avfyTikTokEmbedLoading = false
-      setEmbedFailed(true)
-    }
-
-    document.body.appendChild(script)
-
-    return () => {
-      window.__avfyTikTokEmbedLoading = false
-    }
-  }, [embedHtml])
 
   const recentVideoLabel = loading ? 'Loading latest account data...' : 'Recent videos and profile metrics refresh from TikTok as new posts are added.'
 
@@ -152,33 +82,26 @@ export default function TikTokProfileEmbed() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white p-4 shadow-2xl">
-            <div
-              ref={embedContainerRef}
-              className="min-h-[740px] overflow-hidden rounded-[1.5rem] bg-white"
-            >
-              {!embedHtml && !embedFailed ? (
-                <div className="flex min-h-[740px] items-center justify-center px-6 text-center text-gray-700">
-                  Loading TikTok profile...
-                </div>
-              ) : null}
-
-              {embedFailed ? (
-                <div className="flex min-h-[740px] flex-col items-center justify-center gap-4 px-6 text-center text-gray-800">
-                  <p className="text-xl font-semibold">{TIKTOK_HANDLE}</p>
-                  <p className="max-w-md text-sm text-gray-600">
-                    TikTok did not return an embeddable profile card for this account. This usually means the account settings do not allow profile embedding.
-                  </p>
+          <div className="rounded-2xl border border-white/10 bg-white p-2 sm:p-3 shadow-2xl">
+            <div className="flex min-h-[480px] justify-center overflow-hidden rounded-xl bg-white">
+              <blockquote
+                className="tiktok-embed m-0"
+                cite={TIKTOK_URL}
+                data-unique-id={TIKTOK_USERNAME}
+                data-embed-type="creator"
+                style={{ maxWidth: '780px', minWidth: '288px', width: '100%', margin: '0 auto' }}
+              >
+                <section>
                   <a
                     target="_blank"
                     rel="noreferrer"
                     href={`${TIKTOK_URL}?refer=creator_embed`}
-                    className="inline-flex items-center justify-center rounded-full bg-gray-900 px-6 py-3 font-semibold text-white transition hover:bg-brand-purple"
                   >
-                    Open TikTok Profile
+                    {TIKTOK_HANDLE}
                   </a>
-                </div>
-              ) : null}
+                </section>
+              </blockquote>
+              <script async src="https://www.tiktok.com/embed.js"></script>
             </div>
           </div>
         </div>
