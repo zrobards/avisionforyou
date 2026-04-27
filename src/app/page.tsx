@@ -40,7 +40,7 @@ export default function Home() {
         sameAs: [
           "https://www.facebook.com/avfyrecovery",
           "https://www.instagram.com/avision_foryourecovery/",
-          "https://www.tiktok.com/@avisionforyourecovery",
+          "https://www.tiktok.com/@lucasbennett1996",
           "https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/"
         ],
         knowsAbout: ["addiction recovery", "substance abuse treatment", "sober living", "outpatient treatment", "peer support"],

@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       { platform: 'facebook', followers: validatedData.facebook, url: 'https://www.facebook.com/avfyrecovery', handle: '@AVisionForYouRecovery' },
       { platform: 'instagram', followers: validatedData.instagram, url: 'https://www.instagram.com/avision_foryourecovery/', handle: '@avisionforyourecovery' },
       { platform: 'linkedin', followers: validatedData.linkedin, url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/', handle: 'A Vision For You' },
-      { platform: 'tiktok', followers: validatedData.tiktok, url: 'https://www.tiktok.com/@avisionforyourecovery', handle: '@avisionforyourecovery' }
+      { platform: 'tiktok', followers: validatedData.tiktok, url: 'https://www.tiktok.com/@lucasbennett1996', handle: '@lucasbennett1996' }
     ]
 
     // Check if table exists, create it if not
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     for (const data of platforms) {
       await db.socialStats.upsert({
         where: { platform: data.platform },
-        update: { followers: data.followers },
+        update: { followers: data.followers, handle: data.handle, url: data.url },
         create: data
       })
     }

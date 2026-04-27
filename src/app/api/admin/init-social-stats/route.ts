@@ -61,7 +61,7 @@ export async function POST(_request: NextRequest) {
             (gen_random_uuid()::text, 'facebook', 869, '@AVisionForYouRecovery', 'https://www.facebook.com/avfyrecovery', NOW(), NOW()),
             (gen_random_uuid()::text, 'instagram', 112, '@avisionforyourecovery', 'https://www.instagram.com/avision_foryourecovery/', NOW(), NOW()),
             (gen_random_uuid()::text, 'linkedin', 23, 'A Vision For You', 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/', NOW(), NOW()),
-            (gen_random_uuid()::text, 'tiktok', 41, '@avisionforyourecovery', 'https://www.tiktok.com/@avisionforyourecovery', NOW(), NOW())
+            (gen_random_uuid()::text, 'tiktok', 41, '@lucasbennett1996', 'https://www.tiktok.com/@lucasbennett1996', NOW(), NOW())
           ON CONFLICT ("platform") DO NOTHING;
         `)
       }
@@ -90,4 +90,3 @@ export async function POST(_request: NextRequest) {
     )
   }
 }
-

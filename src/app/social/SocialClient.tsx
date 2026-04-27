@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin, ExternalLink } from 'lucide-react'
 import AnimateOnScroll from '@/components/shared/AnimateOnScroll'
+import { normalizeTikTokStat } from '@/lib/social'
 
 // TikTok Icon Component
 const TikTokIcon = () => (
@@ -22,7 +23,7 @@ export default function SocialMediaPage() {
     facebook: { followers: 869, handle: '@AVisionForYouRecovery', url: 'https://www.facebook.com/avfyrecovery' },
     instagram: { followers: 112, handle: '@avisionforyourecovery', url: 'https://www.instagram.com/avision_foryourecovery/' },
     linkedin: { followers: 23, handle: 'A Vision For You', url: 'https://www.linkedin.com/company/a-vision-for-you-inc-addiction-recovery-program/' },
-    tiktok: { followers: 41, handle: '@avisionforyourecovery', url: 'https://www.tiktok.com/@avisionforyourecovery' }
+    tiktok: normalizeTikTokStat()
   })
 
   const [, setLoading] = useState(true)
@@ -34,7 +35,10 @@ export default function SocialMediaPage() {
         const response = await fetch('/api/public/social-stats', { cache: 'no-store' })
         if (response.ok) {
           const data = await response.json()
-          setSocialStats(data)
+          setSocialStats({
+            ...data,
+            tiktok: normalizeTikTokStat(data?.tiktok)
+          })
         }
       } catch (error) {
         console.error('Failed to fetch social stats:', error)

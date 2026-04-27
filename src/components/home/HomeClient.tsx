@@ -22,6 +22,10 @@ const ImpactMetrics = dynamic(() => import('@/components/shared/ImpactMetrics'),
   loading: () => <SectionSkeleton minHeight={300} bg="bg-gray-50" />,
 })
 
+const TikTokProfileEmbed = dynamic(() => import('@/components/shared/TikTokProfileEmbed'), {
+  loading: () => <SectionSkeleton minHeight={700} bg="bg-gray-950" />,
+})
+
 const TestimonialsSection = dynamic(() => import('@/components/home/TestimonialsSection'), {
   loading: () => <SectionSkeleton minHeight={400} bg="bg-purple-50" />,
 })
@@ -53,6 +57,9 @@ export default function HomeClient() {
 
       {/* Impact Metrics */}
       <ImpactMetrics />
+
+      {/* TikTok Section */}
+      <TikTokProfileEmbed />
 
       {/* Testimonials */}
       <TestimonialsSection />
