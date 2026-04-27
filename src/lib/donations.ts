@@ -2,7 +2,8 @@ import { db } from "@/lib/db"
 import { sendDonationConfirmationEmail } from "@/lib/email"
 import { logActivity, notifyByRole } from "@/lib/notifications"
 import { logger } from "@/lib/logger"
-import type { DonationStatus } from "@prisma/client"
+import { getSquareApiBaseUrl } from "@/lib/square"
+import type { Donation, DonationStatus } from "@prisma/client"
 
 export async function applyDonationPaymentStatus(
   donationId: string,
@@ -72,4 +73,96 @@ export async function applyDonationPaymentStatus(
     status: newStatus,
     donation
   }
+}
+
+type VisibleDonationResult = {
+  donation: Donation
+  visible: boolean
+}
+
+async function fetchSquareOrderSnapshot(orderId: string) {
+  const accessToken = process.env.SQUARE_ACCESS_TOKEN?.trim()
+
+  if (!accessToken) {
+    return null
+  }
+
+  try {
+    const response = await fetch(`${getSquareApiBaseUrl()}/v2/orders/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+        "Square-Version": "2024-12-18"
+      },
+      cache: "no-store"
+    })
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null)
+      logger.warn({ orderId, status: response.status, payload }, "Square order lookup failed for donation visibility")
+      return null
+    }
+
+    const payload = await response.json()
+    const orderState = typeof payload?.order?.state === "string" ? payload.order.state : "UNKNOWN"
+    const tenderCount = Array.isArray(payload?.order?.tenders) ? payload.order.tenders.length : 0
+
+    return { orderState, tenderCount }
+  } catch (error) {
+    logger.warn({ err: error, orderId }, "Square order lookup threw during donation visibility check")
+    return null
+  }
+}
+
+export async function resolveVisibleDonation(donation: Donation): Promise<VisibleDonationResult> {
+  if (donation.status !== "PENDING") {
+    return { donation, visible: true }
+  }
+
+  if (!donation.squarePaymentId) {
+    return { donation, visible: false }
+  }
+
+  const snapshot = await fetchSquareOrderSnapshot(donation.squarePaymentId)
+
+  if (!snapshot) {
+    return { donation, visible: false }
+  }
+
+  if (snapshot.orderState === "COMPLETED") {
+    await applyDonationPaymentStatus(donation.id, "COMPLETED")
+    return {
+      donation: {
+        ...donation,
+        status: "COMPLETED",
+        updatedAt: new Date()
+      },
+      visible: true
+    }
+  }
+
+  if (snapshot.orderState === "CANCELED") {
+    await applyDonationPaymentStatus(donation.id, "FAILED")
+    return {
+      donation: {
+        ...donation,
+        status: "FAILED",
+        updatedAt: new Date()
+      },
+      visible: true
+    }
+  }
+
+  if (snapshot.tenderCount > 0) {
+    return { donation, visible: true }
+  }
+
+  return { donation, visible: false }
+}
+
+export async function getVisibleDonationsForDashboard(donations: Donation[]) {
+  const resolved = await Promise.all(donations.map(resolveVisibleDonation))
+  return resolved
+    .filter((entry) => entry.visible)
+    .map((entry) => entry.donation)
 }

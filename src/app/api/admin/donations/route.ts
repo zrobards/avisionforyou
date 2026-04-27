@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { logger } from '@/lib/logger'
+import { getVisibleDonationsForDashboard } from "@/lib/donations"
 
 // DELETE all donations (admin only — for clearing test/seed data)
 export async function DELETE() {
@@ -75,22 +76,42 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     })
 
+    const visibleDonations = await getVisibleDonationsForDashboard(
+      donations.map(({ user: _user, ...donation }) => donation)
+    )
+
+    const visibleDonationMap = new Map(visibleDonations.map((donation) => [donation.id, donation]))
+    const filteredDonations = donations
+      .filter((donation) => visibleDonationMap.has(donation.id))
+      .map((donation) => {
+        const syncedDonation = visibleDonationMap.get(donation.id)
+
+        if (!syncedDonation) {
+          return donation
+        }
+
+        return {
+          ...donation,
+          ...syncedDonation
+        }
+      })
+
     // Calculate statistics
     const stats = {
-      totalDonations: donations.length,
-      totalAmount: donations.reduce((sum, d) => sum + Number(d.amount), 0),
-      averageDonation: donations.length > 0
-        ? Math.round((donations.reduce((sum, d) => sum + Number(d.amount), 0) / donations.length) * 100) / 100
+      totalDonations: filteredDonations.length,
+      totalAmount: filteredDonations.reduce((sum, d) => sum + Number(d.amount), 0),
+      averageDonation: filteredDonations.length > 0
+        ? Math.round((filteredDonations.reduce((sum, d) => sum + Number(d.amount), 0) / filteredDonations.length) * 100) / 100
         : 0,
-      oneTimeDonations: donations.filter(d => d.frequency === 'ONE_TIME').length,
-      recurringDonations: donations.filter(d => d.frequency !== 'ONE_TIME').length,
-      totalRecurring: donations
+      oneTimeDonations: filteredDonations.filter(d => d.frequency === 'ONE_TIME').length,
+      recurringDonations: filteredDonations.filter(d => d.frequency !== 'ONE_TIME').length,
+      totalRecurring: filteredDonations
         .filter(d => d.frequency !== 'ONE_TIME')
         .reduce((sum, d) => sum + Number(d.amount), 0),
-      completedDonations: donations.filter(d => d.status === 'COMPLETED').length,
-      failedDonations: donations.filter(d => d.status === 'FAILED').length,
-      pendingDonations: donations.filter(d => d.status === 'PENDING').length,
-      anonymousDonations: donations.filter(d => !d.userId).length
+      completedDonations: filteredDonations.filter(d => d.status === 'COMPLETED').length,
+      failedDonations: filteredDonations.filter(d => d.status === 'FAILED').length,
+      pendingDonations: filteredDonations.filter(d => d.status === 'PENDING').length,
+      anonymousDonations: filteredDonations.filter(d => !d.userId).length
     }
 
     // Donations by month (last 12 months)
@@ -103,7 +124,7 @@ export async function GET(request: NextRequest) {
       monthlyDonations[monthKey] = { count: 0, amount: 0 }
     }
 
-    donations.forEach(d => {
+    filteredDonations.forEach(d => {
       const monthKey = d.createdAt.toLocaleString('default', { month: 'short', year: 'numeric' })
       if (monthlyDonations[monthKey]) {
         monthlyDonations[monthKey].count++
@@ -112,7 +133,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json({
-      donations,
+      donations: filteredDonations,
       stats,
       monthlyDonations
     })

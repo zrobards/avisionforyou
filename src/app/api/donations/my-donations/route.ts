@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getSession } from "@/lib/apiAuth"
 import { db } from "@/lib/db"
 import { logger } from '@/lib/logger'
+import { getVisibleDonationsForDashboard } from "@/lib/donations"
 
 export const dynamic = "force-dynamic"
 
@@ -45,7 +46,9 @@ export async function GET(_request: NextRequest) {
       }
     })
 
-    return NextResponse.json(donations)
+    const visibleDonations = await getVisibleDonationsForDashboard(donations)
+
+    return NextResponse.json(visibleDonations)
   } catch (error: unknown) {
     logger.error({ err: error }, "Get donations error")
     return NextResponse.json(
